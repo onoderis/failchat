@@ -102,7 +102,7 @@ public class SmileManager {
 
         //if smile already downlaoded
         if (Files.exists(filePath)) {
-            System.out.println("Smile already exists: " + smile.getCode());
+            Logger.fine("Smile already exists: " + smile.getCode());
             smile.setCache(relativePath.toString());
             return true;
         }
@@ -113,7 +113,7 @@ public class SmileManager {
             con.setRequestProperty("User-Agent", "failchat client");
             FileUtils.copyInputStreamToFile(con.getInputStream(), filePath.toFile());
             smile.setCache(relativePath.toString());
-            System.out.println("Smile downloaded: " + filePath.toFile().toString());
+            Logger.fine("Smile downloaded: " + filePath.toFile().toString());
         } catch (IOException e) {
             e.printStackTrace();
             return false;

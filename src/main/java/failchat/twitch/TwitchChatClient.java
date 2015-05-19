@@ -3,6 +3,7 @@ package failchat.twitch;
 import com.sorcix.sirc.*;
 import failchat.core.ChatClient;
 import failchat.core.ChatClientStatus;
+import failchat.core.Logger;
 import failchat.core.Message;
 
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class TwitchChatClient implements ChatClient {
                 if (status == ChatClientStatus.READY) {
                     status = ChatClientStatus.CONNECTING;
                 }
-                System.out.println("Twitch disconnected");
+                Logger.info("Twitch disconnected");
                 try {
                     Thread.currentThread().sleep(RECONNECT_TIMEOUT);
                 } catch (InterruptedException e) {
@@ -69,7 +70,7 @@ public class TwitchChatClient implements ChatClient {
             status = ChatClientStatus.ERROR;
             return;
         }
-        System.out.println("Connected to TWITCH IRC server");
+        Logger.info("Connected to TWITCH IRC server");
         ircConnection.createChannel(channelName).join();
 
     }

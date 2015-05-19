@@ -32,7 +32,6 @@ public class Sc2tvSmileHandler implements MessageHandler {
                 //кешируем если надо
                 long t1 = System.currentTimeMillis();
                 SmileManager.getInstance().cacheSmile(smile);
-                System.out.println(System.currentTimeMillis() - t1);
                 SmileInMessage smileInMessage = new SmileInMessage(smile, postition);
 
                 message.getSml().add(smileInMessage);
