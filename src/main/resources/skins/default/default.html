@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <title>failchat</title>
+    <meta charset="UTF-8">
+    <title>failchat</title>
+    <script src="../../js/main.js"></script>
+    <script src="../../js/jquery-2.1.4.min.js"></script>
+    <script src="../../js/jsrender.min.js"></script>
+
+    <style>
+        body {
+            background-color: black;
+            color: #CACACA;
+
+        }
+
+        .nick {
+            font-weight: bold;
+            color: #7797BE;
+        }
+
+        p {
+            font-family: "Arial", serif;
+            font-size: 14px;
+            /*border-bottom: 1px solid #222;*/
+            animation: new-message;
+            animation-duration: 0.5s;
+            animation-timing-function: linear;
+            /*webkit animation*/
+            -webkit-animation: new-message;
+            -webkit-animation-duration: 0.5s;
+            -webkit-animation-timing-function: linear;
+        }
+
+        @keyframes new-message {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @-webkit-keyframes new-message {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<script id="messageTemplate" type="text/x-jsrender">
+    <p><span class='nick'>{{:author}}: </span>{{:text}}</p>
+</script>
+<script id="smileTemplate" type="text/x-jsrender">
+    <img src="{{:imageUrl}}"></img>
+</script>
+
+<div id="container">
+</div>
+</body>
+</html>
