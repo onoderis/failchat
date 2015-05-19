@@ -71,14 +71,12 @@ public class MessageManager implements Runnable {
         if (messages.size() > 0) {
             while (!messages.isEmpty()) {
                 Message m = messages.poll();
-                String mesStr = m.getTimestamp() + " " + m.getAuthor() + ": " + m.getText();
-//                System.out.println(mesStr);
                 for (MessageHandler h : handlers) {
                     h.handleMessage(m);
                 }
                 try {
                     String jsonMessage = objectMapper.writeValueAsString(new LocalCommonMessage(m));
-                    System.out.println(jsonMessage);
+                    Logger.fine("Send to Web Socket: " + jsonMessage);
                     localWSServer.sendToAll(jsonMessage);
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();

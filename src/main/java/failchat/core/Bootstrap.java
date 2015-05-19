@@ -2,14 +2,9 @@ package failchat.core;
 
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Logger;
 
 public class Bootstrap {
 
@@ -19,27 +14,33 @@ public class Bootstrap {
     private static MessageManager messageManager;
 
     public static void main(String[] args) {
-        String path = Bootstrap.class.getResource("").toString();
-        if (path.contains(".jar!")) { //production mode
-            path = path.split("([\\\\/])([\\w\\-\\.]+?\\.jar!)|(jar:file:[/\\\\])")[1];
-            workDir = FileSystems.getDefault().getPath(path);
-        } else { //dev mode
-            workDir = Paths.get(URI.create(path)).getParent().getParent();
-        }
-        System.out.println("Work dir: " + workDir.toAbsolutePath());
+        Logger.configure();
+        workDir = getWorkDir();
+        Logger.info("Work dir: " + workDir.toAbsolutePath());
 
-        new Thread(() -> Gui.main(null)).start();
+        new Thread(() -> Gui.main(null)).start(); //TODO: wut?
         messageManager = new MessageManager();
+        new Thread(messageManager, "MessageManagerThread").start();
         SmileManager sm = SmileManager.getInstance();
         sm.loadSmiles();
         configurator = new Configurator(messageManager);
         configurator.initializeChatClients();
 
-        new Thread(messageManager, "MessageManagerThread").start();
+    }
+
+
+    private static Path getWorkDir() {
+        String path = Bootstrap.class.getResource("").toString();
+        if (path.contains(".jar!")) { //production mode
+            path = path.split("([\\\\/])([\\w\\-\\.]+?\\.jar!)|(jar:file:[/\\\\])")[1];
+            return FileSystems.getDefault().getPath(path);
+        } else { //dev mode
+            return Paths.get(URI.create(path)).getParent().getParent();
+        }
     }
 
     public static void shutDown() {
-        System.out.println("Shutting down...");
+        Logger.info("Shutting down...");
         configurator.turnOffChatClients();
         messageManager.turnOff();
     }

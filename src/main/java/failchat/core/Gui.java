@@ -6,6 +6,8 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
+import java.util.logging.Level;
+
 public class Gui extends Application {
 
     @Override
@@ -20,6 +22,7 @@ public class Gui extends Application {
         primaryStage.setScene(webScene);
         primaryStage.show();
         primaryStage.setOnCloseRequest(event -> Bootstrap.shutDown());
+        Logger.fine("GUI loaded");
     }
 
     public static void main(String[] args) {

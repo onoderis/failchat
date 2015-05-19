@@ -13,8 +13,8 @@ public class Configurator {
 //    private static int exampleId = 160916; //abver
 //    private static int exampleId = 157064; //dave
 
-//    private static String twitchTestChannel = "forsenlol";
-    private static String twitchTestChannel = "trumpsc";
+    private static String twitchTestChannel = "forsenlol";
+//    private static String twitchTestChannel = "trumpsc";
 //    private static int ggChannel = 20296;
     private static String ggChannel = "fail0001";
 
@@ -27,17 +27,17 @@ public class Configurator {
     }
 
     public void initializeChatClients() {
-//        ChatClient sc2tvChatClient = new Sc2tvChatClient(exampleId, messageManager.getMessagesQueue());
-//        chatClients.add(sc2tvChatClient);
-//
-//        TwitchChatClient twitchChatClient = new TwitchChatClient(twitchTestChannel, messageManager.getMessagesQueue());
-//        chatClients.add(twitchChatClient);
-//
+        ChatClient sc2tvChatClient = new Sc2tvChatClient(exampleId, messageManager.getMessagesQueue());
+        chatClients.add(sc2tvChatClient);
+
+        TwitchChatClient twitchChatClient = new TwitchChatClient(twitchTestChannel, messageManager.getMessagesQueue());
+        chatClients.add(twitchChatClient);
+
         GoodgameChatClient ggcc = new GoodgameChatClient(ggChannel, messageManager.getMessagesQueue());
         chatClients.add(ggcc);
 
-        TestChatClient tcc = new TestChatClient(messageManager.getMessagesQueue());
-        chatClients.add(tcc);
+//        TestChatClient tcc = new TestChatClient(messageManager.getMessagesQueue());
+//        chatClients.add(tcc);
 
         for (ChatClient cc : chatClients) {
             cc.goOnline();
