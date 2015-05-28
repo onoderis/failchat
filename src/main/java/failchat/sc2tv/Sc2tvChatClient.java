@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Queue;
 
-public class Sc2tvChatClient implements ChatClient, Runnable{
+public class Sc2tvChatClient implements ChatClient, Runnable {
 
     private static final String CHAT_URL = "http://chat.SC2TV.ru/memfs/channel-";
     private static final String CHAT_URL_END = ".json";

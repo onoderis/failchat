@@ -5,18 +5,20 @@ import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Logger;
 
 public class Bootstrap {
 
     public static Path workDir;
 
+    private static final Logger logger = Logger.getLogger(Bootstrap.class.getName());
     private static Configurator configurator;
     private static MessageManager messageManager;
 
     public static void main(String[] args) {
-        Logger.configure();
+        Logging.configure();
         workDir = getWorkDir();
-        Logger.info("Work dir: " + workDir.toAbsolutePath());
+        logger.info("Work dir: " + workDir.toAbsolutePath());
 
         new Thread(() -> Gui.main(null)).start(); //TODO: wut?
         messageManager = new MessageManager();
@@ -40,7 +42,7 @@ public class Bootstrap {
     }
 
     public static void shutDown() {
-        Logger.info("Shutting down...");
+        logger.info("Shutting down...");
         configurator.turnOffChatClients();
         messageManager.turnOff();
     }

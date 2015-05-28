@@ -9,12 +9,13 @@ import java.util.HashMap;
 import java.util.Set;
 
 /**
- Заменяет bbcode на html расметку в сообщениях sc2tv
-*/
+ * Заменяет bbcode на html расметку в сообщениях sc2tv
+ */
 
 public class BBCodeHandler implements MessageHandler {
 
     static HashMap<String, String> rules = new HashMap<String, String>() {{
+        //TODO: сделать так, чтобы заменялись только закрытые теги
         put("\\[b\\]", "<b>");
         put("\\[/b\\]", "</b>");
         put("\\[url\\]", "");

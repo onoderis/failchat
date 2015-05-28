@@ -6,18 +6,17 @@ import failchat.sc2tv.Sc2tvSmile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,6 +27,7 @@ import java.util.regex.Pattern;
 */
 public class SmileManager {
 
+    private static final Logger logger = Logger.getLogger(SmileManager.class.getName());
     public static final String SC2TV_SMILES_DIR_URL = "http://chat.sc2tv.ru/img/";
     public static final String SMILE_FILE_EXTENSION= ".png";
 
@@ -102,7 +102,7 @@ public class SmileManager {
 
         //if smile already downlaoded
         if (Files.exists(filePath)) {
-            Logger.fine("Smile already exists: " + smile.getCode());
+            logger.fine("Smile already exists: " + smile.getCode());
             smile.setCache(relativePath.toString());
             return true;
         }
@@ -113,7 +113,7 @@ public class SmileManager {
             con.setRequestProperty("User-Agent", "failchat client");
             FileUtils.copyInputStreamToFile(con.getInputStream(), filePath.toFile());
             smile.setCache(relativePath.toString());
-            Logger.fine("Smile downloaded: " + filePath.toFile().toString());
+            logger.fine("Smile downloaded: " + filePath.toFile().toString());
         } catch (IOException e) {
             e.printStackTrace();
             return false;
