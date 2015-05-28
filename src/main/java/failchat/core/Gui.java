@@ -6,9 +6,11 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
-import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Gui extends Application {
+
+    private static final Logger logger = Logger.getLogger(MessageManager.class.getName());
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -22,7 +24,7 @@ public class Gui extends Application {
         primaryStage.setScene(webScene);
         primaryStage.show();
         primaryStage.setOnCloseRequest(event -> Bootstrap.shutDown());
-        Logger.fine("GUI loaded");
+        logger.fine("GUI loaded");
     }
 
     public static void main(String[] args) {

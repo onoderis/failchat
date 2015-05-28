@@ -10,9 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Logger;
 
 public class MessageManager implements Runnable {
 
+    private static final Logger logger = Logger.getLogger(MessageManager.class.getName());
     private final Queue<Message> messages = new ConcurrentLinkedQueue<>();
     private boolean exitFlag = false;
     private LocalWSServer localWSServer;
@@ -76,7 +78,7 @@ public class MessageManager implements Runnable {
                 }
                 try {
                     String jsonMessage = objectMapper.writeValueAsString(new LocalCommonMessage(m));
-                    Logger.fine("Send to Web Socket: " + jsonMessage);
+                    logger.fine("Send to Web Socket: " + jsonMessage);
                     localWSServer.sendToAll(jsonMessage);
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();

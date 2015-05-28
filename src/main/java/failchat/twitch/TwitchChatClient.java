@@ -3,15 +3,17 @@ package failchat.twitch;
 import com.sorcix.sirc.*;
 import failchat.core.ChatClient;
 import failchat.core.ChatClientStatus;
-import failchat.core.Logger;
+import failchat.core.Logging;
 import failchat.core.Message;
 
 import java.io.IOException;
 import java.util.Queue;
+import java.util.logging.Logger;
 
 public class TwitchChatClient implements ChatClient {
 
-    private static final String TWITCH_IRC_URL = "irc.TWITCH.tv";
+    private static final Logger logger = Logger.getLogger(TwitchChatClient.class.getName());
+    private static final String TWITCH_IRC_URL = "irc.twitch.tv";
     private static final int TWITCH_IRC_PORT = 6667;
     private static final String BOT_NAME = "fail_chatbot";
     private static final String BOT_PASSWORD = "oauth:59tune21e6ymz4xg57snr77tcsbg2y";
@@ -50,7 +52,7 @@ public class TwitchChatClient implements ChatClient {
                 if (status == ChatClientStatus.READY) {
                     status = ChatClientStatus.CONNECTING;
                 }
-                Logger.info("Twitch disconnected");
+                logger.info("Twitch disconnected");
                 try {
                     Thread.currentThread().sleep(RECONNECT_TIMEOUT);
                 } catch (InterruptedException e) {
@@ -70,9 +72,8 @@ public class TwitchChatClient implements ChatClient {
             status = ChatClientStatus.ERROR;
             return;
         }
-        Logger.info("Connected to TWITCH IRC server");
+        logger.info("Connected to TWITCH IRC server");
         ircConnection.createChannel(channelName).join();
-
     }
 
     @Override
