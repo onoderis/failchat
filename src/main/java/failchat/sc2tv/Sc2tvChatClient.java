@@ -6,16 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import failchat.core.ChatClient;
 import failchat.core.ChatClientStatus;
 import failchat.core.Message;
+import failchat.core.MessageHandler;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Queue;
+import java.util.*;
 
 public class Sc2tvChatClient implements ChatClient, Runnable {
 
@@ -27,6 +25,7 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
     private static final long TIMEOUT = 5000;
 
     private final Queue<Message> messageQueue;
+    private List<MessageHandler> messageHandlers;
     private long lastMessageTime = System.currentTimeMillis();
     private URL chatUrl;
     private boolean exitFlag = false;
@@ -44,6 +43,9 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+        messageHandlers = new ArrayList<>();
+        messageHandlers.add(new Sc2tvSmileHandler());
+        messageHandlers.add(new BBCodeHandler());
         status = ChatClientStatus.READY;
     }
 
@@ -111,6 +113,9 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
             }
             for (int i = lastMessageIndex; i >= 0; i--) {
                 Message m = messages.get(i);
+                for (MessageHandler mh : messageHandlers) {
+                    mh.handleMessage(m);
+                }
                 messageQueue.add(m);
             }
             lastMessageTime = messages.get(0).getTimestamp().getTime();

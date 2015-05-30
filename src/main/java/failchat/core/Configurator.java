@@ -4,24 +4,22 @@ import failchat.goodgame.GoodgameChatClient;
 import failchat.sc2tv.Sc2tvChatClient;
 import failchat.twitch.TwitchChatClient;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Configurator {
 
-    private static int exampleId = 0;
-//    private static int exampleId = 157655; //my
+//    private static int exampleId = 0;
+    private static int exampleId = 157655; //my
 //    private static int exampleId = 160916; //abver
 //    private static int exampleId = 157064; //dave
 
-    private static String twitchTestChannel = "orange_hs";
+    private static String twitchTestChannel = "fail0001";
 //    private static String twitchTestChannel = "trumpsc";
-//    private static int ggChannel = 20296;
     private static String ggChannel = "fail0001";
 
     private MessageManager messageManager;
-    private List<ChatClient> chatClients = new ArrayList<>();
-
+    private Map<Source, ChatClient> chatClients = new HashMap<>();
 
     public Configurator(MessageManager mm) {
         messageManager = mm;
@@ -29,26 +27,22 @@ public class Configurator {
 
     public void initializeChatClients() {
         ChatClient sc2tvChatClient = new Sc2tvChatClient(exampleId, messageManager.getMessagesQueue());
-        chatClients.add(sc2tvChatClient);
+        chatClients.put(Source.SC2TV, sc2tvChatClient);
 
-//        TwitchChatClient twitchChatClient = new TwitchChatClient(twitchTestChannel, messageManager.getMessagesQueue());
-//        chatClients.add(twitchChatClient);
+        GoodgameChatClient ggcc = new GoodgameChatClient(ggChannel, messageManager.getMessagesQueue());
+        chatClients.put(Source.GOODGAME, ggcc);
 
-//        GoodgameChatClient ggcc = new GoodgameChatClient(ggChannel, messageManager.getMessagesQueue());
-//        chatClients.add(ggcc);
+        TwitchChatClient twitchChatClient = new TwitchChatClient(twitchTestChannel, messageManager.getMessagesQueue());
+        chatClients.put(Source.TWITCH, twitchChatClient);
 
         TestChatClient tcc = new TestChatClient(messageManager.getMessagesQueue());
-        chatClients.add(tcc);
+        chatClients.put(Source.TEST, tcc);
 
-        for (ChatClient cc : chatClients) {
-            cc.goOnline();
-        }
+        chatClients.values().forEach(failchat.core.ChatClient::goOnline);
     }
 
     public void turnOffChatClients() {
-        for (ChatClient cc : chatClients) {
-            cc.goOffline();
-        }
+        chatClients.values().forEach(failchat.core.ChatClient::goOffline);
     }
 
 

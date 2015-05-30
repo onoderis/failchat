@@ -6,7 +6,8 @@ public class Smile {
     protected String code;
     protected String imageUrl;
     protected Source source;
-    protected String cache; //url файла (если смайл уже в кеше)
+    protected String cachePath; //url файла (если смайл уже в кеше)
+    protected String fileName; //имя файла из imageUrl
 
     public String getCode() {
         return code;
@@ -28,19 +29,27 @@ public class Smile {
         return source;
     }
 
-    //TODO: а надо ли оно? может сделать isCustom?
     @JsonIgnore
     public void setSource(Source source) {
         this.source = source;
     }
 
     @JsonIgnore
-    public String getCache() {
-        return cache;
+    public String getCachePath() {
+        return cachePath;
     }
 
-    public void setCache(String cache) {
-        this.cache = cache;
+    public void setCachePath(String cachePath) {
+        this.cachePath = cachePath;
+    }
+
+    @JsonIgnore
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
 
