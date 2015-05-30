@@ -1,7 +1,7 @@
 package failchat.twitch;
 
 import failchat.core.Message;
-import failchat.core.MessageSource;
+import failchat.core.Source;
 
 import java.util.Date;
 
@@ -11,6 +11,6 @@ public class TwitchMessage extends Message {
         this.author = author;
         this.text = text;
         this.timestamp = new Date();
-        this.source = MessageSource.TWITCH;
+        this.source = Source.TWITCH;
     }
 }

@@ -1,8 +1,6 @@
 package failchat.sc2tv;
 
 import failchat.core.*;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,13 +14,13 @@ public class Sc2tvSmileHandler implements MessageHandler {
 
     @Override
     public void handleMessage(Message message) {
-        if (message.getSource() != MessageSource.SC2TV) {
+        if (message.getSource() != Source.SC2TV) {
             return;
         }
 
         Matcher matcher = sc2tvSmilePattern.matcher(message.getText());
         while (matcher.find()) {
-            Smile smile = SmileManager.getInstance().getSct2tvSmiles().get(matcher.group(1));
+            Smile smile = SmileManager.getInstance().getSmiles(Source.SC2TV).get(matcher.group(1));
             if (smile != null) {
                 //заменяем текст на объекты в сообщении
                 int postition = matcher.start();

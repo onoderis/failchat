@@ -73,7 +73,8 @@ public class TwitchChatClient implements ChatClient {
             return;
         }
         logger.info("Connected to TWITCH IRC server");
-        ircConnection.createChannel(channelName).join();
+        ircConnection.createChannel(channelName.toLowerCase()).join(); //в irc каналы создаются в lower case
+        logger.info("Connected to irc channel: " + channelName);
     }
 
     @Override

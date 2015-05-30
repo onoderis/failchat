@@ -3,7 +3,7 @@ package failchat.sc2tv;
 
 import failchat.core.Message;
 import failchat.core.MessageHandler;
-import failchat.core.MessageSource;
+import failchat.core.Source;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -24,7 +24,7 @@ public class BBCodeHandler implements MessageHandler {
 
     @Override
     public void handleMessage(Message message) {
-        if (message.getSource() != MessageSource.SC2TV) {
+        if (message.getSource() != Source.SC2TV) {
             return;
         }
 

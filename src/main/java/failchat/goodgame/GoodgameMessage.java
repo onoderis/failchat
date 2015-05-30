@@ -3,13 +3,13 @@ package failchat.goodgame;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import failchat.core.Message;
-import failchat.core.MessageSource;
+import failchat.core.Source;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GoodgameMessage extends Message {
 
     GoodgameMessage() {
-        source = MessageSource.GOODGAME;
+        source = Source.GOODGAME;
     }
 
     @Override
