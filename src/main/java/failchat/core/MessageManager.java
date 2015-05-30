@@ -2,8 +2,6 @@ package failchat.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import failchat.sc2tv.BBCodeHandler;
-import failchat.sc2tv.Sc2tvSmileHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,8 +45,7 @@ public class MessageManager implements Runnable {
     }
 
     private void initHandlers() {
-        handlers.add(new BBCodeHandler());
-        handlers.add(new Sc2tvSmileHandler());
+        // обработка ссылок
     }
 
     private void createWebSocket() {

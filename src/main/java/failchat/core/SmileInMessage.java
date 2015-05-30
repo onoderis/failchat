@@ -9,8 +9,8 @@ public class SmileInMessage extends Smile {
     protected int position;
 
     public SmileInMessage(Smile s, int position) {
-        if (s.cache != null) {
-            this.imageUrl = s.getCache();
+        if (s.cachePath != null) {
+            this.imageUrl = s.getCachePath();
         } else {
             this.imageUrl = s.getImageUrl();
         }

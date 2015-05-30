@@ -3,7 +3,6 @@ package failchat.twitch;
 import com.sorcix.sirc.*;
 import failchat.core.ChatClient;
 import failchat.core.ChatClientStatus;
-import failchat.core.Logging;
 import failchat.core.Message;
 
 import java.io.IOException;

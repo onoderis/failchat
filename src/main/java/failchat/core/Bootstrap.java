@@ -23,8 +23,6 @@ public class Bootstrap {
         new Thread(() -> Gui.main(null)).start(); //TODO: wut?
         messageManager = new MessageManager();
         new Thread(messageManager, "MessageManagerThread").start();
-        SmileManager sm = SmileManager.getInstance();
-        sm.loadSmiles();
         configurator = new Configurator(messageManager);
         configurator.initializeChatClients();
 
