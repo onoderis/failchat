@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Smile {
     protected String code;
     protected String imageUrl;
-    protected SmileSource source;
-    protected String cache;
+    protected Source source;
+    protected String cache; //url файла (если смайл уже в кеше)
 
     public String getCode() {
         return code;
@@ -24,13 +24,13 @@ public class Smile {
         this.imageUrl = imageUrl;
     }
 
-    public SmileSource getSource() {
+    public Source getSource() {
         return source;
     }
 
     //TODO: а надо ли оно? может сделать isCustom?
     @JsonIgnore
-    public void setSource(SmileSource source) {
+    public void setSource(Source source) {
         this.source = source;
     }
 

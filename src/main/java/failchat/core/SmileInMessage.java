@@ -2,7 +2,7 @@ package failchat.core;
 
 
 /**
-* Класс, десериализуемый в json для передачи к локальному клиенту
+* Класс, сериализуемый в json для передачи к локальному клиенту
 * */
 
 public class SmileInMessage extends Smile {

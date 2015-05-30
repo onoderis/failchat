@@ -3,7 +3,7 @@ package failchat.sc2tv;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import failchat.core.Message;
-import failchat.core.MessageSource;
+import failchat.core.Source;
 
 import java.util.Date;
 
@@ -11,7 +11,7 @@ import java.util.Date;
 public class Sc2tvMessage extends Message {
 
     Sc2tvMessage() {
-        setSource(MessageSource.SC2TV);
+        setSource(Source.SC2TV);
     }
 
     @Override

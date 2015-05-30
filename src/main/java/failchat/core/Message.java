@@ -1,8 +1,6 @@
 package failchat.core;
 
 import com.fasterxml.jackson.annotation.*;
-import failchat.core.MessageSource;
-import failchat.core.SmileInMessage;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,14 +11,14 @@ public class Message {
     protected String author;
     protected String text;
     protected Date timestamp;
-    protected MessageSource source;
+    protected Source source;
     protected List<SmileInMessage> smiles;
 
-    public MessageSource getSource() {
+    public Source getSource() {
         return source;
     }
 
-    public void setSource(MessageSource source) {
+    public void setSource(Source source) {
         this.source = source;
     }
 
