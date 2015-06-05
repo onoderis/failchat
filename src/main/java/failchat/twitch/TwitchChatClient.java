@@ -1,11 +1,11 @@
 package failchat.twitch;
 
 import com.sorcix.sirc.*;
-import failchat.core.ChatClient;
-import failchat.core.ChatClientStatus;
-import failchat.core.Message;
+import failchat.core.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.logging.Logger;
 
@@ -18,14 +18,23 @@ public class TwitchChatClient implements ChatClient {
     private static final String BOT_PASSWORD = "oauth:59tune21e6ymz4xg57snr77tcsbg2y";
     private static final int RECONNECT_TIMEOUT = 5000;
 
+    private final Queue<Message> messageQueue;
     private IrcConnection ircConnection;
     private String channelName;
+    private List<MessageHandler> messageHandlers;
+    private List<MessageFilter<TwitchMessage>> messageFilters;
     private ChatClientStatus status = ChatClientStatus.READY;
-    private final Queue<Message> messageQueue;
+    private TwitchSmileHandler smileHandler;
 
     public TwitchChatClient(String channelName, Queue<Message> mq) {
         this.channelName = channelName;
         messageQueue = mq;
+        messageHandlers = new ArrayList<>();
+        smileHandler = new TwitchSmileHandler(channelName);
+        messageHandlers.add(smileHandler);
+        messageFilters = new ArrayList<>();
+        messageFilters.add(new MetaMessageFilter());
+
     }
 
     @Override
@@ -37,9 +46,16 @@ public class TwitchChatClient implements ChatClient {
         ircConnection.setNick(BOT_NAME);
 
         ircConnection.addMessageListener(new IrcAdaptor() {
-            @Override
             public void onMessage(IrcConnection irc, User sender, Channel target, String message) {
-                Message m = new TwitchMessage(sender.getNick(), message);
+                TwitchMessage m = new TwitchMessage(sender.getNick(), message);
+                for (MessageFilter<TwitchMessage> mf : messageFilters) {
+                    if (!mf.filterMessage(m)) {
+                        return;
+                    }
+                }
+                for (MessageHandler mh : messageHandlers) {
+                    mh.handleMessage(m);
+                }
                 messageQueue.add(m);
                 synchronized (messageQueue) {
                     messageQueue.notify();
@@ -53,7 +69,7 @@ public class TwitchChatClient implements ChatClient {
                 }
                 logger.info("Twitch disconnected");
                 try {
-                    Thread.currentThread().sleep(RECONNECT_TIMEOUT);
+                    Thread.sleep(RECONNECT_TIMEOUT);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -73,6 +89,8 @@ public class TwitchChatClient implements ChatClient {
         }
         logger.info("Connected to TWITCH IRC server");
         ircConnection.createChannel(channelName.toLowerCase()).join(); //в irc каналы создаются в lower case
+//        ircConnection.sendRaw("CAP REQ :twitch.tv/tags");
+        ircConnection.sendRaw("TWITCHCLIENT 3");
         logger.info("Connected to irc channel: " + channelName);
     }
 

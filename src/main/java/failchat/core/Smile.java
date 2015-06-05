@@ -6,7 +6,7 @@ public class Smile {
     protected String code;
     protected String imageUrl;
     protected Source source;
-    protected String cachePath; //url файла (если смайл уже в кеше)
+    protected String cachePath; //url файла для браузера (если смайл уже в кеше)
     protected String fileName; //имя файла из imageUrl
 
     public String getCode() {

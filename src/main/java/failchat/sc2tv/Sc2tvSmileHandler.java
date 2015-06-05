@@ -33,7 +33,7 @@ public class Sc2tvSmileHandler implements MessageHandler {
                 SmileManager.cacheSmile(smile);
                 SmileInMessage smileInMessage = new SmileInMessage(smile, position);
 
-                message.getSml().add(smileInMessage);
+                message.getSmileList().add(smileInMessage);
             }
         }
     }
