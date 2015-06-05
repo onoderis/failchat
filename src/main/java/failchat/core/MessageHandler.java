@@ -1,5 +1,5 @@
 package failchat.core;
 
-public interface MessageHandler {
-    void handleMessage(Message message);
+public interface MessageHandler<T extends Message> {
+    void handleMessage(T message);
 }

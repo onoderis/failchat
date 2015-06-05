@@ -57,7 +57,7 @@ public class Message {
 
     // отдельный метод для того, чтобы smiles не шли в json если их нет в сообщении
     @JsonIgnore
-    public List<SmileInMessage> getSml() {
+    public List<SmileInMessage> getSmileList() {
         if (smiles == null) {
             smiles = new ArrayList<>();
         }
