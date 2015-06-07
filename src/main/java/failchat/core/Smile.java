@@ -3,7 +3,7 @@ package failchat.core;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Smile {
-    protected String code;
+    protected String code; //smile code or regexp
     protected String imageUrl;
     protected Source source;
     protected String cachePath; //url файла для браузера (если смайл уже в кеше)

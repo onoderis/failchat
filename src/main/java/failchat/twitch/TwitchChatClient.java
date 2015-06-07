@@ -21,7 +21,7 @@ public class TwitchChatClient implements ChatClient {
     private final Queue<Message> messageQueue;
     private IrcConnection ircConnection;
     private String channelName;
-    private List<MessageHandler> messageHandlers;
+    private List<MessageHandler<TwitchMessage>> messageHandlers;
     private List<MessageFilter<TwitchMessage>> messageFilters;
     private ChatClientStatus status = ChatClientStatus.READY;
     private TwitchSmileHandler smileHandler;
@@ -30,7 +30,7 @@ public class TwitchChatClient implements ChatClient {
         this.channelName = channelName;
         messageQueue = mq;
         messageHandlers = new ArrayList<>();
-        smileHandler = new TwitchSmileHandler(channelName);
+        smileHandler = new TwitchSmileHandler();
         messageHandlers.add(smileHandler);
         messageFilters = new ArrayList<>();
         messageFilters.add(new MetaMessageFilter());
@@ -47,13 +47,14 @@ public class TwitchChatClient implements ChatClient {
 
         ircConnection.addMessageListener(new IrcAdaptor() {
             public void onMessage(IrcConnection irc, User sender, Channel target, String message) {
+                logger.fine(message);
                 TwitchMessage m = new TwitchMessage(sender.getNick(), message);
                 for (MessageFilter<TwitchMessage> mf : messageFilters) {
                     if (!mf.filterMessage(m)) {
                         return;
                     }
                 }
-                for (MessageHandler mh : messageHandlers) {
+                for (MessageHandler<TwitchMessage> mh : messageHandlers) {
                     mh.handleMessage(m);
                 }
                 messageQueue.add(m);

@@ -1,19 +1,23 @@
 package failchat.twitch;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import failchat.core.Message;
 import failchat.core.Source;
 
 import java.util.Date;
 
+/**
+ * Сообщение из irc-чата твитча. Может быть как сообщением от пользователя, так и мета-сообщением от jtv
+ */
 public class TwitchMessage extends Message {
     private int[] emoteSets;
+    private static int[] globalEmoteSet = {0};
     private boolean meta;
 
     TwitchMessage(String author, String text) {
         this.author = author;
         this.text = text;
         this.timestamp = new Date();
-        this.source = Source.TWITCH;
     }
 
     //constructor for meta messages
@@ -21,7 +25,11 @@ public class TwitchMessage extends Message {
         this.text = text;
     }
 
+    @JsonIgnore
     public int[] getEmoteSets() {
+        if (emoteSets == null) {
+            return globalEmoteSet;
+        }
         return emoteSets;
     }
 
@@ -35,5 +43,10 @@ public class TwitchMessage extends Message {
 
     public void setMeta(boolean meta) {
         this.meta = meta;
+    }
+
+    @Override
+    public Source getSource() {
+        return Source.TWITCH;
     }
 }
