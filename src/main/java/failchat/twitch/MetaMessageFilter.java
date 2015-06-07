@@ -16,26 +16,24 @@ public class MetaMessageFilter implements MessageFilter<TwitchMessage> {
     private static final String USER_COLOR_META = "USERCOLOR";
     private static final String EMOTICONS_META = "EMOTESET";
 
-    private static final char EMPTY_CHAR = '\u0000';
-
     private String user = null;
 
     @Override
     public boolean filterMessage(TwitchMessage message) {
-        // проверка является ли мета сообщение
+        // проверка является ли мета сообщением
         if (!TWITCH_INFO_USER.equals(message.getAuthor())) {
             user = null;
             return true;
         }
 
         String[] s = message.getText().split(" ");
-        if (user == null) { //first meta message
+        if (user == null) { //is first meta message?
             user = s[1];
         }
         else {
             if (!user.equals(s[1])) {
                 logger.warning("Wrong order of meta messages. Was: " + user + "; is: " + s[1]);
-                return false; // сомнительно, посмотреть что будеи
+                return false; // сомнительно, посмотреть что будет
             }
         }
 
@@ -50,7 +48,7 @@ public class MetaMessageFilter implements MessageFilter<TwitchMessage> {
     }
 
     private int[] parseEmoteSets(String sets) {
-        String[] setMasStr = sets.replace('[', EMPTY_CHAR).replace(']', EMPTY_CHAR).split(",");
+        String[] setMasStr = sets.replace("[", "").replace("]", "").split(",");
         int[] setMas = new int[setMasStr.length];
         for (int i = 0; i < setMasStr.length; i++) {
             setMas[i] = Integer.parseInt(setMasStr[i]);
