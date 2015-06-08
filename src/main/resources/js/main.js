@@ -13,7 +13,7 @@ socket.onmessage = function (event) {
         var addedLength = 0;
         var imgHtml;
         for (var i = 0; i < wsm.message.smiles.length; i++) {
-            imgHtml = $("#smileTemplate").render(wsm.message.smiles[i]);
+            imgHtml = $("#smileTemplate").render(wsm.message.smiles[i].smile);
             wsm.message.text = wsm.message.text.insert(wsm.message.smiles[i].position + addedLength, imgHtml);
             addedLength += imgHtml.length;
         }

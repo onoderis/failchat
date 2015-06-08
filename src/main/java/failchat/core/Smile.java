@@ -2,12 +2,18 @@ package failchat.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class Smile {
+public abstract class Smile {
     protected String code; //smile code or regexp
-    protected String imageUrl;
-    protected Source source;
-    protected String cachePath; //url файла для браузера (если смайл уже в кеше)
-    protected String fileName; //имя файла из imageUrl
+    protected boolean cached;
+
+    public Smile() {
+        cached = false;
+    }
+
+    @JsonIgnore
+    public abstract String getImageUrl();
+
+    public abstract Source getSource();
 
     public String getCode() {
         return code;
@@ -17,39 +23,22 @@ public class Smile {
         this.code = code;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public Source getSource() {
-        return source;
-    }
-
-    @JsonIgnore
-    public void setSource(Source source) {
-        this.source = source;
-    }
-
-    @JsonIgnore
     public String getCachePath() {
-        return cachePath;
-    }
-
-    public void setCachePath(String cachePath) {
-        this.cachePath = cachePath;
+        return null;
     }
 
     @JsonIgnore
     public String getFileName() {
-        return fileName;
+        return code;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    @JsonIgnore
+    public boolean isCached() {
+        return cached;
+    }
+
+    public void setCached(boolean cached) {
+        this.cached = cached;
     }
 }
 

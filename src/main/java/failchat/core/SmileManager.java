@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,6 +15,9 @@ import java.util.logging.Logger;
  * Кеширует смайлы в /smiles/{source}/{filename_from_url}
 */
 public class SmileManager {
+
+    public static Path SMILES_DIR = Bootstrap.workDir.resolve("smiles");
+    public static Path SMILES_DIR_REL = Paths.get("../../smiles"); //for browser
 
     private static final Logger logger = Logger.getLogger(SmileManager.class.getName());
 
@@ -34,27 +38,24 @@ public class SmileManager {
 
 
     public static boolean cacheSmile(Smile smile) {
-        if (smile.getCachePath() != null) {
+        if (smile.isCached()) {
             return true;
         }
-        Path filePath = Bootstrap.workDir.resolve("smiles").resolve(smile.getSource().toString().toLowerCase()).resolve(smile.getFileName());
-        //for browser
-        Path relativePath = Paths.get("../../smiles").resolve(smile.getSource().toString().toLowerCase())
-                .resolve(smile.getFileName());
+        Path filePath = SMILES_DIR.resolve(smile.getSource().toString().toLowerCase()).resolve(smile.getFileName());
 
         //if smile already downloaded
         if (Files.exists(filePath)) {
             logger.fine("Smile already exists: " + smile.getCode());
-            smile.setCachePath(relativePath.toString());
+            smile.setCached(true);
             return true;
         }
 
         //downloading smile
         try {
-            HttpURLConnection con = (HttpURLConnection) new URL(smile.getImageUrl()).openConnection();
+            URLConnection con =  new URL(smile.getImageUrl()).openConnection();
             con.setRequestProperty("User-Agent", "failchat client");
             FileUtils.copyInputStreamToFile(con.getInputStream(), filePath.toFile());
-            smile.setCachePath(relativePath.toString());
+            smile.setCached(true);
             logger.fine("Smile downloaded: " + filePath.toFile().toString());
         } catch (IOException e) {
             e.printStackTrace();

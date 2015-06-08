@@ -5,25 +5,20 @@ package failchat.core;
 * Класс, сериализуемый в json для передачи к локальному клиенту
 * */
 
-public class SmileInMessage extends Smile {
+public class SmileInMessage {
     protected int position;
+    protected Smile smile;
 
     public SmileInMessage(Smile s, int position) {
-        if (s.cachePath != null) {
-            this.imageUrl = s.getCachePath();
-        } else {
-            this.imageUrl = s.getImageUrl();
-        }
-        this.code = s.getCode();
-        this.source = s.getSource();
         this.position = position;
+        this.smile = s;
     }
 
     public int getPosition() {
         return position;
     }
 
-    public void setPosition(int position) {
-        this.position = position;
+    public Smile getSmile() {
+        return smile;
     }
 }

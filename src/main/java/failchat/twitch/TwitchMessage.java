@@ -37,6 +37,7 @@ public class TwitchMessage extends Message {
         this.emoteSets = emoteSets;
     }
 
+    @JsonIgnore
     public boolean isMeta() {
         return meta;
     }
