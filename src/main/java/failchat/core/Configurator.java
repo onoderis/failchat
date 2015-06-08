@@ -1,6 +1,6 @@
 package failchat.core;
 
-import failchat.goodgame.GoodgameChatClient;
+import failchat.goodgame.GGChatClient;
 import failchat.sc2tv.Sc2tvChatClient;
 import failchat.twitch.TwitchChatClient;
 
@@ -29,7 +29,7 @@ public class Configurator {
         ChatClient sc2tvChatClient = new Sc2tvChatClient(exampleId, messageManager.getMessagesQueue());
         chatClients.put(Source.SC2TV, sc2tvChatClient);
 
-        GoodgameChatClient ggcc = new GoodgameChatClient(ggChannel, messageManager.getMessagesQueue());
+        GGChatClient ggcc = new GGChatClient(ggChannel, messageManager.getMessagesQueue());
         chatClients.put(Source.GOODGAME, ggcc);
 
         TwitchChatClient twitchChatClient = new TwitchChatClient(twitchTestChannel, messageManager.getMessagesQueue());

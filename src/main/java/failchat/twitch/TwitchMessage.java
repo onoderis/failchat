@@ -20,11 +20,6 @@ public class TwitchMessage extends Message {
         this.timestamp = new Date();
     }
 
-    //constructor for meta messages
-    TwitchMessage(String text) {
-        this.text = text;
-    }
-
     @JsonIgnore
     public int[] getEmoteSets() {
         if (emoteSets == null) {
