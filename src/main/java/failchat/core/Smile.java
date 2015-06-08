@@ -1,6 +1,7 @@
 package failchat.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class Smile {
     protected String code; //smile code or regexp
@@ -23,6 +24,7 @@ public abstract class Smile {
         this.code = code;
     }
 
+    @JsonProperty (value = "imgUrl")
     public String getCachePath() {
         return null;
     }

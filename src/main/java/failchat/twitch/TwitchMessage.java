@@ -10,9 +10,9 @@ import java.util.Date;
  * Сообщение из irc-чата твитча. Может быть как сообщением от пользователя, так и мета-сообщением от jtv
  */
 public class TwitchMessage extends Message {
-    private int[] emoteSets;
     private static int[] globalEmoteSet = {0};
-    private boolean meta;
+
+    private MetaProperties properties;
 
     TwitchMessage(String author, String text) {
         this.author = author;
@@ -22,27 +22,15 @@ public class TwitchMessage extends Message {
 
     @JsonIgnore
     public int[] getEmoteSets() {
-        if (emoteSets == null) {
-            return globalEmoteSet;
-        }
-        return emoteSets;
-    }
-
-    public void setEmoteSets(int[] emoteSets) {
-        this.emoteSets = emoteSets;
-    }
-
-    @JsonIgnore
-    public boolean isMeta() {
-        return meta;
-    }
-
-    public void setMeta(boolean meta) {
-        this.meta = meta;
+        return properties != null && properties.getEmoteSets() != null ? properties.getEmoteSets() : globalEmoteSet;
     }
 
     @Override
     public Source getSource() {
         return Source.TWITCH;
+    }
+
+    public void setProperties(MetaProperties properties) {
+        this.properties = properties;
     }
 }

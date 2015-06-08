@@ -27,34 +27,20 @@ public class TwitchSmileHandler implements MessageHandler<TwitchMessage> {
         for (int smileSetId : message.getEmoteSets()) {
             SmileSet smileSet = smileSets.get(smileSetId);
             if (smileSet == null) {
-                logger.warning("Smile set not loaded: " + smileSetId);
-                return;
+//                logger.warning("Smile set not loaded: " + smileSetId);
+                continue;
             }
 
             Matcher m = smileSet.getPattern().matcher(message.getText());
             while (m.find()) {
                 int position = m.start();
                 String code = m.group();
-                TwitchSmile smile = smileSet.getSmiles().get(code); // :/
+                TwitchSmile smile = smileSet.getSmiles().get(code);
                 SmileManager.cacheSmile(smile);
                 message.setText(message.getText().replaceFirst(code, ""));
                 message.getSmileList().add(new SmileInMessage(smile, position));
             }
         }
-
-
-
-//        for (Smile s : smiles.values()) {
-//            TwitchSmile ts = (TwitchSmile) s;
-//            Matcher m = ts.getPattern().matcher(message.getText());
-//            while (m.find()) {
-//                int position = m.start();
-//                message.setText(m.replaceFirst(""));
-//                m = ts.getPattern().matcher(message.getText());
-//                SmileManager.cacheSmile(ts);
-//                message.getSmileList().add(new SmileInMessage(ts, position));
-//            }
-//        }
     }
 
 }
