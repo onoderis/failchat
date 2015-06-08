@@ -47,7 +47,7 @@ public class TwitchChatClient implements ChatClient {
 
         ircConnection.addMessageListener(new IrcAdaptor() {
             public void onMessage(IrcConnection irc, User sender, Channel target, String message) {
-                logger.fine(message);
+//                logger.fine(message);
                 TwitchMessage m = new TwitchMessage(sender.getNick(), message);
                 for (MessageFilter<TwitchMessage> mf : messageFilters) {
                     if (!mf.filterMessage(m)) {

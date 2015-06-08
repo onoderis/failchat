@@ -14,8 +14,8 @@ public class Configurator {
 //    private static int exampleId = 160916; //abver
 //    private static int exampleId = 157064; //dave
 
-    private static String twitchTestChannel = "fail0001";
-//    private static String twitchTestChannel = "trumpsc";
+//    private static String twitchTestChannel = "fail0001";
+    private static String twitchTestChannel = "monstercat";
     private static String ggChannel = "fail0001";
 
     private MessageManager messageManager;
@@ -35,8 +35,8 @@ public class Configurator {
         TwitchChatClient twitchChatClient = new TwitchChatClient(twitchTestChannel, messageManager.getMessagesQueue());
         chatClients.put(Source.TWITCH, twitchChatClient);
 
-        TestChatClient tcc = new TestChatClient(messageManager.getMessagesQueue());
-        chatClients.put(Source.TEST, tcc);
+//        TestChatClient tcc = new TestChatClient(messageManager.getMessagesQueue());
+//        chatClients.put(Source.TEST, tcc);
 
         chatClients.values().forEach(failchat.core.ChatClient::goOnline);
     }
