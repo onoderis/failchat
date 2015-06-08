@@ -3,12 +3,16 @@ package failchat.twitch;
 import failchat.core.Message;
 import failchat.core.MessageFilter;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
  * Ипользуется для обработки и дальнейшей фильтрации мета-сообщений от jtv.
- * По мета-сообщению можно пределить является ли пользователь подписчиком, турбо-пользователем,
+ * По мета-сообщениям можно пределить является ли пользователь подписчиком, турбо-пользователем,
  * его цвет ника (сообщения), доступные сеты смайлов.
+ * Информация из мета-сообщений хранится в MetaProperties и вливается в сообщение когда оно приходит.
  */
 public class MetaMessageFilter implements MessageFilter<TwitchMessage> {
     private static final Logger logger = Logger.getLogger(MetaMessageFilter.class.getName());
@@ -16,30 +20,30 @@ public class MetaMessageFilter implements MessageFilter<TwitchMessage> {
     private static final String USER_COLOR_META = "USERCOLOR";
     private static final String EMOTICONS_META = "EMOTESET";
 
-    private String user = null;
+    private Map<String, MetaProperties> propertiesMap = new HashMap<>();
 
     @Override
     public boolean filterMessage(TwitchMessage message) {
         // проверка является ли мета сообщением
         if (!TWITCH_INFO_USER.equals(message.getAuthor())) {
-            user = null;
+            MetaProperties properties = propertiesMap.get(message.getAuthor());
+            if (properties != null) {
+                message.setProperties(properties);
+                propertiesMap.remove(message.getAuthor());
+            }
             return true;
         }
 
         String[] s = message.getText().split(" ");
-        if (user == null) { //is first meta message?
-            user = s[1];
+        String user = s[1];
+        MetaProperties properties = propertiesMap.get(user);
+        if (properties == null) {
+            properties = new MetaProperties();
+            propertiesMap.put(user, properties);
         }
-        else {
-            if (!user.equals(s[1])) {
-                logger.warning("Wrong order of meta messages. Was: " + user + "; is: " + s[1]);
-                return false; // сомнительно, посмотреть что будет
-            }
-        }
-
         switch (s[0]) {
             case EMOTICONS_META: { //message format: EMOTESET nickname [0,16,362,888]
-                message.setEmoteSets(parseEmoteSets(s[2]));
+                properties.setEmoteSets(parseEmoteSets(s[2]));
                 break;
             }
         }
