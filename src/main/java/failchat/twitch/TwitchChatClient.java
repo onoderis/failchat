@@ -44,39 +44,7 @@ public class TwitchChatClient implements ChatClient {
         }
         ircConnection = new IrcConnection(TWITCH_IRC_URL, TWITCH_IRC_PORT, BOT_PASSWORD);
         ircConnection.setNick(BOT_NAME);
-
-        ircConnection.addMessageListener(new IrcAdaptor() {
-            public void onMessage(IrcConnection irc, User sender, Channel target, String message) {
-//                logger.fine(message);
-                TwitchMessage m = new TwitchMessage(sender.getNick(), message);
-                for (MessageFilter<TwitchMessage> mf : messageFilters) {
-                    if (!mf.filterMessage(m)) {
-                        return;
-                    }
-                }
-                for (MessageHandler<TwitchMessage> mh : messageHandlers) {
-                    mh.handleMessage(m);
-                }
-                messageQueue.add(m);
-                synchronized (messageQueue) {
-                    messageQueue.notify();
-                }
-            }
-
-            @Override
-            public void onDisconnect(IrcConnection irc) {
-                if (status == ChatClientStatus.READY) {
-                    status = ChatClientStatus.CONNECTING;
-                }
-                logger.info("Twitch disconnected");
-                try {
-                    Thread.sleep(RECONNECT_TIMEOUT);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
+        ircConnection.addMessageListener(new MyIrcAdapter());
         try {
             ircConnection.connect();
         } catch (IOException e) {
@@ -89,10 +57,9 @@ public class TwitchChatClient implements ChatClient {
             return;
         }
         logger.info("Connected to TWITCH IRC server");
-        ircConnection.createChannel(channelName.toLowerCase()).join(); //в irc каналы создаются в lower case
-//        ircConnection.sendRaw("CAP REQ :twitch.tv/tags");
-        ircConnection.sendRaw("TWITCHCLIENT 3");
+        ircConnection.createChannel(channelName.toLowerCase()).join(); // в irc каналы создаются в lower case
         logger.info("Connected to irc channel: " + channelName);
+        ircConnection.sendRaw("TWITCHCLIENT 3"); // чтобы слались мета-сообщения
     }
 
     @Override
@@ -105,5 +72,36 @@ public class TwitchChatClient implements ChatClient {
         return status;
     }
 
+    private class MyIrcAdapter extends IrcAdaptor {
+        public void onMessage(IrcConnection irc, User sender, Channel target, String message) {
+//                logger.fine(message);
+            TwitchMessage m = new TwitchMessage(sender.getNick(), message);
+            for (MessageFilter<TwitchMessage> mf : messageFilters) {
+                if (!mf.filterMessage(m)) {
+                    return;
+                }
+            }
+            for (MessageHandler<TwitchMessage> mh : messageHandlers) {
+                mh.handleMessage(m);
+            }
+            messageQueue.add(m);
+            synchronized (messageQueue) {
+                messageQueue.notify();
+            }
+        }
+
+        @Override
+        public void onDisconnect(IrcConnection irc) {
+            if (status == ChatClientStatus.READY) {
+                status = ChatClientStatus.CONNECTING;
+            }
+            logger.info("Twitch disconnected");
+            try {
+                Thread.sleep(RECONNECT_TIMEOUT);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
 
