@@ -14,8 +14,8 @@ public class Configurator {
 //    private static int exampleId = 160916; //abver
 //    private static int exampleId = 157064; //dave
 
-//    private static String twitchTestChannel = "fail0001";
-    private static String twitchTestChannel = "monstercat";
+    private static String twitchTestChannel = "fail0001";
+//    private static String twitchTestChannel = "forsenlol";
     private static String ggChannel = "fail0001";
 
     private MessageManager messageManager;

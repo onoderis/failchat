@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import failchat.core.ChatClient;
 import failchat.core.ChatClientStatus;
 import failchat.core.Message;
+import failchat.core.MessageHandler;
 import org.apache.commons.io.IOUtils;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -17,6 +18,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +34,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
 
     private ChatClientStatus status = ChatClientStatus.READY;
     private Queue<Message> messageQueue;
+    private List<MessageHandler<GGMessage>> messageHandlers;
     private String channelName;
     private int channelId;
     ObjectMapper objectMapper;
@@ -40,6 +44,8 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
         this.channelName = channelName;
         messageQueue = mq;
         objectMapper = new ObjectMapper();
+        messageHandlers = new ArrayList<>();
+        messageHandlers.add(new GGSmileHandler());
     }
 
     @Override
@@ -85,9 +91,13 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
     public void onMessage(String s) {
         if (s.contains(NEWMESSAGE_SEQUENCE)) {
             try {
-                GoodgameWSMessage ggwsm = objectMapper.readValue(s, new TypeReference<GoodgameWSMessage>() {
-                });
-                messageQueue.add(ggwsm.getMessage());
+                GoodgameWSMessage ggwsm = objectMapper.readValue(s, new TypeReference<GoodgameWSMessage>() {});
+                GGMessage message = ggwsm.getMessage();
+                //handling messages
+                for (MessageHandler<GGMessage> messageHandler : messageHandlers) {
+                    messageHandler.handleMessage(message);
+                }
+                messageQueue.add(message);
                 synchronized (messageQueue) {
                     messageQueue.notify();
                 }
@@ -114,9 +124,6 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
             if (connection.getResponseCode() != 200) {
                 return -1;
             }
-//            List <String> l = JsonPath.read(connection.getInputStream(), "$..stream_id");
-//            return Integer.parseInt(l.get(0));
-
             String response = IOUtils.toString(connection.getInputStream());
             Pattern p = Pattern.compile(EXTRACT_CHANNEL_ID_REGEX);
             Matcher m = p.matcher(response);
@@ -178,8 +185,8 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
     /**
      * Класс для десериализации из json'a. Представляет сообщение из чата
      */
-    private static @JsonIgnoreProperties(ignoreUnknown = true)
-    class GoodgameWSMessage {
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private static class GoodgameWSMessage {
         protected String type;
         protected GGMessage message;
 

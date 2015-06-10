@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class Smile {
-    protected String code; //smile code or regexp
+    protected String code; //smile code without ':' or regexp
     protected boolean cached;
 
     public Smile() {
@@ -16,6 +16,7 @@ public abstract class Smile {
 
     public abstract Source getSource();
 
+    @JsonProperty (value = "code")
     public String getCode() {
         return code;
     }
