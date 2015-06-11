@@ -15,6 +15,7 @@ public class Message {
     protected Date timestamp;
     protected Source source;
     protected List<SmileInMessage> smiles;
+    protected Url[] links;
 
     public Source getSource() {
         return source;
@@ -59,12 +60,20 @@ public class Message {
     @JsonIgnore
     public List<SmileInMessage> getSmileList() {
         if (smiles == null) {
-            smiles = new ArrayList<>();
+            smiles = new ArrayList<>(); // TODO: заменить ArrayList на массив
         }
         return smiles;
     }
 
     public void setSmiles(List<SmileInMessage> smiles) {
         this.smiles = smiles;
+    }
+
+    public Url[] getLinks() {
+        return links;
+    }
+
+    public void setLinks(Url[] links) {
+        this.links = links;
     }
 }
