@@ -44,8 +44,8 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
             e.printStackTrace();
         }
         messageHandlers = new ArrayList<>();
-        messageHandlers.add(new Sc2tvSmileHandler());
         messageHandlers.add(new BBCodeHandler());
+        messageHandlers.add(new Sc2tvSmileHandler());
         status = ChatClientStatus.READY;
     }
 

@@ -45,6 +45,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
         messageQueue = mq;
         objectMapper = new ObjectMapper();
         messageHandlers = new ArrayList<>();
+        messageHandlers.add(new UrlCleaner());
         messageHandlers.add(new GGSmileHandler());
     }
 
