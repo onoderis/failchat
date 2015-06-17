@@ -1,6 +1,9 @@
 package failchat.sc2tv;
 
-import failchat.core.*;
+import failchat.core.Message;
+import failchat.core.MessageHandler;
+import failchat.core.Smile;
+import failchat.core.SmileManager;
 
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -24,16 +27,10 @@ public class Sc2tvSmileHandler implements MessageHandler {
         while (matcher.find()) {
             Smile smile = smiles.get(matcher.group(1));
             if (smile != null) {
-                //заменяем текст на объекты в сообщении
-                int position = matcher.start();
-                message.setText(matcher.replaceFirst(""));
+                String num = message.addSmile(smile);
+                message.setText(matcher.replaceFirst(num));
                 matcher = sc2tvSmilePattern.matcher(message.getText());
-
-                //кешируем если надо
                 SmileManager.cacheSmile(smile);
-                SmileInMessage smileInMessage = new SmileInMessage(smile, position);
-
-                message.getSmileList().add(smileInMessage);
             }
         }
     }

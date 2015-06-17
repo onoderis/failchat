@@ -1,24 +1,37 @@
 package failchat.core;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
 * Класс, сериализуемый в json для передачи к локальному клиенту
 * */
 
 public class SmileInMessage {
-    protected int position;
+    protected int objectNumber; //starts from 1
     protected Smile smile;
 
-    public SmileInMessage(Smile s, int position) {
-        this.position = position;
+    public SmileInMessage(Smile s, int objectNumber) {
+        this.objectNumber = objectNumber;
         this.smile = s;
     }
 
-    public int getPosition() {
-        return position;
+    public int getObjectNumber() {
+        return objectNumber;
     }
 
-    public Smile getSmile() {
-        return smile;
+    public Source getSource() {
+        return smile.getSource();
     }
+
+    @JsonProperty(value = "code")
+    public String getCode() {
+        return smile.getCode();
+    }
+
+    @JsonProperty (value = "imgUrl")
+    public String getCachePath() {
+        return smile.getCachePath();
+    }
+
 }

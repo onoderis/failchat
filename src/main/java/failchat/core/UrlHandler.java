@@ -1,6 +1,5 @@
 package failchat.core;
 
-import java.util.Arrays;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,19 +22,11 @@ public class UrlHandler implements MessageHandler {
     @Override
     public void handleMessage(Message message) {
         Matcher m = URL_PATTERN.matcher(message.getText());
-        int urlCount = 0;
-        int position = 0;
-        while (m.find(position)) {
-            logger.fine("found url: " + m.group(3));
-            urlCount++;
-            position = m.start();
-            Url url = new Url(position, m.group(), m.group(4), m.group(3));
-            buffer[urlCount - 1] = url;
-            message.setText(m.replaceFirst(""));
+        while (m.find()) {
+//            logger.fine("found url: " + m.group(3));
+            Url url = new Url(m.group(), m.group(4), m.group(3));
+            message.setText(m.replaceFirst(message.addLink(url)));
             m = URL_PATTERN.matcher(message.getText());
-        }
-        if (urlCount > 0) {
-            message.setLinks(Arrays.copyOf(buffer, urlCount));
         }
     }
 
