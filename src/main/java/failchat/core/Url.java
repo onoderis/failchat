@@ -4,24 +4,23 @@ package failchat.core;
  * Класс, сериализующийся в json для отправки к локальному клиенту
  */
 public class Url {
-    private int position;
+    private int objectNumber;
     private String url;
     private String domain;
     private String shortUrl;
 
-    public Url (int position, String url, String domain, String shortUrl) {
-        this.position = position;
+    public Url (String url, String domain, String shortUrl) {
         this.url = url;
         this.domain = domain;
         this.shortUrl = shortUrl;
     }
 
-    public int getPosition() {
-        return position;
+    public int getObjectNumber() {
+        return objectNumber;
     }
 
-    public void setPosition(int position) {
-        this.position = position;
+    public void setObjectNumber(int objectNumber) {
+        this.objectNumber = objectNumber;
     }
 
     public String getDomain() {

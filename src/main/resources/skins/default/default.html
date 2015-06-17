@@ -33,6 +33,12 @@
             /*-webkit-animation-timing-function: linear;*/
         }
 
+        a {
+            color: #c57c08;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
         @keyframes new-message {
             from {
                 opacity: 0;
@@ -60,6 +66,9 @@
 </script>
 <script id="smileTemplate" type="text/x-jsrender">
     <img src="{{:imgUrl}}"></img>
+</script>
+<script id="linkTemplate" type="text/x-jsrender">
+    <a href="{{:url}}">{{:domain}}</a>
 </script>
 
 <div id="container">

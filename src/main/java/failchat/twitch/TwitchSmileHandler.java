@@ -1,6 +1,7 @@
 package failchat.twitch;
 
-import failchat.core.*;
+import failchat.core.MessageHandler;
+import failchat.core.SmileManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,12 +34,11 @@ public class TwitchSmileHandler implements MessageHandler<TwitchMessage> {
 
             Matcher m = smileSet.getPattern().matcher(message.getText());
             while (m.find()) {
-                int position = m.start();
                 String code = m.group();
                 TwitchSmile smile = smileSet.getSmiles().get(code);
+                String num = message.addSmile(smile);
                 SmileManager.cacheSmile(smile);
-                message.setText(message.getText().replaceFirst(code, ""));
-                message.getSmileList().add(new SmileInMessage(smile, position));
+                message.setText(message.getText().replaceFirst(code, num));
             }
         }
     }

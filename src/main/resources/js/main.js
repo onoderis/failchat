@@ -9,15 +9,25 @@ socket.onclose = function () {
 };
 socket.onmessage = function (event) {
     var wsm = JSON.parse(event.data);
+
+    //smiles
     if (wsm.message.smiles != undefined) {
-        var addedLength = 0;
         var imgHtml;
         for (var i = 0; i < wsm.message.smiles.length; i++) {
-            imgHtml = $("#smileTemplate").render(wsm.message.smiles[i].smile);
-            wsm.message.text = wsm.message.text.insert(wsm.message.smiles[i].position + addedLength, imgHtml);
-            addedLength += imgHtml.length;
+            imgHtml = $("#smileTemplate").render(wsm.message.smiles[i]);
+            wsm.message.text = wsm.message.text.replace("{!" + wsm.message.smiles[i].objectNumber + "}", imgHtml);
         }
     }
+
+    //links
+    if (wsm.message.links != undefined) {
+        var linkHtml;
+        for (i = 0; i < wsm.message.links.length; i++) {
+            linkHtml = $("#linkTemplate").render(wsm.message.links[i]);
+            wsm.message.text = wsm.message.text.replace("{!" + wsm.message.links[i].objectNumber + "}", linkHtml);
+        }
+    }
+
     $("#container").prepend(
         $("#messageTemplate").render(wsm.message)
     );

@@ -1,6 +1,5 @@
 package failchat.core;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -8,14 +7,23 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Message {
+    private static final int MAS_INIT_SIZE = 3;
+    private static final int MAS_INCR_SIZE = 10;
 
     protected String author;
     protected String text;
     protected Date timestamp;
     protected Source source;
     protected List<SmileInMessage> smiles;
-    protected Url[] links;
+    protected List<Url> links;
+
+    private static String format(int objectNumber) {
+        return "{!" + objectNumber + "}";
+    }
+
+    private int objectsCount = 0; //smiles and links count
 
     public Source getSource() {
         return source;
@@ -56,24 +64,29 @@ public class Message {
         return smiles;
     }
 
-    // отдельный метод для того, чтобы smiles не шли в json если их нет в сообщении
-    @JsonIgnore
-    public List<SmileInMessage> getSmileList() {
-        if (smiles == null) {
-            smiles = new ArrayList<>(); // TODO: заменить ArrayList на массив
-        }
-        return smiles;
-    }
-
-    public void setSmiles(List<SmileInMessage> smiles) {
-        this.smiles = smiles;
-    }
-
-    public Url[] getLinks() {
+    public List<Url> getLinks() {
         return links;
     }
 
-    public void setLinks(Url[] links) {
-        this.links = links;
+    /**
+     * @return formatted object number
+     */
+    public String addSmile (Smile smile) {
+        objectsCount++;
+        if (smiles == null) {
+            smiles = new ArrayList<>();
+        }
+        smiles.add(new SmileInMessage(smile, objectsCount));
+        return format(objectsCount);
+    }
+
+    public String addLink(Url url) {
+        objectsCount++;
+        url.setObjectNumber(objectsCount);
+        if (links == null) {
+            links = new ArrayList<>();
+        }
+        links.add(url);
+        return format(objectsCount);
     }
 }

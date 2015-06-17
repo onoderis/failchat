@@ -1,7 +1,6 @@
 package failchat.goodgame;
 
 import failchat.core.MessageHandler;
-import failchat.core.SmileInMessage;
 import failchat.core.SmileManager;
 
 import java.util.Map;
@@ -28,14 +27,14 @@ public class GGSmileHandler implements MessageHandler<GGMessage> {
             logger.fine(code);
             GGSmile smile = smileMap.get(code);
             if (smile != null) {
+                String num = message.addSmile(smile);
                 int start = matcher.start();
                 int end = matcher.end();
                 StringBuilder sb = new StringBuilder(message.getText());
                 sb.delete(start - 1, end + 1); // for ':'
+                sb.insert(start - 1, num);
                 message.setText(sb.toString());
-                SmileInMessage smileInMessage = new SmileInMessage(smile, start - 1);
                 SmileManager.cacheSmile(smile);
-                message.getSmileList().add(smileInMessage);
                 matcher = smileCodePattern.matcher(message.getText());
                 position = start - 1;
             } else {
