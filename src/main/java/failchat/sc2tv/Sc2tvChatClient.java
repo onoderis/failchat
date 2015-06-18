@@ -3,10 +3,7 @@ package failchat.sc2tv;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import failchat.core.ChatClient;
-import failchat.core.ChatClientStatus;
-import failchat.core.Message;
-import failchat.core.MessageHandler;
+import failchat.core.*;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -44,6 +41,7 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
             e.printStackTrace();
         }
         messageHandlers = new ArrayList<>();
+        messageHandlers.add(MessageObjectCleaner.getInstance());
         messageHandlers.add(new BBCodeHandler());
         messageHandlers.add(new Sc2tvSmileHandler());
         status = ChatClientStatus.READY;

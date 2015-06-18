@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import failchat.core.ChatClient;
-import failchat.core.ChatClientStatus;
-import failchat.core.Message;
-import failchat.core.MessageHandler;
+import failchat.core.*;
 import org.apache.commons.io.IOUtils;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -30,7 +27,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
     private static final String GG_STREAM_API_URL = "http://goodgame.ru/api/getchannelstatus?fmt=json&id=";
     private static final String EXTRACT_CHANNEL_ID_REGEX = "\"stream_id\":\"(\\d*)\"";
     private static final int RECONNECT_TIMEOUT = 5000;
-    private static final String NEWMESSAGE_SEQUENCE = "\"type\":\"message\"";
+    private static final String NEW_MESSAGE_SEQUENCE = "\"type\":\"message\"";
 
     private ChatClientStatus status = ChatClientStatus.READY;
     private Queue<Message> messageQueue;
@@ -45,6 +42,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
         messageQueue = mq;
         objectMapper = new ObjectMapper();
         messageHandlers = new ArrayList<>();
+        messageHandlers.add(MessageObjectCleaner.getInstance());
         messageHandlers.add(new UrlCleaner());
         messageHandlers.add(new GGSmileHandler());
     }
@@ -90,7 +88,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
 
     @Override
     public void onMessage(String s) {
-        if (s.contains(NEWMESSAGE_SEQUENCE)) {
+        if (s.contains(NEW_MESSAGE_SEQUENCE)) {
             try {
                 GoodgameWSMessage ggwsm = objectMapper.readValue(s, new TypeReference<GoodgameWSMessage>() {});
                 GGMessage message = ggwsm.getMessage();

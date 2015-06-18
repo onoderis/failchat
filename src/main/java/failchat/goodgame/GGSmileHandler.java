@@ -24,7 +24,6 @@ public class GGSmileHandler implements MessageHandler<GGMessage> {
         int position = 0; // чтобы не начинать искать сначала, если :something: найдено, но это не смайл
         while (matcher.find(position)) {
             String code = matcher.group();
-            logger.fine(code);
             GGSmile smile = smileMap.get(code);
             if (smile != null) {
                 String num = message.addSmile(smile);
