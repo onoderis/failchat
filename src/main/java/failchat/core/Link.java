@@ -3,16 +3,16 @@ package failchat.core;
 /**
  * Класс, сериализующийся в json для отправки к локальному клиенту
  */
-public class Url {
+public class Link {
     private int objectNumber;
-    private String url;
+    private String link;
     private String domain;
-    private String shortUrl;
+    private String shortLink;
 
-    public Url (String url, String domain, String shortUrl) {
-        this.url = url;
+    public Link(String link, String domain, String shortLink) {
+        this.link = link;
         this.domain = domain;
-        this.shortUrl = shortUrl;
+        this.shortLink = shortLink;
     }
 
     public int getObjectNumber() {
@@ -31,19 +31,19 @@ public class Url {
         this.domain = domain;
     }
 
-    public String getUrl() {
-        return url;
+    public String getLink() {
+        return link;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setLink(String link) {
+        this.link = link;
     }
 
-    public String getShortUrl() {
-        return shortUrl;
+    public String getShortLink() {
+        return shortLink;
     }
 
-    public void setShortUrl(String shortUrl) {
-        this.shortUrl = shortUrl;
+    public void setShortLink(String shortLink) {
+        this.shortLink = shortLink;
     }
 }

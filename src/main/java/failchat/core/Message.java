@@ -17,7 +17,7 @@ public class Message {
     protected Date timestamp;
     protected Source source;
     protected List<SmileInMessage> smiles;
-    protected List<Url> links;
+    protected List<Link> links;
 
     private static String format(int objectNumber) {
         return "{!" + objectNumber + "}";
@@ -64,7 +64,7 @@ public class Message {
         return smiles;
     }
 
-    public List<Url> getLinks() {
+    public List<Link> getLinks() {
         return links;
     }
 
@@ -80,13 +80,13 @@ public class Message {
         return format(objectsCount);
     }
 
-    public String addLink(Url url) {
+    public String addLink(Link link) {
         objectsCount++;
-        url.setObjectNumber(objectsCount);
+        link.setObjectNumber(objectsCount);
         if (links == null) {
             links = new ArrayList<>();
         }
-        links.add(url);
+        links.add(link);
         return format(objectsCount);
     }
 }

@@ -45,7 +45,7 @@ public class MessageManager implements Runnable {
     }
 
     private void initHandlers() {
-        handlers.add(new UrlHandler());
+        handlers.add(new LinkHandler());
     }
 
     private void createWebSocket() {
