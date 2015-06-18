@@ -31,6 +31,7 @@ public class TwitchChatClient implements ChatClient {
         messageQueue = mq;
         messageHandlers = new ArrayList<>();
         smileHandler = new TwitchSmileHandler();
+        messageHandlers.add(MessageObjectCleaner.getInstance());
         messageHandlers.add(smileHandler);
         messageFilters = new ArrayList<>();
         messageFilters.add(new MetaMessageFilter());
