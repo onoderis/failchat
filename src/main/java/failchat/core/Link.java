@@ -1,5 +1,7 @@
 package failchat.core;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Класс, сериализующийся в json для отправки к локальному клиенту
  */
@@ -31,6 +33,7 @@ public class Link {
         this.domain = domain;
     }
 
+    @JsonProperty (value = "url")
     public String getLink() {
         return link;
     }
@@ -39,6 +42,7 @@ public class Link {
         this.link = link;
     }
 
+    @JsonProperty (value = "shorlUrl")
     public String getShortLink() {
         return shortLink;
     }
