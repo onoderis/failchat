@@ -25,7 +25,8 @@ public class Logging {
         @Override
         public String format(LogRecord record) {
             sb.setLength(0);
-            sb.append(dateFormat.format(new Date(record.getMillis()))).append(' ').append(record.getLevel()).append(": ")
+            sb.append(dateFormat.format(new Date(record.getMillis()))).append(' ').append(record.getLevel())
+                    .append(' ').append(record.getSourceClassName()).append(": ")
                     .append(record.getMessage()).append(lineSeparator);
             return sb.toString();
         }
