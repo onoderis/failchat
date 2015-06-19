@@ -11,9 +11,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Logger;
 
 public class Sc2tvChatClient implements ChatClient, Runnable {
-
+    private static final Logger logger = Logger.getLogger(Sc2tvChatClient.class.getName());
     private static final String CHAT_URL = "http://chat.SC2TV.ru/memfs/channel-";
     private static final String CHAT_URL_END = ".json";
     private static final String THREAD_NAME= "Sc2tvChatClient";
@@ -23,6 +24,8 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
 
     private final Queue<Message> messageQueue;
     private List<MessageHandler> messageHandlers;
+    private String channelName;
+    private int channelId = -1;
     private long lastMessageTime = System.currentTimeMillis();
     private URL chatUrl;
     private boolean exitFlag = false;
@@ -31,15 +34,11 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
     private long requestTime = 0;
     private ChatClientStatus status;
 
-    public Sc2tvChatClient(int chatId, Queue<Message> messageQueue) {
+    public Sc2tvChatClient(String channelName, Queue<Message> messageQueue) {
         this.messageQueue = messageQueue;
+        this.channelName = channelName;
         objectMapper = new ObjectMapper();
         objectMapper.setDateFormat(JSON_DATE_FORMAT);
-        try {
-            chatUrl = new URL(CHAT_URL + chatId + CHAT_URL_END);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
         messageHandlers = new ArrayList<>();
         messageHandlers.add(MessageObjectCleaner.getInstance());
         messageHandlers.add(new BBCodeHandler());
@@ -57,6 +56,17 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
         if (status != ChatClientStatus.READY) {
             return;
         }
+        channelId  = ChannelParser.getChannelId(channelName);
+        if (channelId == -1) {
+            return;
+        }
+        try {
+            chatUrl = new URL(CHAT_URL + channelId + CHAT_URL_END);
+        } catch (MalformedURLException e) {
+            logger.severe("Bad sc2tv channel id: " + channelId);
+            e.printStackTrace();
+        }
+
         Thread t = new Thread(this);
         t.setName(THREAD_NAME);
         t.start();

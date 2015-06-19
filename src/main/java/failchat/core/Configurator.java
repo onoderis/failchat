@@ -9,11 +9,7 @@ import java.util.Map;
 
 public class Configurator {
 
-//    private static int exampleId = 0;
-    private static int exampleId = 157655; //my
-//    private static int exampleId = 160916; //abver
-//    private static int exampleId = 157064; //dave
-
+    private static String sc2tvTestChannel = "fail0001";
     private static String twitchTestChannel = "fail0001";
 //    private static String twitchTestChannel = "forsenlol";
     private static String ggChannel = "fail0001";
@@ -26,7 +22,7 @@ public class Configurator {
     }
 
     public void initializeChatClients() {
-        ChatClient sc2tvChatClient = new Sc2tvChatClient(exampleId, messageManager.getMessagesQueue());
+        ChatClient sc2tvChatClient = new Sc2tvChatClient(sc2tvTestChannel, messageManager.getMessagesQueue());
         chatClients.put(Source.SC2TV, sc2tvChatClient);
 
         GGChatClient ggcc = new GGChatClient(ggChannel, messageManager.getMessagesQueue());
