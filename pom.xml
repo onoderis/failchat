@@ -121,6 +121,7 @@
                         <exclude>js/**</exclude>
                         <exclude>skins/**</exclude>
                         <exclude>smiles/**</exclude>
+                        <exclude>config.conf</exclude>
                     </excludes>
                 </configuration>
             </plugin>
