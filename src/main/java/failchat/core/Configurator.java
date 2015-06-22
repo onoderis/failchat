@@ -3,7 +3,6 @@ package failchat.core;
 import failchat.goodgame.GGChatClient;
 import failchat.sc2tv.Sc2tvChatClient;
 import failchat.twitch.TwitchChatClient;
-import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -37,37 +36,19 @@ public class Configurator {
     }
 
     public static final CompositeConfiguration config = new CompositeConfiguration();
-    //TODO: перенести в default config file
-    private static final BaseConfiguration DEFAULT_CONFIG = new BaseConfiguration() {
-        {
-            addProperty("sc2tv.channel", "");
-            addProperty("sc2tv.enabled", false);
-            addProperty("twitch.channel", "");
-            addProperty("twitch.enabled", false);
-            addProperty("goodgame.channel", "");
-            addProperty("goodgame.enabled", false);
-            addProperty("skin", "default");
-            addProperty("frame", true);
-            addProperty("onTop", false);
-            addProperty("opacity", 100);
-            addProperty("chat.width", 350);
-            addProperty("chat.height", 600);
-            addProperty("chat.x", -1);
-            addProperty("chat.y", -1);
-            addProperty("test.enabled", false);
-        }
-    };
     private static final Path configPath = Bootstrap.workDir.resolve("config.conf");
-
     private MessageManager messageManager = MessageManager.getInstance();
+
     private Map<Source, ChatClient> chatClients = new HashMap<>();
+    private PropertiesConfiguration defaultConfig;
     private PropertiesConfiguration myConfig;
 
     private Configurator() {
         try {
+            defaultConfig = new PropertiesConfiguration(getClass().getResource("/default.conf"));
             myConfig = new PropertiesConfiguration(configPath.toFile());
             config.addConfiguration(myConfig, true);
-            config.addConfiguration(DEFAULT_CONFIG);
+            config.addConfiguration(defaultConfig);
         } catch (ConfigurationException e) {
             logger.severe("Bad configuration file");
             e.printStackTrace();
