@@ -11,6 +11,22 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
 public class MessageManager implements Runnable {
+    private static volatile MessageManager instance;
+
+    public static MessageManager getInstance() {
+        MessageManager localInstance = instance;
+        if (localInstance == null) {
+            synchronized (MessageManager.class) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new MessageManager();
+                }
+            }
+        }
+        return localInstance;
+    }
+
+    private MessageManager() {}
 
     private static final Logger logger = Logger.getLogger(MessageManager.class.getName());
     private final Queue<Message> messages = new ConcurrentLinkedQueue<>();

@@ -18,7 +18,7 @@ public class TwitchChatClient implements ChatClient {
     private static final String BOT_PASSWORD = "oauth:59tune21e6ymz4xg57snr77tcsbg2y";
     private static final int RECONNECT_TIMEOUT = 5000;
 
-    private final Queue<Message> messageQueue;
+    private final Queue<Message> messageQueue = MessageManager.getInstance().getMessagesQueue();
     private IrcConnection ircConnection;
     private String channelName;
     private List<MessageHandler<TwitchMessage>> messageHandlers;
@@ -26,9 +26,8 @@ public class TwitchChatClient implements ChatClient {
     private ChatClientStatus status = ChatClientStatus.READY;
     private TwitchSmileHandler smileHandler;
 
-    public TwitchChatClient(String channelName, Queue<Message> mq) {
+    public TwitchChatClient(String channelName) {
         this.channelName = channelName;
-        messageQueue = mq;
         messageHandlers = new ArrayList<>();
         smileHandler = new TwitchSmileHandler();
         messageHandlers.add(MessageObjectCleaner.getInstance());

@@ -30,16 +30,15 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
     private static final String NEW_MESSAGE_SEQUENCE = "\"type\":\"message\"";
 
     private ChatClientStatus status = ChatClientStatus.READY;
-    private Queue<Message> messageQueue;
+    private Queue<Message> messageQueue = MessageManager.getInstance().getMessagesQueue();
     private List<MessageHandler<GGMessage>> messageHandlers;
     private String channelName;
     private int channelId;
     ObjectMapper objectMapper;
 
-    public GGChatClient(String channelName, Queue<Message> mq) {
+    public GGChatClient(String channelName) {
         super(URI.create(GG_WS_URL));
         this.channelName = channelName;
-        messageQueue = mq;
         objectMapper = new ObjectMapper();
         messageHandlers = new ArrayList<>();
         messageHandlers.add(MessageObjectCleaner.getInstance());

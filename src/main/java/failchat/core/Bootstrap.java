@@ -1,6 +1,8 @@
 package failchat.core;
 
 
+import javafx.application.Platform;
+
 import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -20,12 +22,11 @@ public class Bootstrap {
         workDir = getWorkDir();
         logger.info("Work dir: " + workDir.toAbsolutePath());
 
-        new Thread(() -> Gui.main(null)).start(); //TODO: wut?
-        messageManager = new MessageManager();
-        new Thread(messageManager, "MessageManagerThread").start();
-        configurator = new Configurator(messageManager);
-        configurator.initializeChatClients();
+        configurator = Configurator.getInstance();
+        messageManager = MessageManager.getInstance();
 
+        new Thread(messageManager, "MessageManagerThread").start();
+        new Thread(() -> Gui.main(null), "JavafxLauncher").start(); //TODO: wut?
     }
 
 
@@ -41,6 +42,8 @@ public class Bootstrap {
 
     public static void shutDown() {
         logger.info("Shutting down...");
+        configurator.saveConfiguration();
+        Platform.exit();
         configurator.turnOffChatClients();
         messageManager.turnOff();
     }
