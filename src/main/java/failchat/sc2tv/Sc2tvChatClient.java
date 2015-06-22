@@ -22,7 +22,7 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
     private static final SimpleDateFormat JSON_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //example: "2015-04-12 02:03:06"
     private static final long TIMEOUT = 5000;
 
-    private final Queue<Message> messageQueue;
+    private final Queue<Message> messageQueue = MessageManager.getInstance().getMessagesQueue();
     private List<MessageHandler> messageHandlers;
     private String channelName;
     private int channelId = -1;
@@ -34,8 +34,7 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
     private long requestTime = 0;
     private ChatClientStatus status;
 
-    public Sc2tvChatClient(String channelName, Queue<Message> messageQueue) {
-        this.messageQueue = messageQueue;
+    public Sc2tvChatClient(String channelName) {
         this.channelName = channelName;
         objectMapper = new ObjectMapper();
         objectMapper.setDateFormat(JSON_DATE_FORMAT);

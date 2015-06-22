@@ -3,44 +3,129 @@ package failchat.core;
 import failchat.goodgame.GGChatClient;
 import failchat.sc2tv.Sc2tvChatClient;
 import failchat.twitch.TwitchChatClient;
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class Configurator {
+    private static final Logger logger = Logger.getLogger(Configurator.class.getName());
 
-    private static String sc2tvTestChannel = "fail0001";
-    private static String twitchTestChannel = "fail0001";
-//    private static String twitchTestChannel = "forsenlol";
-    private static String ggChannel = "fail0001";
+    private static volatile Configurator instance;
 
-    private MessageManager messageManager;
+    public static Configurator getInstance() {
+        Configurator localInstance = instance;
+        if (localInstance == null) {
+            synchronized (Configurator.class) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new Configurator();
+                }
+            }
+        }
+        return localInstance;
+    }
+
+    public static final CompositeConfiguration config = new CompositeConfiguration();
+    //TODO: перенести в default config file
+    private static final BaseConfiguration DEFAULT_CONFIG = new BaseConfiguration() {
+        {
+            addProperty("sc2tv.channel", "");
+            addProperty("sc2tv.enabled", false);
+            addProperty("twitch.channel", "");
+            addProperty("twitch.enabled", false);
+            addProperty("goodgame.channel", "");
+            addProperty("goodgame.enabled", false);
+            addProperty("chat.width", 350);
+            addProperty("chat.height", 600);
+            addProperty("chat.position", new int[] {300, 300});
+            addProperty("settings.width", 350);
+            addProperty("settings.height", 600);
+            addProperty("skin", "default");
+            addProperty("opacity", 100);
+            addProperty("frame", true);
+            addProperty("onTop", false);
+            addProperty("width", false);
+            addProperty("test.enabled", false);
+        }
+    };
+    private static final Path configPath = Bootstrap.workDir.resolve("config");
+
+    private MessageManager messageManager = MessageManager.getInstance();
     private Map<Source, ChatClient> chatClients = new HashMap<>();
+    private PropertiesConfiguration myConfig;
 
-    public Configurator(MessageManager mm) {
-        messageManager = mm;
+    private Configurator() {
+        try {
+            myConfig = new PropertiesConfiguration(configPath.toFile());
+            config.addConfiguration(myConfig, true);
+            config.addConfiguration(DEFAULT_CONFIG);
+        } catch (ConfigurationException e) {
+            logger.severe("Bad configuration file");
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     public void initializeChatClients() {
-        ChatClient sc2tvChatClient = new Sc2tvChatClient(sc2tvTestChannel, messageManager.getMessagesQueue());
-        chatClients.put(Source.SC2TV, sc2tvChatClient);
+        if (Configurator.config.getBoolean("sc2tv.enabled") && !Configurator.config.getString("sc2tv.channel").equals("")) {
+            ChatClient sc2tvChatClient = new Sc2tvChatClient(Configurator.config.getString("sc2tv.channel"));
+            chatClients.put(Source.SC2TV, sc2tvChatClient);
+        }
 
-        GGChatClient ggcc = new GGChatClient(ggChannel, messageManager.getMessagesQueue());
-        chatClients.put(Source.GOODGAME, ggcc);
+        if (Configurator.config.getBoolean("goodgame.enabled") && !Configurator.config.getString("goodgame.channel").equals("")) {
+            GGChatClient ggcc = new GGChatClient(Configurator.config.getString("goodgame.channel"));
+            chatClients.put(Source.GOODGAME, ggcc);
+        }
 
-        TwitchChatClient twitchChatClient = new TwitchChatClient(twitchTestChannel, messageManager.getMessagesQueue());
-        chatClients.put(Source.TWITCH, twitchChatClient);
+        if (Configurator.config.getBoolean("twitch.enabled") && !Configurator.config.getString("twitch.channel").equals("")) {
+            TwitchChatClient twitchChatClient = new TwitchChatClient(Configurator.config.getString("twitch.channel"));
+            chatClients.put(Source.TWITCH, twitchChatClient);
+        }
 
-//        TestChatClient tcc = new TestChatClient(messageManager.getMessagesQueue());
-//        chatClients.put(Source.TEST, tcc);
-
-        chatClients.values().forEach(failchat.core.ChatClient::goOnline);
+        if (Configurator.config.getBoolean("test.enabled")) {
+            TestChatClient tcc = new TestChatClient(messageManager.getMessagesQueue());
+            chatClients.put(Source.TEST, tcc);
+        }
+        chatClients.values().forEach(ChatClient::goOnline);
     }
 
     public void turnOffChatClients() {
-        chatClients.values().forEach(failchat.core.ChatClient::goOffline);
+        chatClients.values().forEach(ChatClient::goOffline);
+        chatClients.clear();
     }
 
+    public void saveConfiguration() {
+        try {
+            myConfig.save();
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<String> getSkins() {
+        // TODO: добавить фильтр для папок где есть <dirname>.html
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Bootstrap.workDir.resolve("skins"))) {
+            ArrayList<String> dirs = new ArrayList<>();
+            for (Path dir : stream) {
+                dirs.add(dir.getFileName().toString());
+            }
+            return dirs;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 
 }

@@ -4,12 +4,19 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Worker;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
@@ -19,14 +26,139 @@ public class Gui extends Application {
     private static final Logger logger = Logger.getLogger(MessageManager.class.getName());
     private static final Path skinsPath = Bootstrap.workDir.resolve("skins");
 
+    private Configurator configurator = Configurator.getInstance();
+
+    private Stage settingsStage;
+    private Stage chatStage;
+    private Scene webScene;
+    private WebEngine webEngine;
+
+    //settings nodes
+    private TextField sc2tvChannel;
+    private TextField goodgameChannel;
+    private TextField twitchChannel;
+    private CheckBox sc2tvEnabled;
+    private CheckBox goodgameEnabled;
+    private CheckBox twitchEnabled;
+    private ChoiceBox skin;
+    private CheckBox frame;
+    private CheckBox onTop;
+    private Slider opacitySlider;
+    private Button applyButton;
+
+
+    public static void main(String[] args) {
+        launch();
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("failchat");
+        settingsStage = primaryStage;
+        buildSettingsStage(settingsStage);
+        updateSettingsValues();
+        chatStage = buildChatStage();
+        webScene = buildChatScene();
+        chatStage.setScene(webScene);
+        settingsStage.show();
+
+        settingsStage.setOnCloseRequest(event -> {
+            saveSettingsValues();
+            Bootstrap.shutDown();
+        });
+        logger.info("GUI loaded");
+    }
+
+    private void buildSettingsStage(Stage stage) throws Exception {
+        stage.setTitle("failchat settings");
+        Scene scene = new Scene(FXMLLoader.load(getClass().getResource("/settings.fxml")));
+        stage.setScene(scene);
+
+        //channels
+        sc2tvChannel = (TextField)scene.lookup("#sc2tv_channel");
+        goodgameChannel = (TextField)scene.lookup("#goodgame_channel");
+        twitchChannel = (TextField)scene.lookup("#twitch_channel");
+
+        //channels checkboxes
+        sc2tvEnabled = (CheckBox)scene.lookup("#sc2tv_enabled");
+        goodgameEnabled = (CheckBox)scene.lookup("#goodgame_enabled");
+        twitchEnabled = (CheckBox)scene.lookup("#twitch_enabled");
+
+        //skin
+        skin = (ChoiceBox)scene.lookup("#skin");
+        frame = (CheckBox)scene.lookup("#frame");
+        onTop = (CheckBox)scene.lookup("#top");
+
+        //opacity
+        opacitySlider = (Slider)scene.lookup("#opacity");
+        Text opacityText = (Text)scene.lookup("#opacity_text");
+        opacitySlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                opacityText.setText(Integer.toString(newValue.intValue()));
+            }
+        });
+
+        applyButton = (Button)scene.lookup("#apply_button");
+        applyButton.setOnAction((action) -> switchStage());
+    }
+
+    private void updateSettingsValues() {
+        sc2tvChannel.setText(Configurator.config.getString("sc2tv.channel"));
+        goodgameChannel.setText(Configurator.config.getString("goodgame.channel"));
+        twitchChannel.setText(Configurator.config.getString("twitch.channel"));
+
+        sc2tvEnabled.setSelected(Configurator.config.getBoolean("sc2tv.enabled"));
+        goodgameEnabled.setSelected(Configurator.config.getBoolean("goodgame.enabled"));
+        twitchEnabled.setSelected(Configurator.config.getBoolean("twitch.enabled"));
+
+        skin.setItems(FXCollections.observableArrayList(Configurator.getSkins()));
+        skin.setValue(Configurator.config.getString("skin"));
+        frame.setSelected(Configurator.config.getBoolean("frame"));
+        onTop.setSelected(Configurator.config.getBoolean("onTop"));
+        opacitySlider.setValue(Configurator.config.getDouble("opacity"));
+    }
+
+    private void saveSettingsValues() {
+        Configurator.config.setProperty("sc2tv.channel", sc2tvChannel.getText());
+        Configurator.config.setProperty("goodgame.channel", goodgameChannel.getText());
+        Configurator.config.setProperty("twitch.channel", twitchChannel.getText());
+
+        Configurator.config.setProperty("sc2tv.enabled", sc2tvEnabled.isSelected());
+        Configurator.config.setProperty("goodgame.enabled", goodgameEnabled.isSelected());
+        Configurator.config.setProperty("twitch.enabled", twitchEnabled.isSelected());
+
+        Configurator.config.setProperty("skin", skin.getValue());
+        Configurator.config.setProperty("frame", frame.isSelected());
+        Configurator.config.setProperty("onTop", frame.isSelected());
+        Configurator.config.setProperty("opacity", (int)opacitySlider.getValue());
+
+    }
+
+    // could be invoked several times if frame setting changed
+    private Stage buildChatStage() {
+        Stage stage = new Stage();
+        stage.setTitle("failchat");
+        if (!Configurator.config.getBoolean("frame")) {
+            stage.initStyle(StageStyle .UNDECORATED);
+        }
+        stage.setOnCloseRequest(event -> Bootstrap.shutDown());
+       return stage;
+    }
+
+    // invokes 1 time
+    private Scene buildChatScene() {
         WebView webView = new WebView();
-        WebEngine webEngine = webView.getEngine();
+        webEngine = webView.getEngine();
+        Scene webScene = new Scene(webView, 350, 500); // TODO: from config
         webView.setContextMenuEnabled(false);
-        Scene webScene = new Scene(webView, 350, 500);
-        webEngine.load(Bootstrap.workDir.resolve("skins/default/default.html").toAbsolutePath().toUri().toURL().toString());
+
+        //hot keys
+        webScene.setOnKeyPressed((key) -> {
+            //esc
+            if (key.getCode() == KeyCode.ESCAPE) {
+                switchStage();
+            }
+        });
 
         // url opening interceptor
         webEngine.getLoadWorker().stateProperty().addListener(new ChangeListener<Worker.State>() {
@@ -49,13 +181,52 @@ public class Gui extends Application {
                 }
             }
         });
-        primaryStage.setScene(webScene);
-        primaryStage.show();
-        primaryStage.setOnCloseRequest(event -> Bootstrap.shutDown());
-        logger.fine("GUI loaded");
+        return webScene;
     }
 
-    public static void main(String[] args) {
-        launch();
+    //invokes every time when switched to chat stage
+    private void configureChatStage(Stage stage) {
+        stage.setOpacity(Configurator.config.getDouble("opacity") / 100);
+        stage.setAlwaysOnTop(Configurator.config.getBoolean("onTop"));
+//        primaryStage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
+//            @Override
+//            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+//                if (newValue) {
+//                    logger.info("uniconifying");
+//                    primaryStage.setIconified(false);
+//                }
+//            }
+//        });
+    }
+
+    private void switchStage() {
+        //settings -> chat
+        if (settingsStage.isShowing()) {
+            saveSettingsValues();
+            settingsStage.hide();
+            // if stage style changed
+            if (!Configurator.config.getBoolean("frame") == (chatStage.getStyle() == StageStyle.DECORATED)) {
+                chatStage = buildChatStage();
+                chatStage.setScene(webScene);
+                logger.fine("Stage rebuilded");
+            }
+            chatStage.show();
+            new Thread(configurator::initializeChatClients, "ChatClientsInitializer").start();
+            String skin = Configurator.config.getString("skin");
+            try {
+                webEngine.load(Bootstrap.workDir.resolve("skins").resolve(skin).resolve(skin + ".html").toUri().toURL().toString());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            configureChatStage(chatStage);
+        }
+
+        //chat -> settings
+        else {
+            chatStage.hide();
+            webEngine.loadContent("");
+            settingsStage.show();
+            configurator.turnOffChatClients();
+        }
     }
 }
