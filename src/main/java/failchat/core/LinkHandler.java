@@ -5,8 +5,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LinkHandler implements MessageHandler {
-    private static final Logger logger = Logger.getLogger(LinkHandler.class.getName());
-
     /**
      * Unescaped regex: \b(https?|ftps?):\/\/(w{3}\.)?(([-\w\d+&@#%?=~_|!:,.;]+)[\/\S]*)
      * Capture groups:
@@ -15,7 +13,9 @@ public class LinkHandler implements MessageHandler {
      * 3: short url
      * 4: domain
      */
-    private static Pattern URL_PATTERN = Pattern.compile("\\b(https?|ftps?):\\/\\/(w{3}\\.)?(([-\\w\\d+&@#%?=~_|!:,.;]+)[\\/\\S]*)");
+    public static Pattern URL_PATTERN = Pattern.compile("\\b(https?|ftps?):\\/\\/(w{3}\\.)?(([-\\w\\d+&@#%?=~_|!:,.;]+)[\\/\\S]*)");
+
+    private static final Logger logger = Logger.getLogger(LinkHandler.class.getName());
 
     private  Link[] buffer = new Link[60];
 

@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
 
 public class Gui extends Application {
 
@@ -171,7 +172,8 @@ public class Gui extends Application {
                 // locationProperty заменяется сразу, как и Worker.State
                 if (newValue == Worker.State.SCHEDULED) {
                     String newLocation = webEngine.getLocation();
-                    if (newLocation.contains("http://")) {
+                    Matcher matcher = LinkHandler.URL_PATTERN.matcher(newLocation);
+                    if (matcher.find()) {
                         Platform.runLater(() -> webEngine.getLoadWorker().cancel());
                         getHostServices().showDocument(webEngine.getLocation());
                         logger.fine("Opening url: " + webEngine.getLocation());
