@@ -129,9 +129,8 @@ public class Gui extends Application {
 
         Configurator.config.setProperty("skin", skin.getValue());
         Configurator.config.setProperty("frame", frame.isSelected());
-        Configurator.config.setProperty("onTop", frame.isSelected());
+        Configurator.config.setProperty("onTop", onTop.isSelected());
         Configurator.config.setProperty("opacity", (int)opacitySlider.getValue());
-
     }
 
     // could be invoked several times if frame setting changed
@@ -139,9 +138,12 @@ public class Gui extends Application {
         Stage stage = new Stage();
         stage.setTitle("failchat");
         if (!Configurator.config.getBoolean("frame")) {
-            stage.initStyle(StageStyle .UNDECORATED);
+            stage.initStyle(StageStyle.UNDECORATED);
         }
-        stage.setOnCloseRequest(event -> Bootstrap.shutDown());
+        stage.setOnCloseRequest(event -> {
+            saveChatPosition();
+            Bootstrap.shutDown();
+        });
        return stage;
     }
 
@@ -149,13 +151,14 @@ public class Gui extends Application {
     private Scene buildChatScene() {
         WebView webView = new WebView();
         webEngine = webView.getEngine();
-        Scene webScene = new Scene(webView, 350, 500); // TODO: from config
+        Scene webScene = new Scene(webView);
         webView.setContextMenuEnabled(false);
 
         //hot keys
         webScene.setOnKeyPressed((key) -> {
             //esc
             if (key.getCode() == KeyCode.ESCAPE) {
+                saveChatPosition();
                 switchStage();
             }
         });
@@ -188,6 +191,14 @@ public class Gui extends Application {
     private void configureChatStage(Stage stage) {
         stage.setOpacity(Configurator.config.getDouble("opacity") / 100);
         stage.setAlwaysOnTop(Configurator.config.getBoolean("onTop"));
+        stage.setWidth(Configurator.config.getDouble("chat.width"));
+        stage.setHeight(Configurator.config.getDouble("chat.height"));
+        double x = Configurator.config.getDouble("chat.x");
+        double y = Configurator.config.getDouble("chat.y");
+        if (x != -1 && y != -1) {
+            stage.setX(x);
+            stage.setY(y);
+        }
 //        primaryStage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
 //            @Override
 //            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -197,6 +208,13 @@ public class Gui extends Application {
 //                }
 //            }
 //        });
+    }
+
+    private void saveChatPosition() {
+        Configurator.config.setProperty("chat.width", (int)chatStage.getWidth());
+        Configurator.config.setProperty("chat.height", (int)chatStage.getHeight());
+        Configurator.config.setProperty("chat.x", (int)chatStage.getX());
+        Configurator.config.setProperty("chat.y", (int)chatStage.getY());
     }
 
     private void switchStage() {
@@ -210,8 +228,6 @@ public class Gui extends Application {
                 chatStage.setScene(webScene);
                 logger.fine("Stage rebuilded");
             }
-            chatStage.show();
-            new Thread(configurator::initializeChatClients, "ChatClientsInitializer").start();
             String skin = Configurator.config.getString("skin");
             try {
                 webEngine.load(Bootstrap.workDir.resolve("skins").resolve(skin).resolve(skin + ".html").toUri().toURL().toString());
@@ -219,6 +235,8 @@ public class Gui extends Application {
                 e.printStackTrace();
             }
             configureChatStage(chatStage);
+            chatStage.show();
+            new Thread(configurator::initializeChatClients, "ChatClientsInitializer").start();
         }
 
         //chat -> settings
