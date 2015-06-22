@@ -57,7 +57,7 @@ public class Configurator {
             addProperty("test.enabled", false);
         }
     };
-    private static final Path configPath = Bootstrap.workDir.resolve("config");
+    private static final Path configPath = Bootstrap.workDir.resolve("config.conf");
 
     private MessageManager messageManager = MessageManager.getInstance();
     private Map<Source, ChatClient> chatClients = new HashMap<>();
