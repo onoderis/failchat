@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +20,12 @@ public class GGSmileInfoLoader {
     private static final Logger logger = Logger.getLogger(GGSmileInfoLoader.class.getName());
     private static final Pattern SMILES_ARRAY = Pattern.compile("Smiles : (\\[.+?\\]),");
 
+    private static SoftReference<Map<String, GGSmile>> smiles;
+
     public static Map<String, GGSmile> loadSmilesInfo() {
+        if (smiles != null && smiles.get() != null) {
+            return smiles.get();
+        }
         try {
             String rawJS = IOUtils.toString(new URL(SMILES_JS_URL).openConnection().getInputStream());
             Matcher m = SMILES_ARRAY.matcher(rawJS);
@@ -35,6 +41,7 @@ public class GGSmileInfoLoader {
             for (GGSmile smile : smileList) {
                 smileMap.put(smile.getCode(), smile);
             }
+            smiles = new SoftReference<>(smileMap);
             logger.info("Goodgame smiles found: " + smileList.size());
             return smileMap;
         } catch (IOException e) {

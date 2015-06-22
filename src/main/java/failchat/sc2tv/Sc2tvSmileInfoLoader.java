@@ -6,6 +6,7 @@ import failchat.core.Smile;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -22,7 +23,12 @@ public class Sc2tvSmileInfoLoader {
     private static final String SMILE_ARRAY_PATTERN = "var smiles=(\\[.*?\\]);"; // для извлечения JSON'а со смайлами из Smiles.js
     private static final String SMILES_JS_URL_STR = "http://chat.sc2tv.ru/js/smiles.js";
 
+    private static SoftReference<Map<String, Smile>> smiles;
+
     public static Map<String, Smile> loadSmilesInfo() {
+        if (smiles != null && smiles.get() != null) {
+            return smiles.get();
+        }
         try {
             URL smilesJsUrl = new URL(SMILES_JS_URL_STR);
             HttpURLConnection con = (HttpURLConnection) smilesJsUrl.openConnection();
@@ -41,6 +47,7 @@ public class Sc2tvSmileInfoLoader {
             for (Smile s: smileList) {
                 smilesMap.put(s.getCode(), s);
             }
+            smiles = new SoftReference<>(smilesMap);
             logger.info("Sc2tv smiles found: " + smileList.size());
             return smilesMap;
         } catch (IOException e) {
