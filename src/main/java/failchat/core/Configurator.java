@@ -46,16 +46,14 @@ public class Configurator {
             addProperty("twitch.enabled", false);
             addProperty("goodgame.channel", "");
             addProperty("goodgame.enabled", false);
-            addProperty("chat.width", 350);
-            addProperty("chat.height", 600);
-            addProperty("chat.position", new int[] {300, 300});
-            addProperty("settings.width", 350);
-            addProperty("settings.height", 600);
             addProperty("skin", "default");
-            addProperty("opacity", 100);
             addProperty("frame", true);
             addProperty("onTop", false);
-            addProperty("width", false);
+            addProperty("opacity", 100);
+            addProperty("chat.width", 350);
+            addProperty("chat.height", 600);
+            addProperty("chat.x", -1);
+            addProperty("chat.y", -1);
             addProperty("test.enabled", false);
         }
     };
