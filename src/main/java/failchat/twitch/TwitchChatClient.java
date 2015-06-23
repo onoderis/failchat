@@ -4,6 +4,7 @@ import com.sorcix.sirc.*;
 import failchat.core.*;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -42,6 +43,7 @@ public class TwitchChatClient implements ChatClient {
             return;
         }
         ircConnection = new IrcConnection(TWITCH_IRC_URL, TWITCH_IRC_PORT, BOT_PASSWORD);
+        ircConnection.setCharset(Charset.forName("UTF-8"));
         ircConnection.setNick(BOT_NAME);
         ircConnection.addMessageListener(new MyIrcAdapter());
         try {
