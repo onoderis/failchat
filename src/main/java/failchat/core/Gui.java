@@ -23,14 +23,14 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 
 public class Gui extends Application {
-
     private static final Logger logger = Logger.getLogger(MessageManager.class.getName());
     private static final Path skinsPath = Bootstrap.workDir.resolve("skins");
 
     private Configurator configurator = Configurator.getInstance();
-
     private Stage settingsStage;
-    private Stage chatStage;
+    private Stage decoratedStage;
+    private Stage undecoratedChatStage;
+    private boolean decorated;
     private Scene webScene;
     private WebEngine webEngine;
 
@@ -57,9 +57,9 @@ public class Gui extends Application {
         settingsStage = primaryStage;
         buildSettingsStage(settingsStage);
         updateSettingsValues();
-        chatStage = buildChatStage();
+        decoratedStage = buildChatStage(true);
+        undecoratedChatStage = buildChatStage(false);
         webScene = buildChatScene();
-        chatStage.setScene(webScene);
         settingsStage.show();
 
         settingsStage.setOnCloseRequest(event -> {
@@ -134,15 +134,15 @@ public class Gui extends Application {
         Configurator.config.setProperty("opacity", (int)opacitySlider.getValue());
     }
 
-    // could be invoked several times if frame setting changed
-    private Stage buildChatStage() {
+    // build 2 times: for decorated and undecorated stages
+    private Stage buildChatStage(boolean decorated) {
         Stage stage = new Stage();
         stage.setTitle("failchat");
-        if (!Configurator.config.getBoolean("frame")) {
+        if (!decorated) {
             stage.initStyle(StageStyle.UNDECORATED);
         }
         stage.setOnCloseRequest(event -> {
-            saveChatPosition();
+            saveChatPosition(stage);
             Bootstrap.shutDown();
         });
        return stage;
@@ -159,8 +159,11 @@ public class Gui extends Application {
         webScene.setOnKeyPressed((key) -> {
             //esc
             if (key.getCode() == KeyCode.ESCAPE) {
-                saveChatPosition();
                 switchStage();
+            }
+            // space
+            else if (key.getCode() == KeyCode.SPACE) {
+                switchStageDecorations();
             }
         });
 
@@ -189,7 +192,7 @@ public class Gui extends Application {
         return webScene;
     }
 
-    //invokes every time when switched to chat stage
+    //invokes every time when switched to chat stage or switched between decorated and undecorated stages
     private void configureChatStage(Stage stage) {
         stage.setOpacity(Configurator.config.getDouble("opacity") / 100);
         stage.setAlwaysOnTop(Configurator.config.getBoolean("onTop"));
@@ -212,11 +215,11 @@ public class Gui extends Application {
 //        });
     }
 
-    private void saveChatPosition() {
-        Configurator.config.setProperty("chat.width", (int)chatStage.getWidth());
-        Configurator.config.setProperty("chat.height", (int)chatStage.getHeight());
-        Configurator.config.setProperty("chat.x", (int)chatStage.getX());
-        Configurator.config.setProperty("chat.y", (int)chatStage.getY());
+    private void saveChatPosition(Stage stage) {
+        Configurator.config.setProperty("chat.width", (int)stage.getWidth());
+        Configurator.config.setProperty("chat.height", (int)stage.getHeight());
+        Configurator.config.setProperty("chat.x", (int)stage.getX());
+        Configurator.config.setProperty("chat.y", (int)stage.getY());
     }
 
     private void switchStage() {
@@ -224,11 +227,17 @@ public class Gui extends Application {
         if (settingsStage.isShowing()) {
             saveSettingsValues();
             settingsStage.hide();
-            // if stage style changed
-            if (!Configurator.config.getBoolean("frame") == (chatStage.getStyle() == StageStyle.DECORATED)) {
-                chatStage = buildChatStage();
-                chatStage.setScene(webScene);
-                logger.fine("Stage rebuilded");
+            if (Configurator.config.getBoolean("frame")) {
+                decorated = true;
+                decoratedStage.setScene(webScene);
+                configureChatStage(decoratedStage);
+                decoratedStage.show();
+            }
+            else {
+                decorated = false;
+                undecoratedChatStage.setScene(webScene);
+                configureChatStage(undecoratedChatStage);
+                undecoratedChatStage.show();
             }
             String skin = Configurator.config.getString("skin");
             try {
@@ -236,17 +245,47 @@ public class Gui extends Application {
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
-            configureChatStage(chatStage);
-            chatStage.show();
+            configureChatStage(decoratedStage);
             new Thread(configurator::initializeChatClients, "ChatClientsInitializer").start();
         }
 
         //chat -> settings
         else {
-            chatStage.hide();
+            if (decorated) {
+                saveChatPosition(decoratedStage);
+            }
+            else {
+                saveChatPosition(undecoratedChatStage);
+            }
+            decoratedStage.hide();
+            undecoratedChatStage.hide();
             webEngine.loadContent("");
+            frame.setSelected(decorated);
             settingsStage.show();
             configurator.turnOffChatClients();
         }
+    }
+
+    private void switchStageDecorations() {
+        // decorated -> undecorated
+        if (decorated) {
+            decoratedStage.hide();
+            saveChatPosition(decoratedStage);
+            configureChatStage(undecoratedChatStage);
+            undecoratedChatStage.setScene(webScene);
+            undecoratedChatStage.show();
+            decorated = false;
+        }
+
+        // undecorated -> decorated
+        else {
+            undecoratedChatStage.hide();
+            saveChatPosition(undecoratedChatStage);
+            configureChatStage(decoratedStage);
+            decoratedStage.setScene(webScene);
+            decoratedStage.show();
+            decorated = true;
+        }
+        logger.fine("Chat stage switched. Decorated: " + decorated);
     }
 }
