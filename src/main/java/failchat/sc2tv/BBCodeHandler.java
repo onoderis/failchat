@@ -15,7 +15,6 @@ import java.util.Set;
 public class BBCodeHandler implements MessageHandler {
 
     static HashMap<String, String> rules = new HashMap<String, String>() {{
-        //TODO: сделать так, чтобы заменялись только закрытые теги
         put("\\[b\\]", "");
         put("\\[/b\\]", "");
         put("\\[url\\]", "");

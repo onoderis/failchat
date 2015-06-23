@@ -1,5 +1,6 @@
 package failchat.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -22,9 +23,15 @@ public class Message {
         return "{!" + objectNumber + "}";
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnore(true)
     public Source getSource() {
         return null;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("source")
+    public String getLowerCasedSource() {
+        return getSource() != null ? getSource().getLowerCased() : null;
     }
 
     @JsonProperty("author")
