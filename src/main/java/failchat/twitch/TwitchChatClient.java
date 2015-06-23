@@ -23,8 +23,7 @@ public class TwitchChatClient implements ChatClient {
     private String channelName;
     private List<MessageHandler<TwitchMessage>> messageHandlers;
     private List<MessageFilter<TwitchMessage>> messageFilters;
-    private ChatClientStatus status = ChatClientStatus.READY;
-    private TwitchSmileHandler smileHandler;
+    private ChatClientStatus status;
 
     public TwitchChatClient(String channelName) {
         this.channelName = channelName;
@@ -34,6 +33,7 @@ public class TwitchChatClient implements ChatClient {
         messageHandlers.add(MessageObjectCleaner.getInstance());
         messageHandlers.add(new TwitchSmileHandler());
         messageHandlers.add(new TwitchHighlightHandler(channelName));
+        status = ChatClientStatus.READY;
     }
 
     @Override
@@ -63,6 +63,7 @@ public class TwitchChatClient implements ChatClient {
 
     @Override
     public void goOffline() {
+        status = ChatClientStatus.SHUTDOWN;
         ircConnection.disconnect();
     }
 
@@ -95,11 +96,6 @@ public class TwitchChatClient implements ChatClient {
                 status = ChatClientStatus.CONNECTING;
             }
             logger.info("Twitch disconnected");
-            try {
-                Thread.sleep(RECONNECT_TIMEOUT);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 }

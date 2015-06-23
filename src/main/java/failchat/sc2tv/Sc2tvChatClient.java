@@ -48,6 +48,7 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
 
     @Override
     public void goOffline() {
+        status = ChatClientStatus.SHUTDOWN;
         exitFlag = true;
     }
 
@@ -92,7 +93,6 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
                 e.printStackTrace();
             }
         }
-        status = ChatClientStatus.READY;
     }
 
     private void makeIteration() {

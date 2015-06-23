@@ -44,7 +44,10 @@ public class Bootstrap {
         logger.info("Shutting down...");
         configurator.saveConfiguration();
         Platform.exit();
-        configurator.turnOffChatClients();
-        messageManager.turnOff();
+        // чтобы javafx thread'ы смогли завершиться и интерфейс закрывался сразу
+        new Thread(() -> {
+            configurator.turnOffChatClients();
+            messageManager.turnOff();
+        }, "ShutdownThread").start();
     }
 }

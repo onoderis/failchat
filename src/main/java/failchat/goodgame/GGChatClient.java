@@ -30,7 +30,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
     private static final int RECONNECT_TIMEOUT = 5000;
     private static final String NEW_MESSAGE_SEQUENCE = "\"type\":\"message\"";
 
-    private ChatClientStatus status = ChatClientStatus.READY;
+    private ChatClientStatus status;
     private Queue<Message> messageQueue = MessageManager.getInstance().getMessagesQueue();
     private List<MessageHandler<GGMessage>> messageHandlers;
     private String channelName;
@@ -46,6 +46,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
         messageHandlers.add(new UrlCleaner());
         messageHandlers.add(new GGSmileHandler());
         messageHandlers.add(new GGHighlightHandler(channelName));
+        status = ChatClientStatus.READY;
     }
 
     @Override
@@ -72,8 +73,8 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
 
     @Override
     public void goOffline() {
+        status = ChatClientStatus.SHUTDOWN;
         close();
-        status = ChatClientStatus.READY;
     }
 
     @Override
