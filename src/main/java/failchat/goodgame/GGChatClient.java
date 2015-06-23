@@ -18,11 +18,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GGChatClient extends WebSocketClient implements ChatClient {
-
+    private static final Logger logger = Logger.getLogger(GGChatClient.class.getName());
     private static final String GG_WS_URL = "ws://chat.goodgame.ru:8081/chat/websocket";
     private static final String GG_STREAM_API_URL = "http://goodgame.ru/api/getchannelstatus?fmt=json&id=";
     private static final String EXTRACT_CHANNEL_ID_REGEX = "\"stream_id\":\"(\\d*)\"";
@@ -34,7 +35,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
     private List<MessageHandler<GGMessage>> messageHandlers;
     private String channelName;
     private int channelId;
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     public GGChatClient(String channelName) {
         super(URI.create(GG_WS_URL));
@@ -44,6 +45,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
         messageHandlers.add(MessageObjectCleaner.getInstance());
         messageHandlers.add(new UrlCleaner());
         messageHandlers.add(new GGSmileHandler());
+        messageHandlers.add(new GGHighlightHandler(channelName));
     }
 
     @Override
@@ -82,7 +84,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
 
     @Override
     public void onOpen(ServerHandshake serverHandshake) {
-
+        logger.info("Connected to goodgame");
     }
 
     @Override
@@ -107,7 +109,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
 
     @Override
     public void onClose(int i, String s, boolean b) {
-
+        logger.info("Goodgame disconnected");
     }
 
     @Override

@@ -42,6 +42,7 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
         messageHandlers.add(MessageObjectCleaner.getInstance());
         messageHandlers.add(new BBCodeHandler());
         messageHandlers.add(new Sc2tvSmileHandler());
+        messageHandlers.add(new Sc2tvHighlightHandler(channelName));
         status = ChatClientStatus.READY;
     }
 

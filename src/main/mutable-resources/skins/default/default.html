@@ -47,6 +47,14 @@
             text-decoration: none;
         }
 
+        span.text {
+
+        }
+
+        span.highlighted {
+            color: #f36223;
+        }
+
         @keyframes new-message {
             from {
                 opacity: 0;
@@ -70,7 +78,7 @@
 <body>
 
 <script id="messageTemplate" type="text/x-jsrender">
-    <p><span class='nick'>{{:author}}: </span>{{:text}}</p>
+    <p><span class="nick">{{:author}}: </span><span class="text{{if highlighted}} highlighted{{/if}}">{{:text}}</span></p>
 </script>
 <script id="smileTemplate" type="text/x-jsrender">
     <img src="{{:imgUrl}}"></img>

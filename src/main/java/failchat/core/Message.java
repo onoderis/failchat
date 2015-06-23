@@ -9,28 +9,22 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Message {
-    private static final int MAS_INIT_SIZE = 3;
-    private static final int MAS_INCR_SIZE = 10;
-
     protected String author;
     protected String text;
     protected Date timestamp;
-    protected Source source;
     protected List<SmileInMessage> smiles;
     protected List<Link> links;
+    protected boolean highlighted = false;
+
+    private int objectsCount = 0; //smiles and links count
 
     private static String format(int objectNumber) {
         return "{!" + objectNumber + "}";
     }
 
-    private int objectsCount = 0; //smiles and links count
-
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Source getSource() {
-        return source;
-    }
-
-    public void setSource(Source source) {
-        this.source = source;
+        return null;
     }
 
     @JsonProperty("author")
@@ -88,5 +82,14 @@ public class Message {
         }
         links.add(link);
         return format(objectsCount);
+    }
+
+    @JsonInclude (JsonInclude.Include.NON_DEFAULT)
+    public boolean isHighlighted() {
+        return highlighted;
+    }
+
+    public void setHighlighted(boolean highlighted) {
+        this.highlighted = highlighted;
     }
 }

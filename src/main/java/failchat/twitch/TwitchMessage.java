@@ -20,6 +20,8 @@ public class TwitchMessage extends Message {
         this.timestamp = new Date();
     }
 
+    TwitchMessage() {} //for jackson (exception related with JsonInclude.Include.NON_DEFAULT)
+
     @JsonIgnore
     public int[] getEmoteSets() {
         return properties != null && properties.getEmoteSets() != null ? properties.getEmoteSets() : globalEmoteSet;

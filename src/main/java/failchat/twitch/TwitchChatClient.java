@@ -28,13 +28,12 @@ public class TwitchChatClient implements ChatClient {
 
     public TwitchChatClient(String channelName) {
         this.channelName = channelName;
-        messageHandlers = new ArrayList<>();
-        smileHandler = new TwitchSmileHandler();
-        messageHandlers.add(MessageObjectCleaner.getInstance());
-        messageHandlers.add(smileHandler);
         messageFilters = new ArrayList<>();
         messageFilters.add(new MetaMessageFilter());
-
+        messageHandlers = new ArrayList<>();
+        messageHandlers.add(MessageObjectCleaner.getInstance());
+        messageHandlers.add(new TwitchSmileHandler());
+        messageHandlers.add(new TwitchHighlightHandler(channelName));
     }
 
     @Override
