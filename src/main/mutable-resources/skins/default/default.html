@@ -3,11 +3,9 @@
 <head lang="en">
     <title>failchat</title>
     <meta charset="UTF-8">
-    <title>failchat</title>
-    <script src="../../js/main.js"></script>
     <script src="../../js/jquery-2.1.4.min.js"></script>
     <script src="../../js/jsrender.min.js"></script>
-
+    <script src="../../js/main.js"></script>
     <style>
         body {
             background-color: black;
@@ -15,7 +13,7 @@
             word-break: normal;
         }
 
-        #container {
+        #message-container {
             overflow-x: hidden;
         }
 
@@ -55,6 +53,11 @@
             color: #f36223;
         }
 
+        img.icon {
+            width: 16px;
+            height: 16px;
+        }
+
         @keyframes new-message {
             from {
                 opacity: 0;
@@ -77,17 +80,26 @@
 
 <body>
 
-<script id="messageTemplate" type="text/x-jsrender">
-    <p><span class="nick">{{:author}}: </span><span class="text{{if highlighted}} highlighted{{/if}}">{{:text}}</span></p>
+<script>
+    failchat.mode = 1;
+    failchat.maxMessages = 50;
 </script>
-<script id="smileTemplate" type="text/x-jsrender">
+
+<script id="message-template" type="text/x-jsrender">
+    <p>
+        <img class="icon" src="../../icons/{{:source}}.png">
+        <span class="nick">{{:author}}: </span>
+        <span class="text{{if highlighted}} highlighted{{/if}}">{{:text}}</span>
+    </p>
+</script>
+<script id="smile-template" type="text/x-jsrender">
     <img src="{{:imgUrl}}"></img>
 </script>
-<script id="linkTemplate" type="text/x-jsrender">
+<script id="link-template" type="text/x-jsrender">
     <a href="{{:url}}">{{:domain}}</a>
 </script>
 
-<div id="container">
+<div id="message-container">
 </div>
 </body>
 </html>
