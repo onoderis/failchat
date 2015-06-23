@@ -56,7 +56,7 @@ public class Configurator {
         }
     }
 
-    public void initializeChatClients() {
+    public synchronized void initializeChatClients() {
         if (Configurator.config.getBoolean("sc2tv.enabled") && !Configurator.config.getString("sc2tv.channel").equals("")) {
             ChatClient sc2tvChatClient = new Sc2tvChatClient(Configurator.config.getString("sc2tv.channel"));
             chatClients.put(Source.SC2TV, sc2tvChatClient);
@@ -79,7 +79,7 @@ public class Configurator {
         chatClients.values().forEach(ChatClient::goOnline);
     }
 
-    public void turnOffChatClients() {
+    public synchronized void turnOffChatClients() {
         chatClients.values().forEach(ChatClient::goOffline);
         chatClients.clear();
     }

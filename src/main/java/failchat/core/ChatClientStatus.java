@@ -4,5 +4,6 @@ public enum ChatClientStatus {
     READY,
     WORKING,
     CONNECTING,
-    ERROR
+    ERROR,
+    SHUTDOWN
 }
