@@ -32,9 +32,11 @@ public class TestChatClient implements ChatClient, Runnable {
         int i = 0;
         while (!exitFlag) {
             Message m = new Message();
-            m.setSource(Source.TEST);
             m.setAuthor("Test author");
             m.setText("test text " + i);
+            if (i % 4 == 0) {
+                m.setHighlighted(true);
+            }
 //            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 //            try {
 //                m.setText(br.readLine());
