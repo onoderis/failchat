@@ -69,8 +69,7 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
             e.printStackTrace();
         }
 
-        Thread t = new Thread(this);
-        t.setName(THREAD_NAME);
+        Thread t = new Thread(this, THREAD_NAME);
         t.start();
     }
 
@@ -82,7 +81,7 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
     @Override
     public void run() {
         lastModified = System.currentTimeMillis();
-        while (!exitFlag) {
+        while (status != ChatClientStatus.SHUTDOWN && status != ChatClientStatus.ERROR) {
             makeIteration();
             try {
                 synchronized (this) {
@@ -104,7 +103,7 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
             urlCon.setRequestProperty("User-Agent", "failchat client");
             if (urlCon.getResponseCode() == 404 || urlCon.getResponseCode() == 304) { // no new messages
                 requestTime = 0;
-                if (status == ChatClientStatus.READY) {
+                if (status != ChatClientStatus.WORKING) {
                     status = ChatClientStatus.WORKING;
                     logger.info("Sc2tv connected");
                     messageManager.sendInfoMessage(new InfoMessage(Source.SC2TV, "connected"));
@@ -113,7 +112,7 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
             } else if (urlCon.getResponseCode() != 200) {
                 status = ChatClientStatus.CONNECTING;
                 exitFlag = true;
-                return;
+                throw new IOException("Http code " + urlCon.getResponseCode() + " not expected");
             }
             // для уведомления о подключении при коде 200
             if (status == ChatClientStatus.READY) {
@@ -155,7 +154,11 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
         }
         catch (IOException e) {
             requestTime = 0;
-            status = ChatClientStatus.CONNECTING;
+            if (status != ChatClientStatus.CONNECTING) {
+                status = ChatClientStatus.CONNECTING;
+                logger.info("Can't connect to sc2tc. Reconnecting ...");
+                messageManager.sendInfoMessage(new InfoMessage(Source.SC2TV, "disconnected, trying to reconnect..."));
+            }
         }
     }
 }
