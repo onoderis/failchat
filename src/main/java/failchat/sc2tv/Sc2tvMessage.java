@@ -10,6 +10,10 @@ import java.util.Date;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Sc2tvMessage extends Message {
 
+    Sc2tvMessage() {
+        source = Source.SC2TV;
+    }
+
     @Override
     @JsonProperty("name")
     public void setAuthor(String author) {
@@ -26,10 +30,5 @@ public class Sc2tvMessage extends Message {
     @JsonProperty("date")
     public void setTimestamp(Date timestamp) {
         super.setTimestamp(timestamp);
-    }
-
-    @Override
-    public Source getSource() {
-        return Source.SC2TV;
     }
 }

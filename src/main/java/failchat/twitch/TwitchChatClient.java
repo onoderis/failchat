@@ -19,7 +19,8 @@ public class TwitchChatClient implements ChatClient {
     private static final String BOT_PASSWORD = "oauth:59tune21e6ymz4xg57snr77tcsbg2y";
     private static final int RECONNECT_TIMEOUT = 5000;
 
-    private final Queue<Message> messageQueue = MessageManager.getInstance().getMessagesQueue();
+    private MessageManager messageManager = MessageManager.getInstance();
+    private final Queue<Message> messageQueue = messageManager.getMessagesQueue();
     private IrcConnection ircConnection;
     private String channelName;
     private List<MessageHandler<TwitchMessage>> messageHandlers;
@@ -60,6 +61,7 @@ public class TwitchChatClient implements ChatClient {
         logger.info("Connected to TWITCH IRC server");
         ircConnection.createChannel(channelName.toLowerCase()).join(); // в irc каналы создаются в lower case
         logger.info("Connected to irc channel: " + channelName);
+        messageManager.sendInfoMessage(new InfoMessage(Source.TWITCH, "connected"));
         ircConnection.sendRaw("TWITCHCLIENT 3"); // чтобы слались мета-сообщения
     }
 
@@ -98,6 +100,7 @@ public class TwitchChatClient implements ChatClient {
                 status = ChatClientStatus.CONNECTING;
             }
             logger.info("Twitch disconnected");
+            messageManager.sendInfoMessage(new InfoMessage(Source.TWITCH, "disconnected"));
         }
     }
 }

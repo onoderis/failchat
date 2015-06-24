@@ -14,22 +14,18 @@ public class TwitchMessage extends Message {
 
     private MetaProperties properties;
 
+    TwitchMessage() {} //for jackson (exception related with JsonInclude.Include.NON_DEFAULT)
+
     TwitchMessage(String author, String text) {
         this.author = author;
         this.text = text;
         this.timestamp = new Date();
+        this.source = Source.TWITCH;
     }
-
-    TwitchMessage() {} //for jackson (exception related with JsonInclude.Include.NON_DEFAULT)
 
     @JsonIgnore
     public int[] getEmoteSets() {
         return properties != null && properties.getEmoteSets() != null ? properties.getEmoteSets() : globalEmoteSet;
-    }
-
-    @Override
-    public Source getSource() {
-        return Source.TWITCH;
     }
 
     public void setProperties(MetaProperties properties) {

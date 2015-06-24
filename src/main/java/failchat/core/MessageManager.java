@@ -29,7 +29,7 @@ public class MessageManager implements Runnable {
     private MessageManager() {}
 
     private static final Logger logger = Logger.getLogger(MessageManager.class.getName());
-    private final Queue<Message> messages = new ConcurrentLinkedQueue<>();
+    private final Queue<Message> messages = new ConcurrentLinkedQueue<>(); //for messages from users
     private boolean exitFlag = false;
     private LocalWSServer localWSServer;
     private List<MessageHandler> handlers = new ArrayList<>();
@@ -58,6 +58,15 @@ public class MessageManager implements Runnable {
 
     public Queue<Message> getMessagesQueue() {
         return messages;
+    }
+
+    public void sendInfoMessage(InfoMessage infoMessage) {
+        try {
+            String jsonMessage = objectMapper.writeValueAsString(new LocalCommonMessage("info", infoMessage));
+            localWSServer.sendToAll(jsonMessage);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
     private void initHandlers() {
@@ -90,8 +99,7 @@ public class MessageManager implements Runnable {
                     h.handleMessage(m);
                 }
                 try {
-                    String jsonMessage = objectMapper.writeValueAsString(new LocalCommonMessage(m));
-                    logger.fine("Send to Web Socket: " + jsonMessage);
+                    String jsonMessage = objectMapper.writeValueAsString(new LocalCommonMessage("message", m));
                     localWSServer.sendToAll(jsonMessage);
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();

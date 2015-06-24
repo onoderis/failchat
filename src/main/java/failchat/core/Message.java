@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Message {
+    protected Source source;
     protected String author;
     protected String text;
     protected Date timestamp;
@@ -25,13 +26,16 @@ public class Message {
 
     @JsonIgnore(true)
     public Source getSource() {
-        return null;
+        return source;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("source")
     public String getLowerCasedSource() {
-        return getSource() != null ? getSource().getLowerCased() : null;
+        return getSource() != null ? source.getLowerCased() : null;
+    }
+
+    public void setSource(Source source) {
+        this.source = source;
     }
 
     @JsonProperty("author")
@@ -60,11 +64,11 @@ public class Message {
         this.timestamp = timestamp;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public List<SmileInMessage> getSmiles() {
         return smiles;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public List<Link> getLinks() {
         return links;
     }

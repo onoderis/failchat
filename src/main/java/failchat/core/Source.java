@@ -7,6 +7,7 @@ public enum Source {
     SC2TV,
     GOODGAME,
     TWITCH,
+    FAILCHAT,
     TEST;
 
     // for json

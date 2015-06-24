@@ -22,7 +22,8 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
     private static final SimpleDateFormat JSON_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //example: "2015-04-12 02:03:06"
     private static final long TIMEOUT = 5000;
 
-    private final Queue<Message> messageQueue = MessageManager.getInstance().getMessagesQueue();
+    private MessageManager messageManager = MessageManager.getInstance();
+    private final Queue<Message> messageQueue = messageManager.getMessagesQueue();
     private List<MessageHandler> messageHandlers;
     private String channelName;
     private int channelId = -1;
@@ -101,10 +102,25 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
             HttpURLConnection urlCon = (HttpURLConnection)chatUrl.openConnection();
             urlCon.setIfModifiedSince(lastModified);
             urlCon.setRequestProperty("User-Agent", "failchat client");
-            if (urlCon.getResponseCode() != 200) {
+            if (urlCon.getResponseCode() == 404 || urlCon.getResponseCode() == 304) { // no new messages
                 requestTime = 0;
+                if (status == ChatClientStatus.READY) {
+                    status = ChatClientStatus.WORKING;
+                    logger.info("Sc2tv connected");
+                    messageManager.sendInfoMessage(new InfoMessage(Source.SC2TV, "connected"));
+                }
+                return;
+            } else if (urlCon.getResponseCode() != 200) {
+                status = ChatClientStatus.CONNECTING;
+                exitFlag = true;
                 return;
             }
+            // для уведомления о подключении при коде 200
+            if (status == ChatClientStatus.READY) {
+                logger.info("Sc2tv connected");
+                messageManager.sendInfoMessage(new InfoMessage(Source.SC2TV, "connected"));
+            }
+
             requestTime = System.currentTimeMillis() - t;
 
             lastModified = urlCon.getLastModified();
@@ -128,11 +144,11 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
             }
             lastMessageTime = messages.get(0).getTimestamp().getTime();
 
-            status = ChatClientStatus.WORKING;
-
             synchronized (messageQueue) {
                 messageQueue.notify();
             }
+            status = ChatClientStatus.WORKING;
+
         } catch (JsonProcessingException e) {
             status = ChatClientStatus.ERROR;
             exitFlag = true;
