@@ -31,7 +31,8 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
     private static final String NEW_MESSAGE_SEQUENCE = "\"type\":\"message\"";
 
     private ChatClientStatus status;
-    private Queue<Message> messageQueue = MessageManager.getInstance().getMessagesQueue();
+    private MessageManager messageManager = MessageManager.getInstance();
+    private Queue<Message> messageQueue = messageManager.getMessagesQueue();
     private List<MessageHandler<GGMessage>> messageHandlers;
     private String channelName;
     private int channelId;
@@ -86,6 +87,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
     @Override
     public void onOpen(ServerHandshake serverHandshake) {
         logger.info("Connected to goodgame");
+        messageManager.sendInfoMessage(new InfoMessage(Source.GOODGAME, "connected"));
     }
 
     @Override
@@ -111,6 +113,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
     @Override
     public void onClose(int i, String s, boolean b) {
         logger.info("Goodgame disconnected");
+        messageManager.sendInfoMessage(new InfoMessage(Source.GOODGAME, "disconnected"));
     }
 
     @Override

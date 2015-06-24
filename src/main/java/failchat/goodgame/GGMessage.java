@@ -7,15 +7,13 @@ import failchat.core.Source;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GGMessage extends Message {
+    GGMessage() {
+        source = Source.GOODGAME;
+    }
 
     @Override
     @JsonProperty("user_name")
     public void setAuthor(String author) {
         super.setAuthor(author);
-    }
-
-    @Override
-    public Source getSource() {
-        return Source.GOODGAME;
     }
 }

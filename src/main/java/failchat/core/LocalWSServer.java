@@ -6,9 +6,10 @@ import org.java_websocket.server.WebSocketServer;
 
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.logging.Logger;
 
 public class LocalWSServer extends WebSocketServer {
-
+    private static final Logger logger = Logger.getLogger(LocalWSServer.class.getName());
     private static final int WS_PORT = 8887;
 
     public LocalWSServer() {
@@ -35,65 +36,11 @@ public class LocalWSServer extends WebSocketServer {
 
     }
 
-    public void sendToAll(String text) {
+    synchronized public void sendToAll(String text) {
+        logger.fine("Send to Web Socket: " + text);
         Collection<WebSocket> con = connections();
-        synchronized (con) {
             for (WebSocket c : con) {
                 c.send(text);
             }
-        }
     }
 }
-
-//@ServerEndpoint(value = "/")
-//public class LocalChatServer {
-//
-//    private static final int WS_PORT = 8887;
-//
-//    private Server server;
-//    private ArrayList<Session> sessions = new ArrayList<>();
-//
-//    LocalChatServer() {
-//        server = new Server("localhost", WS_PORT, null, null, LocalChatServer.class);
-//    }
-//
-//    public void start() {
-//        try {
-//            server.start();
-//        } catch (DeploymentException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    public void stop() {
-//        server.stop();
-//    }
-//
-//    @OnOpen
-//    public void onOpen(Session session) {
-//        sessions.add(session);
-//    }
-//
-//    @OnClose
-//    public void onClose (Session session) {
-//        sessions.remove(session);
-//    }
-//
-//    @OnMessage
-//    public void onMessage (Session session) {
-//        System.out.println("message");
-//    }
-//
-//    public void sendToAll(String text) {
-//        for (Session s : sessions) {
-//            if (s.isOpen()) {
-//                try {
-//                    s.getBasicRemote().sendText(text);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
-//
-//}

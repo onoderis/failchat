@@ -34,7 +34,7 @@ public class TestChatClient implements ChatClient, Runnable {
             Message m = new Message();
             m.setAuthor("Test author");
             m.setText("test text " + i);
-            if (i % 4 == 0) {
+            if (i % 3 == 0) {
                 m.setHighlighted(true);
             }
 //            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -47,10 +47,15 @@ public class TestChatClient implements ChatClient, Runnable {
             synchronized (messageQueue) {
                 messageQueue.notify();
             }
+
+            Source[] sources = Source.values();
+            if (i % 5 == 0) {
+                MessageManager.getInstance().sendInfoMessage(new InfoMessage(sources[(i/5)%sources.length], "test info message" + i));
+            }
             i++;
             synchronized (this) {
                 try {
-                    wait(3000);
+                    wait(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

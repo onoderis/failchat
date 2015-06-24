@@ -2,16 +2,16 @@ package failchat.core;
 
 public class LocalCommonMessage {
     private String type;
-    private Message message;
+    private Object content;
 
 
-    LocalCommonMessage(Message m) {
-        message = m;
-        type = "message";
+    LocalCommonMessage(String type, Object content) {
+        this.type = type;
+        this.content = content;
     }
 
-    public Message getMessage() {
-        return message;
+    public Object getContent() {
+        return content;
     }
 
     public String getType() {

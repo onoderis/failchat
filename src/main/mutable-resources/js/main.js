@@ -10,35 +10,59 @@ $(function () {
     var smileTemplate = $("#smile-template");
     var linkTemplate = $("#link-template");
     var messageTemplate = $("#message-template");
+    var infoMessageTemplate = $("#info-message-template");
 
     socket.onopen = function () {
-        messageContainer.prepend("<p>Соединение открыто</p>");
+        var openHtml = handleInfoMessage({"source": "failchat","text":"connected"});
+        appendToMessageContainer(openHtml);
     };
     socket.onclose = function () {
-        messageContainer.prepend("<p>Соединение закрыто</p>");
+        var openHtml = handleInfoMessage({"source": "failchat","text":"disconnected"});
+        appendToMessageContainer(openHtml);
     };
     socket.onmessage = function (event) {
         var wsm = JSON.parse(event.data);
+        var messageHtml = null;
 
+        if (wsm.type === "message") {
+            messageHtml = handleMessage(wsm.content);
+        }
+        else if (wsm.type === "info") {
+            messageHtml = handleInfoMessage(wsm.content);
+        }
+
+        if (messageHtml !== null && messageHtml !== "") {
+            appendToMessageContainer(messageHtml);
+        }
+    };
+
+    function handleMessage(message) {
         //smiles
-        if (wsm.message.smiles != undefined) {
+        if (message.smiles != undefined) {
             var imgHtml;
-            for (var i = 0; i < wsm.message.smiles.length; i++) {
-                imgHtml = smileTemplate.render(wsm.message.smiles[i]);
-                wsm.message.text = wsm.message.text.replace("{!" + wsm.message.smiles[i].objectNumber + "}", imgHtml);
+            for (var i = 0; i < message.smiles.length; i++) {
+                imgHtml = smileTemplate.render(message.smiles[i]);
+                message.text = message.text.replace("{!" + message.smiles[i].objectNumber + "}", imgHtml);
             }
         }
 
         //links
-        if (wsm.message.links != undefined) {
+        if (message.links != undefined) {
             var linkHtml;
-            for (i = 0; i < wsm.message.links.length; i++) {
-                linkHtml = linkTemplate.render(wsm.message.links[i]);
-                wsm.message.text = wsm.message.text.replace("{!" + wsm.message.links[i].objectNumber + "}", linkHtml);
+            for (i = 0; i < message.links.length; i++) {
+                linkHtml = linkTemplate.render(message.links[i]);
+                message.text = message.text.replace("{!" + message.links[i].objectNumber + "}", linkHtml);
             }
         }
 
-        var messageHtml = messageTemplate.render(wsm.message);
+        return messageTemplate.render(message);
+    }
+
+    function handleInfoMessage(infoMessage) {
+        return infoMessageTemplate.render(infoMessage);
+    }
+
+    function appendToMessageContainer(messageHtml) {
         messageCount++;
         if (failchat.mode == 0) {
             messageContainer.append(messageHtml);
@@ -53,5 +77,5 @@ $(function () {
                 messageContainer.find("> :last").remove();
             }
         }
-    };
+    }
 });
