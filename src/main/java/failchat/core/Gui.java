@@ -60,12 +60,14 @@ public class Gui extends Application {
         decoratedStage = buildChatStage(true);
         undecoratedChatStage = buildChatStage(false);
         webScene = buildChatScene();
-        settingsStage.show();
+        buildContextMenu(webScene);
 
         settingsStage.setOnCloseRequest(event -> {
             saveSettingsValues();
             Bootstrap.shutDown();
         });
+
+        settingsStage.show();
         logger.info("GUI loaded");
     }
 
@@ -163,7 +165,7 @@ public class Gui extends Application {
             }
             // space
             else if (key.getCode() == KeyCode.SPACE) {
-                switchStageDecorations();
+                switchDecorations();
             }
         });
 
@@ -190,6 +192,28 @@ public class Gui extends Application {
             }
         });
         return webScene;
+    }
+
+    private ContextMenu buildContextMenu(Scene scene) {
+        MenuItem switchDecorationsItem = new MenuItem("Show/hide frame");
+        MenuItem toSettingsItem = new MenuItem("Settings");
+        ContextMenu contextMenu = new ContextMenu(switchDecorationsItem, toSettingsItem);
+
+        //context menu
+        webScene.setOnContextMenuRequested((event) -> {
+            contextMenu.show(scene.getRoot(), event.getScreenX(), event.getScreenY());
+        });
+        webScene.setOnMouseClicked((mouseEvent) -> {
+            if (contextMenu.isShowing()) {
+                contextMenu.hide();
+            }
+        });
+
+        //menu items
+        switchDecorationsItem.setOnAction((event) -> switchDecorations());
+        toSettingsItem.setOnAction((event) -> switchStage());
+
+        return contextMenu;
     }
 
     //invokes every time when switched to chat stage or switched between decorated and undecorated stages
@@ -260,27 +284,30 @@ public class Gui extends Application {
             decoratedStage.hide();
             undecoratedChatStage.hide();
             webEngine.loadContent("");
-            frame.setSelected(decorated);
+            frame.setSelected(Configurator.config.getBoolean("frame"));
             settingsStage.show();
             configurator.turnOffChatClients();
         }
     }
 
-    private void switchStageDecorations() {
+    private void switchDecorations() {
         // decorated -> undecorated
         if (decorated) {
             decoratedStage.hide();
             saveChatPosition(decoratedStage);
+            Configurator.config.setProperty("frame", false);
             configureChatStage(undecoratedChatStage);
             undecoratedChatStage.setScene(webScene);
             undecoratedChatStage.show();
             decorated = false;
+            //TODO: edit checkbox value or something
         }
 
         // undecorated -> decorated
         else {
             undecoratedChatStage.hide();
             saveChatPosition(undecoratedChatStage);
+            Configurator.config.setProperty("frame", true);
             configureChatStage(decoratedStage);
             decoratedStage.setScene(webScene);
             decoratedStage.show();
