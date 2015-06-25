@@ -23,14 +23,13 @@ public class TwitchMessage extends Message {
         this.timestamp = new Date();
         this.source = Source.TWITCH;
 
-        String displayedName = event.getV3Tags().get("display-name");
-        if (!displayedName.equals("")) {
-            this.author = displayedName;
-        }
-
-        //еслипо льзователь не менял ник, то в v3tags пусто, ник capitalized
-        else {
+        String displayedName = event.getV3Tags().get("display-name"); //could return null (e.g. from twitchnotify)
+        //если пользователь не менял ник, то в v3tags пусто, ник capitalized
+        if (displayedName == null || displayedName.equals("")) {
             this.author = StringUtils.capitalize(event.getUserHostmask().getNick());
+        }
+        else {
+            this.author = displayedName;
         }
 
         // TODO: emote sets and other properties
