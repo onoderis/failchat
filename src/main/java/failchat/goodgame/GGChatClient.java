@@ -12,7 +12,6 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -22,14 +21,15 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GGChatClient extends WebSocketClient implements ChatClient {
+public class GGChatClient implements ChatClient {
     private static final Logger logger = Logger.getLogger(GGChatClient.class.getName());
     private static final String GG_WS_URL = "ws://chat.goodgame.ru:8081/chat/websocket";
     private static final String GG_STREAM_API_URL = "http://goodgame.ru/api/getchannelstatus?fmt=json&id=";
-    private static final String EXTRACT_CHANNEL_ID_REGEX = "\"stream_id\":\"(\\d*)\"";
+    private static final Pattern EXTRACT_CHANNEL_ID_REGEX = Pattern.compile("\"stream_id\":\"(\\d*)\"");
     private static final int RECONNECT_TIMEOUT = 5000;
     private static final String NEW_MESSAGE_SEQUENCE = "\"type\":\"message\"";
 
+    private WebSocketClient wsClient;
     private ChatClientStatus status;
     private MessageManager messageManager = MessageManager.getInstance();
     private Queue<Message> messageQueue = messageManager.getMessagesQueue();
@@ -39,7 +39,6 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
     private ObjectMapper objectMapper;
 
     public GGChatClient(String channelName) {
-        super(URI.create(GG_WS_URL));
         this.channelName = channelName;
         objectMapper = new ObjectMapper();
         messageHandlers = new ArrayList<>();
@@ -55,70 +54,19 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
         if (status != ChatClientStatus.READY) {
             return;
         }
-
         channelId = getChannelIdByName(channelName);
-
-        try {
-            connectBlocking();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        try {
-            String connectToChannelMes = objectMapper.writeValueAsString(new JoinWSMessage((channelId)));
-            send(connectToChannelMes);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
+        tryToConnect();
     }
 
     @Override
     public void goOffline() {
         status = ChatClientStatus.SHUTDOWN;
-        close();
+        wsClient.close();
     }
 
     @Override
     public ChatClientStatus getStatus() {
         return status;
-    }
-
-
-    @Override
-    public void onOpen(ServerHandshake serverHandshake) {
-        logger.info("Connected to goodgame");
-        messageManager.sendInfoMessage(new InfoMessage(Source.GOODGAME, "connected"));
-    }
-
-    @Override
-    public void onMessage(String s) {
-        if (s.contains(NEW_MESSAGE_SEQUENCE)) {
-            try {
-                GoodgameWSMessage ggwsm = objectMapper.readValue(s, new TypeReference<GoodgameWSMessage>() {});
-                GGMessage message = ggwsm.getMessage();
-                //handling messages
-                for (MessageHandler<GGMessage> messageHandler : messageHandlers) {
-                    messageHandler.handleMessage(message);
-                }
-                messageQueue.add(message);
-                synchronized (messageQueue) {
-                    messageQueue.notify();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Override
-    public void onClose(int i, String s, boolean b) {
-        logger.info("Goodgame disconnected");
-        messageManager.sendInfoMessage(new InfoMessage(Source.GOODGAME, "disconnected"));
-    }
-
-    @Override
-    public void onError(Exception e) {
-
     }
 
     private int getChannelIdByName(String name) {
@@ -129,25 +77,96 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
                 return -1;
             }
             String response = IOUtils.toString(connection.getInputStream());
-            Pattern p = Pattern.compile(EXTRACT_CHANNEL_ID_REGEX);
-            Matcher m = p.matcher(response);
+            Matcher m = EXTRACT_CHANNEL_ID_REGEX.matcher(response);
             if (m.find()) {
                 return Integer.parseInt(m.group(1));
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            status = ChatClientStatus.ERROR;
         } catch (IOException e) {
             e.printStackTrace();
-            status = ChatClientStatus.CONNECTING;
+            status = ChatClientStatus.ERROR;
         }
         return -1;
     }
 
+    private void tryToConnect() {
+        while (status == ChatClientStatus.CONNECTING || status == ChatClientStatus.READY) {
+            wsClient = new GGWSClient();
+            try {
+                if (status == ChatClientStatus.CONNECTING) {
+                    Thread.sleep(RECONNECT_TIMEOUT);
+                }
+                if (!wsClient.connectBlocking()) {
+                    continue;
+                }
+                String connectToChannelMes = objectMapper.writeValueAsString(new JoinWSMessage((channelId)));
+                wsClient.send(connectToChannelMes);
+                status = ChatClientStatus.WORKING;
+            } catch (JsonProcessingException e) {
+                logger.severe("Goodgame bad json");
+                status = ChatClientStatus.ERROR;
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class GGWSClient extends WebSocketClient {
+        GGWSClient() {
+            super(URI.create(GG_WS_URL));
+        }
+
+        @Override
+        public void onOpen(ServerHandshake serverHandshake) {
+            logger.info("Connected to goodgame");
+            messageManager.sendInfoMessage(new InfoMessage(Source.GOODGAME, "connected"));
+        }
+
+        @Override
+        public void onMessage(String s) {
+            if (s.contains(NEW_MESSAGE_SEQUENCE)) {
+                try {
+                    GoodgameWSMessage ggwsm = objectMapper.readValue(s, new TypeReference<GoodgameWSMessage>() {});
+                    GGMessage message = ggwsm.getMessage();
+                    //handling messages
+                    for (MessageHandler<GGMessage> messageHandler : messageHandlers) {
+                        messageHandler.handleMessage(message);
+                    }
+                    messageQueue.add(message);
+                    synchronized (messageQueue) {
+                        messageQueue.notify();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        public void onClose(int i, String s, boolean b) { // вызывается даже если веб сокет не был подключён
+            if (status == ChatClientStatus.CONNECTING || status == ChatClientStatus.ERROR || status == ChatClientStatus.SHUTDOWN) {
+                return;
+            }
+            if (status == ChatClientStatus.WORKING) {
+                status = ChatClientStatus.CONNECTING;
+            }
+            logger.info("Goodgame disconnected");
+            messageManager.sendInfoMessage(new InfoMessage(Source.GOODGAME, "disconnected"));
+            tryToConnect();
+        }
+
+        @Override
+        public void onError(Exception e) {
+            logger.warning("Goodgame web socket error");
+            e.printStackTrace();
+        }
+    }
+
+
     /**
      * Класс для сериализации в json. Используется для подключения к каналу.
      */
-    static class JoinWSMessage {
+    private static class JoinWSMessage {
         private String type = "join";
         private JoinWSData data;
 
@@ -167,7 +186,7 @@ public class GGChatClient extends WebSocketClient implements ChatClient {
     /**
      * Класс для сериализации в json. Используется для подключения к каналу.
      */
-    static class JoinWSData {
+    private static class JoinWSData {
         private String channelId;
 
         private boolean hidden = false;
