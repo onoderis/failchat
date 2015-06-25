@@ -1,11 +1,18 @@
 package failchat.twitch;
 
-import com.sorcix.sirc.*;
 import failchat.core.*;
+import org.pircbotx.Configuration;
+import org.pircbotx.PircBotX;
+import org.pircbotx.exception.IrcException;
+import org.pircbotx.hooks.ListenerAdapter;
+import org.pircbotx.hooks.events.ConnectEvent;
+import org.pircbotx.hooks.events.DisconnectEvent;
+import org.pircbotx.hooks.events.MessageEvent;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.logging.Logger;
@@ -13,24 +20,21 @@ import java.util.logging.Logger;
 public class TwitchChatClient implements ChatClient {
 
     private static final Logger logger = Logger.getLogger(TwitchChatClient.class.getName());
-    private static final String TWITCH_IRC_URL = "irc.twitch.tv";
+    private static final String TWITCH_IRC = "irc.twitch.tv";
     private static final int TWITCH_IRC_PORT = 6667;
     private static final String BOT_NAME = "fail_chatbot";
-    private static final String BOT_PASSWORD = "oauth:59tune21e6ymz4xg57snr77tcsbg2y";
+    private static final String BOT_PASSWORD = "oauth:59tune21e6ymz4xg57snr77tcsbg2y"; //don't touch it mate :]
     private static final int RECONNECT_TIMEOUT = 5000;
 
     private MessageManager messageManager = MessageManager.getInstance();
     private final Queue<Message> messageQueue = messageManager.getMessagesQueue();
-    private IrcConnection ircConnection;
+    private PircBotX twitchIrcClient;
     private String channelName;
     private List<MessageHandler<TwitchMessage>> messageHandlers;
-    private List<MessageFilter<TwitchMessage>> messageFilters;
     private ChatClientStatus status;
 
     public TwitchChatClient(String channelName) {
         this.channelName = channelName;
-        messageFilters = new ArrayList<>();
-        messageFilters.add(new MetaMessageFilter());
         messageHandlers = new ArrayList<>();
         messageHandlers.add(MessageObjectCleaner.getInstance());
         messageHandlers.add(new TwitchSmileHandler());
@@ -43,32 +47,36 @@ public class TwitchChatClient implements ChatClient {
         if (status != ChatClientStatus.READY) {
             return;
         }
-        ircConnection = new IrcConnection(TWITCH_IRC_URL, TWITCH_IRC_PORT, BOT_PASSWORD);
-        ircConnection.setCharset(Charset.forName("UTF-8"));
-        ircConnection.setNick(BOT_NAME);
-        ircConnection.addMessageListener(new MyIrcAdapter());
-        try {
-            ircConnection.connect();
-        } catch (IOException e) {
-            e.printStackTrace();
-            status = ChatClientStatus.CONNECTING;
-            return;
-        } catch (NickNameException | PasswordException e) {
-            e.printStackTrace();
-            status = ChatClientStatus.ERROR;
-            return;
-        }
-        logger.info("Connected to TWITCH IRC server");
-        ircConnection.createChannel(channelName.toLowerCase()).join(); // в irc каналы создаются в lower case
-        logger.info("Connected to irc channel: " + channelName);
-        messageManager.sendInfoMessage(new InfoMessage(Source.TWITCH, "connected"));
-        ircConnection.sendRaw("TWITCHCLIENT 3"); // чтобы слались мета-сообщения
+        Configuration.ServerEntry[] srv = {new Configuration.ServerEntry(TWITCH_IRC, TWITCH_IRC_PORT)};
+        List<Configuration.ServerEntry> srvList = Arrays.asList(srv);
+        Configuration configuration = new Configuration.Builder()
+                .setName(BOT_NAME)
+                .setServerPassword(BOT_PASSWORD)
+                .setServers(srvList)
+                .addAutoJoinChannel("#" + Configurator.config.getString("twitch.channel").toLowerCase())
+                .addListener(new TwitchIrcClient())
+                .setAutoReconnect(false)
+                .setAutoReconnectDelay(10000)
+//                .setAutoReconnectAttempts(20) // bugged, 5 attempts
+                .setEncoding(Charset.forName("UTF-8"))
+                .setCapEnabled(false)
+                .buildConfiguration();
+
+        twitchIrcClient = new PircBotX(configuration);
+
+        new Thread(() -> {
+            try {
+                twitchIrcClient.startBot();
+            } catch (IOException | IrcException e) {
+                e.printStackTrace();
+            }
+        }, "TwitchIrcClientThread").start();
     }
 
     @Override
     public void goOffline() {
         status = ChatClientStatus.SHUTDOWN;
-        ircConnection.disconnect();
+        twitchIrcClient.close();
     }
 
     @Override
@@ -76,15 +84,29 @@ public class TwitchChatClient implements ChatClient {
         return status;
     }
 
-    private class MyIrcAdapter extends IrcAdaptor {
-        public void onMessage(IrcConnection irc, User sender, Channel target, String message) {
-//                logger.fine(message);
-            TwitchMessage m = new TwitchMessage(sender.getNick(), message);
-            for (MessageFilter<TwitchMessage> mf : messageFilters) {
-                if (!mf.filterMessage(m)) {
-                    return;
-                }
+    private class TwitchIrcClient extends ListenerAdapter {
+        @Override
+        public void onConnect(ConnectEvent event) throws Exception {
+            twitchIrcClient.sendCAP().request("twitch.tv/tags");
+            logger.info("Connected to irc channel: " + channelName);
+            messageManager.sendInfoMessage(new InfoMessage(Source.TWITCH, "connected"));
+            status = ChatClientStatus.WORKING;
+        }
+
+        @Override
+        public void onDisconnect(DisconnectEvent event) throws Exception {
+            if (status == ChatClientStatus.SHUTDOWN) {
+                return;
+            } else if (status == ChatClientStatus.WORKING) {
+                status = ChatClientStatus.CONNECTING;
+                logger.info("disconnected");
+                messageManager.sendInfoMessage(new InfoMessage(Source.TWITCH, "disconnected"));
             }
+        }
+
+        @Override
+        public void onMessage(MessageEvent event) throws Exception {
+            TwitchMessage m = new TwitchMessage(event);
             for (MessageHandler<TwitchMessage> mh : messageHandlers) {
                 mh.handleMessage(m);
             }
@@ -92,15 +114,6 @@ public class TwitchChatClient implements ChatClient {
             synchronized (messageQueue) {
                 messageQueue.notify();
             }
-        }
-
-        @Override
-        public void onDisconnect(IrcConnection irc) {
-            if (status == ChatClientStatus.READY) {
-                status = ChatClientStatus.CONNECTING;
-            }
-            logger.info("Twitch disconnected");
-            messageManager.sendInfoMessage(new InfoMessage(Source.TWITCH, "disconnected"));
         }
     }
 }

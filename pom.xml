@@ -9,6 +9,13 @@
 
     <name>failchat</name>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -41,6 +48,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.github.TheLQ</groupId>
+            <artifactId>pircbotx</artifactId>
+            <version>ab563d09e9</version>
+        </dependency>
+
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
@@ -52,35 +65,30 @@
             <version>1.10</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>com.jayway.jsonpath</groupId>-->
-            <!--<artifactId>json-path</artifactId>-->
-            <!--<version>2.0.0</version>-->
-        <!--</dependency>-->
+        <!--dependencies for pircbotx -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.4</version>
+        </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-simple</artifactId>-->
-            <!--<version>1.7.12</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+        </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-log4j12</artifactId>-->
-            <!--<version>1.7.12</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.12</version>
+        </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.glassfish.tyrus</groupId>-->
-            <!--<artifactId>tyrus-server</artifactId>-->
-            <!--<version>1.10</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.glassfish.tyrus</groupId>-->
-            <!--<artifactId>tyrus-container-grizzly-server</artifactId>-->
-            <!--<version>1.10</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.12</version>
+        </dependency>
     </dependencies>
 
     <build>
