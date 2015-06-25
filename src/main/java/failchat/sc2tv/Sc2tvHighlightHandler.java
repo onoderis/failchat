@@ -2,6 +2,7 @@ package failchat.sc2tv;
 
 import failchat.core.Message;
 import failchat.core.MessageHandler;
+import org.apache.commons.lang.StringUtils;
 
 public class Sc2tvHighlightHandler implements MessageHandler {
     private String appeal;
@@ -12,7 +13,7 @@ public class Sc2tvHighlightHandler implements MessageHandler {
 
     @Override
     public void handleMessage(Message message) {
-        if (message.getText().contains(appeal)) {
+        if (StringUtils.containsIgnoreCase(message.getText(), appeal)) {
             message.setHighlighted(true);
         }
     }
