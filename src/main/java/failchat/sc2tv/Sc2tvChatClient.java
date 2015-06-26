@@ -29,7 +29,6 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
     private int channelId = -1;
     private long lastMessageTime = System.currentTimeMillis();
     private URL chatUrl;
-    private boolean exitFlag = false;
     private long lastModified = System.currentTimeMillis();
     private ObjectMapper objectMapper;
     private long requestTime = 0;
@@ -50,7 +49,6 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
     @Override
     public void goOffline() {
         status = ChatClientStatus.SHUTDOWN;
-        exitFlag = true;
     }
 
     @Override
@@ -111,7 +109,6 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
                 return;
             } else if (urlCon.getResponseCode() != 200) {
                 status = ChatClientStatus.CONNECTING;
-                exitFlag = true;
                 throw new IOException("Http code " + urlCon.getResponseCode() + " not expected");
             }
             // для уведомления о подключении при коде 200
@@ -150,7 +147,6 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
 
         } catch (JsonProcessingException e) {
             status = ChatClientStatus.ERROR;
-            exitFlag = true;
         }
         catch (IOException e) {
             requestTime = 0;
