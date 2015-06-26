@@ -18,6 +18,8 @@ public class ChannelParser {
 
     public static int getChannelId(String channel) {
         try {
+            channel = channel.replaceAll("_", "");
+            channel = channel.replaceAll("\\.", "");
             channel = channel.replace(' ', '-');
             URLConnection connection = new URL(channelUrl + channel).openConnection();
             connection.setRequestProperty("User-Agent", "failchat client");
@@ -29,7 +31,7 @@ public class ChannelParser {
             }
             return Integer.parseInt(m.group(1));
         } catch (IOException e) {
-            logger.severe("Can't load sc2tv channel page for parsing");
+            logger.severe("Can't load/parse sc2tv channel page");
             e.printStackTrace();
             return -1;
         }
