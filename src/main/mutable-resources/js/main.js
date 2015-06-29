@@ -1,5 +1,4 @@
 var failchat = {
-    "mode": 0,
     "maxMessages": 50
 };
 
@@ -11,28 +10,34 @@ $(function () {
     var linkTemplate = $("#link-template");
     var messageTemplate = $("#message-template");
     var infoMessageTemplate = $("#info-message-template");
+    var autoScroll = true;
+    var autoScrolled = false;
 
     socket.onopen = function () {
-        var openHtml = handleInfoMessage({"source": "failchat","text":"connected"});
-        appendToMessageContainer(openHtml);
+        var connectedMessage = {"source": "failchat","text":"connected"};
+        handleInfoMessage(connectedMessage);
+        appendToMessageContainer(connectedMessage.text);
     };
     socket.onclose = function () {
-        var openHtml = handleInfoMessage({"source": "failchat","text":"disconnected"});
-        appendToMessageContainer(openHtml);
+        var disconnectedMessage =  {"source": "failchat","text":"disconnected"};
+        handleInfoMessage(disconnectedMessage);
+        appendToMessageContainer(disconnectedMessage.text);
     };
     socket.onmessage = function (event) {
         var wsm = JSON.parse(event.data);
-        var messageHtml = null;
 
         if (wsm.type === "message") {
-            messageHtml = handleMessage(wsm.content);
+            handleMessage(wsm.content);
         }
         else if (wsm.type === "info") {
-            messageHtml = handleInfoMessage(wsm.content);
+            handleInfoMessage(wsm.content);
         }
 
-        if (messageHtml !== null && messageHtml !== "") {
-            appendToMessageContainer(messageHtml);
+        if (wsm.content.text !== undefined) {
+            appendToMessageContainer(wsm.content.text);
+            if (wsm.content.smiles !== undefined && failchat.scrollHookSelector !== undefined) {
+                scrollHook();
+            }
         }
     };
 
@@ -55,27 +60,51 @@ $(function () {
             }
         }
 
-        return messageTemplate.render(message);
+        message.text = messageTemplate.render(message);
     }
 
     function handleInfoMessage(infoMessage) {
-        return infoMessageTemplate.render(infoMessage);
+        infoMessage.text =  infoMessageTemplate.render(infoMessage);
     }
 
     function appendToMessageContainer(messageHtml) {
         messageCount++;
-        if (failchat.mode == 0) {
-            messageContainer.append(messageHtml);
-            if (messageCount > failchat.maxMessages) {
+        messageContainer.append(messageHtml);
+        if (messageCount > failchat.maxMessages && autoScroll) {
+            while (messageCount > failchat.maxMessages) {
                 messageContainer.find("> :first").remove();
+                messageCount--;
             }
-            // TODO: scroll to bottom
+        }
+        if (autoScroll) {
+            autoScrolled = true;
+            $(document).scrollTop($(document).height());
+        }
+        //console.log("messages: " + messageCount);
+    }
+
+    window.onscroll = function() {
+        console.log("scrolled");
+        if (autoScrolled) {
+            autoScrolled = false;
         }
         else {
-            messageContainer.prepend(messageHtml);
-            if (messageCount > failchat.maxMessages) {
-                messageContainer.find("> :last").remove();
-            }
+            autoScroll = $(document).scrollTop() + window.innerHeight >= $(document).height();
+            //console.log("autoScroll: " + autoScroll);
         }
+    };
+
+    // additional scroll when last smile in message loaded
+    function scrollHook() {
+        $(failchat.scrollHookSelector + ":last").one("load", function() {
+            //console.log("last smile loaded");
+            if (autoScroll) {
+                autoScrolled = true;
+                $(document).scrollTop($(document).height());
+            }
+        }).each(function() {
+            if(this.complete) $(this).load();
+        });
     }
+
 });
