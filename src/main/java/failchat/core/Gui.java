@@ -300,7 +300,6 @@ public class Gui extends Application {
             undecoratedChatStage.setScene(webScene);
             undecoratedChatStage.show();
             decorated = false;
-            //TODO: edit checkbox value or something
         }
 
         // undecorated -> decorated

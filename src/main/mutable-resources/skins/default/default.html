@@ -11,16 +11,31 @@
             background-color: black;
             color: #CACACA;
             word-break: normal;
-            margin-top: 0;
-            margin-bottom: 0;
+            margin: 0;
+            overflow-x: hidden;
         }
 
         #message-container {
-            overflow-x: hidden;
+
         }
 
         ::-webkit-scrollbar {
             visibility: hidden;
+        }
+
+        p {
+            font-family: "Arial", serif;
+            font-size: 14px;
+            margin: 0;
+            padding: 6px;
+        }
+
+        p:first-child {
+            padding-top: 12px;
+        }
+
+        p:last-child{
+            padding-bottom: 12px;
         }
 
         span.nick {
@@ -28,27 +43,10 @@
             color: #7797BE;
         }
 
-        p {
-            font-family: "Arial", serif;
-            font-size: 14px;
-            /*border-bottom: 1px solid #222;*/
-            /*animation: new-message;*/
-            /*animation-duration: 0.5s;*/
-            /*animation-timing-function: linear;*/
-            /*webkit animation*/
-            /*-webkit-animation: new-message;*/
-            /*-webkit-animation-duration: 0.5s;*/
-            /*-webkit-animation-timing-function: linear;*/
-        }
-
         a {
             color: #c57c08;
             font-weight: bold;
             text-decoration: none;
-        }
-
-        span.text {
-
         }
 
         span.highlighted {
@@ -71,36 +69,18 @@
         img.smile {
             max-height: 30px;
         }
-
-        @keyframes new-message {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @-webkit-keyframes new-message {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
     </style>
 </head>
 
 <body>
 
 <script>
-    failchat.mode = 1;
     failchat.maxMessages = 50;
+    failchat.scrollHookSelector = "img.smile";
 </script>
 
 <script id="message-template" type="text/x-jsrender">
-    <p>
+    <p class="message">
         <img class="icon" src="../../icons/{{:source}}.png">
         <span class="nick">{{:author}}: </span>
         <span class="text{{if highlighted}} highlighted{{/if}}">{{:text}}</span>
@@ -112,9 +92,8 @@
 <script id="link-template" type="text/x-jsrender">
     <a href="{{:url}}">{{:domain}}</a>
 </script>
-
 <script id="info-message-template" type="text/x-jsrender">
-    <p>
+    <p class="info-message">
         <img class="icon" src="../../icons/{{:source}}.png">
         <span class="info-source">{{:source}} </span>
         <span class="info-text">{{:text}}</span>
