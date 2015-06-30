@@ -2,6 +2,7 @@ package failchat.core;
 
 import failchat.goodgame.GGChatClient;
 import failchat.sc2tv.Sc2tvChatClient;
+import failchat.test.TestChatClient;
 import failchat.twitch.TwitchChatClient;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
