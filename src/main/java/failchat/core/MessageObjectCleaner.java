@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class MessageObjectCleaner implements MessageHandler {
 
-    public static final Pattern pattern = Pattern.compile("\\{!\\d\\}");
+    public static final Pattern pattern = Pattern.compile("\\{!\\d{1,3}\\}");
     private static volatile MessageObjectCleaner instance;
 
 
