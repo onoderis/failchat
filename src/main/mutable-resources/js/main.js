@@ -16,12 +16,12 @@ $(function () {
     socket.onopen = function () {
         var connectedMessage = {"source": "failchat","text":"connected"};
         handleInfoMessage(connectedMessage);
-        appendToMessageContainer(connectedMessage.text);
+        appendToMessageContainer(connectedMessage);
     };
     socket.onclose = function () {
         var disconnectedMessage =  {"source": "failchat","text":"disconnected"};
         handleInfoMessage(disconnectedMessage);
-        appendToMessageContainer(disconnectedMessage.text);
+        appendToMessageContainer(disconnectedMessage);
     };
     socket.onmessage = function (event) {
         var wsm = JSON.parse(event.data);
@@ -34,10 +34,7 @@ $(function () {
         }
 
         if (wsm.content.text !== undefined) {
-            appendToMessageContainer(wsm.content.text);
-            if (wsm.content.smiles !== undefined && failchat.scrollHookSelector !== undefined) {
-                scrollHook();
-            }
+            appendToMessageContainer(wsm.content);
         }
     };
 
@@ -67,9 +64,9 @@ $(function () {
         infoMessage.text =  infoMessageTemplate.render(infoMessage);
     }
 
-    function appendToMessageContainer(messageHtml) {
+    function appendToMessageContainer(message) {
         messageCount++;
-        messageContainer.append(messageHtml);
+        messageContainer.append(message.text);
         if (messageCount > failchat.maxMessages && autoScroll) {
             while (messageCount > failchat.maxMessages) {
                 messageContainer.find("> :first").remove();
@@ -77,14 +74,18 @@ $(function () {
             }
         }
         if (autoScroll) {
-            autoScrolled = true;
-            $(document).scrollTop($(document).height());
+            if (message.smiles !== undefined && failchat.scrollHookSelector !== undefined) {
+                scrollHook();
+            } else {
+                autoScrolled = true;
+                $(document).scrollTop($(document).height());
+            }
         }
         //console.log("messages: " + messageCount);
     }
 
     window.onscroll = function() {
-        console.log("scrolled");
+        //console.log("scrolled");
         if (autoScrolled) {
             autoScrolled = false;
         }
@@ -94,16 +95,14 @@ $(function () {
         }
     };
 
-    // additional scroll when last smile in message loaded
+    // scroll when last smile in message loaded
     function scrollHook() {
-        $(failchat.scrollHookSelector + ":last").one("load", function() {
+        $(failchat.scrollHookSelector + ":last").imagesLoaded(function() {
             //console.log("last smile loaded");
             if (autoScroll) {
                 autoScrolled = true;
                 $(document).scrollTop($(document).height());
             }
-        }).each(function() {
-            if(this.complete) $(this).load();
         });
     }
 
