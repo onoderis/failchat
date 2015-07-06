@@ -242,8 +242,10 @@ public class Gui extends Application {
     private void saveChatPosition(Stage stage) {
         Configurator.config.setProperty("chat.width", (int)stage.getWidth());
         Configurator.config.setProperty("chat.height", (int)stage.getHeight());
-        Configurator.config.setProperty("chat.x", (int)stage.getX());
-        Configurator.config.setProperty("chat.y", (int)stage.getY());
+        if (stage.getX() >= -10000 && stage.getY() >= -10000) { // -32k x -32k fix
+            Configurator.config.setProperty("chat.x", (int)stage.getX());
+            Configurator.config.setProperty("chat.y", (int)stage.getY());
+        }
     }
 
     private void switchStage() {
