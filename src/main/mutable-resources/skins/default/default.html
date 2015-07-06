@@ -6,24 +6,50 @@
     <script src="../../js/jquery-2.1.4.min.js"></script>
     <script src="../../js/jsrender.min.js"></script>
     <script src="../../js/imagesloaded.pkgd.min.js"></script>
-    <script src="../../js/main.js"></script>
+    <script src="../../js/baron.min.js"></script>
+    <script src="main.js"></script>
+
     <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
         body {
             background-color: black;
-            color: #CACACA;
             word-break: normal;
             margin: 0;
-            overflow-x: hidden;
         }
 
         #message-container {
+            overflow-x: hidden;
+        }
 
+        .scroller {
+            overflow-y: scroll;
+            overflow-x: hidden;
+            height: 100%;
         }
 
         ::-webkit-scrollbar {
-            visibility: hidden;
+            width: 0;
+            display: none;
         }
 
+        .baron .scrollbar {
+            display: block;
+            position: absolute;
+            background: #7797BE;
+            z-index: 999;
+            border-radius: 3px;
+            right: 2px;
+            width: 7px;
+            opacity: 0.7;
+            color: #7797BE;
+        }
+
+        /*message styles*/
         p {
             font-family: "Arial", serif;
             font-size: 14px;
@@ -31,12 +57,8 @@
             padding: 6px;
         }
 
-        p:first-child {
-            padding-top: 12px;
-        }
-
-        p:last-child{
-            padding-bottom: 12px;
+        span {
+            color: #CACACA;
         }
 
         span.nick {
@@ -44,11 +66,6 @@
             color: #7797BE;
         }
 
-        a {
-            color: #c57c08;
-            font-weight: bold;
-            text-decoration: none;
-        }
 
         span.highlighted {
             color: #f36223;
@@ -70,6 +87,12 @@
         img.smile {
             max-height: 30px;
         }
+
+        a {
+            color: #c57c08;
+            font-weight: bold;
+            text-decoration: none;
+        }
     </style>
 </head>
 
@@ -78,6 +101,12 @@
 <script>
     failchat.maxMessages = 50;
     failchat.scrollHookSelector = "img.smile";
+    failchat.baronParams = {
+        root: "body",
+        scroller: ".scroller",
+        bar: ".scrollbar",
+        barOnCls: "baron"
+    };
 </script>
 
 <script id="message-template" type="text/x-jsrender">
@@ -100,8 +129,10 @@
         <span class="info-text">{{:text}}</span>
     </p>
 </script>
-
+<div class="scroller">
 <div id="message-container">
 </div>
+</div>
+<div class="scrollbar"></div>
 </body>
 </html>

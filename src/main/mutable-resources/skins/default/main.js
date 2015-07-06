@@ -10,13 +10,18 @@ $(function () {
     var linkTemplate = $("#link-template");
     var messageTemplate = $("#message-template");
     var infoMessageTemplate = $("#info-message-template");
+    var scroller = $(failchat.baronParams.scroller);
+    var scrollBar = $(failchat.baronParams.bar);
     var autoScroll = true;
     var autoScrolled = false;
 
+    scrollBar.css("visibility", "hidden");
+    baron(failchat.baronParams);
+
     socket.onopen = function () {
-        var connectedMessage = {"source": "failchat","text":"connected"};
-        handleInfoMessage(connectedMessage);
-        appendToMessageContainer(connectedMessage);
+        //var connectedMessage = {"source": "failchat","text":"connected"};
+        //handleInfoMessage(connectedMessage);
+        //appendToMessageContainer(connectedMessage);
     };
     socket.onclose = function () {
         var disconnectedMessage =  {"source": "failchat","text":"disconnected"};
@@ -75,25 +80,33 @@ $(function () {
         }
         if (autoScroll) {
             if (message.smiles !== undefined && failchat.scrollHookSelector !== undefined) {
+                autoScrolled = true;
+                scroller.scrollTop(messageContainer.height());
                 scrollHook();
             } else {
                 autoScrolled = true;
-                $(document).scrollTop($(document).height());
+                scroller.scrollTop(messageContainer.height());
             }
         }
         //console.log("messages: " + messageCount);
     }
 
-    window.onscroll = function() {
+    scroller.scroll( function() {
         //console.log("scrolled");
         if (autoScrolled) {
             autoScrolled = false;
         }
         else {
-            autoScroll = $(document).scrollTop() + window.innerHeight >= $(document).height();
+            autoScroll = scroller.scrollTop() + scroller.height() >= messageContainer.height();
+            if (autoScroll) {
+                scrollBar.css("visibility", "hidden");
+            }
+            else {
+                scrollBar.css("visibility", "visible");
+            }
             //console.log("autoScroll: " + autoScroll);
         }
-    };
+    });
 
     // scroll when last smile in message loaded
     function scrollHook() {
@@ -101,9 +114,8 @@ $(function () {
             //console.log("last smile loaded");
             if (autoScroll) {
                 autoScrolled = true;
-                $(document).scrollTop($(document).height());
+                scroller.scrollTop(messageContainer.height());
             }
         });
     }
-
 });
