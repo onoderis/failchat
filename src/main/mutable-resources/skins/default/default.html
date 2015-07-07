@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head lang="en">
+<head>
     <title>failchat</title>
     <meta charset="UTF-8">
     <script src="../../js/jquery-2.1.4.min.js"></script>
@@ -8,94 +8,8 @@
     <script src="../../js/imagesloaded.pkgd.min.js"></script>
     <script src="../../js/baron.min.js"></script>
     <script src="main.js"></script>
-
-    <style>
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-        }
-
-        body {
-            background-color: black;
-            word-break: normal;
-            margin: 0;
-        }
-
-        #message-container {
-            overflow-x: hidden;
-        }
-
-        .scroller {
-            overflow-y: scroll;
-            overflow-x: hidden;
-            height: 100%;
-        }
-
-        ::-webkit-scrollbar {
-            width: 0;
-            display: none;
-        }
-
-        .baron .scrollbar {
-            display: block;
-            position: absolute;
-            background: #7797BE;
-            z-index: 999;
-            border-radius: 3px;
-            right: 2px;
-            width: 7px;
-            opacity: 0.7;
-            color: #7797BE;
-        }
-
-        /*message styles*/
-        p {
-            font-family: "Arial", serif;
-            font-size: 14px;
-            margin: 0;
-            padding: 6px;
-        }
-
-        span {
-            color: #CACACA;
-        }
-
-        span.nick {
-            font-weight: bold;
-            color: #7797BE;
-        }
-
-
-        span.highlighted {
-            color: #f36223;
-        }
-
-        span.info-source {
-            font-weight: bold;
-            color: #567197;
-        }
-        span.info-text {
-            color: #567197;
-        }
-
-        img.icon {
-            width: 16px;
-            height: 16px;
-        }
-
-        img.smile {
-            max-height: 30px;
-        }
-
-        a {
-            color: #c57c08;
-            font-weight: bold;
-            text-decoration: none;
-        }
-    </style>
+    <link rel="stylesheet" href="default.css">
 </head>
-
 <body>
 
 <script>
@@ -129,6 +43,7 @@
         <span class="info-text">{{:text}}</span>
     </p>
 </script>
+
 <div class="scroller">
 <div id="message-container">
 </div>
