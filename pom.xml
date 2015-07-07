@@ -42,12 +42,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.sorcix</groupId>
-            <artifactId>sirc</artifactId>
-            <version>1.1.5</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.github.TheLQ</groupId>
             <artifactId>pircbotx</artifactId>
             <version>ab563d09e9</version>
