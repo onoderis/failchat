@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 public class LocalWSServer extends WebSocketServer {
     private static final Logger logger = Logger.getLogger(LocalWSServer.class.getName());
-    private static final int WS_PORT = 8887;
+    private static final int WS_PORT = 10880;
 
     public LocalWSServer() {
         super(new InetSocketAddress(WS_PORT));

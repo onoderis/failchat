@@ -3,7 +3,7 @@ var failchat = {
 };
 
 $(function () {
-    var socket = new WebSocket("ws://localhost:8887");
+    var socket = new WebSocket("ws://localhost:10880");
     var messageCount = 0;
     var messageContainer = $("#message-container");
     var smileTemplate = $("#smile-template");
