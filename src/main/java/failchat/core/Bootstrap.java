@@ -3,6 +3,7 @@ package failchat.core;
 
 import javafx.application.Platform;
 
+import java.io.File;
 import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -33,9 +34,12 @@ public class Bootstrap {
     private static Path getWorkDir() {
         String path = Bootstrap.class.getResource("").toString();
         if (path.contains(".jar!")) { //production mode
-            path = path.split("([\\\\/])([\\w\\-\\.]+?\\.jar!)|(jar:file:[/\\\\])")[1];
-            return FileSystems.getDefault().getPath(path);
+            logger.info("Dev mode");
+            File cp = new File(System.getProperty("java.class.path"));
+            File dir = cp.getAbsoluteFile().getParentFile();
+            return FileSystems.getDefault().getPath(dir.toString());
         } else { //dev mode
+            logger.info("Dev mode");
             return Paths.get(URI.create(path)).getParent().getParent();
         }
     }
