@@ -39,6 +39,7 @@ public class TwitchChatClient implements ChatClient {
         messageHandlers.add(MessageObjectCleaner.getInstance());
         messageHandlers.add(new TwitchSmileHandler());
         messageHandlers.add(new TwitchHighlightHandler(channelName));
+        messageHandlers.add(new HtmlHandler());
         status = ChatClientStatus.READY;
     }
 
