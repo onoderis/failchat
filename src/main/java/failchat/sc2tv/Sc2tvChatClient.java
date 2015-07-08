@@ -147,12 +147,11 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
 
         } catch (JsonProcessingException e) {
             status = ChatClientStatus.ERROR;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             requestTime = 0;
             if (status != ChatClientStatus.CONNECTING) {
                 status = ChatClientStatus.CONNECTING;
-                logger.info("Can't connect to sc2tc. Reconnecting ...");
+                logger.info("Can't connect to sc2tv. Reconnecting ...");
                 messageManager.sendInfoMessage(new InfoMessage(Source.SC2TV, "disconnected, trying to reconnect..."));
             }
         }
