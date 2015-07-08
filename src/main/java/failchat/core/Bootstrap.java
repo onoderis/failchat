@@ -46,6 +46,17 @@ public class Bootstrap {
 
     public static void shutDown() {
         logger.info("Shutting down...");
+        Thread terminationThread = new Thread(() -> {
+            try {
+                Thread.sleep(20000);
+                logger.info("Process terminated...");
+                System.exit(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }, "TerminationThread");
+        terminationThread.setDaemon(true);
+        terminationThread.start();
         configurator.saveConfiguration();
         Platform.exit();
         // чтобы javafx thread'ы смогли завершиться и интерфейс закрывался сразу
