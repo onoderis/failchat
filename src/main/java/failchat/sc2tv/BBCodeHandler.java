@@ -3,18 +3,20 @@ package failchat.sc2tv;
 
 import failchat.core.Message;
 import failchat.core.MessageHandler;
-import failchat.core.Source;
 
 import java.util.HashMap;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Заменяет bbcode на html расметку в сообщениях sc2tv
+ * Удаляет bbcode разметку из sc2tv сообщений
  */
 
 public class BBCodeHandler implements MessageHandler {
-
-    static HashMap<String, String> rules = new HashMap<String, String>() {{
+    //иногда ссылки приходят в другом виде: [url=http://i.imgur.com/xxx.png]http://i.imgur.com/xxx.png[/url]
+    private static Pattern bbCodeUrlPattern = Pattern.compile("\\[url=(.+)\\]\\1\\[\\/url\\]");
+    private static HashMap<String, String> rules = new HashMap<String, String>() {{
         put("\\[b\\]", "");
         put("\\[/b\\]", "");
         put("\\[url\\]", "");
@@ -23,8 +25,12 @@ public class BBCodeHandler implements MessageHandler {
 
     @Override
     public void handleMessage(Message message) {
-        if (message.getSource() != Source.SC2TV) {
-            return;
+        Matcher m = bbCodeUrlPattern.matcher(message.getText());
+        int position = 0;
+        while (m.find(position)) {
+            position = m.start();
+            message.setText(m.replaceFirst(m.group(1)));
+            m = bbCodeUrlPattern.matcher(message.getText());
         }
 
         String messageText = message.getText();
