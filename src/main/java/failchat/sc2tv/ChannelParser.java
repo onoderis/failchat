@@ -15,11 +15,13 @@ public class ChannelParser {
     private static final String channelUrl = "http://sc2tv.ru/channel/";
     //pattern for chat iframe
     private static final Pattern channelIdPattern = Pattern.compile("src=\"http:\\/\\/chat.sc2tv.ru\\/index.htm\\?channelId=(\\d*)&");
+    private static final String[] charsToDelete = {"_", "\\.", "\\[", "\\]"};
 
     public static int getChannelId(String channel) {
         try {
-            channel = channel.replaceAll("_", "");
-            channel = channel.replaceAll("\\.", "");
+            for (String s: charsToDelete) {
+                channel = channel.replaceAll(s, "");
+            }
             channel = channel.replace(' ', '-');
             URLConnection connection = new URL(channelUrl + channel).openConnection();
             connection.setRequestProperty("User-Agent", "failchat client");
