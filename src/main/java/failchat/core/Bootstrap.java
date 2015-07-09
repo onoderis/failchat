@@ -26,6 +26,8 @@ public class Bootstrap {
         configurator = Configurator.getInstance();
         messageManager = MessageManager.getInstance();
 
+        Logging.configureLoggingInFile();
+
         new Thread(messageManager, "MessageManagerThread").start();
         new Thread(() -> Gui.main(null), "JavafxLauncher").start(); //TODO: wut?
     }
