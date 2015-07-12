@@ -42,6 +42,7 @@ public class GGChatClient implements ChatClient {
         this.channelName = channelName;
         objectMapper = new ObjectMapper();
         messageHandlers = new ArrayList<>();
+        //noinspection unchecked
         messageHandlers.add(MessageObjectCleaner.getInstance());
         messageHandlers.add(new UrlCleaner());
         messageHandlers.add(new GGSmileHandler());
@@ -61,7 +62,9 @@ public class GGChatClient implements ChatClient {
     @Override
     public void goOffline() {
         status = ChatClientStatus.SHUTDOWN;
-        wsClient.close();
+        if (wsClient != null) {
+            wsClient.close();
+        }
     }
 
     @Override

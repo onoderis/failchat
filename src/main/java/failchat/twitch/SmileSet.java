@@ -1,11 +1,11 @@
 package failchat.twitch;
 
+import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class SmileSet {
+public class SmileSet implements Serializable {
     private int id;
     private Pattern pattern; //pattern for all smiles in set
     private Map<String, TwitchSmile> smiles;

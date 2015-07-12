@@ -3,9 +3,11 @@ package failchat.core;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public abstract class Smile {
+import java.io.Serializable;
+
+public abstract class Smile implements Serializable {
     protected String code; //smile code without ':' or regexp
-    protected boolean cached;
+    protected transient boolean cached;
 
     public Smile() {
         cached = false;

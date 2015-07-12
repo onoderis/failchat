@@ -30,6 +30,10 @@ public class Bootstrap {
 
         new Thread(messageManager, "MessageManagerThread").start();
         new Thread(() -> Gui.main(null), "JavafxLauncher").start(); //TODO: wut?
+
+        Thread smlThread = new Thread(SmileManager::loadSmilesInfo, "SmileLoaderThread");
+        smlThread.setPriority(3);
+        smlThread.start();
     }
 
 

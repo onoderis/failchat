@@ -3,7 +3,6 @@ package failchat.goodgame;
 import failchat.core.MessageHandler;
 import failchat.core.SmileManager;
 
-import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,12 +10,7 @@ import java.util.regex.Pattern;
 public class GGSmileHandler implements MessageHandler<GGMessage> {
     private static final Logger logger = Logger.getLogger(GGSmileHandler.class.getName());
 
-    private Map<String, GGSmile> smileMap;
     private Pattern smileCodePattern = Pattern.compile("((?<=:)(\\w+)(?=:))");
-
-    public GGSmileHandler () {
-        smileMap = GGSmileInfoLoader.loadSmilesInfo();
-    }
 
     @Override
     public void handleMessage(GGMessage message) {
@@ -24,7 +18,7 @@ public class GGSmileHandler implements MessageHandler<GGMessage> {
         int position = 0; // чтобы не начинать искать сначала, если :something: найдено, но это не смайл
         while (matcher.find(position)) {
             String code = matcher.group();
-            GGSmile smile = smileMap.get(code);
+            GGSmile smile = GGSmileInfoLoader.getSmile(code);
             if (smile != null) {
                 String num = message.addSmile(smile);
                 int start = matcher.start();

@@ -7,9 +7,6 @@ import failchat.core.Smile;
 import failchat.core.SmileManager;
 import failchat.core.Source;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TwitchSmile extends Smile {
     private static final String LOCATION_URL = "http://static-cdn.jtvnw.net/emoticons/v1/";

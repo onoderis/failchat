@@ -6,10 +6,9 @@ import failchat.core.Smile;
 import failchat.core.SmileManager;
 import failchat.core.Source;
 
-import java.nio.file.Paths;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Sc2tvSmile extends Smile {
+    public static final String SC2TV_SMILES_DIR_URL = "http://chat.sc2tv.ru/img/"; // используется для генерации url
     public static final String FILE_EXTENSION = ".png";
 
     private String fileName;
@@ -28,7 +27,7 @@ public class Sc2tvSmile extends Smile {
 
     @Override
     public String getImageUrl() {
-        return Sc2tvSmileInfoLoader.SC2TV_SMILES_DIR_URL + fileName;
+        return SC2TV_SMILES_DIR_URL + fileName;
     }
 
     @Override
