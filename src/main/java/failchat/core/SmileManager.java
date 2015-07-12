@@ -12,16 +12,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * Сериализует и десериализует списки смайлов в /smiles/list/{name}.ser
  * Кеширует смайлы в /smiles/{source}/{filename_from_url}
 */
 public class SmileManager {
-    private static final Logger logger = Logger.getLogger(SmileManager.class.getName());
     public static Path SMILES_DIR = Bootstrap.workDir.resolve("smiles");
     public static Path SMILES_DIR_REL = Paths.get("../../smiles"); //for browser
     public static Path SMILE_LIST_DIR = SMILES_DIR.resolve("list");
+
+    private static final Logger logger = Logger.getLogger(SmileManager.class.getName());
+    private static final Pattern fileNamePattern = Pattern.compile("");
 
     public static void loadSmilesInfo() {
         try {
@@ -71,7 +74,7 @@ public class SmileManager {
         if (smile.isCached()) {
             return true;
         }
-        Path filePath = SMILES_DIR.resolve(smile.getSource().toString().toLowerCase()).resolve(smile.getFileName());
+        Path filePath = SMILES_DIR.resolve(smile.getSource().getLowerCased()).resolve(smile.getFileName());
 
         //if smile already downloaded
         if (Files.exists(filePath)) {

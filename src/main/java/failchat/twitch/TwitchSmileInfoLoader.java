@@ -8,65 +8,61 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 public class TwitchSmileInfoLoader {
     private static final Logger logger = Logger.getLogger(TwitchSmileInfoLoader.class.getName());
-    private static final String GLOBAL_EMOTICONS = "https://twitchemotes.com/api_cache/v2/global.json";
-    private static final String SER_FILENAME_GLOBAL = "twitch-g";
-    private static final String SER_FILENAME_SUBS = "twitch-s";
+    private static final String EMOTICONS_URL = "http://api.twitch.tv/kraken/chat/emoticon_images";
+    private static final String SER_FILENAME = "twitch";
 
-    private static Map<Integer, SmileSet> smileSets = new HashMap<>();
+    private static Map<Integer, TwitchSmile> smiles = new HashMap<>();
 
     public static void loadGlobalSmilesInfo() {
-        boolean loaded = false;
         try {
-            URL globalEmotesUrl = new URL(GLOBAL_EMOTICONS);
+            URL globalEmotesUrl = new URL(EMOTICONS_URL);
             String rawJS = IOUtils.toString(globalEmotesUrl.openConnection().getInputStream());
             ObjectMapper objectMapper = new ObjectMapper();
             Document doc = objectMapper.readValue(rawJS, Document.class);
-            for (HashMap.Entry<String, TwitchSmile> e : doc.getEmotes().entrySet()) {
-                e.getValue().setCode(e.getKey());
+            Map<Integer, TwitchSmile> smilesMap = new HashMap<>();
+            for (TwitchSmile sm : doc.getEmoticons()) {
+                smilesMap.put(sm.getId(), sm);
             }
-            smileSets.put(0, new SmileSet(0, doc.getEmotes()));
-            loaded = true;
+            smiles = smilesMap;
         } catch (IOException e) {
             logger.warning("Can't load twitch global smiles");
         }
 
         // serialization / deserialization
-        if (!loaded) {
-            Object o = SmileManager.deserialize(SER_FILENAME_GLOBAL);
+        if (smiles.isEmpty()) {
+            Object o = SmileManager.deserialize(SER_FILENAME);
             if (o != null) {
                 //noinspection unchecked
-                smileSets = (Map<Integer, SmileSet>) o;
+                smiles = (Map<Integer, TwitchSmile>) o;
             }
         }
         else {
-            SmileManager.serialize(smileSets, SER_FILENAME_GLOBAL);
+            SmileManager.serialize(smiles, SER_FILENAME);
         }
-        if (smileSets.get(0) != null) {
-            logger.info("Twitch global smiles: " + smileSets.get(0).getSmiles().size());
-        }
-        logger.info("Twitch smile sets: " + smileSets.size());
+        logger.info("Twitch smiles: " + smiles.size());
     }
 
-    public static SmileSet getSmileSet(int id) {
-        return smileSets.get(id);
+    public static TwitchSmile getSmile(int id) {
+        return smiles.get(id);
     }
 
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private static class Document {
-        private Map<String, TwitchSmile> emotes;
+        private List<TwitchSmile> emoticons;
 
-        public Map<String, TwitchSmile> getEmotes() {
-            return emotes;
+        public List<TwitchSmile> getEmoticons() {
+            return emoticons;
         }
 
-        public void setEmotes(Map<String, TwitchSmile> emotes) {
-            this.emotes = emotes;
+        public void setEmoticons(List<TwitchSmile> emoticons) {
+            this.emoticons = emoticons;
         }
     }
 }
