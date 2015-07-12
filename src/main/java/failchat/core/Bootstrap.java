@@ -4,6 +4,8 @@ package failchat.core;
 import javafx.application.Platform;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -19,6 +21,8 @@ public class Bootstrap {
     private static MessageManager messageManager;
 
     public static void main(String[] args) {
+        checkForAnoterInstance();
+
         Logging.configure();
         workDir = getWorkDir();
         logger.info("Work dir: " + workDir.toAbsolutePath());
@@ -36,6 +40,15 @@ public class Bootstrap {
         smlThread.start();
     }
 
+    // exit if another instance running
+    private static void checkForAnoterInstance() {
+        try {
+            ServerSocket serverSocket = new ServerSocket(LocalWSServer.WS_PORT);
+            serverSocket.close();
+        } catch (IOException e) {
+            System.exit(0);
+        }
+    }
 
     private static Path getWorkDir() {
         String path = Bootstrap.class.getResource("").toString();
