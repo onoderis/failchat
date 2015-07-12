@@ -1,33 +1,26 @@
 package failchat.twitch;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import failchat.core.Smile;
+import failchat.core.SmileManager;
 import org.apache.commons.io.IOUtils;
-import org.w3c.dom.Document;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.Formatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class TwitchSmileInfoLoader {
     private static final Logger logger = Logger.getLogger(TwitchSmileInfoLoader.class.getName());
     private static final String GLOBAL_EMOTICONS = "https://twitchemotes.com/api_cache/v2/global.json";
+    private static final String SER_FILENAME_GLOBAL = "twitch-g";
+    private static final String SER_FILENAME_SUBS = "twitch-s";
 
-    public static SmileSet loadGlobalSmiles() {
+    private static Map<Integer, SmileSet> smileSets = new HashMap<>();
+
+    public static void loadGlobalSmilesInfo() {
+        boolean loaded = false;
         try {
             URL globalEmotesUrl = new URL(GLOBAL_EMOTICONS);
             String rawJS = IOUtils.toString(globalEmotesUrl.openConnection().getInputStream());
@@ -36,14 +29,33 @@ public class TwitchSmileInfoLoader {
             for (HashMap.Entry<String, TwitchSmile> e : doc.getEmotes().entrySet()) {
                 e.getValue().setCode(e.getKey());
             }
-            logger.info("Twitch global smiles found: " + doc.getEmotes().size());
-            return new SmileSet(0, doc.getEmotes());
+            smileSets.put(0, new SmileSet(0, doc.getEmotes()));
+            loaded = true;
         } catch (IOException e) {
-            e.printStackTrace();
-            logger.warning("Can't load global smiles");
+            logger.warning("Can't load twitch global smiles");
         }
-        return null;
+
+        // serialization / deserialization
+        if (!loaded) {
+            Object o = SmileManager.deserialize(SER_FILENAME_GLOBAL);
+            if (o != null) {
+                //noinspection unchecked
+                smileSets = (Map<Integer, SmileSet>) o;
+            }
+        }
+        else {
+            SmileManager.serialize(smileSets, SER_FILENAME_GLOBAL);
+        }
+        if (smileSets.get(0) != null) {
+            logger.info("Twitch global smiles: " + smileSets.get(0).getSmiles().size());
+        }
+        logger.info("Twitch smile sets: " + smileSets.size());
     }
+
+    public static SmileSet getSmileSet(int id) {
+        return smileSets.get(id);
+    }
+
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private static class Document {

@@ -2,10 +2,10 @@ package failchat.goodgame;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import failchat.core.SmileManager;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -19,19 +19,18 @@ public class GGSmileInfoLoader {
 
     private static final Logger logger = Logger.getLogger(GGSmileInfoLoader.class.getName());
     private static final Pattern SMILES_ARRAY = Pattern.compile("Smiles : (\\[.+?\\]),");
+    private static final String SER_FILENAME = "gg";
 
-    private static SoftReference<Map<String, GGSmile>> smiles;
+    private static Map<String, GGSmile> smiles = new HashMap<>();
 
-    public static Map<String, GGSmile> loadSmilesInfo() {
-        if (smiles != null && smiles.get() != null) {
-            return smiles.get();
-        }
+    public static void loadSmilesInfo() {
+        // try to load from net
         try {
             String rawJS = IOUtils.toString(new URL(SMILES_JS_URL).openConnection().getInputStream());
             Matcher m = SMILES_ARRAY.matcher(rawJS);
             if (!m.find()) {
                 logger.warning("Can't extract goodgame smiles array from raw .js");
-                return null;
+                throw new IOException();
             }
             String rawJSSmiles = m.group(1);
             ObjectMapper objectMapper = new ObjectMapper();
@@ -41,15 +40,26 @@ public class GGSmileInfoLoader {
             for (GGSmile smile : smileList) {
                 smileMap.put(smile.getCode(), smile);
             }
-            smiles = new SoftReference<>(smileMap);
-            logger.info("Goodgame smiles found: " + smileList.size());
-            return smileMap;
+            smiles = smileMap;
         } catch (IOException e) {
-            e.printStackTrace();
-            logger.warning("Can't download goodgame smiles");
-            return null;
+            logger.warning("Can't load goodgame smiles");
         }
 
+        // serialization / deserialization
+        if (smiles.isEmpty()) {
+            Object o = SmileManager.deserialize(SER_FILENAME);
+            if (o != null) {
+                //noinspection unchecked
+                smiles = (Map<String, GGSmile>) o;
+            }
+        }
+        else {
+            SmileManager.serialize(smiles, SER_FILENAME);
+        }
+        logger.info("Goodgame smiles: " + smiles.size());
     }
 
+    public static GGSmile getSmile(String code) {
+        return smiles.get(code);
+    }
 }
