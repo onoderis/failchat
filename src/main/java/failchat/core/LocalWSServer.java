@@ -9,8 +9,9 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 public class LocalWSServer extends WebSocketServer {
+    public static final int WS_PORT = 10880;
+
     private static final Logger logger = Logger.getLogger(LocalWSServer.class.getName());
-    private static final int WS_PORT = 10880;
 
     public LocalWSServer() {
         super(new InetSocketAddress(WS_PORT));
