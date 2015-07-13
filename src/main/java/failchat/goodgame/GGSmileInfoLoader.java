@@ -35,10 +35,27 @@ public class GGSmileInfoLoader {
             String rawJSSmiles = m.group(1);
             ObjectMapper objectMapper = new ObjectMapper();
             List<GGSmile> smileList = objectMapper.readValue(rawJSSmiles, new TypeReference<List<GGSmile>>() {});
-            Map<String, GGSmile> smileMap = new HashMap<>();
+
+            //create animated instances
+            smileList.forEach((smile) -> {
+                if (smile.animated) {
+                    GGSmile aSmile = new GGSmile();
+                    aSmile.setCode(smile.getCode());
+                    aSmile.setAnimated(true);
+                    aSmile.setPremium(true);
+                    smile.setAnimatedInstance(aSmile);
+                    smile.setAnimated(false);
+                }
+            });
+
             // list to map
+            Map<String, GGSmile> smileMap = new HashMap<>();
             for (GGSmile smile : smileList) {
                 smileMap.put(smile.getCode(), smile);
+//                System.out.println("Smile: " + smile.getCode() + ", premium " + smile.premium + ", animated " + smile.animated);
+//                if (smile.getAnimatedInstance() != null) {
+//                    System.out.println("animated instance: " + smile.getAnimatedInstance().getImageUrl() + " "  + smile.getAnimatedInstance().getCachePath());
+//                }
             }
             smiles = smileMap;
         } catch (IOException e) {

@@ -20,7 +20,16 @@ public class GGSmileHandler implements MessageHandler<GGMessage> {
             String code = matcher.group();
             GGSmile smile = GGSmileInfoLoader.getSmile(code);
             if (smile != null) {
+                //check for premium/animated
+                if (smile.isPremium() && !message.isPremiumUser()) {
+                    continue;
+                }
+                if (message.isPremiumUser() && smile.getAnimatedInstance() != null) {
+                    smile = smile.getAnimatedInstance();
+                }
                 String num = message.addSmile(smile);
+
+                //replace smile text for object
                 int start = matcher.start();
                 int end = matcher.end();
                 StringBuilder sb = new StringBuilder(message.getText());
