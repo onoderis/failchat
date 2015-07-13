@@ -19,6 +19,7 @@ public class GGSmileInfoLoader {
 
     private static final Logger logger = Logger.getLogger(GGSmileInfoLoader.class.getName());
     private static final Pattern SMILES_ARRAY = Pattern.compile("Smiles : (\\[.+?\\]),");
+    private static final Pattern CHANNEL_SMILES_ARRAY = Pattern.compile("Channel_Smiles : (\\{.+?\\}]}),");
     private static final String SER_FILENAME = "gg";
 
     private static Map<String, GGSmile> smiles = new HashMap<>();
@@ -26,6 +27,7 @@ public class GGSmileInfoLoader {
     public static void loadSmilesInfo() {
         // try to load from net
         try {
+            //global smiles
             String rawJS = IOUtils.toString(new URL(SMILES_JS_URL).openConnection().getInputStream());
             Matcher m = SMILES_ARRAY.matcher(rawJS);
             if (!m.find()) {
@@ -52,11 +54,22 @@ public class GGSmileInfoLoader {
             Map<String, GGSmile> smileMap = new HashMap<>();
             for (GGSmile smile : smileList) {
                 smileMap.put(smile.getCode(), smile);
-//                System.out.println("Smile: " + smile.getCode() + ", premium " + smile.premium + ", animated " + smile.animated);
-//                if (smile.getAnimatedInstance() != null) {
-//                    System.out.println("animated instance: " + smile.getAnimatedInstance().getImageUrl() + " "  + smile.getAnimatedInstance().getCachePath());
-//                }
             }
+
+            //channel smiles
+            m = CHANNEL_SMILES_ARRAY.matcher(rawJS);
+            if (!m.find()) {
+                logger.warning("Can't extract goodgame channel smiles array from raw .js");
+                throw new IOException();
+            }
+            rawJSSmiles = m.group(1);
+            Map<String, List<GGSmile>> channelSmiles = objectMapper.readValue(rawJSSmiles, new TypeReference<Map<String, List<GGSmile>>>() {});
+            channelSmiles.entrySet().forEach((entry) -> {
+                entry.getValue().forEach((smile) -> {
+                    smileMap.put(smile.getCode(), smile);
+                });
+            });
+
             smiles = smileMap;
         } catch (IOException e) {
             logger.warning("Can't load goodgame smiles");
