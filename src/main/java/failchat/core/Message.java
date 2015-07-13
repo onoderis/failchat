@@ -68,7 +68,6 @@ public class Message {
         return smiles;
     }
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public List<Link> getLinks() {
         return links;
     }
