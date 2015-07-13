@@ -22,6 +22,7 @@ public class GGSmileHandler implements MessageHandler<GGMessage> {
             if (smile != null) {
                 //check for premium/animated
                 if (smile.isPremium() && !message.isPremiumUser()) {
+                    position++;
                     continue;
                 }
                 if (message.isPremiumUser() && smile.getAnimatedInstance() != null) {
