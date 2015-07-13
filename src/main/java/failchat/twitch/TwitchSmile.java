@@ -7,12 +7,15 @@ import failchat.core.Smile;
 import failchat.core.SmileManager;
 import failchat.core.Source;
 
+import java.util.regex.Pattern;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TwitchSmile extends Smile {
     public static final String SMILE_IMG_FORMAT = ".png";
 
     private static final String LOCATION_URL = "http://static-cdn.jtvnw.net/emoticons/v1/";
     private static final String LOCATION_URL_END = "/1.0";
+    private static final Pattern regexCodePattern = Pattern.compile("[a-zA-Z0-9_]++");
 
     protected int id;
 
@@ -27,7 +30,12 @@ public class TwitchSmile extends Smile {
 
     @Override
     public void setCode(String code) {
-        this.code = code;
+        if (!regexCodePattern.matcher(code).matches()) {
+            this.code = code.replace("\\&lt\\;", "<").replace("\\&gt\\;", ">"); //replace html entity for < >
+        }
+        else {
+            this.code = "\\b" + code + "\\b";
+        }
     }
 
     @Override
