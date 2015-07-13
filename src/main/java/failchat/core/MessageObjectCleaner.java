@@ -1,14 +1,12 @@
 package failchat.core;
 
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+/**
+ * Заменяет символы { и } на html entity
+ * */
 public class MessageObjectCleaner implements MessageHandler {
-
-    public static final Pattern pattern = Pattern.compile("\\{!\\d{1,3}\\}");
     private static volatile MessageObjectCleaner instance;
-
+    private static final Logger logger = Logger.getLogger(MessageObjectCleaner.class.getName());
 
     private MessageObjectCleaner() {
 
@@ -27,14 +25,11 @@ public class MessageObjectCleaner implements MessageHandler {
         return localInstance;
     }
 
-    private static final Logger logger = Logger.getLogger(MessageObjectCleaner.class.getName());
-
     @Override
     public void handleMessage(Message message) {
-        Matcher m = pattern.matcher(message.getText());
-        if (m.find()) {
-            logger.fine("Message cleaned - " + message.getAuthor() + ": " + message.getText());
-            message.setText(m.replaceAll(""));
-        }
+        String mes = message.getText();
+        mes = mes.replaceAll("\\{", "&#123;");
+        mes = mes.replaceAll("}", "&#125;");
+        message.setText(mes);
     }
 }
