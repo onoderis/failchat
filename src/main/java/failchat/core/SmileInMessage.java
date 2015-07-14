@@ -20,10 +20,6 @@ public class SmileInMessage {
         return objectNumber;
     }
 
-    public Source getSource() {
-        return smile.getSource();
-    }
-
     @JsonProperty(value = "code")
     public String getCode() {
         return smile.getCode();
