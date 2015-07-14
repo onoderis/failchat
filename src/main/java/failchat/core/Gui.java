@@ -72,7 +72,7 @@ public class Gui extends Application {
     }
 
     private void buildSettingsStage(Stage stage) throws Exception {
-        stage.setTitle("failchat settings");
+        stage.setTitle("failchat v" + Configurator.config.getString("version"));
         Scene scene = new Scene(FXMLLoader.load(getClass().getResource("/settings.fxml")));
         stage.setScene(scene);
 

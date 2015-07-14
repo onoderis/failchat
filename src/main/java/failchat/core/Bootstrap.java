@@ -13,7 +13,6 @@ import java.nio.file.Paths;
 import java.util.logging.Logger;
 
 public class Bootstrap {
-
     public static Path workDir;
 
     private static final Logger logger = Logger.getLogger(Bootstrap.class.getName());
@@ -21,12 +20,11 @@ public class Bootstrap {
     private static MessageManager messageManager;
 
     public static void main(String[] args) {
-        checkForAnoterInstance();
+        checkForAnotherInstance();
 
         Logging.configure();
         workDir = getWorkDir();
         logger.info("Work dir: " + workDir.toAbsolutePath());
-
         configurator = Configurator.getInstance();
         messageManager = MessageManager.getInstance();
 
@@ -41,7 +39,7 @@ public class Bootstrap {
     }
 
     // exit if another instance running
-    private static void checkForAnoterInstance() {
+    private static void checkForAnotherInstance() {
         try {
             ServerSocket serverSocket = new ServerSocket(LocalWSServer.WS_PORT);
             serverSocket.close();
