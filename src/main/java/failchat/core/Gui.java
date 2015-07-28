@@ -10,6 +10,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -158,7 +160,7 @@ public class Gui extends Application {
         webView.setContextMenuEnabled(false);
 
         //hot keys
-        webScene.setOnKeyPressed((key) -> {
+        webScene.setOnKeyReleased((key) -> {
             //esc
             if (key.getCode() == KeyCode.ESCAPE) {
                 switchStage();
@@ -200,11 +202,11 @@ public class Gui extends Application {
         ContextMenu contextMenu = new ContextMenu(switchDecorationsItem, toSettingsItem);
 
         //context menu
-        webScene.setOnContextMenuRequested((event) -> {
-            contextMenu.show(scene.getRoot(), event.getScreenX(), event.getScreenY());
-        });
         webScene.setOnMouseClicked((mouseEvent) -> {
-            if (contextMenu.isShowing()) {
+            if (mouseEvent.getButton() == MouseButton.SECONDARY) {
+                contextMenu.show(webScene.getRoot(), mouseEvent.getScreenX(), mouseEvent.getScreenY());
+            }
+            else if (contextMenu.isShowing() && mouseEvent.getEventType() == MouseEvent.MOUSE_CLICKED) {
                 contextMenu.hide();
             }
         });
