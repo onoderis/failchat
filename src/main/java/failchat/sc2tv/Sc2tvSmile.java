@@ -37,8 +37,8 @@ public class Sc2tvSmile extends Smile {
 
     @Override
     public String getCachePath() {
-        return SmileManager.SMILES_DIR_REL.resolve(Source.SC2TV.toString().toLowerCase())
-                .resolve(code + FILE_EXTENSION).toString();
+        return SmileManager.SMILES_DIR_REL.resolve(Source.SC2TV.getLowerCased())
+                .resolve(code + FILE_EXTENSION).toString().replace('\\', '/');
     }
 
     @Override
