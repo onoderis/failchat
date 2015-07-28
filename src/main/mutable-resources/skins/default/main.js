@@ -3,7 +3,8 @@ var failchat = {
 };
 
 $(function () {
-    var socket = new WebSocket("ws://localhost:10880");
+    var socket = new ReconnectingWebSocket("ws://localhost:10880");
+    socket.maxReconnectInterval = 5000;
     var messageCount = 0;
     var messageContainer = $("#message-container");
     var smileTemplate = $("#smile-template");
@@ -18,9 +19,9 @@ $(function () {
     baron(failchat.baronParams);
 
     socket.onopen = function () {
-        //var connectedMessage = {"source": "failchat","text":"connected"};
-        //handleInfoMessage(connectedMessage);
-        //appendToMessageContainer(connectedMessage);
+        var connectedMessage = {"source": "failchat","text":"connected"};
+        handleInfoMessage(connectedMessage);
+        appendToMessageContainer(connectedMessage);
     };
     socket.onclose = function () {
         var disconnectedMessage =  {"source": "failchat","text":"disconnected"};
