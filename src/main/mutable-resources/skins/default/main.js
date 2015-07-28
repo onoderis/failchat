@@ -13,7 +13,6 @@ $(function () {
     var scroller = $(failchat.baronParams.scroller);
     var scrollBar = $(failchat.baronParams.bar);
     var autoScroll = true;
-    var autoScrolled = false;
 
     scrollBar.css("visibility", "hidden");
     baron(failchat.baronParams);
@@ -80,31 +79,38 @@ $(function () {
         }
         if (autoScroll) {
             if (message.smiles !== undefined && failchat.scrollHookSelector !== undefined) {
-                autoScrolled = true;
-                scroller.scrollTop(messageContainer.height());
                 scrollHook();
             } else {
-                autoScrolled = true;
                 scroller.scrollTop(messageContainer.height());
             }
         }
         //console.log("messages: " + messageCount);
     }
 
-    scroller.scroll( function() {
-        //console.log("scrolled");
-        if (autoScrolled) {
-            autoScrolled = false;
+    $("body,html").bind("keydown wheel mousewheel", function(e){
+        //console.log(e);
+        if (autoScroll) {
+            if (e.originalEvent.deltaY < 0 ||
+                (e.type == "keydown" && (e.keyCode == 38||e.keyCode == 36||e.keyCode == 33)) // 38-up;36-home;33-pageup
+            ) {
+                autoScroll = false;
+                scrollBar.css("visibility", "visible");
+            }
+            if (e.type == "mousewheel") { // for old browsers
+                autoScroll = scroller.scrollTop() + scroller.height() >= messageContainer.height();
+                if (!autoScroll) {
+                    scrollBar.css("visibility", "visible");
+                }
+            }
         }
-        else {
+    });
+
+    scroller.scroll(function (e) {
+        if (!autoScroll) {
             autoScroll = scroller.scrollTop() + scroller.height() >= messageContainer.height();
             if (autoScroll) {
                 scrollBar.css("visibility", "hidden");
             }
-            else {
-                scrollBar.css("visibility", "visible");
-            }
-            //console.log("autoScroll: " + autoScroll);
         }
     });
 
@@ -113,7 +119,6 @@ $(function () {
         $(failchat.scrollHookSelector + ":last").imagesLoaded(function() {
             //console.log("last smile loaded");
             if (autoScroll) {
-                autoScrolled = true;
                 scroller.scrollTop(messageContainer.height());
             }
         });
