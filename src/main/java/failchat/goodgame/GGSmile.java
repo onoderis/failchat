@@ -45,11 +45,11 @@ public class GGSmile extends Smile {
     public String getCachePath() {
         if (animated) {
             return SmileManager.SMILES_DIR_REL.resolve(Source.GOODGAME.getLowerCased())
-                    .resolve(code + A_FILE_EXTENSION).toString();
+                    .resolve(code + A_FILE_EXTENSION).toString().replace('\\', '/');
         }
         else {
             return SmileManager.SMILES_DIR_REL.resolve(Source.GOODGAME.getLowerCased())
-                    .resolve(code + FILE_EXTENSION).toString();
+                    .resolve(code + FILE_EXTENSION).toString().replace('\\', '/');
         }
     }
 

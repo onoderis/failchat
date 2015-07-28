@@ -46,7 +46,7 @@ public class TwitchSmile extends Smile {
     @Override
     public String getCachePath() {
         return SmileManager.SMILES_DIR_REL.resolve(Source.TWITCH.getLowerCased())
-                .resolve(getFileName()).toString();
+                .resolve(getFileName()).toString().replace('\\', '/');
     }
 
     @JsonIgnore
