@@ -3,16 +3,13 @@ package failchat.goodgame;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import failchat.core.*;
 import org.apache.commons.io.IOUtils;
-import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +23,9 @@ public class GGChatClient implements ChatClient {
     private static final String GG_WS_URL = "ws://chat.goodgame.ru:8081/chat/websocket";
     private static final String GG_STREAM_API_URL = "http://goodgame.ru/api/getchannelstatus?fmt=json&id=";
     private static final Pattern EXTRACT_CHANNEL_ID_REGEX = Pattern.compile("\"stream_id\":\"(\\d*)\"");
-    private static final int RECONNECT_TIMEOUT = 5000;
     private static final String NEW_MESSAGE_SEQUENCE = "\"type\":\"message\"";
 
-    private WebSocketClient wsClient;
+    private WSClient wsClient;
     private ChatClientStatus status;
     private MessageManager messageManager = MessageManager.getInstance();
     private Queue<Message> messageQueue = messageManager.getMessagesQueue();
@@ -56,7 +52,8 @@ public class GGChatClient implements ChatClient {
             return;
         }
         channelId = getChannelIdByName(channelName);
-        tryToConnect();
+        wsClient = new GGWSClient();
+        wsClient.connect();
     }
 
     @Override
@@ -91,45 +88,29 @@ public class GGChatClient implements ChatClient {
         return -1;
     }
 
-    private void tryToConnect() {
-        while (status == ChatClientStatus.CONNECTING || status == ChatClientStatus.READY) {
-            wsClient = new GGWSClient();
-            try {
-                if (status == ChatClientStatus.CONNECTING) {
-                    Thread.sleep(RECONNECT_TIMEOUT);
-                }
-                if (!wsClient.connectBlocking()) {
-                    continue;
-                }
-                String connectToChannelMes = objectMapper.writeValueAsString(new JoinWSMessage((channelId)));
-                wsClient.send(connectToChannelMes);
-                status = ChatClientStatus.WORKING;
-            } catch (JsonProcessingException e) {
-                logger.severe("Goodgame bad json");
-                status = ChatClientStatus.ERROR;
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private class GGWSClient extends WebSocketClient {
+    private class GGWSClient extends WSClient {
         GGWSClient() {
-            super(URI.create(GG_WS_URL));
+            super(GG_WS_URL);
         }
 
         @Override
         public void onOpen(ServerHandshake serverHandshake) {
-            logger.info("Connected to goodgame");
-            messageManager.sendInfoMessage(new InfoMessage(Source.GOODGAME, "connected"));
+            try {
+                String connectToChannelMes = objectMapper.writeValueAsString(new JoinWSMessage((channelId)));
+                wsClient.send(connectToChannelMes);
+                status = ChatClientStatus.WORKING;
+                logger.info("Connected to goodgame");
+                messageManager.sendInfoMessage(new InfoMessage(Source.GOODGAME, "connected"));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
         public void onMessage(String s) {
             if (s.contains(NEW_MESSAGE_SEQUENCE)) {
                 try {
-                    GoodgameWSMessage ggwsm = objectMapper.readValue(s, new TypeReference<GoodgameWSMessage>() {});
+                    GoodgameWSMessage ggwsm = objectMapper.readValue(s, GoodgameWSMessage.class);
                     GGMessage message = ggwsm.getMessage();
                     //handling messages
                     for (MessageHandler<GGMessage> messageHandler : messageHandlers) {
@@ -146,22 +127,14 @@ public class GGChatClient implements ChatClient {
         }
 
         @Override
-        public void onClose(int i, String s, boolean b) { // вызывается даже если веб сокет не был подключён
-            if (status == ChatClientStatus.CONNECTING || status == ChatClientStatus.ERROR || status == ChatClientStatus.SHUTDOWN) {
-                return;
-            }
-            if (status == ChatClientStatus.WORKING) {
-                status = ChatClientStatus.CONNECTING;
-            }
+        public void onClose(int i, String s, boolean b) {
             logger.info("Goodgame disconnected");
-            messageManager.sendInfoMessage(new InfoMessage(Source.GOODGAME, "disconnected"));
-            tryToConnect();
         }
 
         @Override
-        public void onError(Exception e) {
-            logger.warning("Goodgame web socket error");
-            e.printStackTrace();
+        public void onReconnect() {
+            logger.info("Goodgame disconnected, trying to reconnect ...");
+            messageManager.sendInfoMessage(new InfoMessage(Source.GOODGAME, "disconnected"));
         }
     }
 
