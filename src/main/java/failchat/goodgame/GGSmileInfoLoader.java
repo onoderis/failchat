@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +46,7 @@ public class GGSmileInfoLoader {
                     aSmile.setCode(smile.getCode());
                     aSmile.setAnimated(true);
                     aSmile.setPremium(true);
+                    aSmile.setBind(smile.getBind());
                     smile.setAnimatedInstance(aSmile);
                     smile.setAnimated(false);
                 }
@@ -65,14 +67,18 @@ public class GGSmileInfoLoader {
             rawJSSmiles = m.group(1);
             Map<String, List<GGSmile>> channelSmiles = objectMapper.readValue(rawJSSmiles, new TypeReference<Map<String, List<GGSmile>>>() {});
             channelSmiles.entrySet().forEach((entry) -> {
-                entry.getValue().forEach((smile) -> {
+                for (GGSmile smile : entry.getValue()) {
+                    if (smile.getTag().equals(GGSmile.INACTIVE_TAG)) {
+                        continue;
+                    }
                     smileMap.put(smile.getCode(), smile);
-                });
+                }
             });
 
             smiles = smileMap;
         } catch (IOException e) {
             logger.warning("Can't load goodgame smiles");
+            logger.log(Level.WARNING, e.getMessage(), e);
         }
 
         // serialization / deserialization

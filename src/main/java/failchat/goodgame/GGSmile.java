@@ -15,18 +15,31 @@ public class GGSmile extends Smile {
     public static final String A_IMG_DIR_URL = "http://goodgame.ru/images/anismiles/";
     public static final String A_IMG_DIR_URL_END = "-gif";
     public static final String A_FILE_EXTENSION = ".gif";
+    public static final String INACTIVE_TAG = "?0";
 
     protected boolean premium;
     protected boolean animated;
     protected GGSmile animatedInstance;
+    protected int bind; //for smile url (0 - special, not 0 - common)
+    protected String tag; // if tag == ?0 then smile is not active
 
     @Override
     public String getImageUrl() {
-        if (animated) {
-            return A_IMG_DIR_URL + code + A_IMG_DIR_URL_END + A_FILE_EXTENSION;
-        }
-        else {
-            return IMG_DIR_URL + code + IMG_DIR_URL_END + FILE_EXTENSION;
+        if (bind != 0) { //common path
+            if (animated) {
+                return A_IMG_DIR_URL + code  + A_IMG_DIR_URL_END + A_FILE_EXTENSION;
+            }
+            else {
+                return IMG_DIR_URL + code  + IMG_DIR_URL_END + FILE_EXTENSION;
+            }
+        } else { //special path
+            // :|
+            if (animated) {
+                return IMG_DIR_URL + code.substring(0, code.length() - 1) + '/' + code  + A_IMG_DIR_URL_END + A_FILE_EXTENSION;
+            }
+            else {
+                return IMG_DIR_URL + code.substring(0, code.length() - 1) + '/' + code  + IMG_DIR_URL_END + FILE_EXTENSION;
+            }
         }
     }
 
@@ -89,5 +102,21 @@ public class GGSmile extends Smile {
 
     public void setAnimatedInstance(GGSmile animatedInstance) {
         this.animatedInstance = animatedInstance;
+    }
+
+    public int getBind() {
+        return bind;
+    }
+
+    public void setBind(int bind) {
+        this.bind = bind;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }
