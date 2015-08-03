@@ -51,7 +51,7 @@ public class Bootstrap {
     private static Path getWorkDir() {
         String path = Bootstrap.class.getResource("").toString();
         if (path.contains(".jar!")) { //production mode
-            logger.info("Dev mode");
+            logger.info("Jar mode");
             File cp = new File(System.getProperty("java.class.path"));
             File dir = cp.getAbsoluteFile().getParentFile();
             return FileSystems.getDefault().getPath(dir.toString());

@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public class BBCodeHandler implements MessageHandler {
     private static String announcePattern = "\\[url=.+?\\](.+?)\\[\\/url\\]";
     private static HashMap<Pattern, String> rules = new HashMap<Pattern, String>() {{
-        put(Pattern.compile("\\[url=(.+)\\]\\1\\[\\/url\\]"), "\1"); //иногда ссылки приходят в виде [url=http://xxx.x]http://xxx.x[/url]
+        put(Pattern.compile("\\[url=(.+)\\]\\1\\[\\/url\\]"), "$1"); //иногда ссылки приходят в виде [url=http://xxx.x]http://xxx.x[/url]
         put(Pattern.compile("\\[b\\]"), "");
         put(Pattern.compile("\\[/b\\]"), "");
         put(Pattern.compile("\\[url\\]"), "");
@@ -27,7 +27,7 @@ public class BBCodeHandler implements MessageHandler {
     public void handleMessage(Message message) {
         //announce or donation
         if (message.getAuthor().equals("SC2TV")) {
-            message.setText(message.getText().replaceAll(announcePattern, "\1"));
+            message.setText(message.getText().replaceAll(announcePattern, "$1"));
         }
 
         //rules processing
