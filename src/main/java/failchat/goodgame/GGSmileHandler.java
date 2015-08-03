@@ -20,13 +20,12 @@ public class GGSmileHandler implements MessageHandler<GGMessage> {
             String code = matcher.group();
             GGSmile smile = GGSmileInfoLoader.getSmile(code);
             if (smile != null) {
-                //check for premium/animated
-                if (smile.isPremium() && !message.isPremiumUser()) {
-                    position++;
-                    continue;
-                }
                 if (message.isPremiumUser() && smile.getAnimatedInstance() != null) {
                     smile = smile.getAnimatedInstance();
+                }
+                if (!SmileManager.cacheSmile(smile)) {
+                    position = matcher.start() + 1;
+                    continue;
                 }
                 String num = message.addSmile(smile);
 
@@ -37,9 +36,8 @@ public class GGSmileHandler implements MessageHandler<GGMessage> {
                 sb.delete(start - 1, end + 1); // for ':'
                 sb.insert(start - 1, num);
                 message.setText(sb.toString());
-                SmileManager.cacheSmile(smile);
                 matcher = smileCodePattern.matcher(message.getText());
-                position = start - 1;
+                position = start;
             } else {
                 position = matcher.end();
             }
