@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import failchat.core.Message;
 import failchat.core.Source;
 import org.apache.commons.lang.StringUtils;
+import org.pircbotx.hooks.events.ActionEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 
 import java.util.Date;
@@ -16,7 +17,7 @@ public class TwitchMessage extends Message {
     TwitchMessage(MessageEvent event) {
         this.text = event.getMessage();
         this.usedSmiles = event.getV3Tags().get("emotes");
-        this.timestamp = new Date();
+        this.timestamp = new Date(event.getTimestamp());
         this.source = Source.TWITCH;
 
         String displayedName = event.getV3Tags().get("display-name"); //could return null (e.g. from twitchnotify)
@@ -27,6 +28,13 @@ public class TwitchMessage extends Message {
         else {
             this.author = displayedName;
         }
+    }
+
+    TwitchMessage(ActionEvent event) {
+        this.text = event.getMessage();
+        this.timestamp = new Date(event.getTimestamp());
+        this.source = Source.TWITCH;
+        this.author = event.getUserHostmask().getNick();
     }
 
     @JsonIgnore

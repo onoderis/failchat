@@ -5,6 +5,7 @@ import org.pircbotx.Configuration;
 import org.pircbotx.PircBotX;
 import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.ListenerAdapter;
+import org.pircbotx.hooks.events.ActionEvent;
 import org.pircbotx.hooks.events.ConnectEvent;
 import org.pircbotx.hooks.events.DisconnectEvent;
 import org.pircbotx.hooks.events.MessageEvent;
@@ -107,6 +108,19 @@ public class TwitchChatClient implements ChatClient {
 
         @Override
         public void onMessage(MessageEvent event) throws Exception {
+            TwitchMessage m = new TwitchMessage(event);
+            for (MessageHandler<TwitchMessage> mh : messageHandlers) {
+                mh.handleMessage(m);
+            }
+            messageQueue.add(m);
+            synchronized (messageQueue) {
+                messageQueue.notify();
+            }
+        }
+
+        // for "/me" messages
+        @Override
+        public void onAction(ActionEvent event) throws Exception {
             TwitchMessage m = new TwitchMessage(event);
             for (MessageHandler<TwitchMessage> mh : messageHandlers) {
                 mh.handleMessage(m);
