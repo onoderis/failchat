@@ -39,19 +39,6 @@ public class GGSmileInfoLoader {
             ObjectMapper objectMapper = new ObjectMapper();
             List<GGSmile> smileList = objectMapper.readValue(rawJSSmiles, new TypeReference<List<GGSmile>>() {});
 
-            //create animated instances
-            smileList.forEach((smile) -> {
-                if (smile.animated) {
-                    GGSmile aSmile = new GGSmile();
-                    aSmile.setCode(smile.getCode());
-                    aSmile.setAnimated(true);
-                    aSmile.setPremium(true);
-                    aSmile.setBind(smile.getBind());
-                    smile.setAnimatedInstance(aSmile);
-                    smile.setAnimated(false);
-                }
-            });
-
             // list to map
             Map<String, GGSmile> smileMap = new HashMap<>();
             for (GGSmile smile : smileList) {
@@ -68,10 +55,23 @@ public class GGSmileInfoLoader {
             Map<String, List<GGSmile>> channelSmiles = objectMapper.readValue(rawJSSmiles, new TypeReference<Map<String, List<GGSmile>>>() {});
             channelSmiles.entrySet().forEach((entry) -> {
                 for (GGSmile smile : entry.getValue()) {
-                    if (smile.getTag().equals(GGSmile.INACTIVE_TAG)) {
+                    if (smile.getTag().equals(GGSmile.INACTIVE_TAG)) { //skip smiles with inactive tag
                         continue;
                     }
                     smileMap.put(smile.getCode(), smile);
+                }
+            });
+
+            //create animated instances
+            smileMap.forEach((smileCode, smile) -> {
+                if (smile.animated) {
+                    GGSmile aSmile = new GGSmile();
+                    aSmile.setCode(smile.getCode());
+                    aSmile.setAnimated(true);
+                    aSmile.setPremium(true);
+                    aSmile.setBind(smile.getBind());
+                    smile.setAnimatedInstance(aSmile);
+                    smile.setAnimated(false);
                 }
             });
 
