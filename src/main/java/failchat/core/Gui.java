@@ -12,12 +12,14 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,12 +40,15 @@ public class Gui extends Application {
 
     //settings nodes
     private TextField sc2tvChannel;
+    private TextField funstreamChannel;
     private TextField goodgameChannel;
     private TextField twitchChannel;
     private CheckBox sc2tvEnabled;
+    private CheckBox funstreamEnabled;
     private CheckBox goodgameEnabled;
     private CheckBox twitchEnabled;
     private ChoiceBox skin;
+    private ColorPicker bgColorPircker;
     private CheckBox frame;
     private CheckBox onTop;
     private Slider opacitySlider;
@@ -80,16 +85,19 @@ public class Gui extends Application {
 
         //channels
         sc2tvChannel = (TextField)scene.lookup("#sc2tv_channel");
+        funstreamChannel = (TextField)scene.lookup("#funstream_channel");
         goodgameChannel = (TextField)scene.lookup("#goodgame_channel");
         twitchChannel = (TextField)scene.lookup("#twitch_channel");
 
         //channels checkboxes
         sc2tvEnabled = (CheckBox)scene.lookup("#sc2tv_enabled");
+        funstreamEnabled = (CheckBox)scene.lookup("#funstream_enabled");
         goodgameEnabled = (CheckBox)scene.lookup("#goodgame_enabled");
         twitchEnabled = (CheckBox)scene.lookup("#twitch_enabled");
 
-        //skin
+        //appearance
         skin = (ChoiceBox)scene.lookup("#skin");
+        bgColorPircker = (ColorPicker)scene.lookup("#bgcolor");
         frame = (CheckBox)scene.lookup("#frame");
         onTop = (CheckBox)scene.lookup("#top");
 
@@ -109,15 +117,18 @@ public class Gui extends Application {
 
     private void updateSettingsValues() {
         sc2tvChannel.setText(Configurator.config.getString("sc2tv.channel"));
+        funstreamChannel.setText(Configurator.config.getString("funstream.channel"));
         goodgameChannel.setText(Configurator.config.getString("goodgame.channel"));
         twitchChannel.setText(Configurator.config.getString("twitch.channel"));
 
         sc2tvEnabled.setSelected(Configurator.config.getBoolean("sc2tv.enabled"));
+        funstreamEnabled.setSelected(Configurator.config.getBoolean("funstream.enabled"));
         goodgameEnabled.setSelected(Configurator.config.getBoolean("goodgame.enabled"));
         twitchEnabled.setSelected(Configurator.config.getBoolean("twitch.enabled"));
 
         skin.setItems(FXCollections.observableArrayList(Configurator.getSkins()));
         skin.setValue(Configurator.config.getString("skin"));
+        bgColorPircker.setValue(Color.web(Configurator.config.getString("bgcolor")));
         frame.setSelected(Configurator.config.getBoolean("frame"));
         onTop.setSelected(Configurator.config.getBoolean("onTop"));
         opacitySlider.setValue(Configurator.config.getDouble("opacity"));
@@ -125,14 +136,17 @@ public class Gui extends Application {
 
     private void saveSettingsValues() {
         Configurator.config.setProperty("sc2tv.channel", sc2tvChannel.getText());
+        Configurator.config.setProperty("funstream.channel", funstreamChannel.getText());
         Configurator.config.setProperty("goodgame.channel", goodgameChannel.getText());
         Configurator.config.setProperty("twitch.channel", twitchChannel.getText());
 
         Configurator.config.setProperty("sc2tv.enabled", sc2tvEnabled.isSelected());
+        Configurator.config.setProperty("funstream.enabled", funstreamEnabled.isSelected());
         Configurator.config.setProperty("goodgame.enabled", goodgameEnabled.isSelected());
         Configurator.config.setProperty("twitch.enabled", twitchEnabled.isSelected());
 
         Configurator.config.setProperty("skin", skin.getValue());
+        Configurator.config.setProperty("bgcolor", bgColorPircker.getValue().toString());
         Configurator.config.setProperty("frame", frame.isSelected());
         Configurator.config.setProperty("onTop", onTop.isSelected());
         Configurator.config.setProperty("opacity", (int)opacitySlider.getValue());
@@ -141,9 +155,12 @@ public class Gui extends Application {
     // build 2 times: for decorated and undecorated stages
     private Stage buildChatStage(boolean decorated) {
         Stage stage = new Stage();
-        stage.setTitle("failchat");
         if (!decorated) {
-            stage.initStyle(StageStyle.UNDECORATED);
+            stage.setTitle("failchat u");
+            stage.initStyle(StageStyle.TRANSPARENT);
+        }
+        else {
+            stage.setTitle("failchat");
         }
         stage.setOnCloseRequest(event -> {
             saveChatPosition(stage);
@@ -157,7 +174,18 @@ public class Gui extends Application {
         WebView webView = new WebView();
         webEngine = webView.getEngine();
         Scene webScene = new Scene(webView);
+        webView.setStyle("-fx-background-color: transparent;");
         webView.setContextMenuEnabled(false);
+
+        //webengine transparent hack
+        webEngine.documentProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                Field f = webEngine.getClass().getDeclaredField("page");
+                f.setAccessible(true);
+                com.sun.webkit.WebPage page = (com.sun.webkit.WebPage) f.get(webEngine);
+                page.setBackgroundColor(0); //full transparent
+            } catch (Exception ignored) {}
+        });
 
         //hot keys
         webScene.setOnKeyReleased((key) -> {
@@ -230,15 +258,6 @@ public class Gui extends Application {
             stage.setX(x);
             stage.setY(y);
         }
-//        primaryStage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
-//            @Override
-//            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-//                if (newValue) {
-//                    logger.info("uniconifying");
-//                    primaryStage.setIconified(false);
-//                }
-//            }
-//        });
     }
 
     private void saveChatPosition(Stage stage) {
@@ -257,12 +276,14 @@ public class Gui extends Application {
             settingsStage.hide();
             if (Configurator.config.getBoolean("frame")) {
                 decorated = true;
+                webScene.setFill(Color.web(Configurator.config.getString("bgcolor")));
                 decoratedStage.setScene(webScene);
                 configureChatStage(decoratedStage);
                 decoratedStage.show();
             }
             else {
                 decorated = false;
+                webScene.setFill(Color.TRANSPARENT);
                 undecoratedChatStage.setScene(webScene);
                 configureChatStage(undecoratedChatStage);
                 undecoratedChatStage.show();
@@ -301,6 +322,7 @@ public class Gui extends Application {
             saveChatPosition(decoratedStage);
             Configurator.config.setProperty("frame", false);
             configureChatStage(undecoratedChatStage);
+            webScene.setFill(Color.TRANSPARENT);
             undecoratedChatStage.setScene(webScene);
             undecoratedChatStage.show();
             decorated = false;
@@ -312,6 +334,7 @@ public class Gui extends Application {
             saveChatPosition(undecoratedChatStage);
             Configurator.config.setProperty("frame", true);
             configureChatStage(decoratedStage);
+            webScene.setFill(Color.web(Configurator.config.getString("bgcolor")));
             decoratedStage.setScene(webScene);
             decoratedStage.show();
             decorated = true;
