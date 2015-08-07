@@ -31,7 +31,7 @@ public class TwitchSmileInfoLoader {
             }
             smiles = smilesMap;
         } catch (IOException e) {
-            logger.warning("Can't load twitch global smiles");
+            logger.warning("Can't load twitch smiles");
         }
 
         // serialization / deserialization

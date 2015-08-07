@@ -5,8 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 
-public abstract class Smile implements Serializable {
+public class Smile implements Serializable {
     protected String code; //smile code without ':' or regexp
+    protected Source source;
     protected transient boolean cached;
 
     public Smile() {
@@ -14,9 +15,14 @@ public abstract class Smile implements Serializable {
     }
 
     @JsonIgnore
-    public abstract String getImageUrl();
+    public String getImageUrl() {
+        return null;
+    }
 
-    public abstract Source getSource();
+    @JsonIgnore
+    public Source getSource() {
+        return source;
+    }
 
     @JsonProperty (value = "code")
     public String getCode() {

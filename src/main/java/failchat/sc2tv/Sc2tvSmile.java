@@ -11,28 +11,26 @@ public class Sc2tvSmile extends Smile {
     public static final String SC2TV_SMILES_DIR_URL = "http://chat.sc2tv.ru/img/"; // используется для генерации url
     public static final String FILE_EXTENSION = ".png";
 
-    private String fileName;
+    private String urlFileName;
 
-    // удаляем из кода символ :
+    Sc2tvSmile() {
+        source = Source.SC2TV;
+    }
+
     @Override
     @JsonProperty(value = "code")
     public void setCode(String code) {
-        this.code = code.replaceAll("\\:", "");
+        this.code = code.replaceAll("\\:", ""); // удаляем из кода символ :
     }
 
     @JsonProperty(value = "img")
     public void setImageUrl(String img) {
-        this.fileName = img.split("\\?")[0]; // smile.png?1 -> smile.png
+        this.urlFileName = img.split("\\?")[0]; // smile.png?1 -> smile.png
     }
 
     @Override
     public String getImageUrl() {
-        return SC2TV_SMILES_DIR_URL + fileName;
-    }
-
-    @Override
-    public Source getSource() {
-        return Source.SC2TV;
+        return SC2TV_SMILES_DIR_URL + urlFileName;
     }
 
     @Override

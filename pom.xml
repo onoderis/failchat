@@ -59,6 +59,12 @@
             <version>1.10</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.nkzawa</groupId>
+            <artifactId>socket.io-client</artifactId>
+            <version>0.5.2</version>
+        </dependency>
+
         <!--dependencies for pircbotx -->
         <dependency>
             <groupId>org.apache.commons</groupId>

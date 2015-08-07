@@ -5,6 +5,7 @@ package failchat.core;
  */
 public enum Source {
     SC2TV,
+    FUNSTREAM,
     GOODGAME,
     TWITCH,
     FAILCHAT,
