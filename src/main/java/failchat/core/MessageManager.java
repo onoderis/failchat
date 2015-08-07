@@ -2,6 +2,7 @@ package failchat.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import failchat.handlers.LinkHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import failchat.core.*;
+import failchat.handlers.MessageObjectCleaner;
 import org.apache.commons.io.IOUtils;
 import org.java_websocket.handshake.ServerHandshake;
 

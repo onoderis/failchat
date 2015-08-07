@@ -6,6 +6,7 @@ import com.github.nkzawa.socketio.client.Socket;
 import failchat.core.*;
 import failchat.handlers.CapsHandler;
 import failchat.handlers.HtmlHandler;
+import failchat.handlers.MessageObjectCleaner;
 import org.json.JSONException;
 import org.json.JSONObject;
 
