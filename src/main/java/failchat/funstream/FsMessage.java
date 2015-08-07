@@ -46,6 +46,12 @@ public class FsMessage extends failchat.core.Message {
     }
 
     @Override
+    @JsonProperty(value = "timestamp")
+    public Date getTimestamp() {
+        return super.getTimestamp();
+    }
+
+    @Override
     @JsonProperty(value = "name")
     public void setAuthor(String author) {
         super.setAuthor(author);
