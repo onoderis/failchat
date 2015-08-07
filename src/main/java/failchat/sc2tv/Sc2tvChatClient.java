@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import failchat.core.*;
+import failchat.handlers.CapsHandler;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -40,6 +41,7 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
         objectMapper.setDateFormat(JSON_DATE_FORMAT);
         messageHandlers = new ArrayList<>();
         messageHandlers.add(MessageObjectCleaner.getInstance());
+        messageHandlers.add(new CapsHandler());
         messageHandlers.add(new BBCodeHandler());
         messageHandlers.add(new Sc2tvSmileHandler());
         messageHandlers.add(new Sc2tvHighlightHandler(channelName));
