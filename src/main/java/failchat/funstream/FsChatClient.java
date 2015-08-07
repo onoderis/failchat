@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import failchat.core.*;
+import failchat.handlers.HtmlHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,6 +37,7 @@ public class FsChatClient implements ChatClient {
         messageFilters.add(new SourceFilter());
         //noinspection unchecked
         messageHandlers.add(MessageObjectCleaner.getInstance());
+        messageHandlers.add(new HtmlHandler());
         messageHandlers.add(new FsHighlightHandler(channelName));
         messageHandlers.add(new FsSmileHandler());
         status = ChatClientStatus.READY;

@@ -1,6 +1,7 @@
 package failchat.twitch;
 
 import failchat.core.*;
+import failchat.handlers.HtmlHandler;
 import org.pircbotx.Configuration;
 import org.pircbotx.PircBotX;
 import org.pircbotx.exception.IrcException;
