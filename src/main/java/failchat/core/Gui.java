@@ -1,5 +1,6 @@
 package failchat.core;
 
+import failchat.handlers.LinkHandler;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;

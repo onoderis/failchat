@@ -1,4 +1,8 @@
-package failchat.core;
+package failchat.handlers;
+
+import failchat.core.Link;
+import failchat.core.Message;
+import failchat.core.MessageHandler;
 
 import java.util.logging.Logger;
 import java.util.regex.Matcher;

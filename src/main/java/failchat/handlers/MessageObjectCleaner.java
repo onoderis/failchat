@@ -1,4 +1,7 @@
-package failchat.core;
+package failchat.handlers;
+
+import failchat.core.Message;
+import failchat.core.MessageHandler;
 
 import java.util.logging.Logger;
 /**

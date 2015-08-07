@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import failchat.core.*;
 import failchat.handlers.CapsHandler;
+import failchat.handlers.MessageObjectCleaner;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
