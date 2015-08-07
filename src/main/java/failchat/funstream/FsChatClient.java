@@ -1,8 +1,5 @@
 package failchat.funstream;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
@@ -13,7 +10,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Queue;
 import java.util.logging.Logger;
@@ -108,8 +104,7 @@ public class FsChatClient implements ChatClient {
                 messageManager.sendInfoMessage(new InfoMessage(Source.SC2TV, "disconnected"));
             }).on("/chat/message", objects -> {
                 try {
-                    Message message = objectMapper.readValue(objects[0].toString(), Message.class);
-                    FsMessage fsMessage = new FsMessage(message);
+                    FsMessage fsMessage = objectMapper.readValue(objects[0].toString(), FsMessage.class);
 
                     //filter message
                     for (MessageFilter<FsMessage> messageFiller : messageFilters) {
@@ -138,70 +133,4 @@ public class FsChatClient implements ChatClient {
             return null;
         }
     }
-
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    static class Message {
-        User from;
-        User to;
-        String text;
-        Date timestamp;
-
-        public User getFrom() {
-            return from;
-        }
-
-        public void setFrom(User from) {
-            this.from = from;
-        }
-
-        public User getTo() {
-            return to;
-        }
-
-        public void setTo(User to) {
-            this.to = to;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public Date getTimestamp() {
-            return timestamp;
-        }
-
-        @JsonProperty(value = "time")
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+2")
-        public void setTimestamp(Date timestamp) {
-            this.timestamp = timestamp;
-        }
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    static class User {
-        String name;
-        int id;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-    }
-
 }

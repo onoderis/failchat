@@ -12,9 +12,11 @@ public class FsHighlightHandler implements MessageHandler<FsMessage> {
 
     @Override
     public void handleMessage(FsMessage message) {
-        if (StringUtils.containsIgnoreCase(message.getTo().getName(), channelName)) {
+        if (!message.getTo().getName().equals("")) {
             message.setText(message.getTo().getName() + ", " + message.getText());
-            message.setHighlighted(true);
+            if (StringUtils.equalsIgnoreCase(message.getTo().getName(), channelName)) {
+                message.setHighlighted(true);
+            }
         }
     }
 }
