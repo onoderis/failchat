@@ -23,6 +23,10 @@ public class GGSmile extends Smile {
     protected int bind; //for smile url (0 - special, not 0 - common)
     protected String tag; // if tag == ?0 then smile is not active
 
+    GGSmile() {
+        source = Source.GOODGAME;
+    }
+
     @Override
     public String getImageUrl() {
         if (bind != 0) { //common path
@@ -41,11 +45,6 @@ public class GGSmile extends Smile {
                 return IMG_DIR_URL + code.substring(0, code.length() - 1) + '/' + code  + IMG_DIR_URL_END + FILE_EXTENSION;
             }
         }
-    }
-
-    @Override
-    public Source getSource() {
-        return Source.GOODGAME;
     }
 
     @Override

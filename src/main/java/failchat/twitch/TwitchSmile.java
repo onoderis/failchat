@@ -20,12 +20,13 @@ public class TwitchSmile extends Smile {
     protected int id;
 
     public TwitchSmile() {
-
+        source = Source.TWITCH;
     }
 
     public TwitchSmile(int id, String code) {
         this.id = id;
         this.code = code;
+        source = Source.TWITCH;
     }
 
     @Override
@@ -36,11 +37,6 @@ public class TwitchSmile extends Smile {
         else {
             this.code = "\\b" + code + "\\b";
         }
-    }
-
-    @Override
-    public Source getSource() {
-        return Source.TWITCH;
     }
 
     @Override
