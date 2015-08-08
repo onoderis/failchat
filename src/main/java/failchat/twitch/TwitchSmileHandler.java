@@ -29,12 +29,12 @@ public class TwitchSmileHandler implements MessageHandler<TwitchMessage> {
         }
 
         usedSmiles.forEach((smile) -> {
-            Pattern smilePattern = Pattern.compile(smile.getCode());
+            Pattern smilePattern = Pattern.compile("(?<=\\b)" + smile.getCode() + "(?=\\b)");
             Matcher m2 = smilePattern.matcher(message.getText());
             int position = 0;
             while (m2.find(position)) {
                 position = m2.start();
-                message.setText(m2.replaceFirst(message.addSmile(smile))) ;
+                message.setText(m2.replaceFirst(message.addSmile(smile)));
                 m2 = smilePattern.matcher(message.getText());
             }
             SmileManager.cacheSmile(smile);
