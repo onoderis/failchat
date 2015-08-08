@@ -35,7 +35,7 @@ public class TwitchSmile extends Smile {
             this.code = code.replace("\\&lt\\;", "<").replace("\\&gt\\;", ">"); //replace html entity for < >
         }
         else {
-            this.code = "\\b" + code + "\\b";
+            this.code = code;
         }
     }
 
