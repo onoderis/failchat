@@ -7,6 +7,7 @@ import failchat.core.*;
 import failchat.handlers.CapsHandler;
 import failchat.handlers.HtmlHandler;
 import failchat.handlers.MessageObjectCleaner;
+import failchat.handlers.SupportSmileHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,6 +40,7 @@ public class FsChatClient implements ChatClient {
         messageFilters.add(new SourceFilter());
         //noinspection unchecked
         messageHandlers.add(MessageObjectCleaner.getInstance());
+        messageHandlers.add(new SupportSmileHandler());
         messageHandlers.add(new CapsHandler());
         messageHandlers.add(new HtmlHandler());
         messageHandlers.add(new FsHighlightHandler(channelName));
