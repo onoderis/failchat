@@ -1,6 +1,7 @@
 package failchat.core;
 
 
+import failchat.gui.GuiBootstrap;
 import javafx.application.Platform;
 
 import java.io.File;
@@ -31,7 +32,7 @@ public class Bootstrap {
         Logging.configureLoggingInFile();
 
         new Thread(messageManager, "MessageManagerThread").start();
-        new Thread(() -> Gui.main(null), "JavafxLauncher").start(); //TODO: wut?
+        new Thread(() -> GuiBootstrap.main(null), "JavafxLauncher").start(); //TODO: wut?
 
         Thread smlThread = new Thread(SmileManager::loadSmilesInfo, "SmileLoaderThread");
         smlThread.setPriority(3);
