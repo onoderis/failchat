@@ -93,7 +93,7 @@ public class SmileManager {
             smile.setCached(true);
             logger.fine("Smile downloaded: " + filePath.toFile().toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warning("Can't download smile: " + smile.source.getLowerCased() + ':' + smile.getCode());
             return false;
         }
         return true;
