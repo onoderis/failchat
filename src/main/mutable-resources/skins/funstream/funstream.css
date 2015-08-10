@@ -1,0 +1,86 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+body {
+    background-color: transparent;
+    word-break: normal;
+    margin: 0;
+}
+
+#message-container {
+    overflow-x: hidden;
+}
+
+.scroller {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 100%;
+}
+
+::-webkit-scrollbar {
+    width: 0;
+    display: none;
+}
+
+.baron .scrollbar {
+    display: block;
+    position: absolute;
+    background: #FFDB5F;
+    z-index: 999;
+    border-radius: 3px;
+    right: 2px;
+    width: 7px;
+    opacity: 0.7;
+    color: #FFDB5F;
+}
+
+/*message styles*/
+p {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    margin: 0 0 3px 0;
+    padding: 6px;
+	border: 2px solid rgba(16, 21, 28, 1);
+	background-color: rgba(16, 21, 28, 0.9);
+	border-radius: 12px;
+}
+
+span {
+    color: #FFFFFF;
+}
+
+span.nick {
+    font-weight: bold;
+    color: #FFDB5F;
+}
+
+
+span.highlighted {
+    color: #74CD36;
+}
+
+span.info-source {
+    font-weight: bold;
+    color: #FFDB5F;
+}
+span.info-text {
+    color: #FFFFFF;
+}
+
+img.icon {
+    width: 16px;
+    height: 16px;
+}
+
+img.smile {
+    max-height: 30px;
+}
+
+a {
+    color: #7fcdff;
+    font-weight: bold;
+    text-decoration: none;
+}
