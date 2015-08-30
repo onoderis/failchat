@@ -39,8 +39,6 @@ body {
 
 /*message styles*/
 p {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 16px;
     margin: 0 0 3px 0;
     padding: 6px;
 	border: 2px solid rgba(16, 21, 28, 1);
@@ -49,6 +47,8 @@ p {
 }
 
 span {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
     color: #FFFFFF;
 }
 
