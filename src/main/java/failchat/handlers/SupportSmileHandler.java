@@ -3,7 +3,6 @@ package failchat.handlers;
 import failchat.core.*;
 
 public class SupportSmileHandler implements MessageHandler {
-    private static final String supportSmileMessage = "<img src=\"http://sc2tv.ru/sites/all/modules/sc2tv_streams_donate/images/dollar_small.gif\">";
     private static final Smile supportSmile = new Smile(){
         {
             code = "support_smile";
@@ -26,10 +25,11 @@ public class SupportSmileHandler implements MessageHandler {
                     .resolve(getFileName()).toString().replace('\\', '/');
         }
     };
+    private static final String supportSmileMessage = supportSmile.getImageUrl();
 
     @Override
     public void handleMessage(Message message) {
-        if (message.getText().contains(supportSmileMessage)) {
+        if (message.getText().contains("<") && message.getText().contains(supportSmileMessage)) { //could be faked in funstream chat
             if (SmileManager.cacheSmile(supportSmile)) {
                 message.setText(message.addSmile(supportSmile));
             }
