@@ -69,6 +69,8 @@ public class SettingsFrame {
         applyButton = (Button)scene.lookup("#apply_button");
         applyButton.setOnAction((action) -> toChat());
 
+        funstreamEnabled.setOnAction((action) -> defineSc2tvNodesActivity());
+
         stage.setOnCloseRequest(event -> {
             saveSettingsValues();
             Bootstrap.shutDown();
@@ -103,6 +105,8 @@ public class SettingsFrame {
         frame.setSelected(Configurator.config.getBoolean("frame"));
         onTop.setSelected(Configurator.config.getBoolean("onTop"));
         opacitySlider.setValue(Configurator.config.getDouble("opacity"));
+
+        defineSc2tvNodesActivity();
     }
 
     private void saveSettingsValues() {
@@ -121,5 +125,16 @@ public class SettingsFrame {
         Configurator.config.setProperty("frame", frame.isSelected());
         Configurator.config.setProperty("onTop", onTop.isSelected());
         Configurator.config.setProperty("opacity", (int) opacitySlider.getValue());
+    }
+
+    // disable sc2tv nodes if funstream selected
+    private void defineSc2tvNodesActivity() {
+        if (funstreamEnabled.isSelected()) {
+            sc2tvEnabled.setDisable(true);
+            sc2tvChannel.setDisable(true);
+        } else {
+            sc2tvEnabled.setDisable(false);
+            sc2tvChannel.setDisable(false);
+        }
     }
 }
