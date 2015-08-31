@@ -16,6 +16,7 @@
 <script>
     failchat.maxMessages = 50;
     failchat.scrollHookSelector = "img.smile";
+    failchat.messageSelector = ".message";
     failchat.baronParams = {
         root: "body",
         scroller: ".scroller",
@@ -38,7 +39,7 @@
     <a href="{{:url}}">{{:domain}}</a>
 </script>
 <script id="info-message-template" type="text/x-jsrender">
-    <p class="info-message">
+    <p class="message info-message">
         <img class="icon" src="../../icons/{{:source}}.png">
         <span class="info-source">{{:source}} </span>
         <span class="info-text">{{:text}}</span>

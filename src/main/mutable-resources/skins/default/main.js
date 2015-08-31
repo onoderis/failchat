@@ -71,13 +71,11 @@ $(function () {
 
     function appendToMessageContainer(message) {
         messageCount++;
-        messageContainer.append(message.text);
         if (messageCount > failchat.maxMessages && autoScroll) {
-            while (messageCount > failchat.maxMessages) {
-                messageContainer.find("> :first").remove();
-                messageCount--;
-            }
+            $(failchat.messageSelector + ":lt(" + (messageCount - failchat.maxMessages) + ")").remove();
+            messageCount = failchat.maxMessages;
         }
+        messageContainer.append(message.text);
         if (autoScroll) {
             if (message.smiles !== undefined && failchat.scrollHookSelector !== undefined) {
                 scrollHook();
