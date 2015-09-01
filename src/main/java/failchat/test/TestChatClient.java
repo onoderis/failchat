@@ -34,8 +34,9 @@ public class TestChatClient implements ChatClient, Runnable {
         int i = 0;
         while (!exitFlag) {
             Message m = new Message();
-            m.setAuthor("Test author");
+            m.setAuthor("Test,author");
             m.setText("test text " + i);
+            m.setSource(Source.TEST);
             if (i % 3 == 0) {
                 m.setHighlighted(true);
             }

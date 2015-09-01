@@ -75,6 +75,7 @@ public class Bootstrap {
         }, "TerminationThread");
         terminationThread.setDaemon(true);
         terminationThread.start();
+        MessageManager.getInstance().getIgnoreFilter().saveIgnoreList();
         configurator.saveConfiguration();
         Platform.exit();
         // чтобы javafx thread'ы смогли завершиться и интерфейс закрывался сразу

@@ -48,9 +48,14 @@ public class Configurator {
     private Configurator() {
         try {
             defaultConfig = new PropertiesConfiguration(getClass().getResource("/default.conf"));
-            myConfig = new PropertiesConfiguration(configPath.toFile());
+            myConfig = new PropertiesConfiguration();
+            myConfig.setFile(configPath.toFile());
             config.addConfiguration(myConfig, true);
             config.addConfiguration(defaultConfig);
+            config.setDelimiterParsingDisabled(true);
+            if (configPath.toFile().exists()) {
+                myConfig.load();
+            }
         } catch (ConfigurationException e) {
             logger.severe("Bad configuration file");
             e.printStackTrace();

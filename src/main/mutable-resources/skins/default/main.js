@@ -1,11 +1,12 @@
 var failchat = {
-    "maxMessages": 50
+    "maxMessages": 50,
+    "messageCount": 0
 };
 
 $(function () {
     var socket = new ReconnectingWebSocket("ws://localhost:10880");
     socket.maxReconnectInterval = 5000;
-    var messageCount = 0;
+    failchat.socket = socket;
     var messageContainer = $("#message-container");
     var smileTemplate = $("#smile-template");
     var linkTemplate = $("#link-template");
@@ -70,10 +71,10 @@ $(function () {
     }
 
     function appendToMessageContainer(message) {
-        messageCount++;
-        if (messageCount > failchat.maxMessages && autoScroll) {
-            $(failchat.messageSelector + ":lt(" + (messageCount - failchat.maxMessages) + ")").remove();
-            messageCount = failchat.maxMessages;
+        failchat.messageCount++;
+        if (failchat.messageCount > failchat.maxMessages && autoScroll) {
+            $(failchat.messageSelector + ":lt(" + (failchat.messageCount - failchat.maxMessages) + ")").remove();
+            failchat.messageCount = failchat.maxMessages;
         }
         messageContainer.append(message.text);
         if (autoScroll) {
@@ -83,7 +84,6 @@ $(function () {
                 scroller.scrollTop(messageContainer.height());
             }
         }
-        //console.log("messages: " + messageCount);
     }
 
     $("body,html").bind("keydown wheel mousewheel", function(e){
@@ -116,10 +116,16 @@ $(function () {
     // scroll when last smile in message loaded
     function scrollHook() {
         $(failchat.scrollHookSelector + ":last").imagesLoaded(function() {
-            //console.log("last smile loaded");
             if (autoScroll) {
                 scroller.scrollTop(messageContainer.height());
             }
         });
     }
 });
+
+//add user to ignore list
+function ignore(elem) {
+    failchat.socket.send(JSON.stringify({"type": "ignore", "user": elem.getAttribute("data-user")}));
+    elem.parentNode.remove();
+    failchat.messageCount--;
+}
