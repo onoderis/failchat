@@ -84,3 +84,19 @@ a {
     font-weight: bold;
     text-decoration: none;
 }
+
+.ban {
+    width: 16px;
+    height: 16px;
+    color: red;
+    display: none;
+}
+
+.ban:hover {
+    display: inline;
+    cursor: pointer;
+}
+
+.nick:hover + .ban {
+    display: inline;
+}

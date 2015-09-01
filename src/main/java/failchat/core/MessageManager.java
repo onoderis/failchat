@@ -2,6 +2,7 @@ package failchat.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import failchat.handlers.IgnoreFilter;
 import failchat.handlers.LinkHandler;
 
 import java.io.IOException;
@@ -13,6 +14,16 @@ import java.util.logging.Logger;
 
 public class MessageManager implements Runnable {
     private static volatile MessageManager instance;
+    private static final Logger logger = Logger.getLogger(MessageManager.class.getName());
+
+    private MessageManager() {}
+    private final Queue<Message> messages = new ConcurrentLinkedQueue<>(); //for messages from users
+    private boolean exitFlag = false;
+    private LocalWSServer localWSServer;
+    private List<MessageHandler> handlers = new ArrayList<>();
+    private List<MessageFilter> filters = new ArrayList<>();
+    private ObjectMapper objectMapper = new ObjectMapper();
+    private IgnoreFilter ignoreFilter;
 
     public static MessageManager getInstance() {
         MessageManager localInstance = instance;
@@ -26,15 +37,6 @@ public class MessageManager implements Runnable {
         }
         return localInstance;
     }
-
-    private MessageManager() {}
-
-    private static final Logger logger = Logger.getLogger(MessageManager.class.getName());
-    private final Queue<Message> messages = new ConcurrentLinkedQueue<>(); //for messages from users
-    private boolean exitFlag = false;
-    private LocalWSServer localWSServer;
-    private List<MessageHandler> handlers = new ArrayList<>();
-    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void run() {
@@ -72,6 +74,8 @@ public class MessageManager implements Runnable {
 
     private void initHandlers() {
         handlers.add(new LinkHandler());
+        ignoreFilter = new IgnoreFilter();
+        filters.add(ignoreFilter);
     }
 
     private void createWebSocket() {
@@ -96,6 +100,12 @@ public class MessageManager implements Runnable {
         if (messages.size() > 0) {
             while (!messages.isEmpty()) {
                 Message m = messages.poll();
+                for (MessageFilter f : filters) {
+                    if (f.filterMessage(m)) {
+                        logger.fine("Message filtered: " + m.getSource().getLowerCased() + "#" + m.getAuthor() + ": " + m.getText());
+                        return;
+                    }
+                }
                 for (MessageHandler h : handlers) {
                     h.handleMessage(m);
                 }
@@ -107,5 +117,9 @@ public class MessageManager implements Runnable {
                 }
             }
         }
+    }
+
+    public IgnoreFilter getIgnoreFilter() {
+        return ignoreFilter;
     }
 }

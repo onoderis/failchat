@@ -29,6 +29,7 @@
     <p class="message">
         <img class="icon" src="../../icons/{{:source}}.png">
         <span class="nick">{{:author}}: </span>
+        <span class="ban" title="ignore" data-user="{{:author}}#{{:source}}" onclick="ignore(this)">&#10060;</span>
         <span class="text{{if highlighted}} highlighted{{/if}}">{{:text}}</span>
     </p>
 </script>
