@@ -1,22 +1,26 @@
 package failchat.handlers;
 
-import failchat.core.*;
+import failchat.core.MessageHandler;
+import failchat.core.Smile;
+import failchat.core.SmileManager;
+import failchat.core.Source;
+import failchat.funstream.FsMessage;
 
-public class SupportSmileHandler implements MessageHandler {
+public class SupportSmileHandler implements MessageHandler<FsMessage> {
     private static final Smile supportSmile = new Smile(){
         {
-            code = "support_smile";
+            code = "icon_donate";
             source = Source.SC2TV;
         }
 
         @Override
         public String getImageUrl() {
-            return "http://sc2tv.ru/sites/all/modules/sc2tv_streams_donate/images/dollar_small.gif";
+            return "http://funstream.tv/build/images/icon_donate.png";
         }
 
         @Override
         public String getFileName() {
-            return "dollar_small.gif";
+            return "icon_donate.png" ;
         }
 
         @Override
@@ -25,15 +29,11 @@ public class SupportSmileHandler implements MessageHandler {
                     .resolve(getFileName()).toString().replace('\\', '/');
         }
     };
-    private static final String supportSmileMessage = supportSmile.getImageUrl();
 
     @Override
-    public void handleMessage(Message message) {
-        if (message.getText().contains("<") && message.getText().contains(supportSmileMessage)) { //could be faked in funstream chat
-            if (SmileManager.cacheSmile(supportSmile)) {
-                message.setText(message.addSmile(supportSmile));
-            }
-
+    public void handleMessage(FsMessage message) {
+        if (message.getType().equals("fastdonate") && SmileManager.cacheSmile(supportSmile)) {
+            message.setText(message.addSmile(supportSmile));
         }
     }
 }

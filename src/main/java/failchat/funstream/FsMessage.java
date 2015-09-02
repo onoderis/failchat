@@ -12,6 +12,7 @@ import java.util.Date;
 public class FsMessage extends failchat.core.Message {
     protected User from; //for SourceFilter and HighlightHandler
     protected User to; //for HighlightHandler
+    protected String type;
 
     FsMessage() {
         this.source = Source.SC2TV;
@@ -55,6 +56,14 @@ public class FsMessage extends failchat.core.Message {
     @JsonProperty(value = "name")
     public void setAuthor(String author) {
         super.setAuthor(author);
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
