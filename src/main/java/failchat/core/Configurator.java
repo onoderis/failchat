@@ -2,7 +2,6 @@ package failchat.core;
 
 import failchat.funstream.FsChatClient;
 import failchat.goodgame.GGChatClient;
-import failchat.sc2tv.Sc2tvChatClient;
 import failchat.test.TestChatClient;
 import failchat.twitch.TwitchChatClient;
 import org.apache.commons.configuration.CompositeConfiguration;
@@ -64,13 +63,9 @@ public class Configurator {
     }
 
     public synchronized void initializeChatClients() {
-        // funstream have higher priority than sc2tv
-        if (Configurator.config.getBoolean("funstream.enabled") && !Configurator.config.getString("funstream.channel").equals("")) {
-            ChatClient funstreamChatClient = new FsChatClient(Configurator.config.getString("funstream.channel"));
+        if (Configurator.config.getBoolean("sc2tv.enabled") && !Configurator.config.getString("sc2tv.channel").equals("")) {
+            ChatClient funstreamChatClient = new FsChatClient(Configurator.config.getString("sc2tv.channel"));
             chatClients.put(Source.SC2TV, funstreamChatClient);
-        } else if (Configurator.config.getBoolean("sc2tv.enabled") && !Configurator.config.getString("sc2tv.channel").equals("")) {
-            ChatClient sc2tvChatClient = new Sc2tvChatClient(Configurator.config.getString("sc2tv.channel"));
-            chatClients.put(Source.SC2TV, sc2tvChatClient);
         }
 
         if (Configurator.config.getBoolean("goodgame.enabled") && !Configurator.config.getString("goodgame.channel").equals("")) {
