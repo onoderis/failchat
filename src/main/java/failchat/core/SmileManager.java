@@ -2,7 +2,6 @@ package failchat.core;
 
 import failchat.funstream.FsSmileInfoLoader;
 import failchat.goodgame.GGSmileInfoLoader;
-import failchat.sc2tv.Sc2tvSmileInfoLoader;
 import failchat.twitch.TwitchSmileInfoLoader;
 import org.apache.commons.io.FileUtils;
 
@@ -35,7 +34,6 @@ public class SmileManager {
             e.printStackTrace();
             return;
         }
-        Sc2tvSmileInfoLoader.loadSmilesInfo();
         FsSmileInfoLoader.loadSmilesInfo();
         GGSmileInfoLoader.loadSmilesInfo();
         TwitchSmileInfoLoader.loadGlobalSmilesInfo();

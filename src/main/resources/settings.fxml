@@ -36,31 +36,6 @@
                         <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                      </VBox.margin>
                   </HBox>
-                  <HBox alignment="CENTER_LEFT" layoutX="12.0" layoutY="30.0">
-                     <children>
-                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@icons/funstream.png" />
-                           </image>
-                           <HBox.margin>
-                              <Insets right="5.0" />
-                           </HBox.margin>
-                        </ImageView>
-                        <CheckBox fx:id="funstream_enabled" mnemonicParsing="false">
-                           <font>
-                              <Font size="12.0" />
-                           </font>
-                        </CheckBox>
-                        <TextField fx:id="funstream_channel" promptText="channel name">
-                           <font>
-                              <Font size="12.0" />
-                           </font>
-                        </TextField>
-                     </children>
-                     <VBox.margin>
-                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
-                     </VBox.margin>
-                  </HBox>
                   <HBox alignment="CENTER_LEFT">
                      <children>
                         <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
