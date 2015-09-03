@@ -14,9 +14,9 @@ public class FsSmileInfoLoader {
         smileMap = FsApiWorker.loadSmilesInfo();
         if (smileMap == null) {
             //noinspection unchecked
-            smileMap = (Map<String, FsSmile>)SmileManager.deserialize(Source.FUNSTREAM.getLowerCased());
+            smileMap = (Map<String, FsSmile>)SmileManager.deserialize(Source.SC2TV.getLowerCased());
         } else {
-            SmileManager.serialize(smileMap, Source.FUNSTREAM.getLowerCased());
+            SmileManager.serialize(smileMap, Source.SC2TV.getLowerCased());
         }
         if (smileMap != null) {
             logger.info("Funstream smiles: " + smileMap.size());
