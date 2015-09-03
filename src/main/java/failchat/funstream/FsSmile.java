@@ -14,7 +14,7 @@ public class FsSmile extends Smile {
     private String urlFileName;
 
     FsSmile() {
-        source = Source.FUNSTREAM;
+        source = Source.SC2TV;
     }
 
     @Override
@@ -24,7 +24,7 @@ public class FsSmile extends Smile {
 
     @Override
     public String getCachePath() {
-        return SmileManager.SMILES_DIR_REL.resolve(Source.FUNSTREAM.getLowerCased())
+        return SmileManager.SMILES_DIR_REL.resolve(Source.SC2TV.getLowerCased())
                 .resolve(code + FILE_EXTENSION).toString().replace('\\', '/');
     }
 
