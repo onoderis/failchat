@@ -20,9 +20,11 @@ public class SettingsFrame {
     private TextField sc2tvChannel;
     private TextField goodgameChannel;
     private TextField twitchChannel;
+    private TextField cybergameChannel;
     private CheckBox sc2tvEnabled;
     private CheckBox goodgameEnabled;
     private CheckBox twitchEnabled;
+    private CheckBox cybergameEnabled;
     private ChoiceBox skin;
     private ColorPicker bgColorPicker;
     private CheckBox frame;
@@ -40,11 +42,13 @@ public class SettingsFrame {
         sc2tvChannel = (TextField)scene.lookup("#sc2tv_channel");
         goodgameChannel = (TextField)scene.lookup("#goodgame_channel");
         twitchChannel = (TextField)scene.lookup("#twitch_channel");
+        cybergameChannel = (TextField)scene.lookup("#cybergame_channel");
 
         //channels checkboxes
         sc2tvEnabled = (CheckBox)scene.lookup("#sc2tv_enabled");
         goodgameEnabled = (CheckBox)scene.lookup("#goodgame_enabled");
         twitchEnabled = (CheckBox)scene.lookup("#twitch_enabled");
+        cybergameEnabled = (CheckBox)scene.lookup("#cybergame_enabled");
 
         //appearance
         skin = (ChoiceBox)scene.lookup("#skin");
@@ -86,10 +90,12 @@ public class SettingsFrame {
         sc2tvChannel.setText(Configurator.config.getString("sc2tv.channel"));
         goodgameChannel.setText(Configurator.config.getString("goodgame.channel"));
         twitchChannel.setText(Configurator.config.getString("twitch.channel"));
+        cybergameChannel.setText(Configurator.config.getString("cybergame.channel"));
 
         sc2tvEnabled.setSelected(Configurator.config.getBoolean("sc2tv.enabled"));
         goodgameEnabled.setSelected(Configurator.config.getBoolean("goodgame.enabled"));
         twitchEnabled.setSelected(Configurator.config.getBoolean("twitch.enabled"));
+        cybergameEnabled.setSelected(Configurator.config.getBoolean("cybergame.enabled"));
 
         skin.setItems(FXCollections.observableArrayList(Configurator.getSkins()));
         skin.setValue(Configurator.config.getString("skin"));
@@ -103,10 +109,12 @@ public class SettingsFrame {
         Configurator.config.setProperty("sc2tv.channel", sc2tvChannel.getText());
         Configurator.config.setProperty("goodgame.channel", goodgameChannel.getText());
         Configurator.config.setProperty("twitch.channel", twitchChannel.getText());
+        Configurator.config.setProperty("cybergame.channel", cybergameChannel.getText());
 
         Configurator.config.setProperty("sc2tv.enabled", sc2tvEnabled.isSelected());
         Configurator.config.setProperty("goodgame.enabled", goodgameEnabled.isSelected());
         Configurator.config.setProperty("twitch.enabled", twitchEnabled.isSelected());
+        Configurator.config.setProperty("cybergame.enabled", cybergameEnabled.isSelected());
 
         Configurator.config.setProperty("skin", skin.getValue());
         Configurator.config.setProperty("bgcolor", bgColorPicker.getValue().toString());

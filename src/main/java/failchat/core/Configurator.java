@@ -1,5 +1,6 @@
 package failchat.core;
 
+import failchat.cybergame.CgChatClient;
 import failchat.funstream.FsChatClient;
 import failchat.goodgame.GGChatClient;
 import failchat.test.TestChatClient;
@@ -76,6 +77,10 @@ public class Configurator {
         if (Configurator.config.getBoolean("twitch.enabled") && !Configurator.config.getString("twitch.channel").equals("")) {
             TwitchChatClient twitchChatClient = new TwitchChatClient(Configurator.config.getString("twitch.channel"));
             chatClients.put(Source.TWITCH, twitchChatClient);
+        }
+        if (Configurator.config.getBoolean("cybergame.enabled") && !Configurator.config.getString("cybergame.channel").equals("")) {
+            CgChatClient cgChatClient = new CgChatClient(Configurator.config.getString("cybergame.channel"));
+            chatClients.put(Source.CYBERGAME, cgChatClient);
         }
 
         if (Configurator.config.getBoolean("test.enabled")) {

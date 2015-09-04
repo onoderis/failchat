@@ -8,6 +8,7 @@ public enum Source {
     FUNSTREAM,
     GOODGAME,
     TWITCH,
+    CYBERGAME,
     FAILCHAT,
     TEST;
 

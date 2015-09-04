@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import failchat.core.*;
+import failchat.handlers.CommonHighlightHandler;
 import failchat.handlers.MessageObjectCleaner;
 import org.apache.commons.io.IOUtils;
 import org.java_websocket.handshake.ServerHandshake;
@@ -43,7 +44,7 @@ public class GGChatClient implements ChatClient {
         messageHandlers.add(MessageObjectCleaner.getInstance());
         messageHandlers.add(new UrlCleaner());
         messageHandlers.add(new GGSmileHandler());
-        messageHandlers.add(new GGHighlightHandler(channelName));
+        messageHandlers.add(new CommonHighlightHandler(channelName));
         status = ChatClientStatus.READY;
     }
 
