@@ -80,6 +80,7 @@ public class Bootstrap {
         Platform.exit();
         // чтобы javafx thread'ы смогли завершиться и интерфейс закрывался сразу
         new Thread(() -> {
+            configurator.getViewersManager().stop();
             configurator.turnOffChatClients();
             messageManager.turnOff();
         }, "ShutdownThread").start();

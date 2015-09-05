@@ -8,6 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -29,12 +30,14 @@ public class SettingsFrame {
     private ColorPicker bgColorPicker;
     private CheckBox frame;
     private CheckBox onTop;
+    private CheckBox showViewers;
     private Slider opacitySlider;
     private Button applyButton;
 
     SettingsFrame(Stage stage) throws Exception {
         this.stage = stage;
         stage.setTitle("failchat v" + Configurator.config.getString("version"));
+        stage.getIcons().setAll(new Image(getClass().getResourceAsStream("/icons/fc1.png")));
         Scene scene = new Scene(FXMLLoader.load(getClass().getResource("/settings.fxml")));
         stage.setScene(scene);
 
@@ -55,6 +58,7 @@ public class SettingsFrame {
         bgColorPicker = (ColorPicker)scene.lookup("#bgcolor");
         frame = (CheckBox)scene.lookup("#frame");
         onTop = (CheckBox)scene.lookup("#top");
+        showViewers= (CheckBox)scene.lookup("#show_viewers");
 
         //opacity
         opacitySlider = (Slider)scene.lookup("#opacity");
@@ -101,6 +105,7 @@ public class SettingsFrame {
         skin.setValue(Configurator.config.getString("skin"));
         bgColorPicker.setValue(Color.web(Configurator.config.getString("bgcolor")));
         frame.setSelected(Configurator.config.getBoolean("frame"));
+        showViewers.setSelected(Configurator.config.getBoolean("showViewers"));
         onTop.setSelected(Configurator.config.getBoolean("onTop"));
         opacitySlider.setValue(Configurator.config.getDouble("opacity"));
     }
@@ -120,6 +125,7 @@ public class SettingsFrame {
         Configurator.config.setProperty("bgcolor", bgColorPicker.getValue().toString());
         Configurator.config.setProperty("frame", frame.isSelected());
         Configurator.config.setProperty("onTop", onTop.isSelected());
+        Configurator.config.setProperty("showViewers", showViewers.isSelected());
         Configurator.config.setProperty("opacity", (int) opacitySlider.getValue());
     }
 }

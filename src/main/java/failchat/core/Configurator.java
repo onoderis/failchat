@@ -40,6 +40,7 @@ public class Configurator {
     public static final CompositeConfiguration config = new CompositeConfiguration();
     private static final Path configPath = Bootstrap.workDir.resolve("config.conf");
     private MessageManager messageManager = MessageManager.getInstance();
+    private ViewersManager viewersManager = new ViewersManager();
 
     private Map<Source, ChatClient> chatClients = new HashMap<>();
     private PropertiesConfiguration defaultConfig;
@@ -61,6 +62,20 @@ public class Configurator {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+
+    public static List<String> getSkins() {
+        // TODO: добавить фильтр для папок где есть <dirname>.html
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Bootstrap.workDir.resolve("skins"))) {
+            ArrayList<String> dirs = new ArrayList<>();
+            for (Path dir : stream) {
+                dirs.add(dir.getFileName().toString());
+            }
+            return dirs;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public synchronized void initializeChatClients() {
@@ -103,19 +118,15 @@ public class Configurator {
         }
     }
 
-    public static List<String> getSkins() {
-        // TODO: добавить фильтр для папок где есть <dirname>.html
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Bootstrap.workDir.resolve("skins"))) {
-            ArrayList<String> dirs = new ArrayList<>();
-            for (Path dir : stream) {
-                dirs.add(dir.getFileName().toString());
-            }
-            return dirs;
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void configureViewersManager() {
+        if (config.getBoolean("showViewers")) {
+            viewersManager.start(chatClients.keySet());
+        } else {
+            viewersManager.stop();
         }
-        return null;
     }
 
-
+    public ViewersManager getViewersManager() {
+        return viewersManager;
+    }
 }

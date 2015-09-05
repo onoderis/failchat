@@ -25,16 +25,62 @@ body {
     display: none;
 }
 
+.scrollbar {
+    display: none;
+}
+
 .baron .scrollbar {
     display: block;
+    visibility: hidden;
     position: absolute;
     background: #FFDB5F;
-    z-index: 999;
+    z-index: 100;
     border-radius: 3px;
     right: 2px;
     width: 7px;
     opacity: 0.7;
     color: #FFDB5F;
+}
+
+.viewers-bar {
+    display: none;
+    background-color: black;
+    height: 36px;
+}
+
+.viewers-bar-on {
+    display: block;
+}
+
+.chat-wrapper {
+    height: 100%;
+    position: relative;
+}
+
+.viewers-bar-on + .chat-wrapper {
+    height: calc(100% - 36px);
+}
+
+.viewers-sources {
+    text-align: center;
+    white-space: nowrap;
+    padding: 10px 0 5px ;
+}
+
+.viewers-source {
+    display: none;
+    margin: 0 10px;
+}
+
+.viewers-source-on {
+    display: inline;
+}
+
+.viewers-source span {
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    color: #CACACA;
 }
 
 /*message styles*/

@@ -7,23 +7,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import failchat.core.*;
 import failchat.handlers.CommonHighlightHandler;
 import failchat.handlers.MessageObjectCleaner;
-import org.apache.commons.io.IOUtils;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GGChatClient implements ChatClient {
     private static final Logger logger = Logger.getLogger(GGChatClient.class.getName());
     private static final String GG_WS_URL = "ws://chat.goodgame.ru:8081/chat/websocket";
-    private static final String GG_STREAM_API_URL = "http://goodgame.ru/api/getchannelstatus?fmt=json&id=";
     private static final Pattern EXTRACT_CHANNEL_ID_REGEX = Pattern.compile("\"stream_id\":\"(\\d*)\"");
     private static final String NEW_MESSAGE_SEQUENCE = "\"type\":\"message\"";
 
@@ -53,7 +48,11 @@ public class GGChatClient implements ChatClient {
         if (status != ChatClientStatus.READY) {
             return;
         }
-        channelId = getChannelIdByName(channelName);
+        channelId = GGApiWorker.getChannelIdByName(channelName);
+        if (channelId == -1) {
+            status = ChatClientStatus.ERROR;
+            return;
+        }
         wsClient = new GGWSClient();
         wsClient.connect();
     }
@@ -69,25 +68,6 @@ public class GGChatClient implements ChatClient {
     @Override
     public ChatClientStatus getStatus() {
         return status;
-    }
-
-    private int getChannelIdByName(String name) {
-        try {
-            URL url = new URL(GG_STREAM_API_URL + name);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            if (connection.getResponseCode() != 200) {
-                return -1;
-            }
-            String response = IOUtils.toString(connection.getInputStream());
-            Matcher m = EXTRACT_CHANNEL_ID_REGEX.matcher(response);
-            if (m.find()) {
-                return Integer.parseInt(m.group(1));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            status = ChatClientStatus.ERROR;
-        }
-        return -1;
     }
 
     private class GGWSClient extends WSClient {

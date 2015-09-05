@@ -18,7 +18,7 @@
     failchat.scrollHookSelector = "img.smile";
     failchat.messageSelector = ".message";
     failchat.baronParams = {
-        root: "body",
+        root: ".chat-wrapper",
         scroller: ".scroller",
         bar: ".scrollbar",
         barOnCls: "baron"
@@ -47,10 +47,18 @@
     </p>
 </script>
 
-<div class="scroller">
-<div id="message-container">
+<div class="viewers-bar">
+    <div class="viewers-sources">
+        <span id="twitch-source" class="viewers-source"><img class="icon" src="../../icons/twitch.png"> <span id="twitch-viewers"></span></span>
+        <span id="goodgame-source" class="viewers-source"><img class="icon" src="../../icons/goodgame.png"> <span id="goodgame-viewers"></span></span>
+        <span id="cybergame-source" class="viewers-source"><img class="icon" src="../../icons/cybergame.png"> <span id="cybergame-viewers"></span></span>
+    </div>
 </div>
+<div class="chat-wrapper">
+    <div class="scroller">
+        <div id="message-container"></div>
+        <div class="scrollbar"></div>
+    </div>
 </div>
-<div class="scrollbar"></div>
 </body>
 </html>
