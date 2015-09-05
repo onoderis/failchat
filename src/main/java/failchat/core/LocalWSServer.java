@@ -16,7 +16,8 @@ public class LocalWSServer extends WebSocketServer {
 
     private static final Logger logger = Logger.getLogger(LocalWSServer.class.getName());
 
-    IgnoreFilter ignoreFilter = MessageManager.getInstance().getIgnoreFilter();
+    private WebSocket nativeClient; //javafx webview connection
+    private IgnoreFilter ignoreFilter = MessageManager.getInstance().getIgnoreFilter();
 
     public LocalWSServer() {
         super(new InetSocketAddress(WS_PORT));
@@ -37,8 +38,16 @@ public class LocalWSServer extends WebSocketServer {
         logger.fine("Received from Web Socket: " + s);
         try {
             JSONObject obj = new JSONObject(s);
-            if (obj.getString("type").equals("ignore")) {
-                ignoreFilter.ignore(obj.getString("user"));
+            switch (obj.getString("type")) {
+                case "ignore": {
+                    ignoreFilter.ignore(obj.getString("user"));
+                    break;
+                }
+                case "viewers": {
+                    nativeClient = webSocket;
+//                    nativeClient.send(Configurator.getInstance().getViewersManager().getData().toString());
+                    break;
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -56,5 +65,12 @@ public class LocalWSServer extends WebSocketServer {
             for (WebSocket c : con) {
                 c.send(text);
             }
+    }
+
+    public void sendToNativeClient(String text) {
+        if (nativeClient != null && nativeClient.isOpen()) {
+            logger.fine("Send to native client: " + text);
+            nativeClient.send(text);
+        }
     }
 }

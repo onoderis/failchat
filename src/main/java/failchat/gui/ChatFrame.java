@@ -76,7 +76,10 @@ public class ChatFrame {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        new Thread(configurator::initializeChatClients, "ChatClientsInitializer").start();
+        new Thread(() -> {
+            configurator.initializeChatClients();
+            configurator.configureViewersManager();
+        }, "ChatClientsInitializer").start();
     }
 
     private Stage buildChatStage(int type) { // 0 - decorated, 1 - undecorated, 2 - transparent
@@ -107,6 +110,7 @@ public class ChatFrame {
     private Scene buildChatScene() {
         WebView webView = new WebView();
         webEngine = webView.getEngine();
+        webEngine.setUserAgent(webEngine.getUserAgent().concat("/failchat"));
         Scene chatScene = new Scene(webView);
         webView.setStyle("-fx-background-color: transparent;");
         webView.setContextMenuEnabled(false);
@@ -161,7 +165,8 @@ public class ChatFrame {
     private ContextMenu buildContextMenu(Scene scene) {
         MenuItem switchDecorationsItem = new MenuItem("Show/hide frame");
         MenuItem toSettingsItem = new MenuItem("Settings");
-        ContextMenu contextMenu = new ContextMenu(switchDecorationsItem, toSettingsItem);
+        MenuItem viewersItem = new MenuItem("Show/hide viewers");
+        ContextMenu contextMenu = new ContextMenu(switchDecorationsItem, viewersItem, toSettingsItem);
 
         //context menu
         scene.setOnMouseClicked((mouseEvent) -> {
@@ -175,6 +180,10 @@ public class ChatFrame {
         //menu items
         switchDecorationsItem.setOnAction((event) -> switchDecorations());
         toSettingsItem.setOnAction((event) -> toSettings());
+        viewersItem.setOnAction((event) -> {
+            Configurator.config.setProperty("showViewers", !Configurator.config.getBoolean("showViewers"));
+            Configurator.getInstance().configureViewersManager();
+        });
 
         return contextMenu;
     }
@@ -184,6 +193,7 @@ public class ChatFrame {
         currentChatStage.hide();
         webEngine.loadContent("");
         settings.show();
+        configurator.getViewersManager().stop();
         configurator.turnOffChatClients();
     }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import failchat.handlers.IgnoreFilter;
 import failchat.handlers.LinkHandler;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -72,6 +73,14 @@ public class MessageManager implements Runnable {
         }
     }
 
+    public void sendViewersMessage(JSONObject object) {
+        localWSServer.sendToNativeClient(object.toString());
+    }
+
+    public IgnoreFilter getIgnoreFilter() {
+        return ignoreFilter;
+    }
+
     private void initHandlers() {
         handlers.add(new LinkHandler());
         ignoreFilter = new IgnoreFilter();
@@ -117,9 +126,5 @@ public class MessageManager implements Runnable {
                 }
             }
         }
-    }
-
-    public IgnoreFilter getIgnoreFilter() {
-        return ignoreFilter;
     }
 }
