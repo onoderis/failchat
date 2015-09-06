@@ -77,6 +77,7 @@ public class ChatFrame {
             e.printStackTrace();
         }
         new Thread(() -> {
+            configurator.configureLinkHandler();
             configurator.initializeChatClients();
             configurator.configureViewersManager();
         }, "ChatClientsInitializer").start();

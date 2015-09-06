@@ -120,6 +120,12 @@ img.smile {
     max-height: 30px;
 }
 
+img.image {
+    max-height: 250px;
+    max-width: 100%;
+    margin: 3px 0 3px;
+}
+
 a {
     color: #c57c08;
     font-weight: bold;

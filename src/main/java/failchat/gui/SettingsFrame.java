@@ -30,6 +30,7 @@ public class SettingsFrame {
     private CheckBox frame;
     private CheckBox onTop;
     private CheckBox showViewers;
+    private CheckBox showImages;
     private Slider opacitySlider;
     private Button applyButton;
 
@@ -58,6 +59,7 @@ public class SettingsFrame {
         frame = (CheckBox)scene.lookup("#frame");
         onTop = (CheckBox)scene.lookup("#top");
         showViewers= (CheckBox)scene.lookup("#show_viewers");
+        showImages= (CheckBox)scene.lookup("#show_images");
 
         //opacity
         opacitySlider = (Slider)scene.lookup("#opacity");
@@ -105,6 +107,7 @@ public class SettingsFrame {
         bgColorPicker.setValue(Color.web(Configurator.config.getString("bgcolor")));
         frame.setSelected(Configurator.config.getBoolean("frame"));
         showViewers.setSelected(Configurator.config.getBoolean("showViewers"));
+        showImages.setSelected(Configurator.config.getBoolean("showImages"));
         onTop.setSelected(Configurator.config.getBoolean("onTop"));
         opacitySlider.setValue(Configurator.config.getDouble("opacity"));
     }
@@ -125,6 +128,7 @@ public class SettingsFrame {
         Configurator.config.setProperty("frame", frame.isSelected());
         Configurator.config.setProperty("onTop", onTop.isSelected());
         Configurator.config.setProperty("showViewers", showViewers.isSelected());
+        Configurator.config.setProperty("showImages", showImages.isSelected());
         Configurator.config.setProperty("opacity", (int) opacitySlider.getValue());
     }
 }

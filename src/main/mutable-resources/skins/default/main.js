@@ -17,6 +17,7 @@ $(function () {
     //templates
     var smileTemplate = $("#smile-template");
     var linkTemplate = $("#link-template");
+    var imageTemplate = $("#image-template");
     var messageTemplate = $("#message-template");
     var infoMessageTemplate = $("#info-message-template");
 
@@ -74,10 +75,10 @@ $(function () {
     function handleMessage(message) {
         //smiles
         if (message.smiles != undefined) {
-            var imgHtml;
+            var smileHtml;
             for (var i = 0; i < message.smiles.length; i++) {
-                imgHtml = smileTemplate.render(message.smiles[i]);
-                message.text = message.text.replace("{!" + message.smiles[i].objectNumber + "}", imgHtml);
+                smileHtml = smileTemplate.render(message.smiles[i]);
+                message.text = message.text.replace("{!" + message.smiles[i].objectNumber + "}", smileHtml);
             }
         }
 
@@ -87,6 +88,15 @@ $(function () {
             for (i = 0; i < message.links.length; i++) {
                 linkHtml = linkTemplate.render(message.links[i]);
                 message.text = message.text.replace("{!" + message.links[i].objectNumber + "}", linkHtml);
+            }
+        }
+
+        //images
+        if (message.images != undefined) {
+            var imgHtml;
+            for (i = 0; i < message.images.length; i++) {
+                imgHtml = imageTemplate.render(message.images[i]);
+                message.text = message.text.replace("{!" + message.images[i].objectNumber + "}", imgHtml);
             }
         }
 
