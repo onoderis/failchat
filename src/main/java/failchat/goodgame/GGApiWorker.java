@@ -22,8 +22,9 @@ public class GGApiWorker {
     public static int getViewersCount(String channel) {
         JSONObject obj = apiRequest(channel);
         try {
-            return obj != null ? obj.getJSONObject((String) obj.keys().next()).getInt("viewers") : -1;
-        } catch (JSONException e) {
+            JSONObject iObj = obj.getJSONObject((String) obj.keys().next());
+            return iObj.getString("status").equals("Live") ? iObj.getInt("viewers") : -1;
+        } catch (Exception e) {
             return -1;
         }
     }
