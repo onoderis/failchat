@@ -78,14 +78,26 @@ public class ViewersManager implements Runnable {
             boolean show = Configurator.config.getBoolean("showViewers");
             content.put("show", show);
             if (show) {
-                for (Map.Entry<Source, ViewersCounter> entry : enabledSources.entrySet()) {
-                    int viewers = entry.getValue().getViewersCount();
-                    if (viewers >= 0) {
-                        content.put(entry.getKey().getLowerCased(), viewers);
-                    } else {
-                        content.put(entry.getKey().getLowerCased(), "?");
+                if (status == Status.WORKING) {
+                    for (Map.Entry<Source, ViewersCounter> entry : enabledSources.entrySet()) {
+                        int viewers = entry.getValue().getViewersCount();
+                        if (viewers >= 0) {
+                            content.put(entry.getKey().getLowerCased(), viewers);
+                        } else {
+                            content.put(entry.getKey().getLowerCased(), "?");
+                        }
                     }
-
+                //если запрос приходит до запуска ViewersManager'а
+                } else if (status == Status.READY) {
+                    if (Configurator.config.getBoolean("goodgame.enabled") && !Configurator.config.getString("goodgame.channel").equals("")) {
+                        content.put(Source.GOODGAME.getLowerCased(), "?");
+                    }
+                    if (Configurator.config.getBoolean("twitch.enabled") && !Configurator.config.getString("twitch.channel").equals("")) {
+                        content.put(Source.TWITCH.getLowerCased(), "?");
+                    }
+                    if (Configurator.config.getBoolean("cybergame.enabled") && !Configurator.config.getString("cybergame.channel").equals("")) {
+                        content.put(Source.CYBERGAME.getLowerCased(), "?");
+                    }
                 }
             }
             mes.put("content", content);

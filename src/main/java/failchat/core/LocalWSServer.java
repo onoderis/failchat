@@ -45,7 +45,7 @@ public class LocalWSServer extends WebSocketServer {
                 }
                 case "viewers": {
                     nativeClient = webSocket;
-//                    nativeClient.send(Configurator.getInstance().getViewersManager().getData().toString());
+                    nativeClient.send(Configurator.getInstance().getViewersManager().getData().toString());
                     break;
                 }
             }
