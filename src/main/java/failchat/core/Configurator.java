@@ -129,4 +129,8 @@ public class Configurator {
     public ViewersManager getViewersManager() {
         return viewersManager;
     }
+
+    public void configureLinkHandler() {
+        messageManager.getLinkHandler().setShowImages(config.getBoolean("showImages"));
+    }
 }

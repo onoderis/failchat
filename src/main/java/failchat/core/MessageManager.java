@@ -24,6 +24,7 @@ public class MessageManager implements Runnable {
     private List<MessageHandler> handlers = new ArrayList<>();
     private List<MessageFilter> filters = new ArrayList<>();
     private ObjectMapper objectMapper = new ObjectMapper();
+    private LinkHandler linkHandler;
     private IgnoreFilter ignoreFilter;
 
     public static MessageManager getInstance() {
@@ -82,7 +83,8 @@ public class MessageManager implements Runnable {
     }
 
     private void initHandlers() {
-        handlers.add(new LinkHandler());
+        linkHandler = new LinkHandler();
+        handlers.add(linkHandler);
         ignoreFilter = new IgnoreFilter();
         filters.add(ignoreFilter);
     }
@@ -126,5 +128,9 @@ public class MessageManager implements Runnable {
                 }
             }
         }
+    }
+
+    public LinkHandler getLinkHandler() {
+        return linkHandler;
     }
 }

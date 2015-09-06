@@ -16,6 +16,7 @@ public class Message {
     protected Date timestamp;
     protected List<SmileInMessage> smiles;
     protected List<Link> links;
+    protected List<Image> images;
     protected boolean highlighted = false;
 
     private int objectsCount = 0; //smiles and links count
@@ -72,6 +73,10 @@ public class Message {
         return links;
     }
 
+    public List<Image> getImages() {
+        return images;
+    }
+
     /**
      * @return formatted object number
      */
@@ -91,6 +96,16 @@ public class Message {
             links = new ArrayList<>();
         }
         links.add(link);
+        return format(objectsCount);
+    }
+
+    public String addImage(Image image) {
+        objectsCount++;
+        image.setObjectNumber(objectsCount);
+        if (images == null) {
+            images = new ArrayList<>();
+        }
+        images.add(image);
         return format(objectsCount);
     }
 
