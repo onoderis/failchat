@@ -33,6 +33,13 @@ $(function () {
 
     baron(failchat.baronParams);
 
+    //autoscroll
+    new ResizeSensor(messageContainer, function() {
+        if (autoScroll) {
+            scroller.scrollTop(messageContainer.height());
+        }
+    });
+
     socket.onopen = function () {
         var connectedMessage = {"source": "failchat","text":"connected"};
         handleInfoMessage(connectedMessage);
@@ -139,17 +146,10 @@ $(function () {
             failchat.messageCount = failchat.maxMessages;
         }
         messageContainer.append(message.text);
-        if (autoScroll) {
-            if (message.smiles !== undefined && failchat.scrollHookSelector !== undefined) {
-                scrollHook();
-            } else {
-                scroller.scrollTop(messageContainer.height());
-            }
-        }
     }
 
     $("body,html").bind("keydown wheel mousewheel", function(e){
-        //console.log(e);
+        //checks for disabling autoscroll
         if (autoScroll) {
             if (e.originalEvent.deltaY < 0 ||
                 (e.type == "keydown" && (e.keyCode == 38||e.keyCode == 36||e.keyCode == 33)) // 38-up;36-home;33-pageup
@@ -167,6 +167,7 @@ $(function () {
     });
 
     scroller.scroll(function (e) {
+        //checks for enabling autoscroll
         if (!autoScroll) {
             autoScroll = scroller.scrollTop() + scroller.height() >= messageContainer.height();
             if (autoScroll) {
@@ -174,15 +175,6 @@ $(function () {
             }
         }
     });
-
-    // scroll when last smile in message loaded
-    function scrollHook() {
-        $(failchat.scrollHookSelector + ":last").imagesLoaded(function() {
-            if (autoScroll) {
-                scroller.scrollTop(messageContainer.height());
-            }
-        });
-    }
 });
 
 //add user to ignore list
