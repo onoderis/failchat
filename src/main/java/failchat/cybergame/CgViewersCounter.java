@@ -30,10 +30,12 @@ public class CgViewersCounter implements ViewersCounter {
                 throw new Exception();
             }
             JSONObject responseObj = new JSONObject(IOUtils.toString(con.getInputStream()));
+            if (responseObj.getInt("online") != 1) {
+                throw new Exception();
+            }
             viewers = responseObj.getInt("viewers");
         } catch (Exception e) {
             viewers = -1;
         }
     }
-
 }
