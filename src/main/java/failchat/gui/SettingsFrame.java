@@ -8,7 +8,6 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -37,7 +36,7 @@ public class SettingsFrame {
     SettingsFrame(Stage stage) throws Exception {
         this.stage = stage;
         stage.setTitle("failchat v" + Configurator.config.getString("version"));
-        stage.getIcons().setAll(new Image(getClass().getResourceAsStream("/icons/fc1.png")));
+        stage.getIcons().setAll(GuiBootstrap.APP_ICON);
         Scene scene = new Scene(FXMLLoader.load(getClass().getResource("/settings.fxml")));
         stage.setScene(scene);
 

@@ -104,6 +104,7 @@ public class ChatFrame {
             saveChatPosition(stage);
             Bootstrap.shutDown();
         });
+        stage.getIcons().setAll(GuiBootstrap.APP_ICON);
         return stage;
     }
 
