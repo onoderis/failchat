@@ -18,6 +18,7 @@ public class TwitchSmile extends Smile {
     private static final Pattern regexCodePattern = Pattern.compile("[a-zA-Z0-9_]++");
 
     protected int id;
+    protected boolean regex;
 
     public TwitchSmile() {
         source = Source.TWITCH;
@@ -25,16 +26,18 @@ public class TwitchSmile extends Smile {
 
     public TwitchSmile(int id, String code) {
         this.id = id;
-        this.code = code;
+        setCode(code);
         source = Source.TWITCH;
     }
 
     @Override
     public void setCode(String code) {
         if (!regexCodePattern.matcher(code).matches()) {
+            regex = true;
             this.code = code.replace("\\&lt\\;", "<").replace("\\&gt\\;", ">"); //replace html entity for < >
         }
         else {
+            regex = false;
             this.code = code;
         }
     }
@@ -63,5 +66,9 @@ public class TwitchSmile extends Smile {
     @Override
     public String getFileName() {
         return id + SMILE_IMG_FORMAT;
+    }
+
+    public boolean isRegex() {
+        return regex;
     }
 }

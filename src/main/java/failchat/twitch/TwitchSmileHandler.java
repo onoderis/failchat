@@ -29,7 +29,12 @@ public class TwitchSmileHandler implements MessageHandler<TwitchMessage> {
         }
 
         usedSmiles.forEach((smile) -> {
-            Pattern smilePattern = Pattern.compile("(?<=\\b)" + smile.getCode() + "(?=\\b)");
+            Pattern smilePattern;
+            if (smile.isRegex()) {
+                smilePattern = Pattern.compile(smile.getCode());
+            } else {
+                smilePattern = Pattern.compile("(?<=\\b)" + smile.getCode() + "(?=\\b)");
+            }
             Matcher m2 = smilePattern.matcher(message.getText());
             int position = 0;
             while (m2.find(position)) {
