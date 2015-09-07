@@ -126,6 +126,9 @@ $(function () {
                 cybergameViewersBar.addClass("viewers-source-on");
             }
             updateViewersValues(viewersMessage);
+            if (autoScroll) {
+                scroller.scrollTop(messageContainer.height());
+            }
         }
         //disable viewers bar
         else if (viewersBarEnabled && !viewersMessage.show) {
