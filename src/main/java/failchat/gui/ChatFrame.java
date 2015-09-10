@@ -10,6 +10,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
@@ -41,6 +42,11 @@ public class ChatFrame {
     private Scene chatScene;
     private WebEngine webEngine;
 
+    //context menu
+    private CheckMenuItem switchDecorationsItem;
+    private CheckMenuItem onTopItem;
+    private CheckMenuItem viewersItem;
+
     private Configurator configurator = Configurator.getInstance();
     private Path skinsPath = Bootstrap.workDir.resolve("skins");
 
@@ -69,6 +75,7 @@ public class ChatFrame {
 
         currentChatStage.setScene(chatScene);
         configureChatStage(currentChatStage);
+        updateContextMenu();
         currentChatStage.show();
         String skin = Configurator.config.getString("skin");
         try {
@@ -165,10 +172,11 @@ public class ChatFrame {
     }
 
     private ContextMenu buildContextMenu(Scene scene) {
-        MenuItem switchDecorationsItem = new MenuItem("Show/hide frame");
-        MenuItem toSettingsItem = new MenuItem("Settings");
-        MenuItem viewersItem = new MenuItem("Show/hide viewers");
-        ContextMenu contextMenu = new ContextMenu(switchDecorationsItem, viewersItem, toSettingsItem);
+        switchDecorationsItem = new CheckMenuItem("Show frame");
+        onTopItem = new CheckMenuItem("On top");
+        viewersItem = new CheckMenuItem("Show viewers");
+        MenuItem toSettingsItem = new MenuItem("To settings");
+        ContextMenu contextMenu = new ContextMenu(switchDecorationsItem, onTopItem, viewersItem, toSettingsItem);
 
         //context menu
         scene.setOnMouseClicked((mouseEvent) -> {
@@ -181,9 +189,15 @@ public class ChatFrame {
 
         //menu items
         switchDecorationsItem.setOnAction((event) -> switchDecorations());
+        onTopItem.setOnAction((event) -> {
+            boolean newValue = !Configurator.config.getBoolean("onTop");
+            Configurator.config.setProperty("onTop", newValue);
+            currentChatStage.setAlwaysOnTop(newValue);
+        });
         toSettingsItem.setOnAction((event) -> toSettings());
         viewersItem.setOnAction((event) -> {
-            Configurator.config.setProperty("showViewers", !Configurator.config.getBoolean("showViewers"));
+            boolean newValue = !Configurator.config.getBoolean("showViewers");
+            Configurator.config.setProperty("showViewers", newValue);
             Configurator.getInstance().configureViewersManager();
         });
 
@@ -249,5 +263,11 @@ public class ChatFrame {
             Configurator.config.setProperty("chat.x", (int) stage.getX());
             Configurator.config.setProperty("chat.y", (int) stage.getY());
         }
+    }
+
+    private void updateContextMenu() {
+        switchDecorationsItem.setSelected(Configurator.config.getBoolean("frame"));
+        onTopItem.setSelected(Configurator.config.getBoolean("onTop"));
+        viewersItem.setSelected(Configurator.config.getBoolean("showViewers"));
     }
 }
