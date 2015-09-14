@@ -1,5 +1,6 @@
 package failchat.funstream;
 
+import failchat.core.Configurator;
 import failchat.core.SmileManager;
 import failchat.core.Source;
 
@@ -11,15 +12,27 @@ public class FsSmileInfoLoader {
     private static Map<String, FsSmile> smileMap;
 
     public static void loadSmilesInfo() {
-        smileMap = FsApiWorker.loadSmilesInfo();
-        if (smileMap == null) {
+        boolean updated = Configurator.config.getLong("sc2tv.smiles.updated") + Configurator.config.getLong("smiles.updatingDelay") > System.currentTimeMillis();
+        if (updated) {
             //noinspection unchecked
             smileMap = (Map<String, FsSmile>)SmileManager.deserialize(Source.SC2TV.getLowerCased());
-        } else {
-            SmileManager.serialize(smileMap, Source.SC2TV.getLowerCased());
+        }
+        if (smileMap == null) {
+            smileMap = FsApiWorker.loadSmiles();
+            if (smileMap == null) {
+                if (!updated) {
+                    //noinspection unchecked
+                    smileMap = (Map<String, FsSmile>)SmileManager.deserialize(Source.SC2TV.getLowerCased());
+                }
+            } else {
+                SmileManager.serialize(smileMap, Source.SC2TV.getLowerCased());
+                Configurator.config.setProperty("sc2tv.smiles.updated", System.currentTimeMillis());
+            }
         }
         if (smileMap != null) {
-            logger.info("Funstream smiles: " + smileMap.size());
+            logger.info("Sc2tv smiles: " + smileMap.size());
+        } else {
+            logger.warning("Sc2tv smiles not loaded");
         }
     }
 
