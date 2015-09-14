@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 /**
  * Сериализует и десериализует списки смайлов в /smiles/list/{name}.ser
@@ -24,7 +23,6 @@ public class SmileManager {
     public static Path SMILE_LIST_DIR = SMILES_DIR.resolve("list");
 
     private static final Logger logger = Logger.getLogger(SmileManager.class.getName());
-    private static final Pattern fileNamePattern = Pattern.compile("");
 
     public static void loadSmilesInfo() {
         try {
@@ -36,7 +34,7 @@ public class SmileManager {
         }
         FsSmileInfoLoader.loadSmilesInfo();
         GGSmileInfoLoader.loadSmilesInfo();
-        TwitchSmileInfoLoader.loadGlobalSmilesInfo();
+        TwitchSmileInfoLoader.loadSmilesInfo();
     }
 
     public static void serialize(Object o, String name) {

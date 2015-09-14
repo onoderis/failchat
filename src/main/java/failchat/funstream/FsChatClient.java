@@ -100,7 +100,7 @@ public class FsChatClient implements ChatClient {
                     Object[] args1 = new Object[1];
                     args1[0] = obj;
                     socket.emit("/chat/join", args1, rObjects -> {
-                        logger.info("Connected to funstreams");
+                        logger.info("Connected to sc2tv");
                         messageManager.sendInfoMessage(new InfoMessage(Source.SC2TV, "connected"));
                         status = ChatClientStatus.WORKING;
                     });
@@ -109,7 +109,7 @@ public class FsChatClient implements ChatClient {
                 }
             }).on(Socket.EVENT_DISCONNECT, objects -> {
                 status = ChatClientStatus.CONNECTING;
-                logger.info("Disconnected from funstreams");
+                logger.info("Disconnected from sc2tv");
                 messageManager.sendInfoMessage(new InfoMessage(Source.SC2TV, "disconnected"));
             }).on("/chat/message", objects -> {
                 try {

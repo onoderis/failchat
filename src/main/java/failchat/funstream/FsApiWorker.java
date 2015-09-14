@@ -34,7 +34,7 @@ public class FsApiWorker {
         }
     }
 
-    public static Map<String, FsSmile> loadSmilesInfo() {
+    public static Map<String, FsSmile> loadSmiles() {
         String response = sendRequest("smile", null);
         if (response == null) {
             logger.warning("Can't load funstream smiles");
