@@ -8,6 +8,6 @@ import failchat.core.MessageFilter;
 public class SourceFilter implements MessageFilter<FsMessage> {
     @Override
     public boolean filterMessage(FsMessage message) {
-        return message.getFrom().getId() == -100 || message.getTo() == null;
+        return message.getFrom().getId() < 0;
     }
 }

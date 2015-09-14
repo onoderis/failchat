@@ -38,6 +38,7 @@ public class FsChatClient implements ChatClient {
         messageFilters = new ArrayList<>();
         objectMapper = new ObjectMapper();
         messageFilters.add(new SourceFilter());
+        messageFilters.add(new DoubleMessageFilter());
         messageFilters.add(new AnnounceMessageFilter());
         //noinspection unchecked
         messageHandlers.add(MessageObjectCleaner.getInstance());
