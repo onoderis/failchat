@@ -38,12 +38,9 @@ public class SmileManager {
     }
 
     public static void serialize(Object o, String name) {
-        try {
-            FileOutputStream fileOut = new FileOutputStream(SMILE_LIST_DIR.resolve(name + ".ser").toFile());
-            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+        try (FileOutputStream fileOut = new FileOutputStream(SMILE_LIST_DIR.resolve(name + ".ser").toFile());
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
             out.writeObject(o);
-            out.close();
-            fileOut.close();
             logger.info(name + " smiles serialized");
         } catch (IOException e) {
             logger.warning("Can't serialize " + name + " smiles");
@@ -51,12 +48,9 @@ public class SmileManager {
     }
 
     public static Object deserialize(String name) {
-        try {
-            FileInputStream fileIn = new FileInputStream(SMILE_LIST_DIR.resolve(name + ".ser").toFile());
-            ObjectInputStream in = new ObjectInputStream(fileIn);
+        try (FileInputStream fileIn = new FileInputStream(SMILE_LIST_DIR.resolve(name + ".ser").toFile());
+             ObjectInputStream in = new ObjectInputStream(fileIn)) {
             Object o = in.readObject();
-            in.close();
-            fileIn.close();
             logger.info(name + " smiles deserialized");
             return o;
         } catch (IOException e) {
