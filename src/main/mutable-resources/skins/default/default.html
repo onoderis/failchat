@@ -27,10 +27,10 @@
 </script>
 
 <script id="message-template" type="text/x-jsrender">
-    <p class="message">
+    <p class="message" id="message-{{:id}}" data-user="{{:author}}#{{:source}}">
         <img class="icon" src="../../icons/{{:source}}.png">
         <span class="nick">{{:author}}: </span>
-        <span class="ban" title="ignore" data-user="{{:author}}#{{:source}}" onclick="ignore(this)">&#10060;</span>
+        <span class="ban" title="ignore" onclick="ignore(this.parentNode)">&#10060;</span>
         <span class="text{{if highlighted}} highlighted{{/if}}">{{:text}}</span>
     </p>
 </script>

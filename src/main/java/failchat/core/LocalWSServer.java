@@ -1,6 +1,5 @@
 package failchat.core;
 
-import failchat.handlers.IgnoreFilter;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -15,9 +14,9 @@ public class LocalWSServer extends WebSocketServer {
     public static final int WS_PORT = 10880;
 
     private static final Logger logger = Logger.getLogger(LocalWSServer.class.getName());
-
     private WebSocket nativeClient; //javafx webview connection
-    private IgnoreFilter ignoreFilter = MessageManager.getInstance().getIgnoreFilter();
+    private Configurator configurator = Configurator.getInstance();
+    private Moderation moderation = Moderation.getInstance();
 
     public LocalWSServer() {
         super(new InetSocketAddress(WS_PORT));
@@ -40,12 +39,12 @@ public class LocalWSServer extends WebSocketServer {
             JSONObject obj = new JSONObject(s);
             switch (obj.getString("type")) {
                 case "ignore": {
-                    ignoreFilter.ignore(obj.getString("user"));
+                    moderation.processIgnoreMessage(obj.getJSONObject("content"));
                     break;
                 }
                 case "viewers": {
                     nativeClient = webSocket;
-                    nativeClient.send(Configurator.getInstance().getViewersManager().getData().toString());
+                    nativeClient.send(configurator.getViewersManager().getData().toString());
                     break;
                 }
             }

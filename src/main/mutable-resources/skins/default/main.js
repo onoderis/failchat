@@ -66,6 +66,9 @@ $(function () {
         else if (wsm.type === "info") {
             handleInfoMessage(wsm.content);
         }
+        else if (wsm.type === "mod") {
+            handleModMessage(wsm.content);
+        }
 
         if (wsm.content.text !== undefined) {
             appendToMessageContainer(wsm.content);
@@ -140,6 +143,12 @@ $(function () {
         }
     }
 
+    function handleModMessage(modMessage) {
+        var messageText = $("#message-" + modMessage.messageId + " .text");
+        messageText.removeClass("highlighted");
+        messageText.text("message deleted");
+    }
+
     function updateViewersValues(viewersMessage) {
         if (viewersMessage.twitch != undefined) {
             twitchViewrsCount.text(viewersMessage.twitch);
@@ -191,8 +200,7 @@ $(function () {
 });
 
 //add user to ignore list
-function ignore(elem) {
-    failchat.socket.send(JSON.stringify({"type": "ignore", "user": elem.getAttribute("data-user")}));
-    elem.parentNode.remove();
-    failchat.messageCount--;
+function ignore(messageNode) {
+    failchat.socket.send(JSON.stringify(
+        {"type": "ignore", "content": {"user": messageNode.getAttribute("data-user"), "messageId": messageNode.getAttribute("id").slice(8)}}));
 }

@@ -26,6 +26,7 @@ public class MessageManager implements Runnable {
     private ObjectMapper objectMapper = new ObjectMapper();
     private LinkHandler linkHandler;
     private IgnoreFilter ignoreFilter;
+    private MessageHistory messageHistory = MessageHistory.getInstance();
 
     public static MessageManager getInstance() {
         MessageManager localInstance = instance;
@@ -74,12 +75,20 @@ public class MessageManager implements Runnable {
         }
     }
 
-    public void sendViewersMessage(JSONObject object) {
-        localWSServer.sendToNativeClient(object.toString());
+    public void sendViewersMessage(JSONObject jsonMessage) {
+        localWSServer.sendToNativeClient(jsonMessage.toString());
+    }
+
+    public void sendRaw(String rawMessage) {
+        localWSServer.sendToAll(rawMessage);
     }
 
     public IgnoreFilter getIgnoreFilter() {
         return ignoreFilter;
+    }
+
+    public LinkHandler getLinkHandler() {
+        return linkHandler;
     }
 
     private void initHandlers() {
@@ -126,11 +135,8 @@ public class MessageManager implements Runnable {
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
+                messageHistory.addMessage(m);
             }
         }
-    }
-
-    public LinkHandler getLinkHandler() {
-        return linkHandler;
     }
 }
