@@ -7,10 +7,7 @@ import org.pircbotx.Configuration;
 import org.pircbotx.PircBotX;
 import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.ListenerAdapter;
-import org.pircbotx.hooks.events.ActionEvent;
-import org.pircbotx.hooks.events.ConnectEvent;
-import org.pircbotx.hooks.events.DisconnectEvent;
-import org.pircbotx.hooks.events.MessageEvent;
+import org.pircbotx.hooks.events.*;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -19,17 +16,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TwitchChatClient implements ChatClient {
-
     private static final Logger logger = Logger.getLogger(TwitchChatClient.class.getName());
     private static final String TWITCH_IRC = "irc.twitch.tv";
     private static final int TWITCH_IRC_PORT = 6667;
     private static final String BOT_NAME = "fail_chatbot";
     private static final String BOT_PASSWORD = "oauth:59tune21e6ymz4xg57snr77tcsbg2y"; //don't touch it mate :]
     private static final int RECONNECT_TIMEOUT = 5000;
+    private static final Pattern BAN_PATTERN = Pattern.compile(":tmi.twitch.tv CLEARCHAT #.+ :(.+)");
 
     private MessageManager messageManager = MessageManager.getInstance();
+    private Moderation moderation = Moderation.getInstance();
     private final Queue<Message> messageQueue = messageManager.getMessagesQueue();
     private PircBotX twitchIrcClient;
     private String channelName;
@@ -92,6 +92,7 @@ public class TwitchChatClient implements ChatClient {
         @Override
         public void onConnect(ConnectEvent event) throws Exception {
             twitchIrcClient.sendCAP().request("twitch.tv/tags");
+            twitchIrcClient.sendCAP().request("twitch.tv/commands");
             logger.info("Connected to irc channel: " + channelName);
             messageManager.sendInfoMessage(new InfoMessage(Source.TWITCH, "connected"));
             status = ChatClientStatus.WORKING;
@@ -130,6 +131,14 @@ public class TwitchChatClient implements ChatClient {
             messageQueue.add(m);
             synchronized (messageQueue) {
                 messageQueue.notify();
+            }
+        }
+
+        @Override
+        public void onUnknown(UnknownEvent event) throws Exception {
+            Matcher m = BAN_PATTERN.matcher(event.getLine());
+            if (m.find()) {
+                moderation.deleteTwitchMessages(m.group(1));
             }
         }
     }

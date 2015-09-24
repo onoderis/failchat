@@ -11,10 +11,10 @@ public class DoubleMessageFilter implements MessageFilter<FsMessage> {
     @Override
     public boolean filterMessage(FsMessage message) {
         checkCapacity();
-        if (lastMessages.contains(message.getId())) {
+        if (lastMessages.contains(message.getFsId())) {
             return true;
         } else {
-            lastMessages.addFirst(message.getId());
+            lastMessages.addFirst(message.getFsId());
             return false;
         }
     }

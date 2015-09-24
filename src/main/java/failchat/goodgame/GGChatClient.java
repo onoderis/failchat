@@ -3,6 +3,7 @@ package failchat.goodgame;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import failchat.core.*;
 import failchat.handlers.CommonHighlightHandler;
@@ -14,17 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 public class GGChatClient implements ChatClient {
     private static final Logger logger = Logger.getLogger(GGChatClient.class.getName());
     private static final String GG_WS_URL = "ws://chat.goodgame.ru:8081/chat/websocket";
-    private static final Pattern EXTRACT_CHANNEL_ID_REGEX = Pattern.compile("\"stream_id\":\"(\\d*)\"");
-    private static final String NEW_MESSAGE_SEQUENCE = "\"type\":\"message\"";
 
     private WSClient wsClient;
     private ChatClientStatus status;
     private MessageManager messageManager = MessageManager.getInstance();
+    private Moderation moderation = Moderation.getInstance();
     private Queue<Message> messageQueue = messageManager.getMessagesQueue();
     private List<MessageHandler<GGMessage>> messageHandlers;
     private String channelName;
@@ -90,21 +89,20 @@ public class GGChatClient implements ChatClient {
 
         @Override
         public void onMessage(String s) {
-            if (s.contains(NEW_MESSAGE_SEQUENCE)) {
-                try {
-                    GoodgameWSMessage ggwsm = objectMapper.readValue(s, GoodgameWSMessage.class);
-                    GGMessage message = ggwsm.getMessage();
-                    //handling messages
-                    for (MessageHandler<GGMessage> messageHandler : messageHandlers) {
-                        messageHandler.handleMessage(message);
+            try {
+                GoodgameCommonMessage ggwsm = objectMapper.readValue(s, GoodgameCommonMessage.class);
+                switch (ggwsm.getType()) {
+                    case "message": {
+                        handleUserMessage(ggwsm.getData());
+                        break;
                     }
-                    messageQueue.add(message);
-                    synchronized (messageQueue) {
-                        messageQueue.notify();
+                    case "remove_message": {
+                        handleModMessage(ggwsm.getData());
+                        break;
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
@@ -117,6 +115,22 @@ public class GGChatClient implements ChatClient {
         public void onReconnect() {
             logger.info("Goodgame disconnected, trying to reconnect ...");
             messageManager.sendInfoMessage(new InfoMessage(Source.GOODGAME, "disconnected"));
+        }
+
+        private void handleUserMessage(JsonNode messageObj) throws IOException {
+            GGMessage message = objectMapper.convertValue(messageObj, GGMessage.class);
+            for (MessageHandler<GGMessage> messageHandler : messageHandlers) {
+                messageHandler.handleMessage(message);
+            }
+            messageQueue.add(message);
+            synchronized (messageQueue) {
+                messageQueue.notify();
+            }
+        }
+
+        private void handleModMessage(JsonNode messageObj) throws IOException {
+            GoodgameDeleteMessage ggDelMes = objectMapper.convertValue(messageObj, GoodgameDeleteMessage.class);
+            moderation.deleteGgMessage(ggDelMes.getMessageId());
         }
     }
 
@@ -164,20 +178,19 @@ public class GGChatClient implements ChatClient {
     }
 
     /**
-     * Класс для десериализации из json'a. Представляет сообщение из чата
+     * Класс для десериализации из json'a. Представляет общий вид сообщения
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private static class GoodgameWSMessage {
-        protected String type;
-        protected GGMessage message;
+    private static class GoodgameCommonMessage {
+        private String type;
+        private JsonNode data;
 
-        public GGMessage getMessage() {
-            return message;
+        public JsonNode getData() {
+            return data;
         }
 
-        @JsonProperty("data")
-        public void setMessage(GGMessage message) {
-            this.message = message;
+        public void setData(JsonNode data) {
+            this.data = data;
         }
 
         public String getType() {
@@ -186,6 +199,20 @@ public class GGChatClient implements ChatClient {
 
         public void setType(String type) {
             this.type = type;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private static class GoodgameDeleteMessage {
+        protected int messageId;
+
+        public int getMessageId() {
+            return messageId;
+        }
+
+        @JsonProperty("message_id")
+        public void setMessageId(int messageId) {
+            this.messageId = messageId;
         }
     }
 }

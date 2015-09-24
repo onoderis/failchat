@@ -24,6 +24,7 @@ public class FsChatClient implements ChatClient {
 
     private ChatClientStatus status;
     private MessageManager messageManager = MessageManager.getInstance();
+    private Moderation moderation = Moderation.getInstance();
     private Queue<failchat.core.Message> messageQueue = messageManager.getMessagesQueue();
     private List<MessageHandler<FsMessage>> messageHandlers;
     private List<MessageFilter<FsMessage>> messageFilters;
@@ -134,6 +135,15 @@ public class FsChatClient implements ChatClient {
                     e.printStackTrace();
                 }
             });
+//                .on("/chat/message/remove", objects -> {
+//                try {
+//                    JSONObject removeMessage = (JSONObject) objects[0];
+//                    moderation.deleteFsMessage(removeMessage.getInt("id"));
+//                    System.out.println(objects[0].toString());
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            });
 
             return socket;
         }

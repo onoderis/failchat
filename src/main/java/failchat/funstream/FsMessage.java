@@ -10,7 +10,7 @@ import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FsMessage extends failchat.core.Message {
-    protected int id;
+    protected int fsId;
     protected User from; //for SourceFilter and HighlightHandler
     protected User to; //for HighlightHandler
     protected String type;
@@ -68,13 +68,13 @@ public class FsMessage extends failchat.core.Message {
     }
 
     @JsonIgnore
-    public int getId() {
-        return id;
+    public int getFsId() {
+        return fsId;
     }
 
     @JsonProperty(value = "id")
-    public void setId(int id) {
-        this.id = id;
+    public void setFsId(int id) {
+        this.fsId= id;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -7,9 +7,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Message {
+    public static final AtomicInteger lastId = new AtomicInteger(Configurator.config.getInt("lastId"));
+
+    protected int id;
     protected Source source;
     protected String author;
     protected String text;
@@ -20,6 +24,10 @@ public class Message {
     protected boolean highlighted = false;
 
     private int objectsCount = 0; //smiles and links count
+
+    public Message() {
+        id = lastId.incrementAndGet();
+    }
 
     private static String format(int objectNumber) {
         return "{!" + objectNumber + "}";
@@ -77,6 +85,19 @@ public class Message {
         return images;
     }
 
+    @JsonInclude (JsonInclude.Include.NON_DEFAULT)
+    public boolean isHighlighted() {
+        return highlighted;
+    }
+
+    public void setHighlighted(boolean highlighted) {
+        this.highlighted = highlighted;
+    }
+
+    public int getId() {
+        return id;
+    }
+
     /**
      * @return formatted object number
      */
@@ -89,6 +110,9 @@ public class Message {
         return format(objectsCount);
     }
 
+    /**
+     * @return formatted object number
+     */
     public String addLink(Link link) {
         objectsCount++;
         link.setObjectNumber(objectsCount);
@@ -99,6 +123,9 @@ public class Message {
         return format(objectsCount);
     }
 
+    /**
+     * @return formatted object number
+     */
     public String addImage(Image image) {
         objectsCount++;
         image.setObjectNumber(objectsCount);
@@ -107,14 +134,5 @@ public class Message {
         }
         images.add(image);
         return format(objectsCount);
-    }
-
-    @JsonInclude (JsonInclude.Include.NON_DEFAULT)
-    public boolean isHighlighted() {
-        return highlighted;
-    }
-
-    public void setHighlighted(boolean highlighted) {
-        this.highlighted = highlighted;
     }
 }

@@ -9,6 +9,7 @@ import failchat.core.Source;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GGMessage extends Message {
     protected boolean premiumUser;
+    protected int ggId;
 
     GGMessage() {
         source = Source.GOODGAME;
@@ -29,4 +30,19 @@ public class GGMessage extends Message {
     public void setPremiumUser(boolean premiumUser) {
         this.premiumUser = premiumUser;
     }
+
+    @JsonIgnore
+    public int getGgId() {
+        return ggId;
+    }
+
+    @JsonProperty("message_id")
+    public void setGgId(int ggId) {
+        this.ggId = ggId;
+    }
+
+    //smiles в Message конфликтует со smiles из json'а
+    @JsonIgnore
+    public void setSmiles(int ignore) {}
+
 }

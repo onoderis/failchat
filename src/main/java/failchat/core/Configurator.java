@@ -40,6 +40,7 @@ public class Configurator {
     public static final CompositeConfiguration config = new CompositeConfiguration();
     private static final Path configPath = Bootstrap.workDir.resolve("config.conf");
     private MessageManager messageManager = MessageManager.getInstance();
+    private MessageHistory messageHistory = MessageHistory.getInstance();
     private ViewersManager viewersManager = new ViewersManager();
 
     private Map<Source, ChatClient> chatClients = new HashMap<>();
@@ -108,9 +109,11 @@ public class Configurator {
     public synchronized void turnOffChatClients() {
         chatClients.values().forEach(ChatClient::goOffline);
         chatClients.clear();
+        messageHistory.clear();
     }
 
     public void saveConfiguration() {
+        config.setProperty("lastId", Message.lastId.intValue());
         try {
             myConfig.save();
         } catch (ConfigurationException e) {
