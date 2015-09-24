@@ -73,6 +73,7 @@ public class Message {
         this.timestamp = timestamp;
     }
 
+    @JsonProperty("smiles")
     public List<SmileInMessage> getSmiles() {
         return smiles;
     }
