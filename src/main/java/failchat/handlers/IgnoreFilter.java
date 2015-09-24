@@ -6,12 +6,14 @@ import failchat.core.MessageFilter;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Фильтрует сообщения от пользователей в игнор-листе
  * Баны хранятся в формате nickname#source
  * */
 public class IgnoreFilter implements MessageFilter {
+    private static final Logger logger = Logger.getLogger(IgnoreFilter.class.getName());
     private Set<String> ignoreSet = new HashSet<>();
 
     public IgnoreFilter() {
@@ -25,6 +27,7 @@ public class IgnoreFilter implements MessageFilter {
 
     public void ignore(String user) {
         ignoreSet.add(user);
+        logger.fine("User ignored: " + user);
     }
 
     public void saveIgnoreList() {

@@ -140,18 +140,21 @@ a {
     text-decoration: none;
 }
 
-.ban {
-    width: 16px;
-    height: 16px;
-    color: red;
+.mod-icons {
     display: none;
 }
 
-.ban:hover {
+.mod-icons:hover {
     display: inline;
     cursor: pointer;
 }
 
-.nick:hover + .ban {
+.nick:hover + .mod-icons {
     display: inline;
+}
+
+.mod-icons span {
+    width: 16px;
+    height: 16px;
+    color: red;
 }

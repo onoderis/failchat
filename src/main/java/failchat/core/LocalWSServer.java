@@ -38,6 +38,10 @@ public class LocalWSServer extends WebSocketServer {
         try {
             JSONObject obj = new JSONObject(s);
             switch (obj.getString("type")) {
+                case "delete-message": {
+                    moderation.processDeleteMessage(obj.getJSONObject("content"));
+                    break;
+                }
                 case "ignore": {
                     moderation.processIgnoreMessage(obj.getJSONObject("content"));
                     break;

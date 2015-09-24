@@ -34,6 +34,14 @@ public class Moderation {
         return localInstance;
     }
 
+    public void processDeleteMessage(JSONObject message) {
+        try {
+            deleteMessage(message.getInt("messageId"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void processIgnoreMessage(JSONObject message) {
         try {
             ignoreFilter.ignore(message.getString("user"));
