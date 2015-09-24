@@ -42,7 +42,7 @@ $(function () {
     });
 
     socket.onopen = function () {
-        var connectedMessage = {"source": "failchat","text":"connected"};
+        var connectedMessage = {"source": "failchat","text":"connected", "timestamp" : Date.now()};
         handleInfoMessage(connectedMessage);
         appendToMessageContainer(connectedMessage);
         if (nativeClient) {
@@ -50,7 +50,7 @@ $(function () {
         }
     };
     socket.onclose = function () {
-        var disconnectedMessage =  {"source": "failchat","text":"disconnected"};
+        var disconnectedMessage =  {"source": "failchat","text":"disconnected", "timestamp" : Date.now()};
         handleInfoMessage(disconnectedMessage);
         appendToMessageContainer(disconnectedMessage);
     };
@@ -199,8 +199,19 @@ $(function () {
     });
 });
 
-//add user to ignore list
+//add user to ignore list and delete message
 function ignore(messageNode) {
     failchat.socket.send(JSON.stringify(
         {"type": "ignore", "content": {"user": messageNode.getAttribute("data-user"), "messageId": messageNode.getAttribute("id").slice(8)}}));
 }
+
+//just delete message
+function deleteMessage(messageNode) {
+    failchat.socket.send(JSON.stringify(
+        {"type": "delete-message", "content": {"messageId": messageNode.getAttribute("id").slice(8)}}));
+}
+
+$.views.converters("time", function(val) {
+    var d = new Date(val);
+    return d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+});
