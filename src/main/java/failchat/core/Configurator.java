@@ -140,4 +140,29 @@ public class Configurator {
     public void reloadIgnoreList() {
         messageManager.getIgnoreFilter().reloadIgnoreList();
     }
+
+    public enum InfoMessagesMode {
+        EVERYWHERE {
+            @Override
+            public String toString() {
+                return "Everywhere";
+            }
+        },
+        ON_NATIVE_CLIENT {
+            @Override
+            public String toString() {
+                return "On native client";
+            }
+        },
+        NOWHERE {
+            @Override
+            public String toString() {
+                return "Nowhere";
+            }
+        };
+
+        public static InfoMessagesMode getValueByString(String str) {
+            return Enum.valueOf(InfoMessagesMode.class, str.replace(' ', '_').toUpperCase());
+        }
+    }
 }

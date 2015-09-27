@@ -67,13 +67,16 @@ public class MessageManager implements Runnable {
     }
 
     public void sendInfoMessage(InfoMessage infoMessage) {
-        if (Configurator.config.getBoolean("showInfoMessages")) {
-            try {
-                String jsonMessage = objectMapper.writeValueAsString(new LocalCommonMessage("info", infoMessage));
+        Configurator.InfoMessagesMode mode = Configurator.InfoMessagesMode.getValueByString(Configurator.config.getString("infoMessagesMode"));
+        try {
+            String jsonMessage = objectMapper.writeValueAsString(new LocalCommonMessage("info", infoMessage));
+            if (mode == Configurator.InfoMessagesMode.EVERYWHERE) {
                 localWSServer.sendToAll(jsonMessage);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
+            } else if (mode == Configurator.InfoMessagesMode.ON_NATIVE_CLIENT) {
+                localWSServer.sendToNativeClient(jsonMessage);
             }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
     }
 
