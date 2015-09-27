@@ -96,6 +96,7 @@ span {
 span.nick {
     font-weight: bold;
     color: #7797BE;
+    cursor: pointer;
 }
 
 
@@ -138,10 +139,9 @@ a {
 
 .mod-icons:hover {
     display: inline;
-    cursor: pointer;
 }
 
-.nick:hover + .mod-icons {
+.nick:focus + .mod-icons {
     display: inline;
 }
 
@@ -149,4 +149,5 @@ a {
     width: 16px;
     height: 16px;
     color: red;
+    cursor: pointer;
 }
