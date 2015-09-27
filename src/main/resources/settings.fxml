@@ -216,6 +216,9 @@
                                              <font>
                                                 <Font size="12.0" />
                                              </font>
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
                                           </Text>
                                           <Text fx:id="opacity_text" strokeType="OUTSIDE" strokeWidth="0.0">
                                              <font>
@@ -234,14 +237,19 @@
                                           <Insets bottom="6.0" left="2.0" right="2.0" />
                                        </VBox.margin>
                                     </Slider>
-                                    <CheckBox fx:id="info_massages" mnemonicParsing="false" text="Show info messages">
-                                       <VBox.margin>
-                                          <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
-                                       </VBox.margin>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Show info messages">
                                        <font>
                                           <Font size="12.0" />
                                        </font>
-                                    </CheckBox>
+                                       <VBox.margin>
+                                          <Insets left="2.0" right="2.0" />
+                                       </VBox.margin>
+                                    </Text>
+                                    <ChoiceBox fx:id="info_messages" prefWidth="150.0">
+                                       <VBox.margin>
+                                          <Insets bottom="6.0" left="2.0" right="2.0" />
+                                       </VBox.margin>
+                                    </ChoiceBox>
                                  </children>
                                  <HBox.margin>
                                     <Insets right="20.0" />

@@ -35,7 +35,7 @@ public class SettingsFrame {
     //second tab
     private ColorPicker bgColorPicker;
     private Slider opacitySlider;
-    private CheckBox showInfoMessages;
+    private ChoiceBox infoMessagesMode;
     private TextArea ignoreList;
 
     SettingsFrame(Stage stage) throws Exception {
@@ -65,7 +65,8 @@ public class SettingsFrame {
 
         //second tab
         bgColorPicker = (ColorPicker)scene.lookup("#bgcolor");
-        showInfoMessages = (CheckBox)scene.lookup("#info_massages");
+        infoMessagesMode = (ChoiceBox)scene.lookup("#info_messages");
+        infoMessagesMode.setItems(FXCollections.observableArrayList(Configurator.InfoMessagesMode.values()));
         ignoreList = (TextArea)scene.lookup("#ignore_list");
 
         //opacity
@@ -118,7 +119,7 @@ public class SettingsFrame {
 
         bgColorPicker.setValue(Color.web(Configurator.config.getString("bgcolor")));
         opacitySlider.setValue(Configurator.config.getDouble("opacity"));
-        showInfoMessages.setSelected(Configurator.config.getBoolean("showInfoMessages"));
+        infoMessagesMode.setValue(Configurator.InfoMessagesMode.getValueByString(Configurator.config.getString("infoMessagesMode")));
 
         StringBuilder sb = new StringBuilder();
         for (Object o : Configurator.config.getList("ignore")) {
@@ -149,7 +150,7 @@ public class SettingsFrame {
 
         Configurator.config.setProperty("bgcolor", bgColorPicker.getValue().toString());
         Configurator.config.setProperty("opacity", (int) opacitySlider.getValue());
-        Configurator.config.setProperty("showInfoMessages", showInfoMessages.isSelected());
+        Configurator.config.setProperty("infoMessagesMode", infoMessagesMode.getValue().toString());
         Configurator.config.setProperty("ignore", ignoreList.getText().split("\\n"));
     }
 }
