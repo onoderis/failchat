@@ -136,4 +136,8 @@ public class Configurator {
     public void configureLinkHandler() {
         messageManager.getLinkHandler().setShowImages(config.getBoolean("showImages"));
     }
+
+    public void reloadIgnoreList() {
+        messageManager.getIgnoreFilter().reloadIgnoreList();
+    }
 }
