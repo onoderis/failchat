@@ -26,13 +26,17 @@ public class SettingsFrame {
     private CheckBox twitchEnabled;
     private CheckBox cybergameEnabled;
     private ChoiceBox skin;
-    private ColorPicker bgColorPicker;
     private CheckBox frame;
     private CheckBox onTop;
     private CheckBox showViewers;
     private CheckBox showImages;
+    private Button startButton;
+
+    //second tab
+    private ColorPicker bgColorPicker;
     private Slider opacitySlider;
-    private Button applyButton;
+    private CheckBox showInfoMessages;
+    private TextArea ignoreList;
 
     SettingsFrame(Stage stage) throws Exception {
         this.stage = stage;
@@ -53,13 +57,16 @@ public class SettingsFrame {
         twitchEnabled = (CheckBox)scene.lookup("#twitch_enabled");
         cybergameEnabled = (CheckBox)scene.lookup("#cybergame_enabled");
 
-        //appearance
         skin = (ChoiceBox)scene.lookup("#skin");
-        bgColorPicker = (ColorPicker)scene.lookup("#bgcolor");
         frame = (CheckBox)scene.lookup("#frame");
         onTop = (CheckBox)scene.lookup("#top");
-        showViewers= (CheckBox)scene.lookup("#show_viewers");
-        showImages= (CheckBox)scene.lookup("#show_images");
+        showViewers = (CheckBox)scene.lookup("#show_viewers");
+        showImages = (CheckBox)scene.lookup("#show_images");
+
+        //second tab
+        bgColorPicker = (ColorPicker)scene.lookup("#bgcolor");
+        showInfoMessages = (CheckBox)scene.lookup("#info_massages");
+        ignoreList = (TextArea)scene.lookup("#ignore_list");
 
         //opacity
         opacitySlider = (Slider)scene.lookup("#opacity");
@@ -71,8 +78,8 @@ public class SettingsFrame {
             }
         });
 
-        applyButton = (Button)scene.lookup("#apply_button");
-        applyButton.setOnAction((action) -> toChat());
+        startButton = (Button)scene.lookup("#start_button");
+        startButton.setOnAction((action) -> toChat());
 
         stage.setOnCloseRequest(event -> {
             saveSettingsValues();
@@ -104,12 +111,23 @@ public class SettingsFrame {
 
         skin.setItems(FXCollections.observableArrayList(Configurator.getSkins()));
         skin.setValue(Configurator.config.getString("skin"));
-        bgColorPicker.setValue(Color.web(Configurator.config.getString("bgcolor")));
         frame.setSelected(Configurator.config.getBoolean("frame"));
         showViewers.setSelected(Configurator.config.getBoolean("showViewers"));
         showImages.setSelected(Configurator.config.getBoolean("showImages"));
         onTop.setSelected(Configurator.config.getBoolean("onTop"));
+
+        bgColorPicker.setValue(Color.web(Configurator.config.getString("bgcolor")));
         opacitySlider.setValue(Configurator.config.getDouble("opacity"));
+        showInfoMessages.setSelected(Configurator.config.getBoolean("showInfoMessages"));
+
+        StringBuilder sb = new StringBuilder();
+        for (Object o : Configurator.config.getList("ignore")) {
+            sb.append(o).append("\n");
+        }
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        ignoreList.setText(sb.toString());
     }
 
     private void saveSettingsValues() {
@@ -124,11 +142,14 @@ public class SettingsFrame {
         Configurator.config.setProperty("cybergame.enabled", cybergameEnabled.isSelected());
 
         Configurator.config.setProperty("skin", skin.getValue());
-        Configurator.config.setProperty("bgcolor", bgColorPicker.getValue().toString());
         Configurator.config.setProperty("frame", frame.isSelected());
         Configurator.config.setProperty("onTop", onTop.isSelected());
         Configurator.config.setProperty("showViewers", showViewers.isSelected());
         Configurator.config.setProperty("showImages", showImages.isSelected());
+
+        Configurator.config.setProperty("bgcolor", bgColorPicker.getValue().toString());
         Configurator.config.setProperty("opacity", (int) opacitySlider.getValue());
+        Configurator.config.setProperty("showInfoMessages", showInfoMessages.isSelected());
+        Configurator.config.setProperty("ignore", ignoreList.getText().split("\\n"));
     }
 }

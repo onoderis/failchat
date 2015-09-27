@@ -84,6 +84,7 @@ public class ChatFrame {
             e.printStackTrace();
         }
         new Thread(() -> {
+            configurator.reloadIgnoreList();
             configurator.configureLinkHandler();
             configurator.initializeChatClients();
             configurator.configureViewersManager();

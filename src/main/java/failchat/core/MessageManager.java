@@ -67,11 +67,13 @@ public class MessageManager implements Runnable {
     }
 
     public void sendInfoMessage(InfoMessage infoMessage) {
-        try {
-            String jsonMessage = objectMapper.writeValueAsString(new LocalCommonMessage("info", infoMessage));
-            localWSServer.sendToAll(jsonMessage);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        if (Configurator.config.getBoolean("showInfoMessages")) {
+            try {
+                String jsonMessage = objectMapper.writeValueAsString(new LocalCommonMessage("info", infoMessage));
+                localWSServer.sendToAll(jsonMessage);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -118,12 +120,13 @@ public class MessageManager implements Runnable {
 
     private void checkNewMessages() {
         if (messages.size() > 0) {
+            messagesCycle:
             while (!messages.isEmpty()) {
                 Message m = messages.poll();
                 for (MessageFilter f : filters) {
                     if (f.filterMessage(m)) {
                         logger.fine("Message filtered: " + m.getSource().getLowerCased() + "#" + m.getAuthor() + ": " + m.getText());
-                        return;
+                        continue messagesCycle;
                     }
                 }
                 for (MessageHandler h : handlers) {
