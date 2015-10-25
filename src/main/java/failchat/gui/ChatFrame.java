@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 
@@ -81,7 +82,7 @@ public class ChatFrame {
         try {
             webEngine.load(Bootstrap.workDir.resolve("skins").resolve(skin).resolve(skin + ".html").toUri().toURL().toString());
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
         }
         new Thread(() -> {
             configurator.reloadIgnoreList();

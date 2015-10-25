@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Sc2tvChatClient implements ChatClient, Runnable {
@@ -69,7 +70,7 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
             chatUrl = new URL(CHAT_URL + channelId + CHAT_URL_END);
         } catch (MalformedURLException e) {
             logger.severe("Bad sc2tv channel id: " + channelId);
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
         }
 
         Thread t = new Thread(this, THREAD_NAME);
@@ -93,7 +94,7 @@ public class Sc2tvChatClient implements ChatClient, Runnable {
                     }
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Something goes wrong...", e);
             }
         }
     }

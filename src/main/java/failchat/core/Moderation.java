@@ -8,6 +8,7 @@ import failchat.handlers.IgnoreFilter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Moderation {
@@ -38,7 +39,7 @@ public class Moderation {
         try {
             deleteMessage(message.getInt("messageId"));
         } catch (JSONException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
         }
     }
 
@@ -47,7 +48,7 @@ public class Moderation {
             ignoreFilter.ignore(message.getString("user"));
             deleteMessage(message.getInt("messageId"));
         } catch (JSONException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
         }
     }
 
@@ -56,7 +57,7 @@ public class Moderation {
             messageManager.sendRaw(objectMapper.writeValueAsString(new ModMessage(message.getId())));
             logger.fine("Message deleted: " + message.source + "#" + message.getAuthor() + ": " + message.getText());
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
         }
     }
 
@@ -65,7 +66,7 @@ public class Moderation {
             messageManager.sendRaw(objectMapper.writeValueAsString(new ModMessage(messageId)));
             logger.fine("Message deleted by id: " + messageId);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
         }
     }
 

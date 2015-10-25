@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ViewersManager implements Runnable {
@@ -31,7 +32,7 @@ public class ViewersManager implements Runnable {
                     lock.wait(timeout);
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Something goes wrong...", e);
             }
         }
         status = Status.READY;
@@ -102,7 +103,7 @@ public class ViewersManager implements Runnable {
             }
             mes.put("content", content);
         } catch (JSONException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
         }
         return mes;
     }

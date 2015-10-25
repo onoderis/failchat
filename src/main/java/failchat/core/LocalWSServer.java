@@ -7,7 +7,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.InetSocketAddress;
+import java.nio.channels.NotYetConnectedException;
 import java.util.Collection;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class LocalWSServer extends WebSocketServer {
@@ -53,7 +55,7 @@ public class LocalWSServer extends WebSocketServer {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
         }
     }
 
@@ -65,9 +67,13 @@ public class LocalWSServer extends WebSocketServer {
     synchronized public void sendToAll(String text) {
         logger.fine("Send to Web Socket: " + text);
         Collection<WebSocket> con = connections();
+        try {
             for (WebSocket c : con) {
                 c.send(text);
             }
+        } catch (NotYetConnectedException e) {
+            logger.log(Level.WARNING, "Send message to disconnected client...", e);
+        }
     }
 
     public void sendToNativeClient(String text) {

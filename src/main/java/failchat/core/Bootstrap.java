@@ -11,6 +11,7 @@ import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Bootstrap {
@@ -70,7 +71,7 @@ public class Bootstrap {
                 logger.info("Process terminated...");
                 System.exit(10);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Something goes wrong...", e);
             }
         }, "TerminationThread");
         terminationThread.setDaemon(true);

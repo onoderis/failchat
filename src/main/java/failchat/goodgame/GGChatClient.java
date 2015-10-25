@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GGChatClient implements ChatClient {
@@ -83,7 +84,7 @@ public class GGChatClient implements ChatClient {
                 logger.info("Connected to goodgame");
                 messageManager.sendInfoMessage(new InfoMessage(Source.GOODGAME, "connected"));
             } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Something goes wrong...", e);
             }
         }
 
@@ -102,13 +103,18 @@ public class GGChatClient implements ChatClient {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Something goes wrong...", e);
             }
         }
 
         @Override
         public void onClose(int i, String s, boolean b) {
             logger.info("Goodgame disconnected");
+        }
+
+        @Override
+        public void onError(Exception e) {
+            logger.log(Level.WARNING, "Disconnect? ...", e);
         }
 
         @Override
