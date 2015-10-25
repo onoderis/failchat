@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class FsApiWorker {
@@ -29,7 +30,7 @@ public class FsApiWorker {
                 return -1;
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
             return -1;
         }
     }

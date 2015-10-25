@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CgChatClient implements ChatClient{
@@ -77,7 +78,7 @@ public class CgChatClient implements ChatClient{
                 loginMessage.put("message", loginData.toString());
                 send(loginMessage.toString());
             } catch (JSONException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Something goes wrong...", e);
             }
         }
 
@@ -102,13 +103,18 @@ public class CgChatClient implements ChatClient{
                     messageManager.sendInfoMessage(new InfoMessage(Source.CYBERGAME, "connected"));
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Something goes wrong...", e);
             }
         }
 
         @Override
         public void onClose(int i, String s, boolean b) {
             logger.info("Cybergame disconnected");
+        }
+
+        @Override
+        public void onError(Exception e) {
+            logger.log(Level.WARNING, "Disconnect? ...", e);
         }
 
         @Override

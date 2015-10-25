@@ -2,10 +2,7 @@ package failchat.core;
 
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.*;
@@ -26,6 +23,7 @@ public class Logging {
 
         Thread.setDefaultUncaughtExceptionHandler((thread, ex) -> {
             try {
+                logger.log(Level.SEVERE, "Uncaught exception from thread " + thread.getClass().getName(), ex);
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
                 ex.printStackTrace(pw);
@@ -33,7 +31,7 @@ public class Logging {
                 FileUtils.writeStringToFile(new File("err"), logMessage, true);
                 logger.severe(logMessage);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Something goes wrong...", e);
             }
         });
     }
@@ -46,7 +44,7 @@ public class Logging {
                 fileHandler.setLevel(Level.ALL);
                 logger.addHandler(fileHandler);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Something goes wrong...", e);
             }
         }
     }
@@ -62,6 +60,13 @@ public class Logging {
             sb.append(dateFormat.format(new Date(record.getMillis()))).append(' ').append(record.getLevel())
                     .append(' ').append(record.getSourceClassName()).append(": ")
                     .append(record.getMessage()).append(lineSeparator);
+            Throwable throwable = record.getThrown();
+            if (throwable != null) {
+                Writer writer = new StringWriter();
+                PrintWriter printWriter = new PrintWriter(writer);
+                throwable.printStackTrace(printWriter);
+                sb.append(writer.toString());
+            }
             return sb.toString();
         }
     }

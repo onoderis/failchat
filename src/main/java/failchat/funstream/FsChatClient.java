@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class FsChatClient implements ChatClient {
@@ -106,7 +107,7 @@ public class FsChatClient implements ChatClient {
                         status = ChatClientStatus.WORKING;
                     });
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING, "Something goes wrong...", e);
                 }
             }).on(Socket.EVENT_DISCONNECT, objects -> {
                 status = ChatClientStatus.CONNECTING;
@@ -132,23 +133,22 @@ public class FsChatClient implements ChatClient {
                     }
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING, "Something goes wrong...", e);
                 }
             });
 //                .on("/chat/message/remove", objects -> {
 //                try {
 //                    JSONObject removeMessage = (JSONObject) objects[0];
 //                    moderation.deleteFsMessage(removeMessage.getInt("id"));
-//                    System.out.println(objects[0].toString());
 //                } catch (JSONException e) {
-//                    e.printStackTrace();
+//                    logger.log(Level.WARNING, "Something goes wrong...", e);
 //                }
 //            });
 
             return socket;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
             return null;
         }
     }

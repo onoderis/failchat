@@ -3,8 +3,11 @@ package failchat.test;
 import failchat.core.*;
 
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TestChatClient implements ChatClient, Runnable {
+    private static final Logger logger = Logger.getLogger(TestChatClient.class.getName());
 
     private final Queue<Message> messageQueue;
     boolean exitFlag = false;
@@ -44,7 +47,7 @@ public class TestChatClient implements ChatClient, Runnable {
 //            try {
 //                m.setText(br.readLine());
 //            } catch (IOException e) {
-//                e.printStackTrace();
+//                logger.log(Level.WARNING, "Something goes wrong...", e);
 //            }
             messageQueue.add(m);
             synchronized (messageQueue) {
@@ -60,7 +63,7 @@ public class TestChatClient implements ChatClient, Runnable {
                 try {
                     wait(1000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING, "Something goes wrong...", e);
                 }
             }
         }

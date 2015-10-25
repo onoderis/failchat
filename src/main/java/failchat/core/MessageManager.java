@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MessageManager implements Runnable {
@@ -51,10 +52,8 @@ public class MessageManager implements Runnable {
     public void turnOff() {
         try {
             localWSServer.stop();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (IOException | InterruptedException e) {
+            logger.log(Level.WARNING, "Something goes wrong...", e);
         }
         exitFlag = true;
         synchronized (messages) {
@@ -76,7 +75,7 @@ public class MessageManager implements Runnable {
                 localWSServer.sendToNativeClient(jsonMessage);
             }
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
         }
     }
 
@@ -116,7 +115,7 @@ public class MessageManager implements Runnable {
                     messages.wait();
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Something goes wrong...", e);
             }
         }
     }
@@ -139,7 +138,7 @@ public class MessageManager implements Runnable {
                     String jsonMessage = objectMapper.writeValueAsString(new LocalCommonMessage("message", m));
                     localWSServer.sendToAll(jsonMessage);
                 } catch (JsonProcessingException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING, "Something goes wrong...", e);
                 }
                 messageHistory.addMessage(m);
             }

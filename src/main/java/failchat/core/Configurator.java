@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Configurator {
@@ -60,7 +61,7 @@ public class Configurator {
             }
         } catch (ConfigurationException e) {
             logger.severe("Bad configuration file");
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
             throw new RuntimeException(e);
         }
     }
@@ -74,7 +75,7 @@ public class Configurator {
             }
             return dirs;
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
         }
         return null;
     }
@@ -117,7 +118,7 @@ public class Configurator {
         try {
             myConfig.save();
         } catch (ConfigurationException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
         }
     }
 

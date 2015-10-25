@@ -11,6 +11,7 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -29,7 +30,7 @@ public class SmileManager {
             Files.createDirectories(SMILE_LIST_DIR);
         } catch (IOException e) {
             logger.warning("Can't create smile list directory");
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
             return;
         }
         FsSmileInfoLoader.loadSmilesInfo();
@@ -56,8 +57,8 @@ public class SmileManager {
         } catch (IOException e) {
             logger.warning("Can't deserialize " + name + " smiles");
             return null;
-        } catch (ClassNotFoundException c) {
-            c.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            logger.log(Level.WARNING, "Something goes wrong...", e);
             return null;
         }
     }

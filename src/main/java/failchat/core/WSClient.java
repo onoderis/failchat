@@ -4,8 +4,12 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class WSClient {
+    private static final Logger logger = Logger.getLogger(WSClient.class.getName());
+
     private WebSocketClient wsClient;
     private String uri;
     private int reconnectTimeout = 5000;
@@ -29,7 +33,7 @@ public class WSClient {
                         Thread.sleep(reconnectTimeout);
                     }
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING, "Something goes wrong...", e);
                 }
 
             }
@@ -60,6 +64,8 @@ public class WSClient {
     public void onClose(int i, String s, boolean b) {}
 
     public void onReconnect() {}
+
+    public void onError(Exception e) {}
 
     private class Wsc extends WebSocketClient {
         public Wsc(URI serverURI) {
@@ -99,6 +105,7 @@ public class WSClient {
                 failchat.core.WSClient.this.status = ChatClientStatus.CONNECTING;
                 failchat.core.WSClient.this.onReconnect();
             }
+            failchat.core.WSClient.this.onError(e);
         }
     }
 }

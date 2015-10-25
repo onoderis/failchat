@@ -6,6 +6,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,7 +35,7 @@ public class ChannelParser {
             return Integer.parseInt(m.group(1));
         } catch (IOException e) {
             logger.severe("Can't load/parse sc2tv channel page");
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Something goes wrong...", e);
             return -1;
         }
     }

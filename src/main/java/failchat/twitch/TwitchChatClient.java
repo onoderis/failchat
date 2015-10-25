@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,7 +73,7 @@ public class TwitchChatClient implements ChatClient {
             try {
                 twitchIrcClient.startBot();
             } catch (IOException | IrcException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Something goes wrong...", e);
             }
         }, "TwitchIrcClientThread").start();
     }
