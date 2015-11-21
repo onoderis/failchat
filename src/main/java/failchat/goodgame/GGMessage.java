@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import failchat.core.Message;
 import failchat.core.Source;
 
+import java.util.Date;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GGMessage extends Message {
     protected boolean premiumUser;
@@ -45,4 +47,8 @@ public class GGMessage extends Message {
     @JsonIgnore
     public void setSmiles(int ignore) {}
 
+    @Override
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = new Date(timestamp.getTime() * 1000);
+    }
 }
