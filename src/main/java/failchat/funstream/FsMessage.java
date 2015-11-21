@@ -1,6 +1,5 @@
 package failchat.funstream;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -42,15 +41,14 @@ public class FsMessage extends failchat.core.Message {
 
     @Override
     @JsonProperty(value = "time")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+2")
     public void setTimestamp(Date timestamp) {
-        super.setTimestamp(timestamp);
+        this.timestamp = new Date(timestamp.getTime() * 1000);
     }
 
     @Override
     @JsonProperty(value = "timestamp")
     public Date getTimestamp() {
-        return super.getTimestamp();
+        return timestamp;
     }
 
     @Override
@@ -59,10 +57,12 @@ public class FsMessage extends failchat.core.Message {
         super.setAuthor(author);
     }
 
+    @JsonIgnore
     public String getType() {
         return type;
     }
 
+    @JsonProperty(value = "type")
     public void setType(String type) {
         this.type = type;
     }

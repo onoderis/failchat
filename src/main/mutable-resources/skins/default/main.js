@@ -213,5 +213,5 @@ function deleteMessage(messageNode) {
 
 $.views.converters("time", function(val) {
     var d = new Date(val);
-    return d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+    return d.format("isoTime");
 });
