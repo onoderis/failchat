@@ -43,15 +43,14 @@ public class FsApiWorker {
         }
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            List<List<FsSmile>> smileLists = objectMapper.readValue(response, new TypeReference<List<List<FsSmile>>>() {});
+            List<FsSmile> smileLists = objectMapper.readValue(response, new TypeReference<List<FsSmile>>() {});
             Map<String, FsSmile> smileMap = new HashMap<>();
-            smileLists.forEach((list) -> {
-                list.forEach((smile) -> {
-                    smileMap.put(smile.getCode(), smile);
-                });
+            smileLists.forEach((smile) -> {
+                smileMap.put(smile.getCode(), smile);
             });
             return smileMap;
         } catch (IOException e) {
+            logger.log(Level.WARNING, "Can't parse response with smiles data from sc2tv", e);
             return null;
         }
     }
@@ -77,6 +76,7 @@ public class FsApiWorker {
             }
             return IOUtils.toString(con.getInputStream());
         } catch (Exception e) {
+            logger.log(Level.WARNING, "Failed to send request to sc2tv api", e);
             return null;
         }
 
