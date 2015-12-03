@@ -8,10 +8,9 @@ import failchat.core.Source;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FsSmile extends Smile {
-    private static final String FS_SMILES_DIR = "http://funstream.tv/build/images/smiles/";
     private static final String FILE_EXTENSION = ".png";
 
-    private String urlFileName;
+    private String imageUrl;
 
     FsSmile() {
         source = Source.SC2TV;
@@ -19,18 +18,18 @@ public class FsSmile extends Smile {
 
     @Override
     public String getImageUrl() {
-        return FS_SMILES_DIR + urlFileName;
+        return imageUrl;
+    }
+
+    @JsonProperty("url")
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     @Override
     public String getCachePath() {
         return SmileManager.SMILES_DIR_REL.resolve(Source.SC2TV.getLowerCased())
                 .resolve(code + FILE_EXTENSION).toString().replace('\\', '/');
-    }
-
-    @JsonProperty(value = "image")
-    public void setFileName(String image) {
-        this.urlFileName = image.split("\\?")[0]; // smile.png?1 -> smile.png
     }
 
     @Override
