@@ -213,5 +213,14 @@ function deleteMessage(messageNode) {
 
 $.views.converters("time", function(val) {
     var d = new Date(val);
-    return d.format("isoTime");
+    var h = d.getHours().toString();
+    var m = d.getMinutes().toString();
+    var s = d.getSeconds().toString();
+    if (s.length == 1) {
+        s = "0" + s;
+    }
+    if (m.length == 1) {
+        m = "0" + s;
+    }
+    return h + ":" + m + ":" +  s;
 });
