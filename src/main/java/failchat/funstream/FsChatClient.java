@@ -19,7 +19,7 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FsChatClient implements ChatClient {
+public class FsChatClient implements ChatClient, ViewersCounter {
     private static final Logger logger = Logger.getLogger(FsChatClient.class.getName());
     private static final String FS_SOCKET_URL = "http://funstream.tv:3811";
 
@@ -33,6 +33,7 @@ public class FsChatClient implements ChatClient {
     private String channelName;
     private int channelId;
     private Socket socket;
+    volatile private int viewersCount = -1;
 
     public FsChatClient(String channelName) {
         this.channelName = channelName;
@@ -151,5 +152,37 @@ public class FsChatClient implements ChatClient {
             logger.log(Level.WARNING, "Something goes wrong...", e);
             return null;
         }
+    }
+
+    @Override
+    public int getViewersCount() {
+        return viewersCount;
+    }
+
+    @Override
+    public void updateViewersCount() {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("channel", "stream/" + channelId);
+        } catch (JSONException e) {
+            logger.log(Level.WARNING, "Illegal channel name", e);
+        }
+        Object[] args1 = new Object[1];
+        args1[0] = obj;
+
+        socket.emit("/chat/channel/list", args1, rObjects -> {
+            JSONObject response = (JSONObject) rObjects[0];
+            try {
+                if (response.getString("status").equals("ok")) {
+                    viewersCount = response.getJSONObject("result").getInt("amount");
+                } else {
+                    viewersCount = -1;
+                    logger.warning("Bad response status, json: " + response.toString());
+            }
+            } catch (JSONException e) {
+                logger.warning("Unexpected response json format: " + response.toString());
+                viewersCount = -1;
+            }
+        });
     }
 }
