@@ -136,15 +136,15 @@ public class FsChatClient implements ChatClient, ViewersCounter {
                 } catch (IOException e) {
                     logger.log(Level.WARNING, "Something goes wrong...", e);
                 }
+            })
+                .on("/chat/message/remove", objects -> {
+                try {
+                    JSONObject removeMessage = (JSONObject) objects[0];
+                    moderation.deleteFsMessage(removeMessage.getInt("id"));
+                } catch (JSONException e) {
+                    logger.log(Level.WARNING, "Something goes wrong...", e);
+                }
             });
-//                .on("/chat/message/remove", objects -> {
-//                try {
-//                    JSONObject removeMessage = (JSONObject) objects[0];
-//                    moderation.deleteFsMessage(removeMessage.getInt("id"));
-//                } catch (JSONException e) {
-//                    logger.log(Level.WARNING, "Something goes wrong...", e);
-//                }
-//            });
 
             return socket;
         }
