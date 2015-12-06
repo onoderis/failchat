@@ -8,7 +8,6 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,19 +37,22 @@ public class ViewersManager implements Runnable {
         status = Status.READY;
     }
 
-    public synchronized void start(Set<Source> sources) {
+    public synchronized void start(Map<Source, ChatClient> chatClients) {
         if (status != Status.READY) {
             return;
         }
 
         enabledSources.clear();
-        if (sources.contains(Source.TWITCH)) {
+        if (chatClients.containsKey(Source.SC2TV)) {
+            enabledSources.put(Source.SC2TV, (ViewersCounter)chatClients.get(Source.SC2TV));
+        }
+        if (chatClients.containsKey(Source.TWITCH)) {
             enabledSources.put(Source.TWITCH, new TwitchViewersCounter(Configurator.config.getString("twitch.channel")));
         }
-        if (sources.contains(Source.GOODGAME)) {
+        if (chatClients.containsKey(Source.GOODGAME)) {
             enabledSources.put(Source.GOODGAME, new GGViewersCounter(Configurator.config.getString("goodgame.channel")));
         }
-        if (sources.contains(Source.CYBERGAME)) {
+        if (chatClients.containsKey(Source.CYBERGAME)) {
             enabledSources.put(Source.CYBERGAME, new CgViewersCounter(Configurator.config.getString("cybergame.channel")));
         }
 
@@ -90,6 +92,9 @@ public class ViewersManager implements Runnable {
                     }
                 //если запрос приходит до запуска ViewersManager'а
                 } else if (status == Status.READY) {
+                    if (Configurator.config.getBoolean("sc2tv.enabled") && !Configurator.config.getString("sc2tv.channel").equals("")) {
+                        content.put(Source.SC2TV.getLowerCased(), "?");
+                    }
                     if (Configurator.config.getBoolean("goodgame.enabled") && !Configurator.config.getString("goodgame.channel").equals("")) {
                         content.put(Source.GOODGAME.getLowerCased(), "?");
                     }

@@ -24,10 +24,12 @@ $(function () {
     //viewers bar
     var viewersBarEnabled = false;
     var viewersBar = $(".viewers-bar");
+    var sc2tvViewersBar = $("#sc2tv-source");
     var twitchViewersBar = $("#twitch-source");
     var goodgameViewersBar = $("#goodgame-source");
     var cybergameViewersBar = $("#cybergame-source");
-    var twitchViewrsCount = $("#twitch-viewers");
+    var sc2tvViewersCount = $("#sc2tv-viewers");
+    var twitchViewersCount = $("#twitch-viewers");
     var goodgameViwersCount = $("#goodgame-viewers");
     var cybergameViwersCount = $("#cybergame-viewers");
 
@@ -119,6 +121,9 @@ $(function () {
         else if (!viewersBarEnabled && viewersMessage.show) {
             viewersBarEnabled = true;
             viewersBar.addClass("viewers-bar-on");
+            if (viewersMessage.sc2tv != undefined) {
+                sc2tvViewersBar.addClass("viewers-source-on");
+            }
             if (viewersMessage.twitch != undefined) {
                 twitchViewersBar.addClass("viewers-source-on");
             }
@@ -137,6 +142,7 @@ $(function () {
         else if (viewersBarEnabled && !viewersMessage.show) {
             viewersBarEnabled = false;
             viewersBar.removeClass("viewers-bar-on");
+            sc2tvViewersBar.removeClass("viewers-source-on");
             twitchViewersBar.removeClass("viewers-source-on");
             goodgameViewersBar.removeClass("viewers-source-on");
             cybergameViewersBar.removeClass("viewers-source-on");
@@ -150,8 +156,11 @@ $(function () {
     }
 
     function updateViewersValues(viewersMessage) {
+        if (viewersMessage.sc2tv != undefined) {
+            sc2tvViewersCount.text(viewersMessage.sc2tv);
+        }
         if (viewersMessage.twitch != undefined) {
-            twitchViewrsCount.text(viewersMessage.twitch);
+            twitchViewersCount.text(viewersMessage.twitch);
         }
         if (viewersMessage.goodgame != undefined) {
             goodgameViwersCount.text(viewersMessage.goodgame);

@@ -124,7 +124,7 @@ public class Configurator {
 
     public void configureViewersManager() {
         if (config.getBoolean("showViewers")) {
-            viewersManager.start(chatClients.keySet());
+            viewersManager.start(chatClients);
         } else {
             viewersManager.stop();
         }
