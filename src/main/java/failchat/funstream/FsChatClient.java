@@ -8,6 +8,7 @@ import failchat.handlers.CapsHandler;
 import failchat.handlers.HtmlHandler;
 import failchat.handlers.MessageObjectCleaner;
 import failchat.handlers.SupportSmileHandler;
+import failchat.utils.Array;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -100,9 +101,7 @@ public class FsChatClient implements ChatClient, ViewersCounter {
                 try {
                     JSONObject obj = new JSONObject();
                     obj.put("channel", "stream/" + channelId);
-                    Object[] args1 = new Object[1];
-                    args1[0] = obj;
-                    socket.emit("/chat/join", args1, rObjects -> {
+                    socket.emit("/chat/join", Array.of(obj), rObjects -> {
                         logger.info("Connected to sc2tv");
                         messageManager.sendInfoMessage(new InfoMessage(Source.SC2TV, "connected"));
                         status = ChatClientStatus.WORKING;
@@ -166,11 +165,10 @@ public class FsChatClient implements ChatClient, ViewersCounter {
             obj.put("channel", "stream/" + channelId);
         } catch (JSONException e) {
             logger.log(Level.WARNING, "Illegal channel name", e);
+            return;
         }
-        Object[] args1 = new Object[1];
-        args1[0] = obj;
 
-        socket.emit("/chat/channel/list", args1, rObjects -> {
+        socket.emit("/chat/channel/list", Array.of(obj), rObjects -> {
             JSONObject response = (JSONObject) rObjects[0];
             try {
                 if (response.getString("status").equals("ok")) {
