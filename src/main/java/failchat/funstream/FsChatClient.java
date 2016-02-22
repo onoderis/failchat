@@ -16,6 +16,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,6 +37,7 @@ public class FsChatClient implements ChatClient, ViewersCounter {
     private String channelName;
     private int channelId;
     private Socket socket;
+    private CompletableFuture<Integer> viewersCountFuture = new CompletableFuture<>(); //create future to avoid NPE
     volatile private int viewersCount = -1;
 
     public FsChatClient(String channelName) {
@@ -151,11 +156,18 @@ public class FsChatClient implements ChatClient, ViewersCounter {
 
     @Override
     public int getViewersCount() {
+        try {
+            viewersCount = viewersCountFuture.get(1, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            logger.log(Level.WARNING, "Failed to get viewers count in 1 second", e);
+        }
         return viewersCount;
     }
 
     @Override
     public void updateViewersCount() {
+        final CompletableFuture<Integer> viewersCountFuture = this.viewersCountFuture = new CompletableFuture<>();
+
         JSONObject obj = new JSONObject();
         try {
             obj.put("channel", "stream/" + channelId);
@@ -167,15 +179,17 @@ public class FsChatClient implements ChatClient, ViewersCounter {
         socket.emit("/chat/channel/list", Array.of(obj), rObjects -> {
             JSONObject response = (JSONObject) rObjects[0];
             try {
+                int newCount;
                 if (response.getString("status").equals("ok")) {
-                    viewersCount = response.getJSONObject("result").getInt("amount");
+                    newCount = response.getJSONObject("result").getInt("amount");
                 } else {
-                    viewersCount = -1;
+                    newCount = -1;
                     logger.warning("Bad response status, json: " + response.toString());
-            }
+                }
+                viewersCountFuture.complete(newCount);
             } catch (JSONException e) {
-                logger.warning("Unexpected response json format: " + response.toString());
-                viewersCount = -1;
+                logger.log(Level.WARNING, "Unexpected response json format: " + response.toString(), e);
+                viewersCountFuture.complete(-1);
             }
         });
     }
