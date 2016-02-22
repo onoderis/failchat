@@ -12,18 +12,17 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class CgChatClient implements ChatClient{
+public class CgChatClient implements ChatClient {
+
     private static final Logger logger = Logger.getLogger(CgChatClient.class.getName());
     private static final String CG_WS_URL = "ws://cybergame.tv:9090/websocket";
 
     private WSClient wsClient;
     private ChatClientStatus status;
     private MessageManager messageManager = MessageManager.getInstance();
-    private Queue<Message> messageQueue = messageManager.getMessagesQueue();
     private List<MessageHandler<CgMessage>> messageHandlers;
     private String channelName;
     private ObjectMapper objectMapper;
@@ -93,10 +92,7 @@ public class CgChatClient implements ChatClient{
                     for (MessageHandler<CgMessage> messageHandler : messageHandlers) {
                         messageHandler.handleMessage(message);
                     }
-                    messageQueue.add(message);
-                    synchronized (messageQueue) {
-                        messageQueue.notify();
-                    }
+                    messageManager.sendMessage(message);
                 }
                 else if (commonMessage.getCommand().equals("changeWindow")) {
                     logger.info("Connected to cybergame");

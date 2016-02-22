@@ -16,18 +16,17 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class FsChatClient implements ChatClient, ViewersCounter {
+
     private static final Logger logger = Logger.getLogger(FsChatClient.class.getName());
     private static final String FS_SOCKET_URL = "http://funstream.tv:3811";
 
     private ChatClientStatus status;
     private MessageManager messageManager = MessageManager.getInstance();
     private Moderation moderation = Moderation.getInstance();
-    private Queue<failchat.core.Message> messageQueue = messageManager.getMessagesQueue();
     private List<MessageHandler<FsMessage>> messageHandlers;
     private List<MessageFilter<FsMessage>> messageFilters;
     private ObjectMapper objectMapper;
@@ -127,10 +126,7 @@ public class FsChatClient implements ChatClient, ViewersCounter {
                     for (MessageHandler<FsMessage> messageHandler : messageHandlers) {
                         messageHandler.handleMessage(fsMessage);
                     }
-                    messageQueue.add(fsMessage);
-                    synchronized (messageQueue) {
-                        messageQueue.notify();
-                    }
+                    messageManager.sendMessage(fsMessage);
 
                 } catch (IOException e) {
                     logger.log(Level.WARNING, "Something goes wrong...", e);
