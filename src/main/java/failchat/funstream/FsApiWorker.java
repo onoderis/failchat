@@ -46,6 +46,7 @@ public class FsApiWorker {
             List<FsSmile> smileLists = objectMapper.readValue(response, new TypeReference<List<FsSmile>>() {});
             Map<String, FsSmile> smileMap = new HashMap<>();
             smileLists.forEach((smile) -> {
+                smile.setImageUrl(smile.getImageUrl().replace("https://", "http://"));
                 smileMap.put(smile.getCode(), smile);
             });
             return smileMap;

@@ -84,7 +84,8 @@ public class SmileManager {
             smile.setCached(true);
             logger.fine("Smile downloaded: " + filePath.toFile().toString());
         } catch (IOException e) {
-            logger.warning("Can't download smile: " + smile.source.getLowerCased() + ':' + smile.getCode());
+            logger.log(Level.WARNING, String.format("Cant't download %s smile %s from url %s", smile.source.getLowerCased(),
+                    smile.getCode(), smile.getImageUrl()), e);
             return false;
         }
         return true;
