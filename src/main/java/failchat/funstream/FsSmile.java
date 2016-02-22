@@ -8,6 +8,7 @@ import failchat.core.Source;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FsSmile extends Smile {
+
     private static final String FILE_EXTENSION = ".png";
 
     private String imageUrl;
@@ -17,13 +18,18 @@ public class FsSmile extends Smile {
     }
 
     @Override
+    public void setCode(String code) {
+        this.code = code.toLowerCase(); //ignore case
+    }
+
+    @Override
     public String getImageUrl() {
         return imageUrl;
     }
 
     @JsonProperty("url")
     public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+        this.imageUrl = imageUrl.replace("https://", "http://");
     }
 
     @Override
