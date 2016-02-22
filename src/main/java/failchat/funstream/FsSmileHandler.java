@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FsSmileHandler implements MessageHandler<FsMessage> {
+
     private static final Logger logger = Logger.getLogger(FsSmileHandler.class.getName());
 
     private Pattern smileCodePattern = Pattern.compile("((?<=:)(\\w+)(?=:))");
@@ -17,7 +18,7 @@ public class FsSmileHandler implements MessageHandler<FsMessage> {
         Matcher matcher = smileCodePattern.matcher(message.getText());
         int position = 0; // чтобы не начинать искать сначала, если :something: найдено, но это не смайл
         while (matcher.find(position)) {
-            String code = matcher.group();
+            String code = matcher.group().toLowerCase(); //ignore case
             FsSmile smile = FsSmileInfoLoader.getSmile(code);
             if (smile != null) {
                 if (!SmileManager.cacheSmile(smile)) {

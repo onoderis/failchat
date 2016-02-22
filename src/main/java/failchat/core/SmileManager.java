@@ -82,12 +82,15 @@ public class SmileManager {
             con.setRequestProperty("User-Agent", "failchat client");
             FileUtils.copyInputStreamToFile(con.getInputStream(), filePath.toFile());
             smile.setCached(true);
-            logger.fine("Smile downloaded: " + filePath.toFile().toString());
         } catch (IOException e) {
-            logger.log(Level.WARNING, String.format("Cant't download %s smile %s from url %s", smile.source.getLowerCased(),
+            logger.log(Level.WARNING, String.format("Cant't download %s smile %s from url %s", smile.getSource().getLowerCased(),
                     smile.getCode(), smile.getImageUrl()), e);
             return false;
         }
+
+        logger.fine(String.format("Smile %s#%s downloaded to %s", smile.getCode(), smile.getSource().getLowerCased(),
+                filePath));
+
         return true;
     }
 }
