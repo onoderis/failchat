@@ -9,18 +9,18 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MessageManager implements Runnable {
+
     private static volatile MessageManager instance;
     private static final Logger logger = Logger.getLogger(MessageManager.class.getName());
 
-    private MessageManager() {}
-    private final Queue<Message> messages = new ConcurrentLinkedQueue<>(); //for messages from users
-    private boolean exitFlag = false;
+    private final BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>(); //message queue from chat clients
+    private Thread messageManagerThread;
     private LocalWSServer localWSServer;
     private List<MessageHandler> handlers = new ArrayList<>();
     private List<MessageFilter> filters = new ArrayList<>();
@@ -28,6 +28,8 @@ public class MessageManager implements Runnable {
     private LinkHandler linkHandler;
     private IgnoreFilter ignoreFilter;
     private MessageHistory messageHistory = MessageHistory.getInstance();
+
+    private MessageManager() {}
 
     public static MessageManager getInstance() {
         MessageManager localInstance = instance;
@@ -44,9 +46,10 @@ public class MessageManager implements Runnable {
 
     @Override
     public void run() {
-        initHandlers();
+        messageManagerThread = Thread.currentThread();
+        initializeHandlers();
         createWebSocket();
-        checkMessagesLoop();
+        takeMessageLoop();
     }
 
     public void turnOff() {
@@ -55,14 +58,11 @@ public class MessageManager implements Runnable {
         } catch (IOException | InterruptedException e) {
             logger.log(Level.WARNING, "Something goes wrong...", e);
         }
-        exitFlag = true;
-        synchronized (messages) {
-            messages.notify();
-        }
+        messageManagerThread.interrupt();
     }
 
-    public Queue<Message> getMessagesQueue() {
-        return messages;
+    public void sendMessage(Message message) {
+        messageQueue.offer(message);
     }
 
     public void sendInfoMessage(InfoMessage infoMessage) {
@@ -95,7 +95,7 @@ public class MessageManager implements Runnable {
         return linkHandler;
     }
 
-    private void initHandlers() {
+    private void initializeHandlers() {
         linkHandler = new LinkHandler();
         handlers.add(linkHandler);
         ignoreFilter = new IgnoreFilter();
@@ -107,41 +107,33 @@ public class MessageManager implements Runnable {
         localWSServer.start();
     }
 
-    private void checkMessagesLoop() {
-        while (!exitFlag) {
-            checkNewMessages();
-            try {
-                synchronized (messages) {
-                    messages.wait();
+    private void takeMessageLoop() {
+        try {
+            while (true) {
+                try {
+                    handleMessage(messageQueue.take());
+                } catch (JsonProcessingException e) {
+                    logger.log(Level.SEVERE, "Failed to serialize message", e);
                 }
-            } catch (InterruptedException e) {
-                logger.log(Level.WARNING, "Something goes wrong...", e);
             }
+        } catch (InterruptedException e) {
+            logger.log(Level.INFO, "Message manager thread interrupted, shutting down...");
         }
     }
 
-    private void checkNewMessages() {
-        if (messages.size() > 0) {
-            messagesCycle:
-            while (!messages.isEmpty()) {
-                Message m = messages.poll();
-                for (MessageFilter f : filters) {
-                    if (f.filterMessage(m)) {
-                        logger.fine("Message filtered: " + m.getSource().getLowerCased() + "#" + m.getAuthor() + ": " + m.getText());
-                        continue messagesCycle;
-                    }
-                }
-                for (MessageHandler h : handlers) {
-                    h.handleMessage(m);
-                }
-                try {
-                    String jsonMessage = objectMapper.writeValueAsString(new LocalCommonMessage("message", m));
-                    localWSServer.sendToAll(jsonMessage);
-                } catch (JsonProcessingException e) {
-                    logger.log(Level.WARNING, "Something goes wrong...", e);
-                }
-                messageHistory.addMessage(m);
+    private void handleMessage(Message message) throws JsonProcessingException {
+        for (MessageFilter filter : filters) {
+            if (filter.filterMessage(message)) {
+                logger.fine("Message filtered: " + message.toString());
+                return;
             }
         }
+        for (MessageHandler handler : handlers) {
+            handler.handleMessage(message);
+        }
+        String jsonMessage = objectMapper.writeValueAsString(new LocalCommonMessage("message", message));
+        localWSServer.sendToAll(jsonMessage);
+
+        messageHistory.addMessage(message);
     }
 }

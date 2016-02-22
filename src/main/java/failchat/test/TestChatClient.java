@@ -2,19 +2,16 @@ package failchat.test;
 
 import failchat.core.*;
 
-import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class TestChatClient implements ChatClient, Runnable {
+
     private static final Logger logger = Logger.getLogger(TestChatClient.class.getName());
 
-    private final Queue<Message> messageQueue;
+    private MessageManager messageManager = MessageManager.getInstance();
     boolean exitFlag = false;
 
-    public TestChatClient(Queue<Message> queue) {
-        messageQueue = queue;
-    }
 
     @Override
     public void goOffline() {
@@ -49,10 +46,7 @@ public class TestChatClient implements ChatClient, Runnable {
 //            } catch (IOException e) {
 //                logger.log(Level.WARNING, "Something goes wrong...", e);
 //            }
-            messageQueue.add(m);
-            synchronized (messageQueue) {
-                messageQueue.notify();
-            }
+            messageManager.sendMessage(m);
 
             Source[] sources = Source.values();
             if (i % 5 == 0) {

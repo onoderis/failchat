@@ -101,7 +101,7 @@ public class Configurator {
         }
 
         if (Configurator.config.getBoolean("test.enabled")) {
-            TestChatClient tcc = new TestChatClient(messageManager.getMessagesQueue());
+            TestChatClient tcc = new TestChatClient();
             chatClients.put(Source.TEST, tcc);
         }
         chatClients.values().forEach(ChatClient::goOnline);

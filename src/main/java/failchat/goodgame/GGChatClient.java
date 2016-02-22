@@ -13,11 +13,11 @@ import org.java_websocket.handshake.ServerHandshake;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GGChatClient implements ChatClient {
+
     private static final Logger logger = Logger.getLogger(GGChatClient.class.getName());
     private static final String GG_WS_URL = "ws://chat.goodgame.ru:8081/chat/websocket";
 
@@ -25,7 +25,6 @@ public class GGChatClient implements ChatClient {
     private ChatClientStatus status;
     private MessageManager messageManager = MessageManager.getInstance();
     private Moderation moderation = Moderation.getInstance();
-    private Queue<Message> messageQueue = messageManager.getMessagesQueue();
     private List<MessageHandler<GGMessage>> messageHandlers;
     private String channelName;
     private int channelId;
@@ -128,10 +127,7 @@ public class GGChatClient implements ChatClient {
             for (MessageHandler<GGMessage> messageHandler : messageHandlers) {
                 messageHandler.handleMessage(message);
             }
-            messageQueue.add(message);
-            synchronized (messageQueue) {
-                messageQueue.notify();
-            }
+            messageManager.sendMessage(message);
         }
 
         private void handleModMessage(JsonNode messageObj) throws IOException {

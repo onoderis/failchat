@@ -14,13 +14,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TwitchChatClient implements ChatClient {
+
     private static final Logger logger = Logger.getLogger(TwitchChatClient.class.getName());
     private static final String TWITCH_IRC = "irc.twitch.tv";
     private static final int TWITCH_IRC_PORT = 6667;
@@ -31,7 +31,6 @@ public class TwitchChatClient implements ChatClient {
 
     private MessageManager messageManager = MessageManager.getInstance();
     private Moderation moderation = Moderation.getInstance();
-    private final Queue<Message> messageQueue = messageManager.getMessagesQueue();
     private PircBotX twitchIrcClient;
     private String channelName;
     private List<MessageHandler<TwitchMessage>> messageHandlers;
@@ -116,10 +115,7 @@ public class TwitchChatClient implements ChatClient {
             for (MessageHandler<TwitchMessage> mh : messageHandlers) {
                 mh.handleMessage(m);
             }
-            messageQueue.add(m);
-            synchronized (messageQueue) {
-                messageQueue.notify();
-            }
+            messageManager.sendMessage(m);
         }
 
         // for "/me" messages
@@ -129,10 +125,7 @@ public class TwitchChatClient implements ChatClient {
             for (MessageHandler<TwitchMessage> mh : messageHandlers) {
                 mh.handleMessage(m);
             }
-            messageQueue.add(m);
-            synchronized (messageQueue) {
-                messageQueue.notify();
-            }
+            messageManager.sendMessage(m);
         }
 
         @Override
