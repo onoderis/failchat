@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 public class FsChatClient implements ChatClient, ViewersCounter {
 
     private static final Logger logger = Logger.getLogger(FsChatClient.class.getName());
-    private static final String FS_SOCKET_URL = "http://funstream.tv:3811";
+    private static final String FS_SOCKET_URL = "http://chat.funstream.tv";
 
     private ChatClientStatus status;
     private MessageManager messageManager = MessageManager.getInstance();
@@ -92,9 +92,8 @@ public class FsChatClient implements ChatClient, ViewersCounter {
         try {
             URI chatApiUrl = URI.create(FS_SOCKET_URL);
             IO.Options options = new IO.Options();
-            options.transports = new String[1];
+            options.transports = new String[] {"websocket"};
             options.forceNew = true;
-            options.transports[0] = "websocket";
 
             Socket socket =  IO.socket(chatApiUrl, options);
             socket.on(Socket.EVENT_CONNECT, objects -> {
