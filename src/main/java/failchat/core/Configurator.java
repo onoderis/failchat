@@ -1,8 +1,8 @@
 package failchat.core;
 
-import failchat.cybergame.CgChatClient;
 import failchat.funstream.FsChatClient;
 import failchat.goodgame.GGChatClient;
+import failchat.test.StubClient;
 import failchat.test.TestChatClient;
 import failchat.twitch.TwitchChatClient;
 import org.apache.commons.configuration.CompositeConfiguration;
@@ -87,16 +87,16 @@ public class Configurator {
         }
 
         if (Configurator.config.getBoolean("goodgame.enabled") && !Configurator.config.getString("goodgame.channel").equals("")) {
-            GGChatClient ggcc = new GGChatClient(Configurator.config.getString("goodgame.channel"));
-            chatClients.put(Source.GOODGAME, ggcc);
+            ChatClient ggChatClient = new GGChatClient(Configurator.config.getString("goodgame.channel"));
+            chatClients.put(Source.GOODGAME, ggChatClient);
         }
 
         if (Configurator.config.getBoolean("twitch.enabled") && !Configurator.config.getString("twitch.channel").equals("")) {
-            TwitchChatClient twitchChatClient = new TwitchChatClient(Configurator.config.getString("twitch.channel"));
+            ChatClient twitchChatClient = new TwitchChatClient(Configurator.config.getString("twitch.channel"));
             chatClients.put(Source.TWITCH, twitchChatClient);
         }
         if (Configurator.config.getBoolean("cybergame.enabled") && !Configurator.config.getString("cybergame.channel").equals("")) {
-            CgChatClient cgChatClient = new CgChatClient(Configurator.config.getString("cybergame.channel"));
+            ChatClient cgChatClient = new StubClient();
             chatClients.put(Source.CYBERGAME, cgChatClient);
         }
 
