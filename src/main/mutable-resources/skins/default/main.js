@@ -229,7 +229,7 @@ $.views.converters("time", function(val) {
         s = "0" + s;
     }
     if (m.length == 1) {
-        m = "0" + s;
+        m = "0" + m;
     }
     return h + ":" + m + ":" +  s;
 });
