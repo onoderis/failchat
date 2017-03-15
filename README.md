@@ -1,7 +1,7 @@
-###Description
+### Description
 Multichat for twitch, sc2tv, goodgame, cybergame.tv
 
-###Features
+### Features
 * Emote icons, highlights
 * Window transparency, on top mode, borderless window mode
 * Displaying viewers count
@@ -11,10 +11,10 @@ Multichat for twitch, sc2tv, goodgame, cybergame.tv
 * Skin customization via html/css/js
 * Could be captured by clr browser or same plugins
 
-###Requirements
+### Requirements
 Java 8 (recommended u60 and newer)
 
-###Screenshots
+### Screenshots
 ![Settings](http://i.imgur.com/bTBC6yO.png)
 
 ![Chat](http://i.imgur.com/zLf5mmZ.png)
