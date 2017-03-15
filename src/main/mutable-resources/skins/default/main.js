@@ -1,6 +1,9 @@
+"use strict";
+
 var failchat = {
     "maxMessages": 50,
-    "messageCount": 0
+    "messageCount": 0,
+    "origins": ["peka2tv", "twitch", "goodgame"]
 };
 
 $(function () {
@@ -12,7 +15,7 @@ $(function () {
     var scrollBar = $(failchat.baronParams.bar);
     var autoScroll = true;
     var nativeClient = (navigator.userAgent.search("failchat") >= 0);
-    //var nativeClient = true;
+    // var nativeClient = true; //todo think about debugging
 
     //templates
     var smileTemplate = $("#smile-template");
@@ -24,14 +27,14 @@ $(function () {
     //viewers bar
     var viewersBarEnabled = false;
     var viewersBar = $(".viewers-bar");
-    var sc2tvViewersBar = $("#sc2tv-source");
+    var peka2tvViewersBar = $("#peka2tv-source");
     var twitchViewersBar = $("#twitch-source");
     var goodgameViewersBar = $("#goodgame-source");
     var cybergameViewersBar = $("#cybergame-source");
-    var sc2tvViewersCount = $("#sc2tv-viewers");
+    var peka2tvViewersCount = $("#peka2tv-viewers");
     var twitchViewersCount = $("#twitch-viewers");
-    var goodgameViwersCount = $("#goodgame-viewers");
-    var cybergameViwersCount = $("#cybergame-viewers");
+    var goodgameViewersCount = $("#goodgame-viewers");
+    var cybergameViewersCount = $("#cybergame-viewers");
 
 
     baron(failchat.baronParams);
@@ -43,19 +46,22 @@ $(function () {
         }
     });
 
+
     socket.onopen = function () {
-        var connectedMessage = {"source": "failchat","text":"connected", "timestamp" : Date.now()};
+        var connectedMessage = {"id": "-10", "source": "failchat", "text": "connected", "timestamp": Date.now()};
         handleInfoMessage(connectedMessage);
         appendToMessageContainer(connectedMessage);
         if (nativeClient) {
-            socket.send(JSON.stringify({type: "viewers"}));
+            socket.send(JSON.stringify({"type": "viewers", "content": {}}));
         }
     };
+
     socket.onclose = function () {
-        var disconnectedMessage =  {"source": "failchat","text":"disconnected", "timestamp" : Date.now()};
+        var disconnectedMessage = {"id": "-10", "source": "failchat", "text": "disconnected", "timestamp": Date.now()};
         handleInfoMessage(disconnectedMessage);
         appendToMessageContainer(disconnectedMessage);
     };
+
     socket.onmessage = function (event) {
         var wsm = JSON.parse(event.data);
 
@@ -78,59 +84,50 @@ $(function () {
     };
 
     function handleMessage(message) {
-        //smiles
-        if (message.smiles != undefined) {
-            var smileHtml;
-            for (var i = 0; i < message.smiles.length; i++) {
-                smileHtml = smileTemplate.render(message.smiles[i]);
-                message.text = message.text.replace("{!" + message.smiles[i].objectNumber + "}", smileHtml);
-            }
-        }
+        var elementsArray = message.elements;
 
-        //links
-        if (message.links != undefined) {
-            var linkHtml;
-            for (i = 0; i < message.links.length; i++) {
-                linkHtml = linkTemplate.render(message.links[i]);
-                message.text = message.text.replace("{!" + message.links[i].objectNumber + "}", linkHtml);
+        for (var i = 0; i < elementsArray.length; i++) {
+            var element = elementsArray[i];
+            var elementHtml;
+            switch(element.type) {
+                case "emoticon":
+                    elementHtml = smileTemplate.render(element);
+                    break;
+                case "link":
+                    elementHtml = linkTemplate.render(element);
+                    break;
+                case "image":
+                    elementHtml = imageTemplate.render(element);
+                    break;
             }
-        }
 
-        //images
-        if (message.images != undefined) {
-            var imgHtml;
-            for (i = 0; i < message.images.length; i++) {
-                imgHtml = imageTemplate.render(message.images[i]);
-                message.text = message.text.replace("{!" + message.images[i].objectNumber + "}", imgHtml);
-            }
+            message.text = message.text.replace("{!" + i + "}", elementHtml);
         }
 
         message.text = messageTemplate.render(message);
     }
 
     function handleInfoMessage(infoMessage) {
-        infoMessage.text =  infoMessageTemplate.render(infoMessage);
+        infoMessage.text = infoMessageTemplate.render(infoMessage);
     }
 
     function handleViewersMessage(viewersMessage) {
-        //update viewers count
-        if (viewersBarEnabled && viewersMessage.show) {
-            updateViewersValues(viewersMessage);
-        }
+        updateViewersValues(viewersMessage.counters);
+
         //enable viewers bar
-        else if (!viewersBarEnabled && viewersMessage.show) {
+        if (!viewersBarEnabled && viewersMessage.show) {
             viewersBarEnabled = true;
             viewersBar.addClass("viewers-bar-on");
-            if (viewersMessage.sc2tv != undefined) {
-                sc2tvViewersBar.addClass("viewers-source-on");
+            if (viewersMessage.counters.peka2tv !== undefined) {
+                peka2tvViewersBar.addClass("viewers-source-on");
             }
-            if (viewersMessage.twitch != undefined) {
+            if (viewersMessage.counters.twitch !== undefined) {
                 twitchViewersBar.addClass("viewers-source-on");
             }
-            if (viewersMessage.goodgame != undefined) {
+            if (viewersMessage.counters.goodgame !== undefined) {
                 goodgameViewersBar.addClass("viewers-source-on");
             }
-            if (viewersMessage.cybergame != undefined) {
+            if (viewersMessage.counters.cybergame !== undefined) {
                 cybergameViewersBar.addClass("viewers-source-on");
             }
             updateViewersValues(viewersMessage);
@@ -138,11 +135,12 @@ $(function () {
                 scroller.scrollTop(messageContainer.height());
             }
         }
+
         //disable viewers bar
         else if (viewersBarEnabled && !viewersMessage.show) {
             viewersBarEnabled = false;
             viewersBar.removeClass("viewers-bar-on");
-            sc2tvViewersBar.removeClass("viewers-source-on");
+            peka2tvViewersBar.removeClass("viewers-source-on");
             twitchViewersBar.removeClass("viewers-source-on");
             goodgameViewersBar.removeClass("viewers-source-on");
             cybergameViewersBar.removeClass("viewers-source-on");
@@ -155,18 +153,35 @@ $(function () {
         messageText.text("message deleted");
     }
 
-    function updateViewersValues(viewersMessage) {
-        if (viewersMessage.sc2tv != undefined) {
-            sc2tvViewersCount.text(viewersMessage.sc2tv);
+    function updateViewersValues(counters) {
+        //todo refactor
+        if (counters.peka2tv !== undefined) {
+            var value = counters.peka2tv;
+            if (value === null) {
+                value = "?";
+            }
+            peka2tvViewersCount.text(value);
         }
-        if (viewersMessage.twitch != undefined) {
-            twitchViewersCount.text(viewersMessage.twitch);
+        if (counters.twitch !== undefined) {
+            var value = counters.twitch;
+            if (value === null) {
+                value = "?";
+            }
+            twitchViewersCount.text(value);
         }
-        if (viewersMessage.goodgame != undefined) {
-            goodgameViwersCount.text(viewersMessage.goodgame);
+        if (counters.goodgame !== undefined) {
+            var value = counters.goodgame;
+            if (value === null) {
+                value = "?";
+            }
+            goodgameViewersCount.text(value);
         }
-        if (viewersMessage.cybergame != undefined) {
-            cybergameViwersCount.text(viewersMessage.cybergame);
+        if (counters.cybergame !== undefined) {
+            var value = counters.cybergame;
+            if (value === null) {
+                value = "?";
+            }
+            cybergameViewersCount.text(value);
         }
     }
 
@@ -183,12 +198,12 @@ $(function () {
         //checks for disabling autoscroll
         if (autoScroll) {
             if (e.originalEvent.deltaY < 0 ||
-                (e.type == "keydown" && (e.keyCode == 38||e.keyCode == 36||e.keyCode == 33)) // 38-up;36-home;33-pageup
+                (e.type === "keydown" && (e.keyCode === 38||e.keyCode === 36||e.keyCode === 33)) // 38-up;36-home;33-pageup
             ) {
                 autoScroll = false;
                 scrollBar.css("visibility", "visible");
             }
-            if (e.type == "mousewheel") { // for old browsers
+            if (e.type === "mousewheel") { // for old browsers
                 autoScroll = scroller.scrollTop() + scroller.height() >= messageContainer.height();
                 if (!autoScroll) {
                     scrollBar.css("visibility", "visible");
@@ -211,13 +226,26 @@ $(function () {
 //add user to ignore list and delete message
 function ignore(messageNode) {
     failchat.socket.send(JSON.stringify(
-        {"type": "ignore", "content": {"user": messageNode.getAttribute("data-user"), "messageId": messageNode.getAttribute("id").slice(8)}}));
+        {
+            "type": "ignore",
+            "content": {
+                "user": messageNode.getAttribute("data-user"),
+                "messageId": messageNode.getAttribute("id").slice(8)
+            }
+        }
+    ));
 }
 
 //just delete message
 function deleteMessage(messageNode) {
     failchat.socket.send(JSON.stringify(
-        {"type": "delete-message", "content": {"messageId": messageNode.getAttribute("id").slice(8)}}));
+        {
+            "type": "delete-message",
+            "content": {
+                "messageId": messageNode.getAttribute("id").slice(8)
+            }
+        }
+    ));
 }
 
 $.views.converters("time", function(val) {
@@ -225,11 +253,11 @@ $.views.converters("time", function(val) {
     var h = d.getHours().toString();
     var m = d.getMinutes().toString();
     var s = d.getSeconds().toString();
-    if (s.length == 1) {
-        s = "0" + s;
-    }
-    if (m.length == 1) {
+    if (m.length === 1) {
         m = "0" + m;
+    }
+    if (s.length === 1) {
+        s = "0" + s;
     }
     return h + ":" + m + ":" +  s;
 });

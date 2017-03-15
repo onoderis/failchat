@@ -1,0 +1,319 @@
+{
+    "emoticons": [
+        {
+            "id": 1,
+            "code": "\\:-?\\)",
+            "emoticon_set": 0
+        },
+        {
+            "id": 2,
+            "code": "\\:-?\\(",
+            "emoticon_set": 0
+        },
+        {
+            "id": 3,
+            "code": "\\:-?D",
+            "emoticon_set": 0
+        },
+        {
+            "id": 4,
+            "code": "\\&gt\\;\\(",
+            "emoticon_set": 0
+        },
+        {
+            "id": 5,
+            "code": "\\:-?[z|Z|\\|]",
+            "emoticon_set": 0
+        },
+        {
+            "id": 6,
+            "code": "[oO](_|\\.)[oO]",
+            "emoticon_set": 0
+        },
+        {
+            "id": 7,
+            "code": "B-?\\)",
+            "emoticon_set": 0
+        },
+        {
+            "id": 8,
+            "code": "\\:-?(o|O)",
+            "emoticon_set": 0
+        },
+        {
+            "id": 9,
+            "code": "\\&lt\\;3",
+            "emoticon_set": 0
+        },
+        {
+            "id": 10,
+            "code": "\\:-?[\\\\/]",
+            "emoticon_set": 0
+        },
+        {
+            "id": 11,
+            "code": "\\;-?\\)",
+            "emoticon_set": 0
+        },
+        {
+            "id": 12,
+            "code": "\\:-?(p|P)",
+            "emoticon_set": 0
+        },
+        {
+            "id": 13,
+            "code": "\\;-?(p|P)",
+            "emoticon_set": 0
+        },
+        {
+            "id": 14,
+            "code": "R-?\\)",
+            "emoticon_set": 0
+        },
+        {
+            "id": 15,
+            "code": "JKanStyle",
+            "emoticon_set": 0
+        },
+        {
+            "id": 16,
+            "code": "OptimizePrime",
+            "emoticon_set": 0
+        },
+        {
+            "id": 17,
+            "code": "StoneLightning",
+            "emoticon_set": 0
+        },
+        {
+            "id": 18,
+            "code": "TheRinger",
+            "emoticon_set": 0
+        },
+        {
+            "id": 22,
+            "code": "RedCoat",
+            "emoticon_set": 0
+        },
+        {
+            "id": 25,
+            "code": "Kappa",
+            "emoticon_set": 0
+        },
+        {
+            "id": 26,
+            "code": "JonCarnage",
+            "emoticon_set": 0
+        },
+        {
+            "id": 28,
+            "code": "MrDestructoid",
+            "emoticon_set": 0
+        },
+        {
+            "id": 30,
+            "code": "BCWarrior",
+            "emoticon_set": 0
+        },
+        {
+            "id": 32,
+            "code": "GingerPower",
+            "emoticon_set": 0
+        },
+        {
+            "id": 33,
+            "code": "DansGame",
+            "emoticon_set": 0
+        },
+        {
+            "id": 34,
+            "code": "SwiftRage",
+            "emoticon_set": 0
+        },
+        {
+            "id": 36,
+            "code": "PJSalt",
+            "emoticon_set": 0
+        },
+        {
+            "id": 40,
+            "code": "KevinTurtle",
+            "emoticon_set": 0
+        },
+        {
+            "id": 41,
+            "code": "Kreygasm",
+            "emoticon_set": 0
+        },
+        {
+            "id": 46,
+            "code": "SSSsss",
+            "emoticon_set": 0
+        },
+        {
+            "id": 47,
+            "code": "PunchTrees",
+            "emoticon_set": 0
+        },
+        {
+            "id": 48,
+            "code": "FunRun",
+            "emoticon_set": 0
+        },
+        {
+            "id": 50,
+            "code": "ArsonNoSexy",
+            "emoticon_set": 0
+        },
+        {
+            "id": 52,
+            "code": "SMOrc",
+            "emoticon_set": 0
+        },
+        {
+            "id": 65,
+            "code": "FrankerZ",
+            "emoticon_set": 0
+        },
+        {
+            "id": 66,
+            "code": "OneHand",
+            "emoticon_set": 0
+        },
+        {
+            "id": 68,
+            "code": "HassanChop",
+            "emoticon_set": 0
+        },
+        {
+            "id": 69,
+            "code": "BloodTrail",
+            "emoticon_set": 0
+        },
+        {
+            "id": 73,
+            "code": "DBstyle",
+            "emoticon_set": 0
+        },
+        {
+            "id": 74,
+            "code": "AsianGlow",
+            "emoticon_set": 0
+        },
+        {
+            "id": 75,
+            "code": "dayJ",
+            "emoticon_set": 2
+        },
+        {
+            "id": 76,
+            "code": "lulCaliPower",
+            "emoticon_set": 35
+        },
+        {
+            "id": 78,
+            "code": "lulKO",
+            "emoticon_set": 35
+        },
+        {
+            "id": 79,
+            "code": "lulCHEESY",
+            "emoticon_set": 35
+        },
+        {
+            "id": 80,
+            "code": "lulMURDERFACE",
+            "emoticon_set": 35
+        },
+        {
+            "id": 83,
+            "code": "lulTABLEFLIP",
+            "emoticon_set": 35
+        },
+        {
+            "id": 86,
+            "code": "BibleThump",
+            "emoticon_set": 0
+        },
+        {
+            "id": 87,
+            "code": "ShazBotstix",
+            "emoticon_set": 0
+        },
+        {
+            "id": 88,
+            "code": "PogChamp",
+            "emoticon_set": 0
+        },
+        {
+            "id": 92,
+            "code": "PMSTwin",
+            "emoticon_set": 0
+        },
+        {
+            "id": 135,
+            "code": "spookyCm",
+            "emoticon_set": 7
+        },
+        {
+            "id": 138,
+            "code": "spookyTrollno",
+            "emoticon_set": 7
+        },
+        {
+            "id": 195,
+            "code": "meanderSunMeander",
+            "emoticon_set": 10
+        },
+        {
+            "id": 196,
+            "code": "meanderBigPlays",
+            "emoticon_set": 10
+        },
+        {
+            "id": 197,
+            "code": "meanderNevaEva",
+            "emoticon_set": 10
+        },
+        {
+            "id": 198,
+            "code": "sevAwwYeah",
+            "emoticon_set": 11
+        },
+        {
+            "id": 212,
+            "code": "fgtvFCHAMP",
+            "emoticon_set": 14
+        },
+        {
+            "id": 213,
+            "code": "fgtvPRROG",
+            "emoticon_set": 14
+        },
+        {
+            "id": 214,
+            "code": "fgtvHIRO",
+            "emoticon_set": 14
+        },
+        {
+            "id": 215,
+            "code": "fgtvCJSHOW",
+            "emoticon_set": 14
+        },
+        {
+            "id": 217,
+            "code": "fgtvBEARPUNS",
+            "emoticon_set": 14
+        },
+        {
+            "id": 219,
+            "code": "fgtvSTFUR",
+            "emoticon_set": 14
+        },
+        {
+            "id": 222,
+            "code": "fgtvLANDO33",
+            "emoticon_set": 14
+        }
+    ]
+}

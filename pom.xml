@@ -4,35 +4,57 @@
 
     <groupId>sph.failchat</groupId>
     <artifactId>failchat</artifactId>
-    <version>1.5.3</version>
+    <version>2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>failchat</name>
 
     <properties>
+        <kotlin.version>1.1.3-2</kotlin.version>
+
+        <kodein.version>4.0.0</kodein.version>
+
         <jackson.version>2.5.2</jackson.version>
-        <slf4j.version>1.7.12</slf4j.version>
+        <slf4j.version>1.7.25</slf4j.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-configuration.version>1.10</commons-configuration.version>
-        <java-websocket.version>1.3.0</java-websocket.version>
-        <socket.io-client.version>0.5.2</socket.io-client.version>
+        <java-websocket.version>1.3.4</java-websocket.version>
+        <socket.io-client.version>1.0.0</socket.io-client.version>
+        <okhttp.version>3.8.1</okhttp.version>
+        <mockito-kotlin.version>1.5.0</mockito-kotlin.version>
+        <logback.version>1.2.3</logback.version>
+        <pircbotx.version>2.1</pircbotx.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jre8</artifactId>
+            <version>${kotlin.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
+            <groupId>com.github.salomonbrys.kodein</groupId>
+            <artifactId>kodein</artifactId>
+            <version>${kodein.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-stdlib</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${okhttp.version}</version>
         </dependency>
 
         <dependency>
@@ -44,7 +66,25 @@
         <dependency>
             <groupId>org.pircbotx</groupId>
             <artifactId>pircbotx</artifactId>
-            <version>2.1</version>
+            <version>${pircbotx.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>io.socket</groupId>
+            <artifactId>socket.io-client</artifactId>
+            <version>${socket.io-client.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -59,27 +99,58 @@
             <version>${commons-configuration.version}</version>
         </dependency>
 
+        <!-- Logging -->
         <dependency>
-            <groupId>com.github.nkzawa</groupId>
-            <artifactId>socket.io-client</artifactId>
-            <version>${socket.io-client.version}</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
+            <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <!--Test-->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test-junit</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.nhaarman</groupId>
+            <artifactId>mockito-kotlin-kt1.1</artifactId>
+            <version>${mockito-kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>${basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
             <resource>
-                <directory>src/main/mutable-resources</directory>
+                <directory>${basedir}/src/main/mutable-resources</directory>
             </resource>
         </resources>
 
@@ -104,14 +175,14 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>failchat.core.Bootstrap</mainClass>
+                            <mainClass>failchat.core.BootstrapKt</mainClass>
                         </manifest>
                     </archive>
                     <excludes>
                         <exclude>js/**</exclude>
                         <exclude>skins/**</exclude>
                         <exclude>smiles/**</exclude>
-                        <exclude>config.conf</exclude>
+                        <exclude>config.properties</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -130,7 +201,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>failchat.core.Bootstrap</mainClass>
+                            <mainClass>failchat.core.BootstrapKt</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -145,7 +216,7 @@
                 <version>2.7</version>
                 <executions>
                     <execution>
-                        <id>copy-resources-package</id>
+                        <id>copy-external-resources</id>
                         <phase>package</phase>
                         <goals>
                             <goal>copy-resources</goal>
@@ -155,7 +226,7 @@
                             <encoding>UTF-8</encoding>
                             <resources>
                                 <resource>
-                                    <directory>src/main/mutable-resources</directory>
+                                    <directory>${basedir}/src/main/mutable-resources</directory>
                                     <excludes>
                                         <exclude>*.fxml</exclude>
                                         <exclude>*.conf</exclude>
@@ -164,9 +235,60 @@
                             </resources>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>copy-config</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>testResources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/test-classes/config</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/resources/config</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <configuration>
+                    <experimentalCoroutines>enable</experimentalCoroutines>
+                </configuration>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
+                            </sourceDirs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
+                            </sourceDirs>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
-
     </build>
+
 </project>

@@ -1,0 +1,1 @@
+start javaw -Xmx400m -jar failchat.jar

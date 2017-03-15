@@ -1,5 +1,5 @@
 ### Description
-Multichat for twitch, sc2tv, goodgame, cybergame.tv
+Chat message aggregator for twitch, sc2tv, goodgame
 
 ### Features
 * Emote icons, highlights
