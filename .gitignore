@@ -3,9 +3,8 @@ target
 
 #files
 notes.txt
+deps
 *.log
-log
-err
 
 #idea
 .idea

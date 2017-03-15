@@ -11,6 +11,16 @@
     <script src="../../js/reconnecting-websocket.min.js"></script>
     <script src="main.js"></script>
     <link rel="stylesheet" href="default.css">
+
+    <!--<script>-->
+        <!--(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){-->
+        <!--(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),-->
+        <!--m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)-->
+        <!--})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');-->
+
+        <!--ga('create', 'UA-73079300-1', {'cookieDomain': 'none'});-->
+        <!--ga('send', 'pageview');-->
+    <!--</script>-->
 </head>
 <body>
 
@@ -37,13 +47,13 @@
     </p>
 </script>
 <script id="smile-template" type="text/x-jsrender">
-    <img class="smile" src="{{:imgUrl}}">
+    <img class="smile" src="{{:url}}">
 </script>
 <script id="link-template" type="text/x-jsrender">
-    <a href="{{:url}}">{{:domain}}</a>
+    <a href="{{:fullUrl}}">{{:domain}}</a>
 </script>
 <script id="image-template" type="text/x-jsrender">
-    <br><a href="{{:imgUrl}}"><img class="image" align="middle" src="{{:imgUrl}}"></a><br>
+    <br><a href="{{:url}}"><img class="image" align="middle" src="{{:url}}"></a><br>
 </script>
 <script id="info-message-template" type="text/x-jsrender">
     <p class="message info-message">
@@ -55,7 +65,7 @@
 
 <div class="viewers-bar">
     <div class="viewers-sources">
-        <span id="sc2tv-source" class="viewers-source"><img class="icon" src="../../icons/sc2tv.png"> <span id="sc2tv-viewers"></span></span>
+        <span id="peka2tv-source" class="viewers-source"><img class="icon" src="../../icons/peka2tv.png"> <span id="peka2tv-viewers"></span></span>
         <span id="twitch-source" class="viewers-source"><img class="icon" src="../../icons/twitch.png"> <span id="twitch-viewers"></span></span>
         <span id="goodgame-source" class="viewers-source"><img class="icon" src="../../icons/goodgame.png"> <span id="goodgame-viewers"></span></span>
         <span id="cybergame-source" class="viewers-source"><img class="icon" src="../../icons/cybergame.png"> <span id="cybergame-viewers"></span></span>

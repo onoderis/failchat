@@ -1,0 +1,16 @@
+// Each ';' character replaced by new line
+
+@badges=broadcaster/1
+color=#9ACD32
+display-name=fail0001
+emotes=25:0-4,10-14/1902:16-20
+id=5ff2df4f-6229-4615-8ac8-91c9570c80a2
+mod=0
+room-id=15297158
+sent-ts=1500696707778
+subscriber=0
+tmi-sent-ts=1500696709656
+turbo=0
+user-id=15297158
+user-type= //space
+:fail0001!fail0001@fail0001.tmi.twitch.tv PRIVMSG #fail0001 :Kappa 123 Kappa Keepo
