@@ -3,6 +3,7 @@ package failchat.twitch
 import failchat.exceptions.ChannelOfflineException
 import failchat.utils.loadConfig
 import failchat.utils.okHttpClient
+import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -10,6 +11,7 @@ import java.time.Duration
 import java.util.concurrent.CompletionException
 import kotlin.system.measureTimeMillis
 
+@Ignore
 class TwitchApiTest {
 
     companion object {
