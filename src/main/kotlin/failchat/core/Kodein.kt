@@ -112,10 +112,10 @@ val kodein = Kodein {
         val config = instance<CompositeConfiguration>()
         TwitchChatClient(
                 userName = channelName,
-                ircAddress = config.getString("twitch.api-url"),
-                ircPort = config.getInt("twitch.api-url"),
-                botName = config.getString("twitch.api-url"),
-                botPassword = config.getString("twitch.api-url"),
+                ircAddress = config.getString("twitch.irc-address"),
+                ircPort = config.getInt("twitch.irc-port"),
+                botName = config.getString("twitch.bot-name"),
+                botPassword = config.getString("twitch.bot-password"),
                 emoticonManager = instance(),
                 messageIdGenerator = instance()
         )

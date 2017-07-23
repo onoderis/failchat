@@ -138,6 +138,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
             config.setProperty("lastId", messageIdGenerator.lastId)
             configLoader.save()
             wsServer.stop()
+            okHttpClient.dispatcher().cancelAll()
             okHttpClient.dispatcher().executorService().shutdown()
         }
 
