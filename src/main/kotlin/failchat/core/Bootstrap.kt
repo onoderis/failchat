@@ -3,6 +3,9 @@ package failchat.core
 
 import com.github.salomonbrys.kodein.instance
 import failchat.core.emoticon.EmoticonManager
+import failchat.core.reporter.EventAction
+import failchat.core.reporter.EventCategory
+import failchat.core.reporter.EventReporter
 import failchat.core.skin.Skin
 import failchat.core.viewers.ViewersCountHandler
 import failchat.core.ws.server.DeleteWsMessageHandler
@@ -19,14 +22,14 @@ import kotlin.concurrent.thread
 
 object Bootstrap
 
-private val logger: Logger = LoggerFactory.getLogger(Bootstrap::class.java)
+private val log: Logger = LoggerFactory.getLogger(Bootstrap::class.java)
 
 fun main(args: Array<String>) {
     checkForAnotherInstance()
 
     configureLogging()
 
-    logger.info("Working directory: {}", kodein.instance<Path>("workingDirectory").toAbsolutePath())
+    log.info("Working directory: {}", kodein.instance<Path>("workingDirectory").toAbsolutePath())
 
 
     // Scan skins
@@ -57,6 +60,13 @@ fun main(args: Array<String>) {
     thread(start = true, name = "SmileLoaderThread", priority = 3) {
         emoticonManager.loadEmoticons()
     }
+
+    kodein.instance<EventReporter>()
+            .reportEvent(EventCategory.general, EventAction.start)
+            .exceptionally { e ->
+                log.warn("Failed to report event {}.{}", EventCategory.general.name, EventAction.start.name, e)
+                null
+            }
 
     Application.launch(GuiLauncher::class.java) //todo research: launch is blocking
 }

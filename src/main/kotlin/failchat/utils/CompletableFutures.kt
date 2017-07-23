@@ -9,3 +9,5 @@ inline fun List<CompletableFuture<*>>.compose(): CompletableFuture<Void?> {
 }
 
 inline fun <T> CompletableFuture<T>.get(timeout: Duration): T = this.get(timeout.toMillis(), TimeUnit.MILLISECONDS)
+
+inline fun <T> completedFuture(value: T): CompletableFuture<T> = CompletableFuture.completedFuture(value)

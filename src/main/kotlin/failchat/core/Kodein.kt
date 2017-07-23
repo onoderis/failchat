@@ -12,6 +12,7 @@ import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.handlers.IgnoreFilter
 import failchat.core.chat.handlers.ImageLinkHandler
 import failchat.core.emoticon.EmoticonManager
+import failchat.core.reporter.EventReporter
 import failchat.core.skin.Skin
 import failchat.core.skin.SkinScanner
 import failchat.core.viewers.ViewersCounter
@@ -78,7 +79,7 @@ val kodein = Kodein {
     bind<Path>("workingDirectory") with singleton { Paths.get("") }
     bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<CompositeConfiguration>().getLong("lastId")) }
     bind<List<Skin>>() with singleton { SkinScanner(instance("workingDirectory")).scan() }
-
+    bind<EventReporter>() with singleton { EventReporter(instance(), instance()) }
 
 
     // Origin specific dependencies
