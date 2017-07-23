@@ -23,11 +23,13 @@ import failchat.peka2tv.Peka2tvChatClient
 import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.utils.error
+import failchat.utils.sleep
 import javafx.application.Platform
 import okhttp3.OkHttpClient
 import org.apache.commons.configuration.CompositeConfiguration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.Duration
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
@@ -39,6 +41,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     private companion object {
         val log: Logger = LoggerFactory.getLogger(AppStateTransitionManager::class.java)
         val ls: String = System.lineSeparator()
+        val shutdownTimeout: Duration = Duration.ofSeconds(20)
     }
 
     private val wsServer: WsServer = kodein.instance()
@@ -135,11 +138,11 @@ class AppStateTransitionManager(private val kodein: Kodein) {
             config.setProperty("lastId", messageIdGenerator.lastId)
             configLoader.save()
             wsServer.stop()
-            okHttpClient.dispatcher().cancelAll() //OkHttp Dispatcher thread wait sometimes (look at file okhttp-thread-waiting)
+            okHttpClient.dispatcher().executorService().shutdown()
         }
 
         thread(start = true, name = "TerminationThread", isDaemon = true) {
-            Thread.sleep(20000)
+            sleep(shutdownTimeout)
 
             log.error {
                 val verboseThreadInfo = Thread.getAllStackTraces()
@@ -152,9 +155,10 @@ class AppStateTransitionManager(private val kodein: Kodein) {
                         }
                         .joinToString(separator = ls)
 
-                return@error "Process terminated after 20 seconds of shutDown() call. Verbose information:$ls" + verboseThreadInfo
+                return@error "Process terminated after ${shutdownTimeout.seconds} seconds of shutDown() call. Verbose information:$ls" + verboseThreadInfo
             }
 
+            Thread.sleep(1500) // write log message to file for sure
             System.exit(10)
         }
 
