@@ -1,6 +1,6 @@
 #### Сообщения от сервера
 
-Chat message
+Chat message - сообщение из чата
 ```json
 {
   "type": "message",
@@ -9,7 +9,7 @@ Chat message
     "timestamp": 1499789037199,
     "highlighted": true,
     "author": "theauthor",
-    "text": "@someuser emoticon ${!1} / linl ${!2} / image ${!3}",
+    "text": "@someuser emoticon ${!0} / linl ${!1} / image ${!2}",
     "source": "twitch",
     "elements": [
       {
@@ -33,7 +33,7 @@ Chat message
 }
 ```
 
-Viewers message  
+Viewers message - текущие подключённые источники и количество зрителей на их каналах.
 - null в coutner'е означает что не удалось получить количество зрителей, но счётчик включён 
 ```json
 {
@@ -49,7 +49,7 @@ Viewers message
 }
 ```
 
-Mod message
+Delete message - удаление сообщения из чата
 ```json
 {
   "type": "delete-message", 
@@ -61,7 +61,7 @@ Mod message
 
 
 #### Сообщения от клиента
-Delete message
+Delete message - запрос клиента на удаление сообщения
 ```json
 {
   "type": "delete-message",
@@ -72,7 +72,7 @@ Delete message
 ```
 
 
-Ignore user
+Ignore user - запрос клиента на блокировку юзера удаление сообщения
 ```json
 {
   "type": "ignore-user",
@@ -83,14 +83,10 @@ Ignore user
 }
 ```
 
-Viewers count request
+Viewers count request - запрос клиента на получение от сервера сообщения типа 'viewers' 
 ```json
 {
   "type": "viewers",
   "content": {}
 }
 ```
-
-
-
-
