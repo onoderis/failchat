@@ -1,11 +1,16 @@
 #directories
 target
 
-#files
-notes.txt
-deps
-*.log
-
 #idea
 .idea
 failchat.iml
+
+#files
+deps
+
+#private docs
+docs/notes
+docs/libs
+docs/origins
+docs/refactoring
+docs/todo
