@@ -153,6 +153,13 @@
                 <directory>${basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
+            <!--<resource>-->
+                <!--<directory>${basedir}/src/main/external-resources</directory>-->
+                <!--<filtering>true</filtering>-->
+                <!--<includes>-->
+                    <!--<include>failchat.bat</include>-->
+                <!--</includes>-->
+            <!--</resource>-->
         </resources>
 
         <plugins>
@@ -196,7 +203,7 @@
                             <outputDirectory>${basedir}/target/classes</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${basedir}/src/main/mutable-resources</directory>
+                                    <directory>${basedir}/src/main/external-resources</directory>
                                     <excludes>
                                         <exclude>failchat.bat</exclude>
                                     </excludes>
@@ -216,7 +223,7 @@
                             <outputDirectory>${basedir}/target/failchat</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${basedir}/src/main/mutable-resources</directory>
+                                    <directory>${basedir}/src/main/external-resources</directory>
                                     <excludes>
                                         <exclude>failchat.bat</exclude>
                                     </excludes>
@@ -232,12 +239,12 @@
                             <!--<goal>resources</goal>-->
                         <!--</goals>-->
                         <!--<configuration>-->
-                            <!--<encoding>UTF-8</encoding>-->
-                            <!--&lt;!&ndash;<supportMultiLineFiltering>true</supportMultiLineFiltering>&ndash;&gt;-->
+                            <!--<overwrite>true</overwrite>-->
+                            <!--<supportMultiLineFiltering>true</supportMultiLineFiltering>-->
                             <!--<outputDirectory>${basedir}/target/failchat</outputDirectory>-->
                             <!--<resources>-->
                                 <!--<resource>-->
-                                    <!--<directory>${basedir}/src/main/mutable-resources</directory>-->
+                                    <!--<directory>${basedir}/src/main/external-resources</directory>-->
                                     <!--<includes>-->
                                         <!--<include>failchat.bat</include>-->
                                     <!--</includes>-->
