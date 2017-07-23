@@ -44,7 +44,7 @@ fun main(args: Array<String>) {
     val deleteWsMessageHandler = DeleteWsMessageHandler(kodein.instance())
     val viewersCountHandler = ViewersCountHandler(kodein.instance())
 
-    wsServer.setOnMessage("ignore", ignoreWsMessageHandler)
+    wsServer.setOnMessage("ignore-user", ignoreWsMessageHandler)
     wsServer.setOnMessage("delete-message", deleteWsMessageHandler)
     wsServer.setOnMessage("viewers", viewersCountHandler)
 

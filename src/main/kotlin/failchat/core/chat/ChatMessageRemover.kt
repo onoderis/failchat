@@ -10,7 +10,7 @@ class ChatMessageRemover(
 
     fun remove(messageId: Long) {
         val removeMessage = objectMapper.createObjectNode().apply {
-            put("type", "mod")
+            put("type", "delete-message")
             putObject("content").apply {
                 put("messageId", messageId)
             }
