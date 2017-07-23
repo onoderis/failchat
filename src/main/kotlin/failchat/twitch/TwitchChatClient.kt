@@ -11,6 +11,7 @@ import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.handlers.HtmlHandler
 import failchat.core.chat.handlers.MessageObjectCleaner
 import failchat.core.emoticon.EmoticonManager
+import failchat.utils.notEmptyOrNull
 import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
 import org.pircbotx.hooks.ListenerAdapter
@@ -182,7 +183,7 @@ class TwitchChatClient(
                 id = messageIdGenerator.generate(),
                 author = author,
                 text = event.message,
-                emotesTag = event.v3Tags.get("emotes")
+                emotesTag = event.v3Tags.get("emotes").notEmptyOrNull() //if message has no emoticons - tag is empty, not null
         )
     }
 
