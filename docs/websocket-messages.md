@@ -33,13 +33,8 @@ Chat message
 }
 ```
 
-Chat message
-```json
-
-```
-
 Viewers message  
-null в coutner'е означает что не удалось получить количество зрителей, но счётчик включён 
+- null в coutner'е означает что не удалось получить количество зрителей, но счётчик включён 
 ```json
 {
   "type": "viewers", 
@@ -57,7 +52,7 @@ null в coutner'е означает что не удалось получить 
 Mod message
 ```json
 {
-  "type": "mod", 
+  "type": "delete-message", 
   "content": {
     "messageId": 123
   }
@@ -80,7 +75,7 @@ Delete message
 Ignore user
 ```json
 {
-  "type": "ignore",
+  "type": "ignore-user",
   "content": {
     "user": "baduser#twitch",
     "messageId": 123

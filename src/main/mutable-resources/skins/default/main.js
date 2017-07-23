@@ -3,7 +3,8 @@
 var failchat = {
     "maxMessages": 50,
     "messageCount": 0,
-    "origins": ["peka2tv", "twitch", "goodgame"]
+    "origins": ["peka2tv", "twitch", "goodgame"],
+    "deletedTextPlaceholder": "message deleted"
 };
 
 $(function () {
@@ -74,8 +75,8 @@ $(function () {
         else if (wsm.type === "info") {
             handleInfoMessage(wsm.content);
         }
-        else if (wsm.type === "mod") {
-            handleModMessage(wsm.content);
+        else if (wsm.type === "delete-message") {
+            handleDeleteMessage(wsm.content);
         }
 
         if (wsm.content.text !== undefined) {
@@ -147,10 +148,10 @@ $(function () {
         }
     }
 
-    function handleModMessage(modMessage) {
+    function handleDeleteMessage(modMessage) {
         var messageText = $("#message-" + modMessage.messageId + " .text");
         messageText.removeClass("highlighted");
-        messageText.text("message deleted");
+        messageText.text(failchat.deletedTextPlaceholder);
     }
 
     function updateViewersValues(counters) {
@@ -223,11 +224,11 @@ $(function () {
     });
 });
 
-//add user to ignore list and delete message
+// Add user to ignore list and delete message
 function ignore(messageNode) {
     failchat.socket.send(JSON.stringify(
         {
-            "type": "ignore",
+            "type": "ignore-user",
             "content": {
                 "user": messageNode.getAttribute("data-user"),
                 "messageId": messageNode.getAttribute("id").slice(8)
@@ -236,7 +237,7 @@ function ignore(messageNode) {
     ));
 }
 
-//just delete message
+// Just delete message
 function deleteMessage(messageNode) {
     failchat.socket.send(JSON.stringify(
         {

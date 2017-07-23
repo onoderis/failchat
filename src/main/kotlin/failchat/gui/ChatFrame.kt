@@ -186,7 +186,7 @@ class ChatFrame(
         switchDecorationsItem.setOnAction { event -> switchDecorations() }
         onTopItem.setOnAction { event ->
             val newValue = !config.getBoolean("on-top")
-            config.setProperty("onTop", newValue)
+            config.setProperty("on-top", newValue)
             currentChatStage.isAlwaysOnTop = newValue
         }
         toSettingsItem.setOnAction { event -> toSettings() }
@@ -259,7 +259,7 @@ class ChatFrame(
 
     private fun updateContextMenu() {
         switchDecorationsItem.isSelected = config.getBoolean("frame")
-        onTopItem.isSelected = config.getBoolean("onTop")
+        onTopItem.isSelected = config.getBoolean("on-top")
         viewersItem.isSelected = config.getBoolean("show-viewers")
     }
 
