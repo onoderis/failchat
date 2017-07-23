@@ -9,7 +9,7 @@ Chat message aggregator for twitch, sc2tv, goodgame
 * Ignore list
 * Moderation
 * Skin customization via html/css/js
-* Could be captured by clr browser or same plugins
+* Could be captured by Browser Source, CLR Browser or the same plugins
 
 ### Requirements
 Java 8 (recommended u60 and newer)
