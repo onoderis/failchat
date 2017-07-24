@@ -49,7 +49,7 @@ $(function () {
 
 
     socket.onopen = function () {
-        var connectedMessage = {"id": "-10", "source": "failchat", "textHtml": "connected", "timestamp": Date.now()};
+        var connectedMessage = {"id": "-10", "source": "failchat", "text": "connected", "timestamp": Date.now()};
         handleInfoMessage(connectedMessage);
         appendToMessageContainer(connectedMessage);
         if (nativeClient) {
@@ -60,7 +60,7 @@ $(function () {
     };
 
     socket.onclose = function () {
-        var disconnectedMessage = {"id": "-10", "source": "failchat", "textHtml": "disconnected", "timestamp": Date.now()};
+        var disconnectedMessage = {"id": "-10", "source": "failchat", "text": "disconnected", "timestamp": Date.now()};
         handleInfoMessage(disconnectedMessage);
         appendToMessageContainer(disconnectedMessage);
     };
