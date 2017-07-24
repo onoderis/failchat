@@ -29,12 +29,16 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 
+/*
+* Есть вероятность обновления счётчиков по старому списку каналов когда тред ViewersCounter' ещё не остановился, а уже
+* запущен новый. Если запишется значение для источника, который после выключили, то оно сотрётся когда старый тред
+* доработает.
+* */
 class ViewersCounter(
         private val wsServer: WsServer,
         private val config: CompositeConfiguration,
         private val objectMapper: ObjectMapper = ObjectMapper()
 ) {
-
     private companion object {
         val log: Logger = LoggerFactory.getLogger(ViewersCounter::class.java)
         val updateInterval: Duration = Duration.ofSeconds(15)
@@ -42,16 +46,17 @@ class ViewersCounter(
 
     private val lock: Lock = ReentrantLock()
     private val shutdownCondition: Condition = lock.newCondition()
-    private val viewersCount: MutableMap<Origin, Int> = ConcurrentHashMap()
     private val viewersCountLoaders: MutableList<ViewersCountLoader> = CopyOnWriteArrayList()
+    private val viewersCount: MutableMap<Origin, Int> = ConcurrentHashMap()
     private val countableOrigins: Set<Origin> = EnumSet.of(peka2tv, twitch, goodgame, cybergame)
 
     private var state: AtomicReference<State> = AtomicReference(State.ready)
 
 
-    fun start(viewersCountLoaders: List<ViewersCountLoader>) = lock.withLock {
-        if (state.get() != State.ready) throw IllegalStateException("Expected state: ${State.ready}, actual: $state")
-        state.set(working)
+    fun start(viewersCountLoaders: List<ViewersCountLoader>) {
+        val changed = state.compareAndSet(ready, working)
+        if (!changed) throw IllegalStateException("Expected state: ${ready.name}, actual: ${state.get().name}." +
+                "(Actual state could change after unsuccessful CAS operation)")
 
         this.viewersCountLoaders.addAll(viewersCountLoaders)
         thread(start = true, name = "ViewersCounterThread") {
@@ -60,13 +65,13 @@ class ViewersCounter(
         log.info("ViewersCounter started")
     }
 
-    fun stop() = lock.withLock {
-        if (state.get() != working) return
+    fun stop() {
+        val changed = state.compareAndSet(working, shutdown)
+        if (!changed) return
 
+        lock.withLock { shutdownCondition.signal() }
         viewersCountLoaders.clear()
         viewersCount.clear()
-        state.set(shutdown)
-        shutdownCondition.signal()
     }
 
     fun sendViewersCountWsMessage() {
@@ -100,6 +105,7 @@ class ViewersCounter(
                 } else {
                     log.warn("Failed to get viewers count for origin {}", accessor.origin, e)
                 }
+                viewersCount.remove(accessor.origin)
                 null
             }
 
