@@ -23,7 +23,6 @@ import failchat.core.ws.server.WsServer
 import failchat.goodgame.GgApiClient
 import failchat.goodgame.GgChatClient
 import failchat.goodgame.GgEmoticonLoader
-import failchat.goodgame.GgViewersCountLoader
 import failchat.gui.GuiEventHandler
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvChatClient
@@ -168,8 +167,5 @@ val kodein = Kodein {
         )
     }
     bind<GgEmoticonLoader>() with singleton { GgEmoticonLoader(instance<GgApiClient>()) }
-    bind<GgViewersCountLoader>() with factory { channelName: String ->
-        GgViewersCountLoader(channelName, instance<GgApiClient>())
-    }
 
 }

@@ -18,7 +18,6 @@ import failchat.core.ws.server.WsServer
 import failchat.exceptions.InvalidConfigurationException
 import failchat.goodgame.GgApiClient
 import failchat.goodgame.GgChatClient
-import failchat.goodgame.GgViewersCountLoader
 import failchat.gui.GuiEventHandler
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvChatClient
@@ -117,7 +116,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
                     .also { it.setCallbacks() }
 
             chatClientMap.put(Origin.goodgame, chatClient)
-            viewersCountLoaders.add(kodein.factory<String, GgViewersCountLoader>().invoke(channelName))
+            viewersCountLoaders.add(chatClient)
         }
 
 
