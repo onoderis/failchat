@@ -11,6 +11,7 @@ import failchat.core.chat.ChatMessageSender
 import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.handlers.IgnoreFilter
 import failchat.core.chat.handlers.ImageLinkHandler
+import failchat.core.viewers.ViewersCountHandler
 import failchat.core.viewers.ViewersCountLoader
 import failchat.core.viewers.ViewersCounter
 import failchat.core.ws.server.WsServer
@@ -18,6 +19,7 @@ import failchat.exceptions.InvalidConfigurationException
 import failchat.goodgame.GgApiClient
 import failchat.goodgame.GgChatClient
 import failchat.goodgame.GgViewersCountLoader
+import failchat.gui.GuiEventHandler
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvChatClient
 import failchat.twitch.TwitchChatClient
@@ -45,7 +47,6 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     }
 
     private val wsServer: WsServer = kodein.instance()
-    private val viewersCounter: ViewersCounter = kodein.instance()
     private val messageIdGenerator: MessageIdGenerator = kodein.instance()
     private val chatMessageSender: ChatMessageSender = kodein.instance()
     private val chatMessageRemover: ChatMessageRemover = kodein.instance()
@@ -55,17 +56,22 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     private val ignoreFilter: IgnoreFilter = kodein.instance()
     private val imageLinkHandler: ImageLinkHandler = kodein.instance()
     private val okHttpClient: OkHttpClient = kodein.instance()
+    private val viewersCountHandler: ViewersCountHandler = kodein.instance()
+    private val guiEventHandler: GuiEventHandler = kodein.instance()
 
     private val lock: Lock = ReentrantLock()
-    private val chatClients: MutableMap<Origin, ChatClient<*>> = HashMap()
     private val config: CompositeConfiguration = configLoader.get()
 
+    private var chatClients: Map<Origin, ChatClient<*>>? = null
+    private var viewersCounter: ViewersCounter? = null
+    
     private var state: AppState = settings
 
     fun startChat() = lock.withLock {
         if (state != settings) IllegalStateException("Expected: $settings, actual: $state")
 
         val viewersCountLoaders: MutableList<ViewersCountLoader> = ArrayList()
+        val chatClientMap: MutableMap<Origin, ChatClient<*>> = HashMap() //todo rename
 
         // Peka2tv chat client initialization
         checkEnabled(Origin.peka2tv)?.let { channelName ->
@@ -81,7 +87,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
                     .invoke(channelName to channelId)
                     .also { it.setCallbacks() }
 
-            chatClients.put(Origin.peka2tv, chatClient)
+            chatClientMap.put(Origin.peka2tv, chatClient)
             viewersCountLoaders.add(chatClient)
         }
 
@@ -90,7 +96,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
             val chatClient = kodein.factory<String, TwitchChatClient>()
                     .invoke(channelName)
                     .also { it.setCallbacks() }
-            chatClients.put(Origin.twitch, chatClient)
+            chatClientMap.put(Origin.twitch, chatClient)
             viewersCountLoaders.add(kodein.factory<String, TwitchViewersCountLoader>().invoke(channelName))
         }
 
@@ -109,7 +115,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
                     .invoke(channelName to channelId)
                     .also { it.setCallbacks() }
 
-            chatClients.put(Origin.goodgame, chatClient)
+            chatClientMap.put(Origin.goodgame, chatClient)
             viewersCountLoaders.add(kodein.factory<String, GgViewersCountLoader>().invoke(channelName))
         }
 
@@ -117,11 +123,20 @@ class AppStateTransitionManager(private val kodein: Kodein) {
         ignoreFilter.reloadConfig()
         imageLinkHandler.reloadConfig()
 
+        //todo try catch
         // Start chat clients
-        chatClients.values.forEach { it.start() }
+        chatClientMap.values.forEach { it.start() }
+        chatClients = chatClientMap
 
+        //todo try catch
         // Start viewers counter
-        viewersCounter.start(viewersCountLoaders)
+        viewersCounter = kodein
+                .factory<List<ViewersCountLoader>, ViewersCounter>()
+                .invoke(viewersCountLoaders)
+                .apply { start() }
+
+        viewersCountHandler.viewersCounter = viewersCounter
+        guiEventHandler.viewersCounter = viewersCounter
     }
 
     fun stopChat() = lock.withLock {
@@ -173,9 +188,16 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     }
 
     private fun reset() {
-        chatClients.values.forEach { it.stop() }
-        chatClients.clear()
-        viewersCounter.stop()
+        viewersCountHandler.viewersCounter = null
+        guiEventHandler.viewersCounter = null
+
+        // Значения могут быть null если вызваны shutDown() и stopChat() последовательно, в любой последовательности
+        chatClients?.values
+                ?.forEach { it.stop() }
+                ?: log.warn("chatClients is null")
+        viewersCounter
+                ?.stop()
+                ?: log.warn("viewersCounter is null")
     }
 
     /**

@@ -15,6 +15,12 @@ inline fun Logger.warn(e: Throwable? = null, logMessageSupplier: () -> String) {
     else this.warn(logMessageSupplier.invoke(), e)
 }
 
+inline fun Logger.info(e: Throwable? = null, logMessageSupplier: () -> String) {
+    if (!this.isInfoEnabled) return
+    if (e == null) this.info(logMessageSupplier.invoke())
+    else this.info(logMessageSupplier.invoke(), e)
+}
+
 inline fun Logger.debug(e: Throwable? = null, logMessageSupplier: () -> String) {
     if (!this.isDebugEnabled) return
     if (e == null) this.debug(logMessageSupplier.invoke())
