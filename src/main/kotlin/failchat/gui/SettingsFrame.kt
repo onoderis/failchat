@@ -120,7 +120,7 @@ class SettingsFrame(
 
         skin.value = skin.converter.fromString(config.getString("skin"))
         frame.isSelected = config.getBoolean("frame")
-        showViewers.isSelected = config.getBoolean("show-images")
+        showViewers.isSelected = config.getBoolean("show-viewers")
         showImages.isSelected = config.getBoolean("show-images")
         onTop.isSelected = config.getBoolean("on-top")
 
