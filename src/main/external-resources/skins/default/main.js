@@ -238,12 +238,12 @@ $(function () {
 
 // Add user to ignore list and delete message
 function ignore(messageNode) {
+    deleteMessage(messageNode);
     failchat.socket.send(JSON.stringify(
         {
             "type": "ignore-user",
             "content": {
                 "user": messageNode.getAttribute("data-user"),
-                "messageId": messageNode.getAttribute("id").slice(8)
             }
         }
     ));
