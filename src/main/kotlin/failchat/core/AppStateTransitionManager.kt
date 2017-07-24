@@ -11,8 +11,8 @@ import failchat.core.chat.ChatMessageSender
 import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.handlers.IgnoreFilter
 import failchat.core.chat.handlers.ImageLinkHandler
-import failchat.core.viewers.ViewersCountHandler
 import failchat.core.viewers.ViewersCountLoader
+import failchat.core.viewers.ViewersCountWsHandler
 import failchat.core.viewers.ViewersCounter
 import failchat.core.ws.server.WsServer
 import failchat.exceptions.InvalidConfigurationException
@@ -56,7 +56,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     private val ignoreFilter: IgnoreFilter = kodein.instance()
     private val imageLinkHandler: ImageLinkHandler = kodein.instance()
     private val okHttpClient: OkHttpClient = kodein.instance()
-    private val viewersCountHandler: ViewersCountHandler = kodein.instance()
+    private val viewersCountWsHandler: ViewersCountWsHandler = kodein.instance()
     private val guiEventHandler: GuiEventHandler = kodein.instance()
 
     private val lock: Lock = ReentrantLock()
@@ -135,8 +135,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
                 .invoke(viewersCountLoaders)
                 .apply { start() }
 
-        viewersCountHandler.viewersCounter = viewersCounter
-        guiEventHandler.viewersCounter = viewersCounter
+        viewersCountWsHandler.viewersCounter = viewersCounter
     }
 
     fun stopChat() = lock.withLock {
@@ -188,8 +187,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     }
 
     private fun reset() {
-        viewersCountHandler.viewersCounter = null
-        guiEventHandler.viewersCounter = null
+        viewersCountWsHandler.viewersCounter = null
 
         // Значения могут быть null если вызваны shutDown() и stopChat() последовательно, в любой последовательности
         chatClients?.values

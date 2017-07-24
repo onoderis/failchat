@@ -1,19 +1,25 @@
 package failchat.core
 
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.salomonbrys.kodein.instance
+import failchat.core.chat.ChatMessageRemover
+import failchat.core.chat.handlers.IgnoreFilter
 import failchat.core.emoticon.EmoticonManager
 import failchat.core.reporter.EventAction
 import failchat.core.reporter.EventCategory
 import failchat.core.reporter.EventReporter
 import failchat.core.skin.Skin
-import failchat.core.viewers.ViewersCountHandler
+import failchat.core.viewers.ShowViewersCountWsHandler
+import failchat.core.viewers.ViewersCountWsHandler
 import failchat.core.ws.server.DeleteWsMessageHandler
+import failchat.core.ws.server.EnabledOriginsWsHandler
 import failchat.core.ws.server.IgnoreWsMessageHandler
 import failchat.core.ws.server.TtnWsServer
 import failchat.core.ws.server.WsServer
 import failchat.gui.GuiLauncher
 import javafx.application.Application
+import org.apache.commons.configuration.CompositeConfiguration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.ServerSocket
@@ -31,25 +37,28 @@ fun main(args: Array<String>) {
 
     log.info("Working directory: {}", kodein.instance<Path>("workingDirectory").toAbsolutePath())
 
+    // Get common dependencies
+    val configLoader: ConfigLoader = kodein.instance()
+    val config: CompositeConfiguration = kodein.instance()
+    val objectMapper: ObjectMapper = kodein.instance()
 
     // Scan skins
     kodein.instance<List<Skin>>()
 
+
     // Initialize websocket server
     val wsServer: WsServer = kodein.instance()
 
-    // Set websocket message handlers
-    val ignoreWsMessageHandler = IgnoreWsMessageHandler(
-            kodein.instance(),
-            kodein.instance(),
-            kodein.instance<ConfigLoader>().get()
-    )
-    val deleteWsMessageHandler = DeleteWsMessageHandler(kodein.instance())
-    val viewersCountHandler: ViewersCountHandler = kodein.instance()
 
-    wsServer.setOnMessage("ignore-user", ignoreWsMessageHandler)
-    wsServer.setOnMessage("delete-message", deleteWsMessageHandler)
-    wsServer.setOnMessage("viewers", viewersCountHandler)
+    // Initialize and set websocket message handlers
+    wsServer.apply {
+        setOnMessage("enabled-origins", EnabledOriginsWsHandler(config, objectMapper))
+        setOnMessage("viewers-count", kodein.instance<ViewersCountWsHandler>())
+        setOnMessage("show-viewers-count", ShowViewersCountWsHandler(config, objectMapper))
+        setOnMessage("delete-message", DeleteWsMessageHandler(kodein.instance<ChatMessageRemover>()))
+        setOnMessage("ignore-user", IgnoreWsMessageHandler(kodein.instance<IgnoreFilter>(), config))
+    }
+
 
     //Start websocket server
     wsServer.start()
