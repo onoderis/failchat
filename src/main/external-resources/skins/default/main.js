@@ -161,7 +161,7 @@ $(function () {
     }
 
     function handleDeleteMessage(content) {
-        var messageText = $(".text#message-" + content.messageId);
+        var messageText = $("#message-" + content.messageId + " .text");
         messageText.removeClass("highlighted");
         messageText.text(failchat.deletedTextPlaceholder);
     }
