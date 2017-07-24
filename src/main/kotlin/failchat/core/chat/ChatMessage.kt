@@ -39,8 +39,7 @@ open class ChatMessage(
      * - [Link]
      * - [Image]
      * */
-    val elements: List<Any>
-        get() = _elements
+    val elements: List<Any> get() = _elements
 
     var highlighted = false
 

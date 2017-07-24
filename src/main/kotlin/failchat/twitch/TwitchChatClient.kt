@@ -66,8 +66,7 @@ class TwitchChatClient(
     private var messageDeletedCallback: ((TwitchMessage) -> Unit)? = null
 
     override val origin = Origin.twitch
-    override val status: ChatClientStatus
-        get() = _status.get()
+    override val status: ChatClientStatus get() = _status.get()
 
 
     init {
