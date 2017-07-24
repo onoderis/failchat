@@ -5,14 +5,6 @@ target
 .idea
 failchat.iml
 
-#files
+#etc
 deps
-
-#private docs
-docs/notes
-docs/notes-old
-docs/libs
-docs/origins
-docs/refactoring
-docs/todo
-docs/google-analytics
+docs/*
