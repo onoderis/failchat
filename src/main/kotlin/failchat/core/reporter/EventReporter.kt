@@ -67,7 +67,8 @@ class EventReporter(
                 .newCall(request)
                 .toFuture()
                 .thenApply { response ->
-                    if (response.code() !in 200..299) throw UnexpectedResponseCodeException(response.code())
+                    val code = response.use { it.code() }
+                    if (code !in 200..299) throw UnexpectedResponseCodeException(code)
                     log.info("Event successfully reported: {}.{}", category.name, action.name)
                     null
                 }

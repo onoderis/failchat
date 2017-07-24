@@ -139,7 +139,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
             configLoader.save()
             wsServer.stop()
             okHttpClient.dispatcher().cancelAll()
-            okHttpClient.dispatcher().executorService().shutdown()
+            okHttpClient.dispatcher().executorService().shutdownNow()
         }
 
         thread(start = true, name = "TerminationThread", isDaemon = true) {
