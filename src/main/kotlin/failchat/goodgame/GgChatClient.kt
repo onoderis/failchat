@@ -63,8 +63,7 @@ class GgChatClient(
 
 
     override val origin = Origin.goodgame
-    override val status: ChatClientStatus
-        get() = _status.get()
+    override val status: ChatClientStatus get() = _status.get()
 
 
     override fun start() {

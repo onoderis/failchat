@@ -66,8 +66,7 @@ class Peka2tvChatClient(
     private var messageDeletedCallback: ((Peka2tvMessage) -> Unit)? = null
 
 
-    override val status: ChatClientStatus
-        get() = _status.get()
+    override val status: ChatClientStatus get() = _status.get()
     override val origin = peka2tv
 
     override fun start() {
