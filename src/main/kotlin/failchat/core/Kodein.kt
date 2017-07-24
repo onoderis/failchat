@@ -15,6 +15,8 @@ import failchat.core.emoticon.EmoticonManager
 import failchat.core.reporter.EventReporter
 import failchat.core.skin.Skin
 import failchat.core.skin.SkinScanner
+import failchat.core.viewers.ViewersCountHandler
+import failchat.core.viewers.ViewersCountLoader
 import failchat.core.viewers.ViewersCounter
 import failchat.core.ws.server.TtnWsServer
 import failchat.core.ws.server.WsServer
@@ -38,15 +40,17 @@ import java.nio.file.Paths
 val kodein = Kodein {
 
     // Websocket server
-    bind<WsServer>() with singleton { TtnWsServer(instance()) }
-
+    bind<WsServer>() with singleton { TtnWsServer(instance<ObjectMapper>()) }
+    bind<ViewersCountHandler>() with singleton {
+        ViewersCountHandler(instance<CompositeConfiguration>(), instance<ObjectMapper>())
+    }
 
     // Core dependencies
     bind<AppStateTransitionManager>() with singleton { AppStateTransitionManager(kodein) }
     bind<ConfigLoader>() with singleton { ConfigLoader(instance<Path>("workingDirectory")) }
     bind<CompositeConfiguration>() with singleton { instance<ConfigLoader>().get() }
     bind<EmoticonManager>() with singleton {
-        EmoticonManager(instance("workingDirectory"), instance(),
+        EmoticonManager(instance("workingDirectory"), instance<CompositeConfiguration>(),
                 listOf(
                         instance<Peka2tvEmoticonLoader>(),
                         instance<GgEmoticonLoader>(),
@@ -54,15 +58,26 @@ val kodein = Kodein {
                 ))
     }
     bind<ChatMessageSender>() with singleton {
-        ChatMessageSender(instance(), instance(), instance(), instance(), instance())
+        ChatMessageSender(
+                instance<WsServer>(),
+                instance<CompositeConfiguration>(),
+                instance<IgnoreFilter>(),
+                instance<ImageLinkHandler>(),
+                instance<ObjectMapper>()
+        )
     }
     bind<ChatMessageRemover>() with singleton {
-        ChatMessageRemover(instance(), instance())
+        ChatMessageRemover(instance<WsServer>(), instance<ObjectMapper>())
     }
-    bind<ViewersCounter>() with singleton {
-        ViewersCounter(instance(), instance(), instance())
+    bind<ViewersCounter>() with factory { vcLoaders: List<ViewersCountLoader> ->
+        ViewersCounter(
+                vcLoaders,
+                instance<WsServer>(),
+                instance<CompositeConfiguration>(),
+                instance<ObjectMapper>()
+        )
     }
-    bind<GuiEventHandler>() with singleton { GuiEventHandler(instance()) }
+    bind<GuiEventHandler>() with singleton { GuiEventHandler(null) }
 
 
     // General purpose dependencies
@@ -71,29 +86,35 @@ val kodein = Kodein {
 
 
     // Handlers and filters
-    bind<IgnoreFilter>() with singleton { IgnoreFilter(instance()) }
-    bind<ImageLinkHandler>() with singleton { ImageLinkHandler(instance()) }
+    bind<IgnoreFilter>() with singleton { IgnoreFilter(instance<CompositeConfiguration>()) }
+    bind<ImageLinkHandler>() with singleton { ImageLinkHandler(instance<CompositeConfiguration>()) }
 
 
     // Etc
     bind<Path>("workingDirectory") with singleton { Paths.get("") }
     bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<CompositeConfiguration>().getLong("lastId")) }
     bind<List<Skin>>() with singleton { SkinScanner(instance("workingDirectory")).scan() }
-    bind<EventReporter>() with singleton { EventReporter(instance(), instance()) }
+    bind<EventReporter>() with singleton { EventReporter(instance<OkHttpClient>(), instance<ConfigLoader>()) }
 
 
     // Origin specific dependencies
 
     // Peka2tv
-    bind<Peka2tvApiClient>() with singleton { Peka2tvApiClient(instance(), "http://peka2.tv/api", instance()) }
-    bind<Peka2tvEmoticonLoader>() with singleton { Peka2tvEmoticonLoader(instance()) }
+    bind<Peka2tvApiClient>() with singleton {
+        Peka2tvApiClient(
+                instance<OkHttpClient>(),
+                "http://peka2.tv/api",
+                instance<ObjectMapper>()
+        )
+    }
+    bind<Peka2tvEmoticonLoader>() with singleton { Peka2tvEmoticonLoader(instance<Peka2tvApiClient>()) }
     bind<Peka2tvChatClient>() with factory { channelNameAndId: Pair<String, Long> ->
         Peka2tvChatClient(
                 channelName = channelNameAndId.first,
                 channelId = channelNameAndId.second,
                 socketIoUrl = instance<CompositeConfiguration>().getString("peka2tv.socketio-url"),
-                messageIdGenerator = instance(),
-                emoticonManager = instance()
+                messageIdGenerator = instance<MessageIdGenerator>(),
+                emoticonManager = instance<EmoticonManager>()
         )
     }
 
@@ -102,13 +123,13 @@ val kodein = Kodein {
     bind<TwitchApiClient>() with singleton {
         val config = instance<CompositeConfiguration>()
         TwitchApiClient(
-                httpClient = instance(),
+                httpClient = instance<OkHttpClient>(),
                 apiUrl = config.getString("twitch.api-url"),
                 token = config.getString("twitch.api-token"),
-                objectMapper = instance()
+                objectMapper = instance<ObjectMapper>()
         )
     }
-    bind<TwitchEmoticonLoader>() with singleton { TwitchEmoticonLoader(instance()) }
+    bind<TwitchEmoticonLoader>() with singleton { TwitchEmoticonLoader(instance<TwitchApiClient>()) }
     bind<TwitchChatClient>() with factory { channelName: String ->
         val config = instance<CompositeConfiguration>()
         TwitchChatClient(
@@ -117,12 +138,12 @@ val kodein = Kodein {
                 ircPort = config.getInt("twitch.irc-port"),
                 botName = config.getString("twitch.bot-name"),
                 botPassword = config.getString("twitch.bot-password"),
-                emoticonManager = instance(),
-                messageIdGenerator = instance()
+                emoticonManager = instance<EmoticonManager>(),
+                messageIdGenerator = instance<MessageIdGenerator>()
         )
     }
     bind<TwitchViewersCountLoader>() with factory { channelName: String ->
-        TwitchViewersCountLoader(channelName, instance())
+        TwitchViewersCountLoader(channelName, instance<TwitchApiClient>())
     }
 
 
@@ -132,22 +153,22 @@ val kodein = Kodein {
                 channelName = channelNameAndId.first,
                 channelId = channelNameAndId.second,
                 webSocketUri = instance<CompositeConfiguration>().getString("goodgame.ws-url"),
-                messageIdGenerator = instance(),
-                emoticonManager = instance(),
-                objectMapper = instance()
+                messageIdGenerator = instance<MessageIdGenerator>(),
+                emoticonManager = instance<EmoticonManager>(),
+                objectMapper = instance<ObjectMapper>()
         )
     }
     bind<GgApiClient>() with singleton {
         GgApiClient(
-                httpClient = instance(),
+                httpClient = instance<OkHttpClient>(),
                 apiUrl = instance<CompositeConfiguration>().getString("goodgame.api-url"),
                 emoticonsJsUrl = instance<CompositeConfiguration>().getString("goodgame.emoticon-js-url"),
-                objectMapper = instance()
+                objectMapper = instance<ObjectMapper>()
         )
     }
-    bind<GgEmoticonLoader>() with singleton { GgEmoticonLoader(instance()) }
+    bind<GgEmoticonLoader>() with singleton { GgEmoticonLoader(instance<GgApiClient>()) }
     bind<GgViewersCountLoader>() with factory { channelName: String ->
-        GgViewersCountLoader(channelName, instance())
+        GgViewersCountLoader(channelName, instance<GgApiClient>())
     }
 
 }
