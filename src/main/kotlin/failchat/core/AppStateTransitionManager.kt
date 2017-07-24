@@ -25,6 +25,8 @@ import failchat.peka2tv.Peka2tvChatClient
 import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.utils.error
+import failchat.utils.formatStackTraces
+import failchat.utils.ls
 import failchat.utils.sleep
 import javafx.application.Platform
 import okhttp3.OkHttpClient
@@ -42,7 +44,6 @@ class AppStateTransitionManager(private val kodein: Kodein) {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(AppStateTransitionManager::class.java)
-        val ls: String = System.lineSeparator()
         val shutdownTimeout: Duration = Duration.ofSeconds(20)
     }
 
@@ -160,17 +161,8 @@ class AppStateTransitionManager(private val kodein: Kodein) {
             sleep(shutdownTimeout)
 
             log.error {
-                val verboseThreadInfo = Thread.getAllStackTraces()
-                        .map { (thread, stackTraceElements) ->
-                            thread.run {
-                                //kotlin's run function
-                                "Thread[name=$name; id=$id; state=${state.name}; isDaemon=$isDaemon; isInterrupted=$isInterrupted;" +
-                                        "priority=$priority; threadGroup=${threadGroup.name}]"
-                            } + ls + stackTraceElements.joinToString(separator = ls)
-                        }
-                        .joinToString(separator = ls)
-
-                return@error "Process terminated after ${shutdownTimeout.seconds} seconds of shutDown() call. Verbose information:$ls" + verboseThreadInfo
+                "Process terminated after ${shutdownTimeout.seconds} seconds of shutDown() call. Verbose information:$ls" +
+                        formatStackTraces(Thread.getAllStackTraces())
             }
 
             Thread.sleep(1500) // write log message to file for sure
