@@ -14,6 +14,7 @@ import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.handlers.CommonHighlightHandler
 import failchat.core.chat.handlers.MessageObjectCleaner
 import failchat.core.emoticon.EmoticonManager
+import failchat.core.viewers.ViewersCountLoader
 import failchat.core.ws.client.WsClient
 import failchat.twitch.TwitchChatClient
 import org.java_websocket.handshake.ServerHandshake
@@ -21,6 +22,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.util.Queue
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
@@ -33,7 +36,7 @@ class GgChatClient(
         private val messageIdGenerator: MessageIdGenerator,
         private val emoticonManager: EmoticonManager,
         private val objectMapper: ObjectMapper = ObjectMapper()
-) : ChatClient<GgMessage> {
+) : ChatClient<GgMessage>, ViewersCountLoader {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(TwitchChatClient::class.java)
@@ -52,10 +55,12 @@ class GgChatClient(
 
     private val history: Queue<GgMessage> = EvictingQueue.create(historySize)
     private val historyLock: Lock = ReentrantLock()
+    private val viewersCountFutures: Queue<CompletableFuture<Int>> = ConcurrentLinkedQueue()
 
     private var chatMessageConsumer: ((GgMessage) -> Unit)? = null
     private var infoMessageConsumer: ((InfoMessage) -> Unit)? = null
     private var messageDeletedCallback: ((GgMessage) -> Unit)? = null
+
 
     override val origin = Origin.goodgame
     override val status: ChatClientStatus
@@ -86,6 +91,30 @@ class GgChatClient(
         messageDeletedCallback = operation
     }
 
+    override fun loadViewersCount(): CompletableFuture<Int> {
+        /*
+        * Undocumented api
+        * request:  {"type":"get_all_viewers","data":{"channel":"21506"}}
+        * response: {"type":"viewers","data":{"channel_id":"21506","count":173}}
+        * */
+        val getAllViewersMessage = objectMapper.createObjectNode().apply {
+            put("type", "get_all_viewers")
+            putObject("data").apply {
+                put("channel", channelId.toString())
+            }
+        }
+
+        val countFuture = CompletableFuture<Int>()
+        try {
+            wsClient.send(getAllViewersMessage.toString())
+        } catch (e: Exception) {
+            countFuture.completeExceptionally(e)
+        }
+        if (!countFuture.isCompletedExceptionally) {
+            viewersCountFutures.offer(countFuture)
+        }
+        return countFuture
+    }
 
     private inner class GgWsClient(uri: URI) : WsClient(uri) {
 
@@ -113,9 +142,11 @@ class GgChatClient(
             val type = messageNode.get("type").asText()
             val data = messageNode.get("data")
 
+            //todo log on unknown type
             when(type) {
                 "message" -> handleUserMessage(data)
                 "remove_message" -> handleModMessage(data)
+                "viewers" -> handleViewersMessage(data)
             }
         }
 
@@ -149,6 +180,16 @@ class GgChatClient(
                 history.find { it.ggId == idToRemove }
             }
             foundMessage?.let { messageDeletedCallback?.invoke(it) }
+        }
+
+        private fun handleViewersMessage(dataNode: JsonNode) {
+            val count = dataNode.get("count").asInt()
+
+            var future = viewersCountFutures.poll()
+            while (future != null) {
+                future.complete(count)
+                future = viewersCountFutures.poll()
+            }
         }
     }
 

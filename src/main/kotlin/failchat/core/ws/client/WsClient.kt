@@ -49,11 +49,7 @@ open class WsClient(private val serverUri: URI) {
         wsClient.close()
     }
 
-    fun send(message: String) {
-        if (status.get() == WORKING) {
-            wsClient.send(message)
-        }
-    }
+    fun send(message: String) = wsClient.send(message)
 
     open fun onOpen(serverHandshake: ServerHandshake) {}
 
