@@ -10,7 +10,6 @@ import failchat.core.ws.server.WsServer
 import failchat.exceptions.ChannelOfflineException
 import failchat.utils.await
 import failchat.utils.info
-import org.apache.commons.configuration.CompositeConfiguration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -29,7 +28,6 @@ import kotlin.concurrent.withLock
 class ViewersCounter(
         private val viewersCountLoaders: List<ViewersCountLoader>,
         private val wsServer: WsServer,
-        private val config: CompositeConfiguration,
         private val objectMapper: ObjectMapper = ObjectMapper()
 ) {
     private companion object {
@@ -101,17 +99,14 @@ class ViewersCounter(
 
     private fun formViewersWsMessage(originsToInclude: List<Origin>): JsonNode {
         val messageNode = objectMapper.createObjectNode()
-                .put("type", "viewers")
+                .put("type", "viewers-count")
 
         val contentNode = messageNode.putObject("content")
-                .put("show", config.getBoolean("show-viewers"))
-
-        val countersNode = contentNode.putObject("counters")
 
         originsToInclude.forEach { origin ->
             viewersCount.get(origin)
-                    ?.let { countersNode.put(origin.name, it) }
-                    ?: countersNode.putNull(origin.name)
+                    ?.let { contentNode.put(origin.name, it) }
+                    ?: contentNode.putNull(origin.name)
         }
 
         return messageNode

@@ -138,12 +138,10 @@ class ChatFrame(
 
         //hot keys
         chatScene.setOnKeyReleased { key ->
-            //esc
-            if (key.code == KeyCode.ESCAPE) {
-                toSettings()
-            } else if (key.code == KeyCode.SPACE) {
-                switchDecorations()
-            }// space
+            when (key.code) {
+                KeyCode.ESCAPE -> toSettings()
+                KeyCode.SPACE -> switchDecorations()
+            }
         }
 
         // url opening interceptor
@@ -193,7 +191,7 @@ class ChatFrame(
         viewersItem.setOnAction { event ->
             val newValue = !config.getBoolean("show-viewers")
             config.setProperty("show-viewers", newValue)
-            guiEventHandler.fireViewersCountToggle()
+            guiEventHandler.fireViewersCountToggle(newValue)
         }
 
         return contextMenu

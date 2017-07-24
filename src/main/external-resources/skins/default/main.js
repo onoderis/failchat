@@ -15,8 +15,8 @@ $(function () {
     var scroller = $(failchat.baronParams.scroller);
     var scrollBar = $(failchat.baronParams.bar);
     var autoScroll = true;
-    var nativeClient = (navigator.userAgent.search("failchat") >= 0);
-    // var nativeClient = true; //todo think about debugging
+    // var nativeClient = (navigator.userAgent.search("failchat") >= 0);
+    var nativeClient = true; //todo think about debugging
 
     //templates
     var smileTemplate = $("#smile-template");
@@ -31,11 +31,11 @@ $(function () {
     var peka2tvViewersBar = $("#peka2tv-source");
     var twitchViewersBar = $("#twitch-source");
     var goodgameViewersBar = $("#goodgame-source");
-    var cybergameViewersBar = $("#cybergame-source");
+    // var cybergameViewersBar = $("#cybergame-source");
     var peka2tvViewersCount = $("#peka2tv-viewers");
     var twitchViewersCount = $("#twitch-viewers");
     var goodgameViewersCount = $("#goodgame-viewers");
-    var cybergameViewersCount = $("#cybergame-viewers");
+    // var cybergameViewersCount = $("#cybergame-viewers");
 
 
     baron(failchat.baronParams);
@@ -49,43 +49,61 @@ $(function () {
 
 
     socket.onopen = function () {
-        var connectedMessage = {"id": "-10", "source": "failchat", "text": "connected", "timestamp": Date.now()};
+        var connectedMessage = {"id": "-10", "source": "failchat", "textHtml": "connected", "timestamp": Date.now()};
         handleInfoMessage(connectedMessage);
         appendToMessageContainer(connectedMessage);
         if (nativeClient) {
-            socket.send(JSON.stringify({"type": "viewers", "content": {}}));
+            socket.send(JSON.stringify({"type": "enabled-origins", "content": {}}));
+            socket.send(JSON.stringify({"type": "show-viewers-count", "content": {}}));
+            socket.send(JSON.stringify({"type": "viewers-count", "content": {}}));
         }
     };
 
     socket.onclose = function () {
-        var disconnectedMessage = {"id": "-10", "source": "failchat", "text": "disconnected", "timestamp": Date.now()};
+        var disconnectedMessage = {"id": "-10", "source": "failchat", "textHtml": "disconnected", "timestamp": Date.now()};
         handleInfoMessage(disconnectedMessage);
         appendToMessageContainer(disconnectedMessage);
     };
 
     socket.onmessage = function (event) {
         var wsm = JSON.parse(event.data);
+        var type = wsm.type;
+        var content = wsm.content;
 
-        if (wsm.type === "message") {
-            handleMessage(wsm.content);
-        }
-        else if (nativeClient && wsm.type === "viewers") {
-            handleViewersMessage(wsm.content);
-        }
-        else if (wsm.type === "info") {
-            handleInfoMessage(wsm.content);
-        }
-        else if (wsm.type === "delete-message") {
-            handleDeleteMessage(wsm.content);
+        switch (type) {
+            case "message":
+                handleChatMessage(content);
+                break;
+            case "info":
+                handleInfoMessage(content);
+                break;
+            case "delete-message":
+                handleDeleteMessage(content);
+                break;
         }
 
-        if (wsm.content.text !== undefined) {
+        if (content.textHtml !== undefined) {
             appendToMessageContainer(wsm.content);
+            return
+        }
+
+        if (!nativeClient) return;
+
+        switch (type) {
+            case "enabled-origins":
+                handleEnabledOriginsMessage(content);
+                break;
+            case "show-viewers-count":
+                handleShowViewersCountMessage(content);
+                break;
+            case "viewers-count":
+                updateViewersValues(content);
+                break;
         }
     };
 
-    function handleMessage(message) {
-        var elementsArray = message.elements;
+    function handleChatMessage(content) {
+        var elementsArray = content.elements;
 
         for (var i = 0; i < elementsArray.length; i++) {
             var element = elementsArray[i];
@@ -102,87 +120,75 @@ $(function () {
                     break;
             }
 
-            message.text = message.text.replace("{!" + i + "}", elementHtml);
+            content.text = content.text.replace("{!" + i + "}", elementHtml);
         }
 
-        message.text = messageTemplate.render(message);
+        content.textHtml = messageTemplate.render(content);
     }
 
-    function handleInfoMessage(infoMessage) {
-        infoMessage.text = infoMessageTemplate.render(infoMessage);
+    function handleInfoMessage(content) {
+        content.textHtml = infoMessageTemplate.render(content);
     }
 
-    function handleViewersMessage(viewersMessage) {
-        updateViewersValues(viewersMessage.counters);
-
-        //enable viewers bar
-        if (!viewersBarEnabled && viewersMessage.show) {
-            viewersBarEnabled = true;
-            viewersBar.addClass("viewers-bar-on");
-            if (viewersMessage.counters.peka2tv !== undefined) {
-                peka2tvViewersBar.addClass("viewers-source-on");
-            }
-            if (viewersMessage.counters.twitch !== undefined) {
-                twitchViewersBar.addClass("viewers-source-on");
-            }
-            if (viewersMessage.counters.goodgame !== undefined) {
-                goodgameViewersBar.addClass("viewers-source-on");
-            }
-            if (viewersMessage.counters.cybergame !== undefined) {
-                cybergameViewersBar.addClass("viewers-source-on");
-            }
-            updateViewersValues(viewersMessage);
-            if (autoScroll) {
-                scroller.scrollTop(messageContainer.height());
-            }
-        }
-
-        //disable viewers bar
-        else if (viewersBarEnabled && !viewersMessage.show) {
-            viewersBarEnabled = false;
-            viewersBar.removeClass("viewers-bar-on");
+    function handleEnabledOriginsMessage(content) {
+        // todo refactor
+        var origins = content.origins;
+        if (origins.indexOf("peka2tv") !== -1) {
+            peka2tvViewersBar.addClass("viewers-source-on");
+        } else {
             peka2tvViewersBar.removeClass("viewers-source-on");
+        }
+
+        if (origins.indexOf("twitch") !== -1) {
+            twitchViewersBar.addClass("viewers-source-on");
+        } else {
             twitchViewersBar.removeClass("viewers-source-on");
+        }
+
+        if (origins.indexOf("goodgame") !== -1) {
+            goodgameViewersBar.addClass("viewers-source-on");
+        } else {
             goodgameViewersBar.removeClass("viewers-source-on");
-            cybergameViewersBar.removeClass("viewers-source-on");
         }
     }
 
-    function handleDeleteMessage(modMessage) {
-        var messageText = $("#message-" + modMessage.messageId + " .text");
+    function handleShowViewersCountMessage(content) {
+        if (content.show === true) {
+            viewersBar.addClass("viewers-bar-on");
+        } else {
+            viewersBar.removeClass("viewers-bar-on");
+        }
+    }
+
+    function handleDeleteMessage(content) {
+        var messageText = $(".text#message-" + content.messageId);
         messageText.removeClass("highlighted");
         messageText.text(failchat.deletedTextPlaceholder);
     }
 
     function updateViewersValues(counters) {
         //todo refactor
+        var value;
         if (counters.peka2tv !== undefined) {
-            var value = counters.peka2tv;
+            value = counters.peka2tv;
             if (value === null) {
                 value = "?";
             }
             peka2tvViewersCount.text(value);
         }
         if (counters.twitch !== undefined) {
-            var value = counters.twitch;
+            value = counters.twitch;
             if (value === null) {
                 value = "?";
             }
             twitchViewersCount.text(value);
         }
         if (counters.goodgame !== undefined) {
-            var value = counters.goodgame;
+            value = counters.goodgame;
             if (value === null) {
                 value = "?";
             }
             goodgameViewersCount.text(value);
-        }
-        if (counters.cybergame !== undefined) {
-            var value = counters.cybergame;
-            if (value === null) {
-                value = "?";
-            }
-            cybergameViewersCount.text(value);
         }
     }
 
@@ -192,7 +198,13 @@ $(function () {
             $(failchat.messageSelector + ":lt(" + (failchat.messageCount - failchat.maxMessages) + ")").remove();
             failchat.messageCount = failchat.maxMessages;
         }
-        messageContainer.append(message.text);
+        messageContainer.append(message.textHtml);
+    }
+
+    function scrollIfRequired() {
+        if (autoScroll) {
+            scroller.scrollTop(messageContainer.height());
+        }
     }
 
     $("body,html").bind("keydown wheel mousewheel", function(e){

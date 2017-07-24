@@ -15,8 +15,8 @@ import failchat.core.emoticon.EmoticonManager
 import failchat.core.reporter.EventReporter
 import failchat.core.skin.Skin
 import failchat.core.skin.SkinScanner
-import failchat.core.viewers.ViewersCountHandler
 import failchat.core.viewers.ViewersCountLoader
+import failchat.core.viewers.ViewersCountWsHandler
 import failchat.core.viewers.ViewersCounter
 import failchat.core.ws.server.TtnWsServer
 import failchat.core.ws.server.WsServer
@@ -41,8 +41,8 @@ val kodein = Kodein {
 
     // Websocket server
     bind<WsServer>() with singleton { TtnWsServer(instance<ObjectMapper>()) }
-    bind<ViewersCountHandler>() with singleton {
-        ViewersCountHandler(instance<CompositeConfiguration>(), instance<ObjectMapper>())
+    bind<ViewersCountWsHandler>() with singleton {
+        ViewersCountWsHandler(instance<CompositeConfiguration>(), instance<ObjectMapper>())
     }
 
     // Core dependencies
@@ -73,11 +73,12 @@ val kodein = Kodein {
         ViewersCounter(
                 vcLoaders,
                 instance<WsServer>(),
-                instance<CompositeConfiguration>(),
                 instance<ObjectMapper>()
         )
     }
-    bind<GuiEventHandler>() with singleton { GuiEventHandler(null) }
+    bind<GuiEventHandler>() with singleton {
+        GuiEventHandler(instance<WsServer>(), instance<ObjectMapper>())
+    }
 
 
     // General purpose dependencies
