@@ -48,9 +48,7 @@ class Peka2tvApiClient(
                 .thenApply {
                     if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
                     val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
-                    responseBody.use {
-                        return@thenApply objectMapper.readTree(it.string())
-                    }
+                    return@thenApply objectMapper.readTree(responseBody.string())
                 }
     }
 
