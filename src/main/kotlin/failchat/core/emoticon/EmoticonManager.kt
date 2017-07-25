@@ -53,13 +53,13 @@ class EmoticonManager(
             val codeToEmoticon = emoticons
                     .map { it.code.toLowerCase() to it }
                     .toMap((HashMap()))
-            storage.putByCode(origin, codeToEmoticon)
+            storage.putCodeMapping(origin, codeToEmoticon)
         }
         if (options.storeById) {
             val idToEmoticon = emoticons
                     .map { loader.getId(it) to it }
                     .toMap((HashMap()))
-            storage.putById(origin, idToEmoticon)
+            storage.putIdMapping(origin, idToEmoticon)
         }
     }
 

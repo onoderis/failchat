@@ -12,11 +12,11 @@ class EmoticonStorage : EmoticonFinder {
 
     override fun findById(origin: Origin, id: Long): Emoticon? = idToEmoticon.get(origin)?.get(id)
 
-    fun putByCode(origin: Origin, emoticons: Map<String, Emoticon>): Unit {
+    fun putCodeMapping(origin: Origin, emoticons: Map<String, Emoticon>): Unit {
         codeToEmoticon.put(origin, emoticons)
     }
 
-    fun putById(origin: Origin, emoticons: Map<Long, Emoticon>):Unit {
+    fun putIdMapping(origin: Origin, emoticons: Map<Long, Emoticon>):Unit {
         idToEmoticon.put(origin, emoticons)
     }
 
