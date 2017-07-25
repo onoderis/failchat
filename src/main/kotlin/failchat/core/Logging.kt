@@ -58,6 +58,7 @@ fun configureLogging() {
         context = logback
         encoder = fileEncoder
         file = "failchat.log"
+        isAppend = false
         start()
     }
 
