@@ -84,13 +84,12 @@ class EmoticonManager(
         // else: outdated emoticons in cache file or cache file not exists
 
         // Load emoticon list via EmoticonLoader
-        val loadException = try {
+        try {
             val emoticons = loader.loadEmoticons().join()
             log.info("Emoticon list loaded from origin {}. count: {}", origin.name, emoticons.size)
             return emoticons to LoadSource.loader
         } catch (e: Exception) {
             log.warn("Failed to load emoticon list for {}", origin.name, e)
-            e
         }
 
         // Load outdated list from cache file if load via EmoticonLoader failed
