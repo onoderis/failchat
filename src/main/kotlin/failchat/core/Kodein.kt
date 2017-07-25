@@ -114,6 +114,7 @@ val kodein = Kodein {
                 channelName = channelNameAndId.first,
                 channelId = channelNameAndId.second,
                 socketIoUrl = instance<CompositeConfiguration>().getString("peka2tv.socketio-url"),
+                okHttpClient = instance<OkHttpClient>(),
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 emoticonFinder = instance<EmoticonFinder>()
         )
