@@ -27,7 +27,7 @@ class SettingsFrame(
 
     lateinit var chat: ChatFrame
 
-    private val scene = Scene(FXMLLoader.load<Parent>(javaClass.getResource("/settings.fxml")))
+    private val scene = Scene(FXMLLoader.load<Parent>(javaClass.getResource("/fx/settings.fxml")))
 
     //channels
     private val peka2tvChannel = scene.lookup("#peka2tv_channel") as TextField
