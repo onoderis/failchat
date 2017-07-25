@@ -25,7 +25,7 @@ import kotlin.concurrent.withLock
 open class WsClient(private val serverUri: URI) {
 
     private companion object {
-        val logger: Logger = LoggerFactory.getLogger(WsClient::class.java)
+        val log: Logger = LoggerFactory.getLogger(WsClient::class.java)
     }
 
     private val reconnectInterval = Duration.ofSeconds(5)
@@ -40,7 +40,7 @@ open class WsClient(private val serverUri: URI) {
             tryReconnectLoop()
         }
 
-        logger.info("WsClient starter")
+        log.info("WsClient starter")
     }
 
     fun stop() {
@@ -67,14 +67,14 @@ open class WsClient(private val serverUri: URI) {
         while (status.get() != SHUTDOWN && status.get() != ERROR) {
             val connected = wsClient.connectBlocking()
             if (!connected) {
-                logger.warn("Failed to reconnect to {}, next try in {} ms", serverUri, reconnectInterval.toMillis())
+                log.warn("Failed to reconnect to {}, next try in {} ms", serverUri, reconnectInterval.toMillis())
                 sleep(reconnectInterval)
                 wsClient = Wsc()
                 continue
             }
 
             //connected
-            logger.info("Reconnected to {}", serverUri)
+            log.info("Reconnected to {}", serverUri)
             lock.withLock {
                 reconnectCondition.await()
             }
@@ -82,7 +82,7 @@ open class WsClient(private val serverUri: URI) {
             //prepare to reconnect
             wsClient = Wsc()
         }
-        logger.info("WsClient stopped")
+        log.info("WsClient stopped")
     }
 
 

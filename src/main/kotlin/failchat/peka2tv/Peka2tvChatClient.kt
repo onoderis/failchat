@@ -41,7 +41,7 @@ class Peka2tvChatClient(
         ViewersCountLoader {
 
     private companion object {
-        val logger: Logger = LoggerFactory.getLogger(Peka2tvChatClient::class.java)
+        val log: Logger = LoggerFactory.getLogger(Peka2tvChatClient::class.java)
         const val historySize = 50
     }
 
@@ -110,7 +110,7 @@ class Peka2tvChatClient(
 
                 viewersCountFuture.complete(response.getJSONObject("result").getInt("amount"))
             } catch (e: Exception) {
-                logger.warn(e) {
+                log.warn(e) {
                     "Unexpected exception during updating peka2tv viewers count. response message: ${responseObjects.contentToString()}"
                 }
                 viewersCountFuture.completeExceptionally(e)
@@ -139,7 +139,7 @@ class Peka2tvChatClient(
                         put("channel", "stream/$channelId")
                     }
                     socket.emit("/chat/join", arrayOf(message)) {
-                        logger.info("Connected to ${Origin.peka2tv}")
+                        log.info("Connected to ${Origin.peka2tv}")
                         _status.set(connected)
                         infoMessageConsumer?.invoke(InfoMessage(messageIdGenerator.generate(), peka2tv, "connected"))
                     }
@@ -148,7 +148,7 @@ class Peka2tvChatClient(
                 // Disconnect
                 .on(Socket.EVENT_DISCONNECT) {
                     _status.set(connecting)
-                    logger.info("Received disconnected event from peka2tv ")
+                    log.info("Received disconnected event from peka2tv ")
                     infoMessageConsumer?.invoke(InfoMessage(messageIdGenerator.generate(), peka2tv, "disconnected"))
                 }
 

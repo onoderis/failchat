@@ -13,7 +13,7 @@ class GuiLauncher : Application() {
 
     companion object {
         val appIcon = Image(GuiLauncher::class.java.getResourceAsStream("/icons/failchat.png"))
-        val logger: Logger = LoggerFactory.getLogger(GuiLauncher::class.java)
+        val log: Logger = LoggerFactory.getLogger(GuiLauncher::class.java)
     }
 
     @Throws(Exception::class)
@@ -28,7 +28,7 @@ class GuiLauncher : Application() {
         chat.app = this
 
         settings.show()
-        logger.info("GUI loaded")
+        log.info("GUI loaded")
     }
 
 }

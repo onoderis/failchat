@@ -11,7 +11,7 @@ class Peka2tvEmoticonLoader(
 ) : EmoticonLoader<Peka2tvEmoticon> {
 
     private companion object {
-        val logger: Logger = LoggerFactory.getLogger(Peka2tvEmoticonLoader::class.java)
+        val log: Logger = LoggerFactory.getLogger(Peka2tvEmoticonLoader::class.java)
     }
 
     override val origin = peka2tv
@@ -23,9 +23,7 @@ class Peka2tvEmoticonLoader(
                 .request("/smile")
                 .thenApply {
                     it.asSequence()
-                            .map { emoticonNode ->
-                                Peka2tvEmoticon(emoticonNode.get("code").asText(), emoticonNode.get("url").asText())
-                            }
+                            .map { Peka2tvEmoticon(it.get("code").asText().toLowerCase(), it.get("url").asText()) }
                             .map { it.code to it }
                             .toMap(HashMap())
                 }

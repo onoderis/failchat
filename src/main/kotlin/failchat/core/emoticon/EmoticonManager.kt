@@ -19,7 +19,7 @@ class EmoticonManager(
 ) {
 
     private companion object {
-        val logger: Logger = LoggerFactory.getLogger(EmoticonManager::class.java)
+        val log: Logger = LoggerFactory.getLogger(EmoticonManager::class.java)
     }
 
     private val emoticonDirectory: Path = workingDirectory.resolve("emoticons")
@@ -42,7 +42,7 @@ class EmoticonManager(
             try {
                 load(loader, now, updateInterval)
             } catch (e: Exception) {
-                logger.warn("Unexpected error during loading emoticons for origin {}", loader.origin, e)
+                log.warn("Unexpected error during loading emoticons for origin {}", loader.origin, e)
             }
         }
     }
@@ -54,6 +54,7 @@ class EmoticonManager(
         val origin = loader.origin
         val filePath = emoticonDirectory.resolve("${origin.name}.ser")
         val fileExists = Files.exists(filePath)
+
         val lastUpdatedDate = Instant.ofEpochMilli(config.getLong("${origin.name}.emoticons.last-updated"))
         val emoticonsOutdated = lastUpdatedDate.plus(updateInterval).isBefore(now)
 
@@ -61,7 +62,7 @@ class EmoticonManager(
         if (!emoticonsOutdated && fileExists) {
             deserialize<Map<Any, Emoticon>>(filePath)?.let {
                 loadedEmoticons.put(origin, it)
-                logger.info("Actual version of emoticon list deserialized from file. origin: {}, count: {}", origin.name, it.size)
+                log.info("Actual version of emoticon list deserialized from file. origin: {}, count: {}", origin.name, it.size)
                 return
             }
         }
@@ -70,10 +71,10 @@ class EmoticonManager(
         val loadedEmoticonMap = try {
             val emoticonMap: Map<out Any, Emoticon> = loader.loadEmoticons().join()
             loadedEmoticons.put(origin, emoticonMap)
-            logger.info("Emoticon list loaded from origin {}. count: {}", origin.name, emoticonMap.size)
+            log.info("Emoticon list loaded from origin {}. count: {}", origin.name, emoticonMap.size)
             emoticonMap
         } catch (e: Exception) {
-            logger.warn("Failed to load emoticon list for {}", origin.name, e)
+            log.warn("Failed to load emoticon list for {}", origin.name, e)
             null
         }
 
@@ -81,7 +82,7 @@ class EmoticonManager(
         if (loadedEmoticonMap == null && fileExists) {
             deserialize<Map<Any, Emoticon>>(filePath)?.let {
                 loadedEmoticons.put(origin, it)
-                logger.info("Outdated version of emoticon list deserialized from file. origin: {}, count: {}", origin.name, it.size)
+                log.info("Outdated version of emoticon list deserialized from file. origin: {}, count: {}", origin.name, it.size)
                 return
             }
         }
@@ -90,9 +91,9 @@ class EmoticonManager(
         try {
             serialize(loadedEmoticonMap!!, filePath)
             config.setProperty("${origin.name}.emoticons.last-updated", now.toEpochMilli())
-            logger.info("Updated emoticon list serialized for origin {}", origin.name)
+            log.info("Updated emoticon list serialized for origin {}", origin.name)
         } catch (e: Exception) {
-            logger.warn("Failed to serialize updated emoticon list for origin: {}", origin.name, e)
+            log.warn("Failed to serialize updated emoticon list for origin: {}", origin.name, e)
         }
 
     }
@@ -109,7 +110,7 @@ class EmoticonManager(
                 }
             }
         } catch (e: Exception) {
-            logger.warn("Failed to serialize object {} to file {}", obj, filePath, e)
+            log.warn("Failed to serialize object {} to file {}", obj, filePath, e)
             return false
         }
     }
@@ -125,7 +126,7 @@ class EmoticonManager(
                 }
             }
         } catch (e: Exception) {
-            logger.warn("Failed to deserialize object from file {}", filePath, e)
+            log.warn("Failed to deserialize object from file {}", filePath, e)
             return null
         }
     }

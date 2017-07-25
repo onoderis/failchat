@@ -15,7 +15,7 @@ import java.util.regex.Pattern
 class IgnoreFilter(private val config: CompositeConfiguration) : MessageFilter<ChatMessage> {
 
     private companion object {
-        val logger: Logger = LoggerFactory.getLogger(IgnoreFilter::class.java)
+        val log: Logger = LoggerFactory.getLogger(IgnoreFilter::class.java)
     }
 
     private val banFormat: Pattern
