@@ -8,6 +8,10 @@ import okhttp3.Response
 import java.io.IOException
 import java.util.concurrent.CompletableFuture
 
+val jsonMediaType: MediaType = MediaType.parse("application/json")!!
+val textMediaType: MediaType = MediaType.parse("text/plain")!!
+val emptyBody: RequestBody = RequestBody.create(textMediaType, "")
+
 fun Call.toFuture(): CompletableFuture<Response> {
     val future = CompletableFuture<Response>()
     this.enqueue(object : Callback {
@@ -23,6 +27,11 @@ fun Call.toFuture(): CompletableFuture<Response> {
 
 }
 
-val jsonMediaType: MediaType = MediaType.parse("application/json")!!
-val textMediaType: MediaType = MediaType.parse("text/plain")!!
-val emptyBody: RequestBody = RequestBody.create(textMediaType, "")
+/**
+ * Execute operation and call [Response.close] in finally block.
+ * */
+inline fun <T> CompletableFuture<Response>.thenApplySafe(crossinline operation: (Response) -> T): CompletableFuture<T> {
+    return this.thenApply { response ->
+        response.use(operation)
+    }
+}
