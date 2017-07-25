@@ -40,7 +40,7 @@ private val log: Logger = LoggerFactory.getLogger(Bootstrap::class.java)
 fun main(args: Array<String>) {
     checkForAnotherInstance()
 
-    configureLogging()
+    configureLogging(args)
 
     log.info("Working directory: {}", kodein.instance<Path>("workingDirectory").toAbsolutePath())
 
