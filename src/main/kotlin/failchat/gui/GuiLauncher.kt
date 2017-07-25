@@ -16,7 +16,6 @@ class GuiLauncher : Application() {
         val log: Logger = LoggerFactory.getLogger(GuiLauncher::class.java)
     }
 
-    @Throws(Exception::class)
     override fun start(primaryStage: Stage) {
         val settings = SettingsFrame(primaryStage, kodein.instance(),
                 kodein.instance<ConfigLoader>().get(), kodein.instance())
