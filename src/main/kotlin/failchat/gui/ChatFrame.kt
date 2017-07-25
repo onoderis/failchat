@@ -18,7 +18,7 @@ import javafx.scene.web.WebEngine
 import javafx.scene.web.WebView
 import javafx.stage.Stage
 import javafx.stage.StageStyle
-import org.apache.commons.configuration.CompositeConfiguration
+import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.MalformedURLException
@@ -26,7 +26,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 class ChatFrame(
-        private val config: CompositeConfiguration,
+        private val config: Configuration,
         private val appStateTransitionManager: AppStateTransitionManager,
         private val guiEventHandler: GuiEventHandler,
         private val workingDirectory: Path

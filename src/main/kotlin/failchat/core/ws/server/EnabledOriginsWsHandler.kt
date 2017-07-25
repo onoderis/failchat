@@ -2,10 +2,10 @@ package failchat.core.ws.server
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.core.viewers.countableOrigins
-import org.apache.commons.configuration.CompositeConfiguration
+import org.apache.commons.configuration2.Configuration
 
 class EnabledOriginsWsHandler(
-        private val config: CompositeConfiguration,
+        private val config: Configuration,
         private val objectMapper: ObjectMapper = ObjectMapper()
 ) : WsMessageHandler {
 

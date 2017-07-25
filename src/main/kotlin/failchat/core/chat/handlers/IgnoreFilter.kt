@@ -3,7 +3,7 @@ package failchat.core.chat.handlers
 import failchat.core.Origin
 import failchat.core.chat.ChatMessage
 import failchat.core.chat.MessageFilter
-import org.apache.commons.configuration.CompositeConfiguration
+import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.regex.Pattern
@@ -12,7 +12,7 @@ import java.util.regex.Pattern
  * Фильтрует сообщения от пользователей в игнор-листе
  * Баны хранятся в формате username#origin
  */
-class IgnoreFilter(private val config: CompositeConfiguration) : MessageFilter<ChatMessage> {
+class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessage> {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(IgnoreFilter::class.java)

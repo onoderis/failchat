@@ -3,13 +3,13 @@ package failchat.core.viewers
 import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.core.ws.server.InboundWsMessage
 import failchat.core.ws.server.WsMessageHandler
-import org.apache.commons.configuration.CompositeConfiguration
+import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 
 class ViewersCountWsHandler(
-        private val config: CompositeConfiguration,
+        private val config: Configuration,
         private val objectMapper: ObjectMapper = ObjectMapper()
 ) : WsMessageHandler {
 

@@ -29,7 +29,7 @@ import failchat.utils.ls
 import failchat.utils.sleep
 import javafx.application.Platform
 import okhttp3.OkHttpClient
-import org.apache.commons.configuration.CompositeConfiguration
+import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -60,7 +60,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     private val guiEventHandler: GuiEventHandler = kodein.instance()
 
     private val lock: Lock = ReentrantLock()
-    private val config: CompositeConfiguration = configLoader.get()
+    private val config: Configuration = configLoader.get()
 
     private var chatClients: Map<Origin, ChatClient<*>> = emptyMap()
     private var viewersCounter: ViewersCounter? = null

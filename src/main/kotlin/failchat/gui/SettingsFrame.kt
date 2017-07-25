@@ -17,12 +17,12 @@ import javafx.scene.control.TextField
 import javafx.scene.paint.Color
 import javafx.scene.text.Text
 import javafx.stage.Stage
-import org.apache.commons.configuration.CompositeConfiguration
+import org.apache.commons.configuration2.Configuration
 
 class SettingsFrame(
         private val stage: Stage,
         private val appStateTransitionManager: AppStateTransitionManager,
-        private val config: CompositeConfiguration,
+        private val config: Configuration,
         private val skinList: List<Skin>
 ) {
 

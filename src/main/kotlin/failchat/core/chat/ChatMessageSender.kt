@@ -7,13 +7,13 @@ import failchat.core.chat.handlers.ImageLinkHandler
 import failchat.core.chat.handlers.LinkHandler
 import failchat.core.emoticon.Emoticon
 import failchat.core.ws.server.WsServer
-import org.apache.commons.configuration.CompositeConfiguration
+import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class ChatMessageSender(
         private val wsServer: WsServer,
-        private val config: CompositeConfiguration,
+        private val config: Configuration,
         ignoreFilter: IgnoreFilter,
         imageLinkHandler: ImageLinkHandler,
         private val objectMapper: ObjectMapper = ObjectMapper()
