@@ -63,6 +63,19 @@ class SettingsFrame(
         stage.title = "failchat v" + config.getString("version")
         stage.icons.setAll(GuiLauncher.appIcon)
 
+        peka2tvEnabled.selectedProperty().addListener { _, _, newValue ->
+            peka2tvChannel.configureChannelField(newValue)
+        }
+        goodgameEnabled.selectedProperty().addListener { _, _, newValue ->
+            goodgameChannel.configureChannelField(newValue)
+        }
+        twitchEnabled.selectedProperty().addListener { _, _, newValue ->
+            twitchChannel.configureChannelField(newValue)
+        }
+        cybergameEnabled.selectedProperty().addListener { _, _, newValue ->
+            cybergameChannel.configureChannelField(newValue)
+        }
+
         skin.converter = SkinConverter(skinList)
         skin.items = FXCollections.observableArrayList(skinList)
 
@@ -98,10 +111,22 @@ class SettingsFrame(
         twitchChannel.text = config.getString("twitch.channel")
         cybergameChannel.text = config.getString("cybergame.channel")
 
-        peka2tvEnabled.isSelected = config.getBoolean("peka2tv.enabled")
-        goodgameEnabled.isSelected = config.getBoolean("goodgame.enabled")
-        twitchEnabled.isSelected = config.getBoolean("twitch.enabled")
-        cybergameEnabled.isSelected = config.getBoolean("cybergame.enabled")
+        config.getBoolean("peka2tv.enabled").let {
+            peka2tvEnabled.isSelected = it
+            peka2tvChannel.configureChannelField(it)
+        }
+        config.getBoolean("goodgame.enabled").let {
+            goodgameEnabled.isSelected = it
+            goodgameChannel.configureChannelField(it)
+        }
+        config.getBoolean("twitch.enabled").let {
+            twitchEnabled.isSelected = it
+            twitchChannel.configureChannelField(it)
+        }
+        config.getBoolean("cybergame.enabled").let {
+            cybergameEnabled.isSelected = it
+            cybergameChannel.configureChannelField(it)
+        }
 
         skin.value = skin.converter.fromString(config.getString("skin"))
         frame.isSelected = config.getBoolean("frame")
@@ -146,4 +171,16 @@ class SettingsFrame(
         config.setProperty("info-message-mode", infoMessagesMode.value.toString())
         config.setProperty("ignore", ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
     }
+
+    private fun TextField.configureChannelField(editable: Boolean) {
+        if (editable) {
+            this.style = ""
+            this.isEditable = true
+        }
+        else {
+            this.style = "-fx-background-color: lightgrey"
+            this.isEditable = false
+        }
+    }
+
 }
