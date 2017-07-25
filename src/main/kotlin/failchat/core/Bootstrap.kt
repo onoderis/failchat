@@ -85,10 +85,12 @@ fun main(args: Array<String>) {
 }
 
 private fun checkForAnotherInstance() {
+    val sAddress = TtnWsServer.defaultAddress
     try {
-        val serverSocket = ServerSocket(TtnWsServer.defaultAddress.port)
+        val serverSocket = ServerSocket(sAddress.port, 10, sAddress.address)
         serverSocket.close()
     } catch (e: Exception) {
+        System.err.println("Another instance is running on $sAddress")
         System.exit(0)
     }
 }
