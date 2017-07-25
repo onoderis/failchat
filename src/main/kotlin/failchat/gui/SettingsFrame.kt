@@ -28,72 +28,57 @@ class SettingsFrame(
 
     lateinit var chat: ChatFrame
 
-    //settings nodes
-    private val peka2tvChannel: TextField
-    private val goodgameChannel: TextField
-    private val twitchChannel: TextField
-    private val cybergameChannel: TextField
-    private val peka2tvEnabled: CheckBox
-    private val goodgameEnabled: CheckBox
-    private val twitchEnabled: CheckBox
-    private val cybergameEnabled: CheckBox
-    private val skin: ChoiceBox<Skin>
-    private val frame: CheckBox
-    private val onTop: CheckBox
-    private val showViewers: CheckBox
-    private val showImages: CheckBox
-    private val startButton: Button
+    private val scene = Scene(FXMLLoader.load<Parent>(javaClass.getResource("/settings.fxml")))
+
+    //channels
+    private val peka2tvChannel = scene.lookup("#peka2tv_channel") as TextField
+    private val goodgameChannel = scene.lookup("#goodgame_channel") as TextField
+    private val twitchChannel = scene.lookup("#twitch_channel") as TextField
+    private val cybergameChannel = scene.lookup("#cybergame_channel") as TextField
+
+    //channels checkboxes
+    private val peka2tvEnabled = scene.lookup("#peka2tv_enabled") as CheckBox
+    private val goodgameEnabled = scene.lookup("#goodgame_enabled") as CheckBox
+    private val twitchEnabled = scene.lookup("#twitch_enabled") as CheckBox
+    private val cybergameEnabled = scene.lookup("#cybergame_enabled") as CheckBox
+
+    private val skin = scene.lookup("#skin") as ChoiceBox<Skin>
+    private val frame = scene.lookup("#frame") as CheckBox
+    private val onTop = scene.lookup("#top") as CheckBox
+    private val showViewers = scene.lookup("#show_viewers") as CheckBox
+    private val showImages = scene.lookup("#show_images") as CheckBox
 
     //second tab
-    private val bgColorPicker: ColorPicker
-    private val opacitySlider: Slider
-    private val infoMessagesMode: ChoiceBox<String>
-    private val ignoreList: TextArea
+    private val bgColorPicker = scene.lookup("#bgcolor") as ColorPicker
+    private val infoMessagesMode = scene.lookup("#info_messages") as ChoiceBox<String>
+    private val ignoreList = scene.lookup("#ignore_list") as TextArea
+
+    //opacity
+    private val opacitySlider = scene.lookup("#opacity") as Slider
+
+    private val startButton = scene.lookup("#start_button") as Button
 
     init {
+        stage.scene = scene
         stage.title = "failchat v" + config.getString("version")
         stage.icons.setAll(GuiLauncher.appIcon)
-        val scene = Scene(FXMLLoader.load<Parent>(javaClass.getResource("/settings.fxml")))
-        stage.scene = scene
 
-        //channels
-        peka2tvChannel = scene.lookup("#peka2tv_channel") as TextField
-        goodgameChannel = scene.lookup("#goodgame_channel") as TextField
-        twitchChannel = scene.lookup("#twitch_channel") as TextField
-        cybergameChannel = scene.lookup("#cybergame_channel") as TextField
-
-        //channels checkboxes
-        peka2tvEnabled = scene.lookup("#peka2tv_enabled") as CheckBox
-        goodgameEnabled = scene.lookup("#goodgame_enabled") as CheckBox
-        twitchEnabled = scene.lookup("#twitch_enabled") as CheckBox
-        cybergameEnabled = scene.lookup("#cybergame_enabled") as CheckBox
-
-        skin = scene.lookup("#skin") as ChoiceBox<Skin>
         skin.converter = SkinConverter(skinList)
         skin.items = FXCollections.observableArrayList(skinList)
-        frame = scene.lookup("#frame") as CheckBox
-        onTop = scene.lookup("#top") as CheckBox
-        showViewers = scene.lookup("#show_viewers") as CheckBox
-        showImages = scene.lookup("#show_images") as CheckBox
 
-        //second tab
-        bgColorPicker = scene.lookup("#bgcolor") as ColorPicker
-        infoMessagesMode = scene.lookup("#info_messages") as ChoiceBox<String>
-        infoMessagesMode.setItems(FXCollections.observableList(InfoMessageMode.values().map { it.toString() }))
-        ignoreList = scene.lookup("#ignore_list") as TextArea
+        infoMessagesMode.items = FXCollections.observableList(InfoMessageMode.values().map { it.toString() })
 
-        //opacity
-        opacitySlider = scene.lookup("#opacity") as Slider
-        val opacityText = scene.lookup("#opacity_text") as Text
-        opacitySlider.valueProperty().addListener { observable, oldValue, newValue -> opacityText.text = Integer.toString(newValue.toInt()) }
-
-        startButton = scene.lookup("#start_button") as Button
-        startButton.setOnAction { action -> toChat() }
-
-        stage.setOnCloseRequest { event ->
+        stage.setOnCloseRequest {
             saveSettingsValues()
             appStateTransitionManager.shutDown()
         }
+
+        val opacityText = scene.lookup("#opacity_text") as Text
+        opacitySlider.valueProperty().addListener { _, _, newValue ->
+            opacityText.text = Integer.toString(newValue.toInt())
+        }
+
+        startButton.setOnAction { toChat() }
     }
 
     internal fun show() {

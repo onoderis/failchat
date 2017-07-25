@@ -41,27 +41,22 @@ class ChatFrame(
 
     private val skinsDirectory: Path = workingDirectory.resolve("skins") //todo load skin in another way
 
-    private val decoratedChatStage: Stage
-    private val undecoratedChatStage: Stage //for opaque background color
-    private val transparentChatStage: Stage //for transparent background color
-    private val chatScene: Scene
+    private val decoratedChatStage: Stage = buildChatStage(StageType.decorated)
+    private val undecoratedChatStage: Stage = buildChatStage(StageType.undecorated) //for opaque background color
+    private val transparentChatStage: Stage = buildChatStage(StageType.transparent) //for transparent background color
     private val webView: WebView = WebView()
     private val webEngine: WebEngine = webView.engine
+    private val chatScene: Scene = buildChatScene()
 
     //context menu
     private val switchDecorationsItem: CheckMenuItem = CheckMenuItem("Show frame")
     private val onTopItem: CheckMenuItem = CheckMenuItem("On top")
     private val viewersItem: CheckMenuItem = CheckMenuItem("Show viewers")
 
-    private var currentChatStage: Stage
+    private var currentChatStage: Stage = decoratedChatStage
 
 
     init {
-        decoratedChatStage = buildChatStage(StageType.decorated)
-        undecoratedChatStage = buildChatStage(StageType.undecorated)
-        transparentChatStage = buildChatStage(StageType.transparent)
-        currentChatStage = decoratedChatStage
-        chatScene = buildChatScene()
         buildContextMenu(chatScene)
     }
 
