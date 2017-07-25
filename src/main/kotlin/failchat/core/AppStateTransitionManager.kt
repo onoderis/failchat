@@ -151,9 +151,14 @@ class AppStateTransitionManager(private val kodein: Kodein) {
         thread(start = true, name = "ShutdownThread") {
             config.setProperty("lastId", messageIdGenerator.lastId)
             configLoader.save()
+
             wsServer.stop()
-            okHttpClient.dispatcher().cancelAll()
-            okHttpClient.dispatcher().executorService().shutdownNow()
+            log.info("Websocket server stopped")
+
+            okHttpClient.dispatcher().executorService().shutdown()
+            log.info("OkHttpClient thread pool shutdown")
+            okHttpClient.connectionPool().evictAll()
+            log.info("OkHttpClient connections evicted")
         }
 
         thread(start = true, name = "TerminationThread", isDaemon = true) {
@@ -163,8 +168,6 @@ class AppStateTransitionManager(private val kodein: Kodein) {
                 "Process terminated after ${shutdownTimeout.seconds} seconds of shutDown() call. Verbose information:$ls" +
                         formatStackTraces(Thread.getAllStackTraces())
             }
-
-            Thread.sleep(1500) // write log message to file for sure
             System.exit(10)
         }
 

@@ -21,6 +21,7 @@ import failchat.exceptions.UnexpectedResponseException
 import failchat.utils.warn
 import io.socket.client.IO
 import io.socket.client.Socket
+import okhttp3.OkHttpClient
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -35,6 +36,7 @@ class Peka2tvChatClient(
         private val channelName: String,
         private val channelId: Long,
         private val socketIoUrl: String,
+        private val okHttpClient: OkHttpClient,
         private val messageIdGenerator: MessageIdGenerator,
         private val emoticonFinder: EmoticonFinder
 ) : ChatClient<Peka2tvMessage>,
@@ -121,6 +123,9 @@ class Peka2tvChatClient(
     }
 
     private fun buildSocket(): Socket {
+        IO.setDefaultOkHttpCallFactory(okHttpClient)
+        IO.setDefaultOkHttpWebSocketFactory(okHttpClient)
+
         val options = IO.Options().apply {
             transports = arrayOf("websocket")
             forceNew = true
