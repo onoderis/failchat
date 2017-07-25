@@ -32,12 +32,12 @@
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
                                           <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                                             <image>
-                                                <Image url="@icons/peka2tv.png" />
-                                             </image>
                                              <HBox.margin>
                                                 <Insets right="5.0" />
                                              </HBox.margin>
+                                             <image>
+                                                <Image url="@/icons/peka2tv.png" />
+                                             </image>
                                           </ImageView>
                                           <CheckBox fx:id="peka2tv_enabled" mnemonicParsing="false">
                                              <font>
@@ -57,12 +57,12 @@
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
                                           <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                                             <image>
-                                                <Image url="@icons/goodgame.png" />
-                                             </image>
                                              <HBox.margin>
                                                 <Insets right="5.0" />
                                              </HBox.margin>
+                                             <image>
+                                                <Image url="@/icons/goodgame.png" />
+                                             </image>
                                           </ImageView>
                                           <CheckBox fx:id="goodgame_enabled" mnemonicParsing="false">
                                              <font>
@@ -82,12 +82,12 @@
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
                                           <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                                             <image>
-                                                <Image url="@icons/twitch.png" />
-                                             </image>
                                              <HBox.margin>
                                                 <Insets right="5.0" />
                                              </HBox.margin>
+                                             <image>
+                                                <Image url="@/icons/twitch.png" />
+                                             </image>
                                           </ImageView>
                                           <CheckBox fx:id="twitch_enabled" mnemonicParsing="false">
                                              <font>
@@ -107,12 +107,12 @@
                                     <HBox alignment="CENTER_LEFT" layoutX="12.0" layoutY="100.0">
                                        <children>
                                           <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                                             <image>
-                                                <Image url="@icons/cybergame.png" />
-                                             </image>
                                              <HBox.margin>
                                                 <Insets right="5.0" />
                                              </HBox.margin>
+                                             <image>
+                                                <Image url="@/icons/cybergame.png" />
+                                             </image>
                                           </ImageView>
                                           <CheckBox fx:id="cybergame_enabled" mnemonicParsing="false">
                                              <font>
