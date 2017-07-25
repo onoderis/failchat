@@ -260,11 +260,12 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.0.2</version>
                 <configuration>
-                    <outputDirectory>${basedir}/target/failchat</outputDirectory>
+                    <finalName>failchat-${project.version}-without-dependencies</finalName>
+                    <outputDirectory>${basedir}/target</outputDirectory>
                     <archive>
                         <manifest>
-                            <addClasspath>true</addClasspath>
                             <mainClass>failchat.core.BootstrapKt</mainClass>
+                            <addClasspath>true</addClasspath>
                         </manifest>
                     </archive>
                     <includes>
@@ -289,6 +290,8 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <finalName>failchat-${project.version}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
                             <mainClass>failchat.core.BootstrapKt</mainClass>
