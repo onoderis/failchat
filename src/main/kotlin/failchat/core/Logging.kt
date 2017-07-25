@@ -12,64 +12,42 @@ import org.slf4j.LoggerFactory
 import org.slf4j.bridge.SLF4JBridgeHandler
 import ch.qos.logback.classic.Logger as LogbackLogger
 
-fun configureLogging() {
+fun configureLogging(args: Array<String>) {
+    val rootLevel = if (args.contains("--root-debug")) Level.DEBUG else Level.WARN
+    val failchatLevel = if (args.contains("--failchat-debug")) Level.DEBUG else Level.WARN
+    val consoleEnabled = args.contains("--console")
+
+
     SLF4JBridgeHandler.removeHandlersForRootLogger()
     SLF4JBridgeHandler.install()
 
 
     val rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as LogbackLogger
     rootLogger.detachAndStopAllAppenders()
-    rootLogger.level = Level.WARN
-//    rootLogger.level = Level.DEBUG
+    rootLogger.level = rootLevel
 
-    val logback = LoggerFactory.getILoggerFactory() as LoggerContext
+    val logbackContext = LoggerFactory.getILoggerFactory() as LoggerContext
 
     // jul propagator
     val julPropagator = LevelChangePropagator().apply {
         setResetJUL(true)
-        context = logback
+        context = logbackContext
         start()
     }
-    logback.addListener(julPropagator)
+    logbackContext.addListener(julPropagator)
 
-    // Console appender
-    val consoleEncoder = PatternLayoutEncoder().apply {
-        context = logback
-        pattern = """%date %level [%thread] %logger \(%file:%line\) %msg%n"""
-//        pattern = """%date{HH:mm:ss.SSS} %level %msg%n"""
-//        pattern = """%date{HH:mm:ss.SSS} %.-1level %msg%n"""
-        start()
-    }
-    val consoleAppender = ConsoleAppender<ILoggingEvent>().apply {
-        context = logback
-        encoder = consoleEncoder
-        target = "System.err"
-        isWithJansi = true
-        start()
-    }
 
-    // File Appender
-    val fileEncoder = PatternLayoutEncoder().apply {
-        context = logback
-        pattern = """%date %level [%thread] %logger \(%file:%line\) %msg%n"""
-        start()
-    }
-    val fileAppender = FileAppender<ILoggingEvent>().apply {
-        context = logback
-        encoder = fileEncoder
-        file = "failchat.log"
-        isAppend = false
-        start()
-    }
+    val consoleAppender = if (consoleEnabled) configureConsoleAppender(logbackContext) else null
+    val fileAppender = configureFileAppender(logbackContext)
 
     val failchatLogger = LoggerFactory.getLogger("failchat") as LogbackLogger
-    failchatLogger.level = Level.DEBUG
+    failchatLogger.level = failchatLevel
     failchatLogger.isAdditive = false
     failchatLogger.addAppender(fileAppender)
-    failchatLogger.addAppender(consoleAppender)
+    consoleAppender?.let { failchatLogger.addAppender(it) }
 
     rootLogger.addAppender(fileAppender)
-    rootLogger.addAppender(consoleAppender)
+    consoleAppender?.let { rootLogger.addAppender(it) }
 
 
     Thread.setDefaultUncaughtExceptionHandler { _, e ->
@@ -78,4 +56,36 @@ fun configureLogging() {
 
 
     failchatLogger.info("Logging configured")
+}
+
+private fun configureConsoleAppender(logbackContext: LoggerContext): ConsoleAppender<ILoggingEvent> {
+    val consoleEncoder = PatternLayoutEncoder().apply {
+        context = logbackContext
+        pattern = """%date %level [%thread] %logger \(%file:%line\) %msg%n"""
+//        pattern = """%date{HH:mm:ss.SSS} %level %msg%n"""
+//        pattern = """%date{HH:mm:ss.SSS} %.-1level %msg%n"""
+        start()
+    }
+    return ConsoleAppender<ILoggingEvent>().apply {
+        context = logbackContext
+        encoder = consoleEncoder
+        target = "System.err"
+        isWithJansi = true
+        start()
+    }
+}
+
+private fun configureFileAppender(logbackContext: LoggerContext): FileAppender<ILoggingEvent> {
+    val fileEncoder = PatternLayoutEncoder().apply {
+        context = logbackContext
+        pattern = """%date %level [%thread] %logger \(%file:%line\) %msg%n"""
+        start()
+    }
+    return FileAppender<ILoggingEvent>().apply {
+        context = logbackContext
+        encoder = fileEncoder
+        file = "failchat.log"
+        isAppend = false
+        start()
+    }
 }
