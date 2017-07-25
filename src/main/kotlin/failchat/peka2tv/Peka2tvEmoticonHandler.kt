@@ -1,14 +1,15 @@
 package failchat.peka2tv
 
-import failchat.core.Origin.peka2tv
+import failchat.core.Origin
 import failchat.core.chat.MessageHandler
+import failchat.core.emoticon.Emoticon
 import failchat.core.emoticon.EmoticonFinder
 import java.util.regex.Pattern
 
 class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHandler<Peka2tvMessage> {
 
     private companion object {
-        val emoticonCodePattern: Pattern = Pattern.compile("""((?<=:)(\w+)(?=:))""")
+        val emoticonCodePattern: Pattern = Pattern.compile("""((?<=:)([\w-]+)(?=:))""")
     }
 
     override fun handleMessage(message: Peka2tvMessage) {
@@ -18,8 +19,7 @@ class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messa
         while (matcher.find(position)) {
             val code = matcher.group().toLowerCase() //ignore case
 
-
-            val emoticon = emoticonFinder.findByCode(peka2tv, code)
+            val emoticon = findByMultiOriginCode(code)
             if (emoticon != null) {
                 val num = message.addElement(emoticon)
 
@@ -37,4 +37,13 @@ class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messa
             }
         }
     }
+
+    private fun findByMultiOriginCode(code: String): Emoticon? {
+        return when {
+            code.startsWith("tw-") -> emoticonFinder.findByCode(Origin.twitch, code.substring(3))
+            code.startsWith("gg-") -> emoticonFinder.findByCode(Origin.goodgame, code.substring(3))
+            else -> emoticonFinder.findByCode(Origin.goodgame, code)
+        }
+    }
+
 }
