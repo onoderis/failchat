@@ -70,7 +70,11 @@ val kodein = Kodein {
         )
     }
     bind<GuiEventHandler>() with singleton {
-        GuiEventHandler(instance<WsServer>(), instance<ObjectMapper>())
+        GuiEventHandler(
+                instance<WsServer>(),
+                instance<AppStateTransitionManager>(),
+                instance<ObjectMapper>()
+        )
     }
 
     // Emoticons

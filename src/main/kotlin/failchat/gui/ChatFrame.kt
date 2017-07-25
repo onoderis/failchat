@@ -1,6 +1,5 @@
 package failchat.gui
 
-import failchat.core.AppStateTransitionManager
 import failchat.utils.removeTransparency
 import failchat.utils.urlPattern
 import javafx.application.Application
@@ -27,7 +26,6 @@ import java.nio.file.Paths
 
 class ChatFrame(
         private val config: Configuration,
-        private val appStateTransitionManager: AppStateTransitionManager,
         private val guiEventHandler: GuiEventHandler,
         private val workingDirectory: Path
 ) {
@@ -85,10 +83,7 @@ class ChatFrame(
             log.error("Failed to load skin {}", skin, e)
         }
 
-        Thread({
-            //todo подумать как сделать лучше
-            appStateTransitionManager.startChat()
-        }, "ChatTransitionThread").start()
+        guiEventHandler.startChat()
     }
 
     private fun buildChatStage(type: StageType): Stage {
@@ -108,7 +103,7 @@ class ChatFrame(
         }
         stage.setOnCloseRequest { event ->
             saveChatPosition(stage)
-            appStateTransitionManager.shutDown()
+            guiEventHandler.shutDown()
         }
         stage.icons.setAll(GuiLauncher.appIcon)
         return stage
@@ -186,7 +181,7 @@ class ChatFrame(
         viewersItem.setOnAction { event ->
             val newValue = !config.getBoolean("show-viewers")
             config.setProperty("show-viewers", newValue)
-            guiEventHandler.fireViewersCountToggle(newValue)
+            guiEventHandler.notifyViewersCountToggled(newValue)
         }
 
         return contextMenu
@@ -197,8 +192,7 @@ class ChatFrame(
         currentChatStage.hide()
         webEngine.loadContent("")
         settings.show()
-
-        appStateTransitionManager.stopChat()
+        guiEventHandler.stopChat()
     }
 
     private fun switchDecorations() {
@@ -210,12 +204,11 @@ class ChatFrame(
             chatScene.fill = bgColor.removeTransparency()
             config.setProperty("frame", true)
         } else {
-            //to undecorated
             if (bgColor.isOpaque) {
                 currentChatStage = undecoratedChatStage
             } else {
                 currentChatStage = transparentChatStage
-            }//to transparent
+            }
             chatScene.fill = bgColor
             config.setProperty("frame", false)
         }
@@ -244,7 +237,9 @@ class ChatFrame(
     private fun saveChatPosition(stage: Stage) {
         config.setProperty("chat.width", stage.width.toInt())
         config.setProperty("chat.height", stage.height.toInt())
-        if (stage.x >= -10000 && stage.y >= -10000) { // -32k x -32k fix //todo check for error
+
+        // Иногда по какой-то причине окно передвигается на позицию -32k x -32k
+        if (stage.x >= -10000 && stage.y >= -10000) {
             config.setProperty("chat.x", stage.x.toInt())
             config.setProperty("chat.y", stage.y.toInt())
         }

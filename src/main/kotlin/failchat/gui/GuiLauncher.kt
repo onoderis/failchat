@@ -3,11 +3,13 @@ package failchat.gui
 import com.github.salomonbrys.kodein.instance
 import failchat.core.ConfigLoader
 import failchat.core.kodein
+import failchat.core.skin.Skin
 import javafx.application.Application
 import javafx.scene.image.Image
 import javafx.stage.Stage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.nio.file.Path
 
 class GuiLauncher : Application() {
 
@@ -17,10 +19,10 @@ class GuiLauncher : Application() {
     }
 
     override fun start(primaryStage: Stage) {
-        val settings = SettingsFrame(primaryStage, kodein.instance(),
-                kodein.instance<ConfigLoader>().get(), kodein.instance())
-        val chat = ChatFrame(kodein.instance<ConfigLoader>().get(), kodein.instance(),
-                kodein.instance(), kodein.instance("workingDirectory"))
+        val settings = SettingsFrame(primaryStage, kodein.instance<GuiEventHandler>(),
+                kodein.instance<ConfigLoader>().get(), kodein.instance<List<Skin>>())
+        val chat = ChatFrame(kodein.instance<ConfigLoader>().get(), kodein.instance<GuiEventHandler>(),
+                kodein.instance<Path>("workingDirectory"))
 
         settings.chat = chat
         chat.settings = settings

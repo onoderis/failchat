@@ -18,7 +18,6 @@ import failchat.core.ws.server.WsServer
 import failchat.exceptions.InvalidConfigurationException
 import failchat.goodgame.GgApiClient
 import failchat.goodgame.GgChatClient
-import failchat.gui.GuiEventHandler
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvChatClient
 import failchat.twitch.TwitchChatClient
@@ -57,7 +56,6 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     private val imageLinkHandler: ImageLinkHandler = kodein.instance()
     private val okHttpClient: OkHttpClient = kodein.instance()
     private val viewersCountWsHandler: ViewersCountWsHandler = kodein.instance()
-    private val guiEventHandler: GuiEventHandler = kodein.instance()
 
     private val lock: Lock = ReentrantLock()
     private val config: Configuration = configLoader.get()
