@@ -17,6 +17,7 @@ import failchat.core.emoticon.EmoticonManager
 import failchat.core.viewers.ViewersCountLoader
 import failchat.core.ws.client.WsClient
 import failchat.twitch.TwitchChatClient
+import failchat.utils.whileNotNull
 import org.java_websocket.handshake.ServerHandshake
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -183,11 +184,8 @@ class GgChatClient(
 
         private fun handleViewersMessage(dataNode: JsonNode) {
             val count = dataNode.get("count").asInt()
-
-            var future = viewersCountFutures.poll()
-            while (future != null) {
-                future.complete(count)
-                future = viewersCountFutures.poll()
+            whileNotNull({ viewersCountFutures.poll() }) {
+                it.complete(count)
             }
         }
     }
