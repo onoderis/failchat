@@ -85,7 +85,7 @@ private fun configureFileAppender(logbackContext: LoggerContext): FileAppender<I
         context = logbackContext
         encoder = fileEncoder
         file = "failchat.log"
-        isAppend = false
+//        isAppend = false
         start()
     }
 }
