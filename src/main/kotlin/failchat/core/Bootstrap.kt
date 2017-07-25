@@ -79,7 +79,6 @@ fun main(args: Array<String>) {
             .reportEvent(EventCategory.general, EventAction.start)
             .exceptionally { e ->
                 log.warn("Failed to report event {}.{}", EventCategory.general.name, EventAction.start.name, e)
-                null
             }
 
     Application.launch(GuiLauncher::class.java) //todo research: launch is blocking

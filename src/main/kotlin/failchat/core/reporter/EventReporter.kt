@@ -3,6 +3,7 @@ package failchat.core.reporter
 import failchat.core.ConfigLoader
 import failchat.exceptions.UnexpectedResponseCodeException
 import failchat.utils.completedFuture
+import failchat.utils.thenApplySafe
 import failchat.utils.toFuture
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
@@ -38,8 +39,8 @@ class EventReporter(
             "java${sp("java.version")}"
 
 
-    fun reportEvent(category: EventCategory, action: EventAction): CompletableFuture<Void?> {
-        if (!enabled) return completedFuture(null)
+    fun reportEvent(category: EventCategory, action: EventAction): CompletableFuture<Unit> {
+        if (!enabled) return completedFuture(Unit)
 
         val url = HttpUrl.Builder()
                 .scheme("https")
@@ -66,11 +67,10 @@ class EventReporter(
         return httpClient
                 .newCall(request)
                 .toFuture()
-                .thenApply { response ->
-                    val code = response.use { it.code() }
+                .thenApplySafe { response ->
+                    val code = response.code()
                     if (code !in 200..299) throw UnexpectedResponseCodeException(code)
                     log.info("Event successfully reported: {}.{}", category.name, action.name)
-                    null
                 }
     }
 
