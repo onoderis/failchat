@@ -34,7 +34,7 @@ import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchEmoticonLoader
 import failchat.twitch.TwitchViewersCountLoader
 import okhttp3.OkHttpClient
-import org.apache.commons.configuration.CompositeConfiguration
+import org.apache.commons.configuration2.Configuration
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -43,17 +43,17 @@ val kodein = Kodein {
     // Websocket server
     bind<WsServer>() with singleton { TtnWsServer(instance<ObjectMapper>()) }
     bind<ViewersCountWsHandler>() with singleton {
-        ViewersCountWsHandler(instance<CompositeConfiguration>(), instance<ObjectMapper>())
+        ViewersCountWsHandler(instance<Configuration>(), instance<ObjectMapper>())
     }
 
     // Core dependencies
     bind<AppStateTransitionManager>() with singleton { AppStateTransitionManager(kodein) }
     bind<ConfigLoader>() with singleton { ConfigLoader(instance<Path>("workingDirectory")) }
-    bind<CompositeConfiguration>() with singleton { instance<ConfigLoader>().get() }
+    bind<Configuration>() with singleton { instance<ConfigLoader>().get() }
     bind<ChatMessageSender>() with singleton {
         ChatMessageSender(
                 instance<WsServer>(),
-                instance<CompositeConfiguration>(),
+                instance<Configuration>(),
                 instance<IgnoreFilter>(),
                 instance<ImageLinkHandler>(),
                 instance<ObjectMapper>()
@@ -77,7 +77,7 @@ val kodein = Kodein {
     bind<EmoticonStorage>() with singleton { EmoticonStorage() }
     bind<EmoticonFinder>() with singleton { instance<EmoticonStorage>() }
     bind<EmoticonManager>() with singleton {
-        EmoticonManager(instance("workingDirectory"), instance<CompositeConfiguration>())
+        EmoticonManager(instance("workingDirectory"), instance<Configuration>())
     }
 
 
@@ -87,13 +87,13 @@ val kodein = Kodein {
 
 
     // Handlers and filters
-    bind<IgnoreFilter>() with singleton { IgnoreFilter(instance<CompositeConfiguration>()) }
-    bind<ImageLinkHandler>() with singleton { ImageLinkHandler(instance<CompositeConfiguration>()) }
+    bind<IgnoreFilter>() with singleton { IgnoreFilter(instance<Configuration>()) }
+    bind<ImageLinkHandler>() with singleton { ImageLinkHandler(instance<Configuration>()) }
 
 
     // Etc
     bind<Path>("workingDirectory") with singleton { Paths.get("") }
-    bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<CompositeConfiguration>().getLong("lastId")) }
+    bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastId")) }
     bind<List<Skin>>() with singleton { SkinScanner(instance("workingDirectory")).scan() }
     bind<EventReporter>() with singleton { EventReporter(instance<OkHttpClient>(), instance<ConfigLoader>()) }
 
@@ -113,7 +113,7 @@ val kodein = Kodein {
         Peka2tvChatClient(
                 channelName = channelNameAndId.first,
                 channelId = channelNameAndId.second,
-                socketIoUrl = instance<CompositeConfiguration>().getString("peka2tv.socketio-url"),
+                socketIoUrl = instance<Configuration>().getString("peka2tv.socketio-url"),
                 okHttpClient = instance<OkHttpClient>(),
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 emoticonFinder = instance<EmoticonFinder>()
@@ -123,7 +123,7 @@ val kodein = Kodein {
 
     // Twitch
     bind<TwitchApiClient>() with singleton {
-        val config = instance<CompositeConfiguration>()
+        val config = instance<Configuration>()
         TwitchApiClient(
                 httpClient = instance<OkHttpClient>(),
                 apiUrl = config.getString("twitch.api-url"),
@@ -133,7 +133,7 @@ val kodein = Kodein {
     }
     bind<TwitchEmoticonLoader>() with singleton { TwitchEmoticonLoader(instance<TwitchApiClient>()) }
     bind<TwitchChatClient>() with factory { channelName: String ->
-        val config = instance<CompositeConfiguration>()
+        val config = instance<Configuration>()
         TwitchChatClient(
                 userName = channelName,
                 ircAddress = config.getString("twitch.irc-address"),
@@ -154,7 +154,7 @@ val kodein = Kodein {
         GgChatClient(
                 channelName = channelNameAndId.first,
                 channelId = channelNameAndId.second,
-                webSocketUri = instance<CompositeConfiguration>().getString("goodgame.ws-url"),
+                webSocketUri = instance<Configuration>().getString("goodgame.ws-url"),
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 emoticonFinder = instance<EmoticonFinder>(),
                 objectMapper = instance<ObjectMapper>()
@@ -163,8 +163,8 @@ val kodein = Kodein {
     bind<GgApiClient>() with singleton {
         GgApiClient(
                 httpClient = instance<OkHttpClient>(),
-                apiUrl = instance<CompositeConfiguration>().getString("goodgame.api-url"),
-                emoticonsJsUrl = instance<CompositeConfiguration>().getString("goodgame.emoticon-js-url"),
+                apiUrl = instance<Configuration>().getString("goodgame.api-url"),
+                emoticonsJsUrl = instance<Configuration>().getString("goodgame.emoticon-js-url"),
                 objectMapper = instance<ObjectMapper>()
         )
     }

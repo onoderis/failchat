@@ -26,7 +26,7 @@ import failchat.gui.GuiLauncher
 import failchat.peka2tv.Peka2tvEmoticonLoader
 import failchat.twitch.TwitchEmoticonLoader
 import javafx.application.Application
-import org.apache.commons.configuration.CompositeConfiguration
+import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.ServerSocket
@@ -46,7 +46,7 @@ fun main(args: Array<String>) {
 
     // Get common dependencies
     val configLoader: ConfigLoader = kodein.instance()
-    val config: CompositeConfiguration = kodein.instance()
+    val config: Configuration = kodein.instance()
     val objectMapper: ObjectMapper = kodein.instance()
 
     // Scan skins

@@ -8,7 +8,7 @@ import failchat.utils.toFuture
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.apache.commons.configuration.CompositeConfiguration
+import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.Locale
@@ -25,7 +25,7 @@ class EventReporter(
         const val idKey = "reporter.user-uuid"
     }
 
-    private val config: CompositeConfiguration = configLoader.get()
+    private val config: Configuration = configLoader.get()
     private val enabled = config.getBoolean("reporter.enabled")
 
     // parameters
