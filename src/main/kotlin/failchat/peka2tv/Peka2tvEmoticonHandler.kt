@@ -42,7 +42,7 @@ class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messa
         return when {
             code.startsWith("tw-") -> emoticonFinder.findByCode(Origin.twitch, code.substring(3))
             code.startsWith("gg-") -> emoticonFinder.findByCode(Origin.goodgame, code.substring(3))
-            else -> emoticonFinder.findByCode(Origin.goodgame, code)
+            else -> emoticonFinder.findByCode(Origin.peka2tv, code)
         }
     }
 
