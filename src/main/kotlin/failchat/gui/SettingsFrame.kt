@@ -1,6 +1,5 @@
 package failchat.gui
 
-import failchat.core.AppStateTransitionManager
 import failchat.core.chat.InfoMessageMode
 import failchat.core.skin.Skin
 import javafx.collections.FXCollections
@@ -21,7 +20,7 @@ import org.apache.commons.configuration2.Configuration
 
 class SettingsFrame(
         private val stage: Stage,
-        private val appStateTransitionManager: AppStateTransitionManager,
+        private val guiEventHandler: GuiEventHandler,
         private val config: Configuration,
         private val skinList: List<Skin>
 ) {
@@ -83,7 +82,7 @@ class SettingsFrame(
 
         stage.setOnCloseRequest {
             saveSettingsValues()
-            appStateTransitionManager.shutDown()
+            guiEventHandler.shutDown()
         }
 
         val opacityText = scene.lookup("#opacity_text") as Text
