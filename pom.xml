@@ -155,20 +155,6 @@
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
 
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-            <!--<resource>-->
-                <!--<directory>${basedir}/src/main/external-resources</directory>-->
-                <!--<filtering>true</filtering>-->
-                <!--<includes>-->
-                    <!--<include>failchat.bat</include>-->
-                <!--</includes>-->
-            <!--</resource>-->
-        </resources>
-
         <plugins>
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
@@ -197,18 +183,24 @@
 
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.7</version>
+                <version>3.0.2</version>
                 <executions>
-                    <!-- Copy external resources to classes/ -->
                     <execution>
-                        <id>copy-external-resources-compile</id>
+                        <id>copy-resources-on-compile</id>
                         <phase>process-resources</phase>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/classes</outputDirectory>
                             <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/resources/config</directory>
+                                    <targetPath>${basedir}/target/classes/config</targetPath>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>default.properties</include>
+                                    </includes>
+                                </resource>
                                 <resource>
                                     <directory>${basedir}/src/main/external-resources</directory>
                                     <excludes>
@@ -219,9 +211,8 @@
                         </configuration>
                     </execution>
 
-                    <!-- Copy external resources to failchat/ -->
                     <execution>
-                        <id>copy-external-resources-package</id>
+                        <id>copy-resources-on-package</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>copy-resources</goal>
@@ -235,32 +226,17 @@
                                         <exclude>failchat.bat</exclude>
                                     </excludes>
                                 </resource>
+                                <resource>
+                                    <directory>${basedir}/src/main/external-resources</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>failchat.bat</include>
+                                    </includes>
+                                </resource>
                             </resources>
                         </configuration>
                     </execution>
-                    <!-- todo Copy filtered failchat.bat to failchat/ -->
-                    <!--<execution>-->
-                        <!--<id>copy-bat-package</id>-->
-                        <!--<phase>prepare-package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>resources</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<overwrite>true</overwrite>-->
-                            <!--<supportMultiLineFiltering>true</supportMultiLineFiltering>-->
-                            <!--<outputDirectory>${basedir}/target/failchat</outputDirectory>-->
-                            <!--<resources>-->
-                                <!--<resource>-->
-                                    <!--<directory>${basedir}/src/main/external-resources</directory>-->
-                                    <!--<includes>-->
-                                        <!--<include>failchat.bat</include>-->
-                                    <!--</includes>-->
-                                <!--</resource>-->
-                            <!--</resources>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
 
-                    <!-- Copy config to test/ (for api tests) -->
                     <execution>
                         <id>copy-test-config</id>
                         <phase>generate-test-resources</phase>
@@ -269,7 +245,6 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${basedir}/target/test-classes/config</outputDirectory>
-                            <encoding>UTF-8</encoding>
                             <resources>
                                 <resource>
                                     <directory>${basedir}/src/main/resources/config</directory>
@@ -297,7 +272,7 @@
                         <include>META-INF/**</include>
                         <include>config/**</include>
                         <include>icons/**</include>
-                        <include>settings.fxml</include>
+                        <include>fx/**</include>
                     </includes>
                 </configuration>
             </plugin>
