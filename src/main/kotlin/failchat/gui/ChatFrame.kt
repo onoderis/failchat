@@ -33,7 +33,7 @@ class ChatFrame(
 ) {
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(ChatFrame::class.java)
+        private val log: Logger = LoggerFactory.getLogger(ChatFrame::class.java)
     }
 
     lateinit var settings: SettingsFrame
@@ -87,7 +87,7 @@ class ChatFrame(
         try {
             webEngine.load(skinsDirectory.resolve(skin).resolve(skin + ".html").toUri().toURL().toString())
         } catch (e: MalformedURLException) {
-            logger.error("Failed to load skin {}", skin, e)
+            log.error("Failed to load skin {}", skin, e)
         }
 
         Thread({
@@ -154,12 +154,12 @@ class ChatFrame(
                 if (matcher.find()) {
                     Platform.runLater { webEngine.loadWorker.cancel() }
                     app.hostServices.showDocument(webEngine.location)
-                    logger.debug("Opening url: {}", webEngine.location)
+                    log.debug("Opening url: {}", webEngine.location)
                 } else if (newLocation.contains("file:///")) {
                     //todo вспомнить зачем это надо
                     val newLocationPath = Paths.get(newLocation.split("file:///").get(1))
                     if (newLocationPath.startsWith(skinsDirectory)) {
-                        logger.debug("Opening skin: {}", webEngine.location)
+                        log.debug("Opening skin: {}", webEngine.location)
                     }
                 }
             }
@@ -230,7 +230,7 @@ class ChatFrame(
         configureChatStage(currentChatStage)
         currentChatStage.scene = chatScene
         currentChatStage.show()
-        logger.debug("Chat stage switched. Decorated: {}", toDecorated)
+        log.debug("Chat stage switched. Decorated: {}", toDecorated)
     }
 
     private fun configureChatStage(stage: Stage) {
