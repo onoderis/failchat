@@ -5,7 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.salomonbrys.kodein.instance
 import failchat.core.chat.ChatMessageRemover
 import failchat.core.chat.handlers.IgnoreFilter
+import failchat.core.emoticon.Emoticon
+import failchat.core.emoticon.EmoticonLoader
 import failchat.core.emoticon.EmoticonManager
+import failchat.core.emoticon.EmoticonStorage
+import failchat.core.emoticon.EmoticonStoreOptions
 import failchat.core.reporter.EventAction
 import failchat.core.reporter.EventCategory
 import failchat.core.reporter.EventReporter
@@ -17,7 +21,10 @@ import failchat.core.ws.server.EnabledOriginsWsHandler
 import failchat.core.ws.server.IgnoreWsMessageHandler
 import failchat.core.ws.server.TtnWsServer
 import failchat.core.ws.server.WsServer
+import failchat.goodgame.GgEmoticonLoader
 import failchat.gui.GuiLauncher
+import failchat.peka2tv.Peka2tvEmoticonLoader
+import failchat.twitch.TwitchEmoticonLoader
 import javafx.application.Application
 import org.apache.commons.configuration.CompositeConfiguration
 import org.slf4j.Logger
@@ -65,11 +72,9 @@ fun main(args: Array<String>) {
 
 
     // Load emoticons in background thread
-    val emoticonManager: EmoticonManager = kodein.instance()
-    thread(start = true, name = "SmileLoaderThread", priority = 3) {
-        emoticonManager.loadEmoticons()
-    }
+    startEmoticonLoaderThread()
 
+    // Report about start of application
     kodein.instance<EventReporter>()
             .reportEvent(EventCategory.general, EventAction.start)
             .exceptionally { e ->
@@ -88,3 +93,25 @@ private fun checkForAnotherInstance() {
         System.exit(0)
     }
 }
+
+private fun startEmoticonLoaderThread() {
+    // todo is kodein class thread safe?
+    val manager: EmoticonManager = kodein.instance()
+    val storage: EmoticonStorage = kodein.instance()
+    val loadersAndOptions: List<Pair<EmoticonLoader<out Emoticon>, EmoticonStoreOptions>> = listOf(
+            kodein.instance<Peka2tvEmoticonLoader>() to EmoticonStoreOptions(true, false),
+            kodein.instance<GgEmoticonLoader>() to EmoticonStoreOptions(true, false),
+            kodein.instance<TwitchEmoticonLoader>() to EmoticonStoreOptions(true, true)
+    )
+
+    thread(start = true, name = "SmileLoaderThread", priority = 3) {
+        loadersAndOptions.forEach {
+            try {
+                manager.loadInStorage(storage, it.first, it.second)
+            } catch (e: Exception) {
+                log.warn("Exception during loading emoticons for origin {}", it.first.origin, e)
+            }
+        }
+    }
+}
+

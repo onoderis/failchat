@@ -6,24 +6,24 @@ import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
-import failchat.core.emoticon.EmoticonManager
+import failchat.core.emoticon.EmoticonFinder
 import org.junit.Test
 
 class TwitchEmoticonHandlerTest {
 
-    val emoticonManager: EmoticonManager = mock()
+    val emoticonFinder: EmoticonFinder = mock()
     val message: TwitchMessage = mock()
     val firstEmoticon: TwitchEmoticon = mock()
     val secondEmoticon: TwitchEmoticon = mock()
 
-    val handler = TwitchEmoticonHandler(emoticonManager)
+    val handler = TwitchEmoticonHandler(emoticonFinder)
 
     @Test
     fun longEmoticonCodeTest() {
         whenever(message.text) doReturn("Kappa 123 Kappa Keepo he")
         whenever(message.emotesTag) doReturn("25:0-4,10-14/1902:16-20")
-        whenever(emoticonManager.find(any(), eq(25L))) doReturn firstEmoticon
-        whenever(emoticonManager.find(any(), eq(1902L))) doReturn secondEmoticon
+        whenever(emoticonFinder.findById(any(), eq(25L))) doReturn firstEmoticon
+        whenever(emoticonFinder.findById(any(), eq(1902L))) doReturn secondEmoticon
         whenever(message.addElement(any())).thenReturn("\${!0}", "\${!1}", "\${!2}")
 
         handler.handleMessage(message)
@@ -35,8 +35,8 @@ class TwitchEmoticonHandlerTest {
     fun shortEmoticonCodeTest() {
         whenever(message.text) doReturn("123 :) :-( 321")
         whenever(message.emotesTag) doReturn("1:4-5/2:7-9")
-        whenever(emoticonManager.find(any(), eq(1L))) doReturn firstEmoticon
-        whenever(emoticonManager.find(any(), eq(2L))) doReturn secondEmoticon
+        whenever(emoticonFinder.findById(any(), eq(1L))) doReturn firstEmoticon
+        whenever(emoticonFinder.findById(any(), eq(2L))) doReturn secondEmoticon
         whenever(message.addElement(any())).thenReturn("\${!0}", "\${!1}")
 
         handler.handleMessage(message)

@@ -1,6 +1,7 @@
 package failchat.core.emoticon
 
 import failchat.core.Origin
+import failchat.exceptions.EmoticonLoadException
 import org.apache.commons.configuration.CompositeConfiguration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -10,125 +11,121 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
-import java.util.EnumMap
 
 class EmoticonManager(
         private val workingDirectory: Path,
-        private val config: CompositeConfiguration,
-        private val emoticonLoaders: List<EmoticonLoader<out Emoticon>>
+        private val config: CompositeConfiguration
 ) {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(EmoticonManager::class.java)
     }
 
+    private val updateInterval = Duration.ofMillis(config.getLong("emoticons.updating-delay"))
     private val emoticonDirectory: Path = workingDirectory.resolve("emoticons")
-    private val loadedEmoticons: MutableMap<Origin, Map<out Any, Emoticon>> = EnumMap(Origin::class.java)
-
-
-    fun find(origin: Origin, key: Any): Emoticon? = loadedEmoticons.get(origin)?.get(key)
 
     /**
-     * Load all emoticon lists in memory. Blocking call.
+     * Load emoticons and put it in storage. Also saves emoticons in cache file.
+     * Blocking call.
      * */
-    fun loadEmoticons() {
+    fun <T : Emoticon> loadInStorage(storage: EmoticonStorage, loader: EmoticonLoader<T>, options: EmoticonStoreOptions) {
         Files.createDirectories(emoticonDirectory)
 
         val now = Instant.now()
-        val updateInterval = Duration.ofMillis(config.getLong("emoticons.updating-delay"))
+        val origin = loader.origin
+        val cacheFile = emoticonDirectory.resolve("${origin.name}.ser")
 
-        //todo load in parallel?
-        emoticonLoaders.forEach { loader ->
+        val (emoticons, loadedFrom) = load(loader, cacheFile, now)
+
+        // Save to cache file if required
+        if (loadedFrom == LoadSource.loader && isCacheOutdated(loader.origin, now)) {
             try {
-                load(loader, now, updateInterval)
+                saveToCache(emoticons, cacheFile)
+                config.setProperty("${origin.name}.emoticons.last-updated", now.toEpochMilli())
+                log.info("Updated emoticon list saved to cache file for origin {}", origin.name)
             } catch (e: Exception) {
-                log.warn("Unexpected error during loading emoticons for origin {}", loader.origin, e)
+                log.warn("Failded to save updated emoticon list to cache file. origin {}", origin.name)
             }
+        }
+
+        // Put data in storage
+        if (options.storeByCode) {
+            val codeToEmoticon = emoticons
+                    .map { it.code.toLowerCase() to it }
+                    .toMap((HashMap()))
+            storage.putByCode(origin, codeToEmoticon)
+        }
+        if (options.storeById) {
+            val idToEmoticon = emoticons
+                    .map { loader.getId(it) to it }
+                    .toMap((HashMap()))
+            storage.putById(origin, idToEmoticon)
         }
     }
 
     /**
-     * Load emoticons for single origin.
+     * Load emoticons from cache file or via emoticon loader, depends on whether the list is outdated.
+     * @return list of emoticons and load method.
      */
-    private fun load(loader: EmoticonLoader<out Emoticon>, now: Instant, updateInterval: Duration) {
+    private fun <T : Emoticon> load(loader: EmoticonLoader<T>, cacheFile: Path, now: Instant): Pair<List<T>, LoadSource> {
         val origin = loader.origin
-        val filePath = emoticonDirectory.resolve("${origin.name}.ser")
-        val fileExists = Files.exists(filePath)
+        val fileExists = Files.exists(cacheFile)
 
-        val lastUpdatedDate = Instant.ofEpochMilli(config.getLong("${origin.name}.emoticons.last-updated"))
-        val emoticonsOutdated = lastUpdatedDate.plus(updateInterval).isBefore(now)
-
-        // Deserialize actual emoticon list
-        if (!emoticonsOutdated && fileExists) {
-            deserialize<Map<Any, Emoticon>>(filePath)?.let {
-                loadedEmoticons.put(origin, it)
-                log.info("Actual version of emoticon list deserialized from file. origin: {}, count: {}", origin.name, it.size)
-                return
+        // Save to cache file actual emoticon list
+        if (isCacheOutdated(origin, now) && fileExists) {
+            try {
+                val emoticons = loadFromCache<List<T>>(cacheFile)
+                log.info("Actual version of emoticon list loaded from cache file. origin: {}, count: {}", origin.name, emoticons.size)
+                return emoticons to LoadSource.cache
+            } catch (e: Exception) {
+                log.warn("Failed to load actual emoticon list from cache file. origin: {}", origin.name, e)
             }
         }
+        // else: outdated emoticons in cache file or cache file not exists
 
-        // Load emoticon list. Here we have outdated cached emoticons or cache not exists
-        val loadedEmoticonMap = try {
-            val emoticonMap: Map<out Any, Emoticon> = loader.loadEmoticons().join()
-            loadedEmoticons.put(origin, emoticonMap)
-            log.info("Emoticon list loaded from origin {}. count: {}", origin.name, emoticonMap.size)
-            emoticonMap
+        // Load emoticon list via EmoticonLoader
+        val loadException = try {
+            val emoticons = loader.loadEmoticons().join()
+            log.info("Emoticon list loaded from origin {}. count: {}", origin.name, emoticons.size)
+            return emoticons to LoadSource.loader
         } catch (e: Exception) {
             log.warn("Failed to load emoticon list for {}", origin.name, e)
-            null
+            e
         }
 
-        // Deserialize outdated list if load failed and continue
-        if (loadedEmoticonMap == null && fileExists) {
-            deserialize<Map<Any, Emoticon>>(filePath)?.let {
-                loadedEmoticons.put(origin, it)
-                log.info("Outdated version of emoticon list deserialized from file. origin: {}, count: {}", origin.name, it.size)
-                return
-            }
+        // Load outdated list from cache file if load via EmoticonLoader failed
+        if (fileExists) {
+            val emoticons = loadFromCache<List<T>>(cacheFile)
+            log.info("Outdated version of emoticon list loaded from cache file. origin: {}, count: {}", origin.name, emoticons.size)
+            return emoticons to LoadSource.cache
         }
 
-        // Serialize loaded emoticon list
-        try {
-            serialize(loadedEmoticonMap!!, filePath)
-            config.setProperty("${origin.name}.emoticons.last-updated", now.toEpochMilli())
-            log.info("Updated emoticon list serialized for origin {}", origin.name)
-        } catch (e: Exception) {
-            log.warn("Failed to serialize updated emoticon list for origin: {}", origin.name, e)
-        }
-
+        throw EmoticonLoadException("Failed to load emoticons for origin ${origin.name}. Cache file exists: $fileExists")
     }
 
-    /**
-     * @return true if object successfully serialized, false otherwise.
-     * */
-    private fun serialize(obj: Any, filePath: Path): Boolean {
-        try {
-            filePath.toFile().outputStream().use { fileOutputStream ->
-                ObjectOutputStream(fileOutputStream).use { objectOutputStream ->
-                    objectOutputStream.writeObject(obj)
-                    return true
-                }
+    private fun isCacheOutdated(origin: Origin, now: Instant): Boolean {
+        val lastUpdatedDate = Instant.ofEpochMilli(config.getLong("${origin.name}.emoticons.last-updated"))
+        return lastUpdatedDate.plus(updateInterval).isBefore(now)
+    }
+
+    private fun saveToCache(obj: Any, filePath: Path) {
+        filePath.toFile().outputStream().use { fileOutputStream ->
+            ObjectOutputStream(fileOutputStream).use { objectOutputStream ->
+                objectOutputStream.writeObject(obj)
             }
-        } catch (e: Exception) {
-            log.warn("Failed to serialize object {} to file {}", obj, filePath, e)
-            return false
         }
     }
 
-    /**
-     * @return [T] if object successfully deserialized, null otherwise.
-     * */
-    private fun <T> deserialize(filePath: Path): T? {
-        try {
-            filePath.toFile().inputStream().use { fileInputStream ->
-                ObjectInputStream(fileInputStream).use { objectInputStream ->
-                    return objectInputStream.readObject() as? T
-                }
+    private fun <T> loadFromCache(filePath: Path): T {
+        filePath.toFile().inputStream().use { fileInputStream ->
+            ObjectInputStream(fileInputStream).use { objectInputStream ->
+                return objectInputStream.readObject() as T
             }
-        } catch (e: Exception) {
-            log.warn("Failed to deserialize object from file {}", filePath, e)
-            return null
         }
+    }
+
+    private enum class LoadSource {
+        loader, cache
     }
 
 }

@@ -14,12 +14,10 @@ class TwitchEmoticonLoader(private val twitchClient: TwitchApiClient) : Emoticon
 
     override val origin = Origin.twitch
 
-    override fun loadEmoticons(): CompletableFuture<Map<out Any, TwitchEmoticon>> {
-        return twitchClient.requestEmoticons().thenApply {
-            it
-                    .map { it.id to it }
-                    .toMap(HashMap())
-        }
+    override fun loadEmoticons(): CompletableFuture<List<TwitchEmoticon>> {
+        return twitchClient.requestEmoticons()
     }
+
+    override fun getId(emoticon: TwitchEmoticon) = emoticon.twitchId
 
 }

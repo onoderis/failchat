@@ -7,6 +7,8 @@ interface EmoticonLoader<T : Emoticon> {
 
     val origin: Origin
 
-    fun loadEmoticons(): CompletableFuture<Map<out Any, T>>
+    fun loadEmoticons(): CompletableFuture<List<T>>
+
+    fun getId(emoticon: T): Long
 
 }

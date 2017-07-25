@@ -13,7 +13,7 @@ import failchat.core.chat.MessageHandler
 import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.handlers.CommonHighlightHandler
 import failchat.core.chat.handlers.MessageObjectCleaner
-import failchat.core.emoticon.EmoticonManager
+import failchat.core.emoticon.EmoticonFinder
 import failchat.core.viewers.ViewersCountLoader
 import failchat.core.ws.client.WsClient
 import failchat.twitch.TwitchChatClient
@@ -35,7 +35,7 @@ class GgChatClient(
         private val channelId: Long,
         private val webSocketUri: String,
         private val messageIdGenerator: MessageIdGenerator,
-        private val emoticonManager: EmoticonManager,
+        private val emoticonFinder: EmoticonFinder,
         private val objectMapper: ObjectMapper = ObjectMapper()
 ) : ChatClient<GgMessage>, ViewersCountLoader {
 
@@ -50,7 +50,7 @@ class GgChatClient(
     private val messageHandlers: List<MessageHandler<GgMessage>> = listOf(
             MessageObjectCleaner(),
             HtmlUrlCleaner(),
-            GgEmoticonHandler(emoticonManager),
+            GgEmoticonHandler(emoticonFinder),
             CommonHighlightHandler(channelName)
     )
 

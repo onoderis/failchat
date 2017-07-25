@@ -11,7 +11,9 @@ import failchat.core.chat.ChatMessageSender
 import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.handlers.IgnoreFilter
 import failchat.core.chat.handlers.ImageLinkHandler
+import failchat.core.emoticon.EmoticonFinder
 import failchat.core.emoticon.EmoticonManager
+import failchat.core.emoticon.EmoticonStorage
 import failchat.core.reporter.EventReporter
 import failchat.core.skin.Skin
 import failchat.core.skin.SkinScanner
@@ -48,14 +50,6 @@ val kodein = Kodein {
     bind<AppStateTransitionManager>() with singleton { AppStateTransitionManager(kodein) }
     bind<ConfigLoader>() with singleton { ConfigLoader(instance<Path>("workingDirectory")) }
     bind<CompositeConfiguration>() with singleton { instance<ConfigLoader>().get() }
-    bind<EmoticonManager>() with singleton {
-        EmoticonManager(instance("workingDirectory"), instance<CompositeConfiguration>(),
-                listOf(
-                        instance<Peka2tvEmoticonLoader>(),
-                        instance<GgEmoticonLoader>(),
-                        instance<TwitchEmoticonLoader>()
-                ))
-    }
     bind<ChatMessageSender>() with singleton {
         ChatMessageSender(
                 instance<WsServer>(),
@@ -77,6 +71,13 @@ val kodein = Kodein {
     }
     bind<GuiEventHandler>() with singleton {
         GuiEventHandler(instance<WsServer>(), instance<ObjectMapper>())
+    }
+
+    // Emoticons
+    bind<EmoticonStorage>() with singleton { EmoticonStorage() }
+    bind<EmoticonFinder>() with singleton { instance<EmoticonStorage>() }
+    bind<EmoticonManager>() with singleton {
+        EmoticonManager(instance("workingDirectory"), instance<CompositeConfiguration>())
     }
 
 
@@ -114,7 +115,7 @@ val kodein = Kodein {
                 channelId = channelNameAndId.second,
                 socketIoUrl = instance<CompositeConfiguration>().getString("peka2tv.socketio-url"),
                 messageIdGenerator = instance<MessageIdGenerator>(),
-                emoticonManager = instance<EmoticonManager>()
+                emoticonFinder = instance<EmoticonFinder>()
         )
     }
 
@@ -138,7 +139,7 @@ val kodein = Kodein {
                 ircPort = config.getInt("twitch.irc-port"),
                 botName = config.getString("twitch.bot-name"),
                 botPassword = config.getString("twitch.bot-password"),
-                emoticonManager = instance<EmoticonManager>(),
+                emoticonFinder = instance<EmoticonFinder>(),
                 messageIdGenerator = instance<MessageIdGenerator>()
         )
     }
@@ -154,7 +155,7 @@ val kodein = Kodein {
                 channelId = channelNameAndId.second,
                 webSocketUri = instance<CompositeConfiguration>().getString("goodgame.ws-url"),
                 messageIdGenerator = instance<MessageIdGenerator>(),
-                emoticonManager = instance<EmoticonManager>(),
+                emoticonFinder = instance<EmoticonFinder>(),
                 objectMapper = instance<ObjectMapper>()
         )
     }

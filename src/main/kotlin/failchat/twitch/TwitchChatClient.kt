@@ -10,7 +10,7 @@ import failchat.core.chat.MessageHandler
 import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.handlers.HtmlHandler
 import failchat.core.chat.handlers.MessageObjectCleaner
-import failchat.core.emoticon.EmoticonManager
+import failchat.core.emoticon.EmoticonFinder
 import failchat.utils.notEmptyOrNull
 import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
@@ -38,7 +38,7 @@ class TwitchChatClient(
         ircPort: Int,
         botName: String,
         botPassword: String,
-        emoticonManager: EmoticonManager,
+        emoticonFinder: EmoticonFinder,
         private val messageIdGenerator: MessageIdGenerator
 ) : ChatClient<TwitchMessage> {
 
@@ -55,7 +55,7 @@ class TwitchChatClient(
     private val messageHandlers: List<MessageHandler<TwitchMessage>> = listOf(
             MessageObjectCleaner(),
             HtmlHandler(),
-            TwitchEmoticonHandler(emoticonManager),
+            TwitchEmoticonHandler(emoticonFinder),
             TwitchHighlightHandler(userName)
     )
     private val history: Queue<TwitchMessage> = EvictingQueue.create(historySize)
