@@ -62,7 +62,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     private val lock: Lock = ReentrantLock()
     private val config: CompositeConfiguration = configLoader.get()
 
-    private var chatClients: Map<Origin, ChatClient<*>>? = null
+    private var chatClients: Map<Origin, ChatClient<*>> = emptyMap()
     private var viewersCounter: ViewersCounter? = null
     
     private var state: AppState = settings
@@ -180,13 +180,10 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     private fun reset() {
         viewersCountWsHandler.viewersCounter = null
 
-        // Значения могут быть null если вызваны shutDown() и stopChat() последовательно, в любой последовательности
-        chatClients?.values
-                ?.forEach { it.stop() }
-                ?: log.warn("chatClients is null")
-        viewersCounter
-                ?.stop()
-                ?: log.warn("viewersCounter is null")
+        chatClients.values.forEach { it.stop() }
+        // Значение может быть null если вызваны shutDown() и stopChat() последовательно, в любой последовательности,
+        // либо если приложение было закрыто без запуска чата.
+        viewersCounter?.stop()
     }
 
     /**
