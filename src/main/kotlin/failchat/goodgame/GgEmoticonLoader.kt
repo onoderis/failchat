@@ -12,7 +12,7 @@ class GgEmoticonLoader(private val ggApiClient: GgApiClient) : EmoticonLoader<Gg
         return ggApiClient.requestEmoticonList()
                 .thenApply { emoticons ->
                     emoticons
-                            .map { it.code to it }
+                            .map { it.code.toLowerCase() to it }
                             .toMap()
                 }
     }
