@@ -16,17 +16,17 @@ class Peka2tvEmoticonLoader(
 
     override val origin = peka2tv
 
-    override fun loadEmoticons(): CompletableFuture<Map<out Any, Peka2tvEmoticon>> {
+    override fun loadEmoticons(): CompletableFuture<List<Peka2tvEmoticon>> {
         // https://github.com/peka2tv/api/blob/master/smile.md#Смайлы
 
         return apiClient
-                .request("/smile")
+                .request("/smile") //todo move to Peka2tvApiClient
                 .thenApply {
-                    it.asSequence()
-                            .map { Peka2tvEmoticon(it.get("code").asText().toLowerCase(), it.get("url").asText()) }
-                            .map { it.code to it }
-                            .toMap(HashMap())
+                    it.map { Peka2tvEmoticon(it.get("code").asText(), it.get("url").asText()) }
                 }
     }
 
+    override fun getId(emoticon: Peka2tvEmoticon): Long {
+        throw UnsupportedOperationException()
+    }
 }

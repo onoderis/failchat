@@ -15,7 +15,7 @@ import failchat.core.chat.MessageHandler
 import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.handlers.HtmlHandler
 import failchat.core.chat.handlers.MessageObjectCleaner
-import failchat.core.emoticon.EmoticonManager
+import failchat.core.emoticon.EmoticonFinder
 import failchat.core.viewers.ViewersCountLoader
 import failchat.exceptions.UnexpectedResponseException
 import failchat.utils.warn
@@ -36,7 +36,7 @@ class Peka2tvChatClient(
         private val channelId: Long,
         private val socketIoUrl: String,
         private val messageIdGenerator: MessageIdGenerator,
-        private val emoticonManager: EmoticonManager
+        private val emoticonFinder: EmoticonFinder
 ) : ChatClient<Peka2tvMessage>,
         ViewersCountLoader {
 
@@ -54,7 +54,7 @@ class Peka2tvChatClient(
             MessageObjectCleaner(),
             HtmlHandler(),
             Peka2tvHighlightHandler(channelName),
-            Peka2tvEmoticonHandler(emoticonManager)
+            Peka2tvEmoticonHandler(emoticonFinder)
     )
     private val messageFilters: List<MessageFilter<Peka2tvMessage>> = listOf(
             SourceFilter(),

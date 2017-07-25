@@ -2,10 +2,10 @@ package failchat.peka2tv
 
 import failchat.core.Origin.peka2tv
 import failchat.core.chat.MessageHandler
-import failchat.core.emoticon.EmoticonManager
+import failchat.core.emoticon.EmoticonFinder
 import java.util.regex.Pattern
 
-class Peka2tvEmoticonHandler(private val emoticonManager: EmoticonManager) : MessageHandler<Peka2tvMessage> {
+class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHandler<Peka2tvMessage> {
 
     private companion object {
         val emoticonCodePattern: Pattern = Pattern.compile("""((?<=:)(\w+)(?=:))""")
@@ -19,7 +19,7 @@ class Peka2tvEmoticonHandler(private val emoticonManager: EmoticonManager) : Mes
             val code = matcher.group().toLowerCase() //ignore case
 
 
-            val emoticon = emoticonManager.find(peka2tv, code)
+            val emoticon = emoticonFinder.findByCode(peka2tv, code)
             if (emoticon != null) {
                 val num = message.addElement(emoticon)
 

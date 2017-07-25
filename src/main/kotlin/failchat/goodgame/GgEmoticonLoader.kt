@@ -8,12 +8,11 @@ class GgEmoticonLoader(private val ggApiClient: GgApiClient) : EmoticonLoader<Gg
 
     override val origin = Origin.goodgame
 
-    override fun loadEmoticons(): CompletableFuture<Map<out Any, GgEmoticon>> {
+    override fun loadEmoticons(): CompletableFuture<List<GgEmoticon>> {
         return ggApiClient.requestEmoticonList()
-                .thenApply { emoticons ->
-                    emoticons
-                            .map { it.code.toLowerCase() to it }
-                            .toMap()
-                }
+    }
+
+    override fun getId(emoticon: GgEmoticon): Long {
+        throw UnsupportedOperationException()
     }
 }

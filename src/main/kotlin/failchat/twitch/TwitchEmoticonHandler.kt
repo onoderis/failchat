@@ -2,11 +2,11 @@ package failchat.twitch
 
 import failchat.core.Origin
 import failchat.core.chat.MessageHandler
-import failchat.core.emoticon.EmoticonManager
+import failchat.core.emoticon.EmoticonFinder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class TwitchEmoticonHandler(private val emoticonManager: EmoticonManager) : MessageHandler<TwitchMessage> {
+class TwitchEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHandler<TwitchMessage> {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(TwitchEmoticonLoader::class.java)
@@ -38,7 +38,7 @@ class TwitchEmoticonHandler(private val emoticonManager: EmoticonManager) : Mess
                     val (idString, positionsString) = emoteWithPositions.split(":", limit = 2)
                     val id = idString.toLong()
 
-                    val emoticon = emoticonManager.find(Origin.twitch, id)
+                    val emoticon = emoticonFinder.findById(Origin.twitch, id)
                             as? TwitchEmoticon
                             ?: return@flatMap emptyList<RangingEmoticon>()
 

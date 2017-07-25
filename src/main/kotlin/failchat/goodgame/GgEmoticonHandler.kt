@@ -2,10 +2,10 @@ package failchat.goodgame
 
 import failchat.core.Origin
 import failchat.core.chat.MessageHandler
-import failchat.core.emoticon.EmoticonManager
+import failchat.core.emoticon.EmoticonFinder
 import java.util.regex.Pattern
 
-class GgEmoticonHandler(private val emoticonManager: EmoticonManager) : MessageHandler<GgMessage> {
+class GgEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHandler<GgMessage> {
 
     private companion object {
         val emoticonCodePattern: Pattern = Pattern.compile("""((?<=:)(\w+)(?=:))""")
@@ -17,7 +17,7 @@ class GgEmoticonHandler(private val emoticonManager: EmoticonManager) : MessageH
         var position = 0 // чтобы не начинать искать сначала, если :something: найдено, но это не смайл
         while (matcher.find(position)) {
             val code = matcher.group().toLowerCase()
-            var smile = emoticonManager.find(Origin.goodgame, code) as? GgEmoticon
+            var smile = emoticonFinder.findByCode(Origin.goodgame, code) as? GgEmoticon
             if (smile != null) {
                 if (message.authorHasPremium && smile.animatedInstance != null) {
                     smile = smile.animatedInstance!!
