@@ -7,6 +7,7 @@ import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.net.InetAddress
 import java.net.InetSocketAddress
 
 /**
@@ -16,7 +17,7 @@ class TtnWsServer(private val om: ObjectMapper = ObjectMapper()) : WsServer {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(TtnWsServer::class.java)
-        val defaultAddress = InetSocketAddress(10880)
+        val defaultAddress = InetSocketAddress(InetAddress.getLoopbackAddress(), 10880)
     }
 
     private val wsServerImpl = WsServerImpl(defaultAddress)
