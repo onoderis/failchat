@@ -37,6 +37,9 @@ import okhttp3.OkHttpClient
 import org.apache.commons.configuration2.Configuration
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.atomic.AtomicInteger
 
 val kodein = Kodein {
 
@@ -101,6 +104,17 @@ val kodein = Kodein {
     bind<List<Skin>>() with singleton { SkinScanner(instance("workingDirectory")).scan() }
     bind<EventReporter>() with singleton { EventReporter(instance<OkHttpClient>(), instance<ConfigLoader>()) }
 
+    //Background task executor
+    bind<ScheduledExecutorService>() with singleton {
+        val threadNumber = AtomicInteger()
+        Executors.newScheduledThreadPool(2) {
+            Thread(it, "BackgroundTaskThread-${threadNumber.getAndIncrement()}").apply {
+                isDaemon = true
+                priority = 3
+            }
+        }
+    }
+
 
     // Origin specific dependencies
 
@@ -108,7 +122,7 @@ val kodein = Kodein {
     bind<Peka2tvApiClient>() with singleton {
         Peka2tvApiClient(
                 instance<OkHttpClient>(),
-                "http://peka2.tv/api",
+                instance<Configuration>().getString("peka2tv.api-url"),
                 instance<ObjectMapper>()
         )
     }
