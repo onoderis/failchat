@@ -44,7 +44,6 @@ fun main(args: Array<String>) {
 
     configureLogging(args)
 
-
     // Start GUI
     // Тред блокируется. Javafx приложение лучше запустить раньше(а не а конце main()) для отзывчивости интерфейса
     thread(name = "GuiLauncher") { Application.launch(GuiLauncher::class.java) }
@@ -125,6 +124,7 @@ private fun scheduleReportTasks(executor: ScheduledExecutorService) {
                 .reportEvent(EventCategory.General, EventAction.AppLaunch)
                 .exceptionally(exceptionHandler)
     }
+    //todo don't start task if reporter disabled
     executor.scheduleAtFixedRate({
         reporter
                 .reportEvent(EventCategory.General, EventAction.Heartbeat)

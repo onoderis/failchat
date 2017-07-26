@@ -22,6 +22,8 @@ import failchat.core.viewers.ViewersCountWsHandler
 import failchat.core.viewers.ViewersCounter
 import failchat.core.ws.server.TtnWsServer
 import failchat.core.ws.server.WsServer
+import failchat.github.GithubClient
+import failchat.github.ReleaseChecker
 import failchat.goodgame.GgApiClient
 import failchat.goodgame.GgChatClient
 import failchat.goodgame.GgEmoticonLoader
@@ -103,6 +105,18 @@ val kodein = Kodein {
     bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastId")) }
     bind<List<Skin>>() with singleton { SkinScanner(instance("workingDirectory")).scan() }
     bind<EventReporter>() with singleton { EventReporter(instance<OkHttpClient>(), instance<ConfigLoader>()) }
+
+
+    // Release related
+    bind<ReleaseChecker>() with singleton { ReleaseChecker(instance<GithubClient>(), instance<Configuration>()) }
+    bind<GithubClient>() with singleton {
+        GithubClient(
+                instance<Configuration>().getString("github.api-url"),
+                instance<OkHttpClient>(),
+                instance<ObjectMapper>()
+        )
+    }
+
 
     //Background task executor
     bind<ScheduledExecutorService>() with singleton {

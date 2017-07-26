@@ -61,9 +61,9 @@ fun configureLogging(args: Array<String>) {
 private fun configureConsoleAppender(logbackContext: LoggerContext): ConsoleAppender<ILoggingEvent> {
     val consoleEncoder = PatternLayoutEncoder().apply {
         context = logbackContext
-        pattern = """%date %level [%thread] %logger \(%file:%line\) %msg%n"""
+//        pattern = """%date %level [%thread] %logger \(%file:%line\) %msg%n"""
 //        pattern = """%date{HH:mm:ss.SSS} %level %msg%n"""
-//        pattern = """%date{HH:mm:ss.SSS} %.-1level %msg%n"""
+        pattern = """%date{HH:mm:ss.SSS} %.-1level \(%file:%line\) %msg%n"""
         start()
     }
     return ConsoleAppender<ILoggingEvent>().apply {
