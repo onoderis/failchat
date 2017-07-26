@@ -31,6 +31,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.ServerSocket
 import java.nio.file.Path
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 object Bootstrap
@@ -67,20 +69,18 @@ fun main(args: Array<String>) {
     }
 
 
-    //Start websocket server
+    // Start websocket server
     wsServer.start()
 
 
     // Load emoticons in background thread
-    startEmoticonLoaderThread()
+    loadEmoticonsAsync()
 
-    // Report about start of application
-    kodein.instance<EventReporter>()
-            .reportEvent(EventCategory.general, EventAction.start)
-            .exceptionally { e ->
-                log.warn("Failed to report event {}.{}", EventCategory.general.name, EventAction.start.name, e)
-            }
 
+    scheduleReportTasks()
+
+
+    // Launch GUI
     Application.launch(GuiLauncher::class.java) //todo research: launch is blocking
 }
 
@@ -95,7 +95,8 @@ private fun checkForAnotherInstance() {
     }
 }
 
-private fun startEmoticonLoaderThread() {
+
+private fun loadEmoticonsAsync() {
     // todo is kodein class thread safe?
     val manager: EmoticonManager = kodein.instance()
     val storage: EmoticonStorage = kodein.instance()
@@ -114,4 +115,28 @@ private fun startEmoticonLoaderThread() {
             }
         }
     }
+}
+
+/**
+ * Посылает репорт General.AppLaunch и репортит по расписанию General.Heartbeat.
+ * */
+private fun scheduleReportTasks() {
+    val reporter = kodein.instance<EventReporter>()
+    val reporterExecutor = Executors.newScheduledThreadPool(1) {
+        Thread(it, "ReporterThread").apply { isDaemon = true }
+    }
+
+    val exceptionHandler = { e: Throwable ->
+        log.warn("Failed to report event {}.{}", EventCategory.General.name, EventAction.AppLaunch.name, e)
+    }
+    reporterExecutor.execute {
+        reporter
+                .reportEvent(EventCategory.General, EventAction.AppLaunch)
+                .exceptionally(exceptionHandler)
+    }
+    reporterExecutor.scheduleAtFixedRate({
+        reporter
+                .reportEvent(EventCategory.General, EventAction.Heartbeat)
+                .exceptionally(exceptionHandler)
+    }, 5, 5, TimeUnit.MINUTES)
 }

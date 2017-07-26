@@ -1,6 +1,7 @@
 package failchat.core.reporter
 
 import failchat.core.ConfigLoader
+import failchat.core.reporter.EventAction.Heartbeat
 import failchat.exceptions.UnexpectedResponseCodeException
 import failchat.utils.completedFuture
 import failchat.utils.thenApplySafe
@@ -56,6 +57,7 @@ class EventReporter(
                 .addQueryParameter("ul", languageTag) //User Language
                 .addQueryParameter("an", "failchat") //Application Name
                 .addQueryParameter("av", failchatVersion) //Application Version
+                .addQueryParameter("ni", if (action == Heartbeat) "1" else "0") // Non-Interaction Hit
                 .build()
 
         val request = Request.Builder()
