@@ -13,7 +13,6 @@ import failchat.core.emoticon.EmoticonStoreOptions
 import failchat.core.reporter.EventAction
 import failchat.core.reporter.EventCategory
 import failchat.core.reporter.EventReporter
-import failchat.core.skin.Skin
 import failchat.core.viewers.ShowViewersCountWsHandler
 import failchat.core.viewers.ViewersCountWsHandler
 import failchat.core.ws.server.DeleteWsMessageHandler
@@ -31,7 +30,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.ServerSocket
 import java.nio.file.Path
-import java.util.concurrent.Executors
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
@@ -44,22 +44,16 @@ fun main(args: Array<String>) {
 
     configureLogging(args)
 
-    log.info("Working directory: {}", kodein.instance<Path>("workingDirectory").toAbsolutePath())
 
-    // Get common dependencies
-    val configLoader: ConfigLoader = kodein.instance()
-    val config: Configuration = kodein.instance()
-    val objectMapper: ObjectMapper = kodein.instance()
-
-    // Scan skins
-    kodein.instance<List<Skin>>()
+    // Start GUI
+    // Тред блокируется. Javafx приложение лучше запустить раньше(а не а конце main()) для отзывчивости интерфейса
+    thread(name = "GuiLauncher") { Application.launch(GuiLauncher::class.java) }
 
 
-    // Initialize websocket server
+    // Initialize and start websocket server
     val wsServer: WsServer = kodein.instance()
-
-
-    // Initialize and set websocket message handlers
+    val objectMapper: ObjectMapper = kodein.instance()
+    val config: Configuration = kodein.instance()
     wsServer.apply {
         setOnMessage("enabled-origins", EnabledOriginsWsHandler(config, objectMapper))
         setOnMessage("viewers-count", kodein.instance<ViewersCountWsHandler>())
@@ -67,25 +61,24 @@ fun main(args: Array<String>) {
         setOnMessage("delete-message", DeleteWsMessageHandler(kodein.instance<ChatMessageRemover>()))
         setOnMessage("ignore-user", IgnoreWsMessageHandler(kodein.instance<IgnoreFilter>(), config))
     }
-
-
-    // Start websocket server
     wsServer.start()
 
 
-    // Load emoticons in background thread
-    loadEmoticonsAsync()
 
 
+    // Reporter
     if (args.contains("--disable-reporter")) {
         config.setProperty("reporter.enabled", false)
     }
+    val backgroundExecutor = kodein.instance<ScheduledExecutorService>()
+    scheduleReportTasks(backgroundExecutor)
 
-    scheduleReportTasks()
+
+    // Load emoticons in background thread
+    loadEmoticonsAsync(backgroundExecutor)
 
 
-    // Launch GUI
-    Application.launch(GuiLauncher::class.java) //todo research: launch is blocking
+    log.info("Application started. Working directory: {}", kodein.instance<Path>("workingDirectory").toAbsolutePath())
 }
 
 private fun checkForAnotherInstance() {
@@ -100,8 +93,7 @@ private fun checkForAnotherInstance() {
 }
 
 
-private fun loadEmoticonsAsync() {
-    // todo is kodein class thread safe?
+private fun loadEmoticonsAsync(executor: ExecutorService) = executor.submit {
     val manager: EmoticonManager = kodein.instance()
     val storage: EmoticonStorage = kodein.instance()
     val loadersAndOptions: List<Pair<EmoticonLoader<out Emoticon>, EmoticonStoreOptions>> = listOf(
@@ -110,13 +102,11 @@ private fun loadEmoticonsAsync() {
             kodein.instance<TwitchEmoticonLoader>() to EmoticonStoreOptions(true, true)
     )
 
-    thread(start = true, name = "SmileLoaderThread", priority = 3) {
-        loadersAndOptions.forEach {
-            try {
-                manager.loadInStorage(storage, it.first, it.second)
-            } catch (e: Exception) {
-                log.warn("Exception during loading emoticons for origin {}", it.first.origin, e)
-            }
+    loadersAndOptions.forEach {
+        try {
+            manager.loadInStorage(storage, it.first, it.second)
+        } catch (e: Exception) {
+            log.warn("Exception during loading emoticons for origin {}", it.first.origin, e)
         }
     }
 }
@@ -124,21 +114,18 @@ private fun loadEmoticonsAsync() {
 /**
  * Посылает репорт General.AppLaunch и репортит по расписанию General.Heartbeat.
  * */
-private fun scheduleReportTasks() {
+private fun scheduleReportTasks(executor: ScheduledExecutorService) {
     val reporter = kodein.instance<EventReporter>()
-    val reporterExecutor = Executors.newScheduledThreadPool(1) {
-        Thread(it, "ReporterThread").apply { isDaemon = true }
-    }
 
     val exceptionHandler = { e: Throwable ->
         log.warn("Failed to report event {}.{}", EventCategory.General.name, EventAction.AppLaunch.name, e)
     }
-    reporterExecutor.execute {
+    executor.execute {
         reporter
                 .reportEvent(EventCategory.General, EventAction.AppLaunch)
                 .exceptionally(exceptionHandler)
     }
-    reporterExecutor.scheduleAtFixedRate({
+    executor.scheduleAtFixedRate({
         reporter
                 .reportEvent(EventCategory.General, EventAction.Heartbeat)
                 .exceptionally(exceptionHandler)
