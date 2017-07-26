@@ -96,6 +96,7 @@ class GgChatClient(
         * Undocumented api
         * request:  {"type":"get_all_viewers","data":{"channel":"21506"}}
         * response: {"type":"viewers","data":{"channel_id":"21506","count":173}}
+        * Ответ приходит 1 раз. Если канал оффлайн - значение 0.
         * */
         val getAllViewersMessage = objectMapper.createObjectNode().apply {
             put("type", "get_all_viewers")
