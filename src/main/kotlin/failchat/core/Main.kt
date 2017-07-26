@@ -1,6 +1,5 @@
 package failchat.core
 
-
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.salomonbrys.kodein.instance
 import failchat.core.chat.ChatMessageRemover
@@ -44,10 +43,7 @@ fun main(args: Array<String>) {
 
     configureLogging(args)
 
-    val config: Configuration = kodein.instance()
-    if (args.contains("--disable-release-checker")) {
-        config.setProperty("update-checker.enabled", false)
-    }
+    handleProgramArguments(args)
 
     // Start GUI
     // Тред блокируется. Javafx приложение лучше запустить раньше(а не а конце main()) для отзывчивости интерфейса
@@ -57,6 +53,7 @@ fun main(args: Array<String>) {
     // Websocket server
     val wsServer: WsServer = kodein.instance()
     val objectMapper: ObjectMapper = kodein.instance()
+    val config: Configuration = kodein.instance()
     wsServer.apply {
         setOnMessage("enabled-origins", EnabledOriginsWsHandler(config, objectMapper))
         setOnMessage("viewers-count", kodein.instance<ViewersCountWsHandler>())
@@ -68,9 +65,6 @@ fun main(args: Array<String>) {
 
 
     // Reporter
-    if (args.contains("--disable-reporter")) {
-        config.setProperty("reporter.enabled", false)
-    }
     val backgroundExecutor = kodein.instance<ScheduledExecutorService>()
     scheduleReportTasks(backgroundExecutor)
 
@@ -93,6 +87,16 @@ private fun checkForAnotherInstance() {
     }
 }
 
+private fun handleProgramArguments(args: Array<String>) {
+    //todo make it in a good way
+    val config: Configuration = kodein.instance()
+    if (args.contains("--disable-release-checker")) {
+        config.setProperty("update-checker.enabled", false)
+    }
+    if (args.contains("--disable-reporter")) {
+        config.setProperty("reporter.enabled", false)
+    }
+}
 
 private fun loadEmoticonsAsync(executor: ExecutorService) = executor.submit {
     val manager: EmoticonManager = kodein.instance()
