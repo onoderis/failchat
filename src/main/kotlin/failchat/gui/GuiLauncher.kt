@@ -53,7 +53,7 @@ class GuiLauncher : Application() {
                     contentText = "New release available: version ${release.version}"
                 }
 
-                val changelogButton = ButtonType("Changelog", OK_DONE)
+                val changelogButton = ButtonType("Download", OK_DONE)
                 val closeButton = ButtonType("Close", ButtonData.CANCEL_CLOSE)
                 alert.buttonTypes.setAll(changelogButton, closeButton)
 

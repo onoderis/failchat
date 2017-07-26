@@ -44,15 +44,19 @@ fun main(args: Array<String>) {
 
     configureLogging(args)
 
+    val config: Configuration = kodein.instance()
+    if (args.contains("--disable-release-checker")) {
+        config.setProperty("update-checker.enabled", false)
+    }
+
     // Start GUI
     // Тред блокируется. Javafx приложение лучше запустить раньше(а не а конце main()) для отзывчивости интерфейса
     thread(name = "GuiLauncher") { Application.launch(GuiLauncher::class.java) }
 
 
-    // Initialize and start websocket server
+    // Websocket server
     val wsServer: WsServer = kodein.instance()
     val objectMapper: ObjectMapper = kodein.instance()
-    val config: Configuration = kodein.instance()
     wsServer.apply {
         setOnMessage("enabled-origins", EnabledOriginsWsHandler(config, objectMapper))
         setOnMessage("viewers-count", kodein.instance<ViewersCountWsHandler>())
@@ -61,8 +65,6 @@ fun main(args: Array<String>) {
         setOnMessage("ignore-user", IgnoreWsMessageHandler(kodein.instance<IgnoreFilter>(), config))
     }
     wsServer.start()
-
-
 
 
     // Reporter
