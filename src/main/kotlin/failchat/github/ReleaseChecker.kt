@@ -20,11 +20,10 @@ class ReleaseChecker(
             return
         }
 
-        val lastNotifiedReleaseVersion = Version.parse(config.getString(lastNotifiedKey))
-
         githubClient
                 .requestLatestRelease("sph-u", "failchat")
                 .thenApply { lastRelease ->
+                    val lastNotifiedReleaseVersion = Version.parse(config.getString(lastNotifiedKey))
                     if (lastRelease.version <= lastNotifiedReleaseVersion) {
                         log.info("Latest version of application installed: '{}'", lastNotifiedReleaseVersion)
                         return@thenApply
