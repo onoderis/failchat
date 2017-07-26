@@ -15,8 +15,8 @@ $(function () {
     var scroller = $(failchat.baronParams.scroller);
     var scrollBar = $(failchat.baronParams.bar);
     var autoScroll = true;
-    // var nativeClient = (navigator.userAgent.search("failchat") >= 0);
-    var nativeClient = true; //todo think about debugging
+    var nativeClient = (navigator.userAgent.search("failchat") >= 0);
+    // var nativeClient = true; //todo think about debugging
 
     //templates
     var smileTemplate = $("#smile-template");
