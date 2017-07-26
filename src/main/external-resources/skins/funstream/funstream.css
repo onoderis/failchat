@@ -93,6 +93,8 @@ p {
 	border: 2px solid rgba(16, 21, 28, 1);
 	background-color: rgba(16, 21, 28, 0.9);
 	border-radius: 12px;
+    position: relative;
+    animation: appear-bottom 0.4s
 }
 
 span {
@@ -158,4 +160,15 @@ a {
     height: 16px;
     color: red;
     cursor: pointer;
+}
+
+@keyframes appear-bottom {
+    from {
+        bottom: -100px;
+        opacity: 0
+    }
+    to {
+        bottom: 0;
+        opacity: 1
+    }
 }
