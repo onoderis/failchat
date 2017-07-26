@@ -20,7 +20,7 @@ class ConfigLoader(workingDirectory: Path) {
         val log: Logger = LoggerFactory.getLogger(ConfigLoader::class.java)
     }
 
-    private val configPath = workingDirectory.resolve("user.properties")
+    private val configPath = workingDirectory.resolve("config/user.properties")
     private val userConfigBuilder = createUserConfigBuilder()
     private val defaultConfigBuilder = createDefaultConfigBuilder()
     private val compositeConfig = CompositeConfiguration()
@@ -49,7 +49,7 @@ class ConfigLoader(workingDirectory: Path) {
                 .configure(
                         Parameters()
                                 .properties()
-                                .setFileName("user.properties")
+                                .setPath(configPath.toAbsolutePath().toString())
                                 .setThrowExceptionOnMissing(true)
                 )
     }
