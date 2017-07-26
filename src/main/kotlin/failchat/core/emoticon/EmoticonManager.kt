@@ -71,8 +71,8 @@ class EmoticonManager(
         val origin = loader.origin
         val fileExists = Files.exists(cacheFile)
 
-        // Save to cache file actual emoticon list
-        if (isCacheOutdated(origin, now) && fileExists) {
+        // Load from  cache file actual emoticon list
+        if (!isCacheOutdated(origin, now) && fileExists) {
             try {
                 val emoticons = loadFromCache<List<T>>(cacheFile)
                 log.info("Actual version of emoticon list loaded from cache file. origin: {}, count: {}", origin.name, emoticons.size)

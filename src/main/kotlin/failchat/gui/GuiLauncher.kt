@@ -4,12 +4,20 @@ import com.github.salomonbrys.kodein.instance
 import failchat.core.ConfigLoader
 import failchat.core.kodein
 import failchat.core.skin.Skin
+import failchat.github.ReleaseChecker
 import javafx.application.Application
+import javafx.application.Platform
+import javafx.scene.control.Alert
+import javafx.scene.control.Alert.AlertType
+import javafx.scene.control.ButtonBar.ButtonData
+import javafx.scene.control.ButtonBar.ButtonData.OK_DONE
+import javafx.scene.control.ButtonType
 import javafx.scene.image.Image
 import javafx.stage.Stage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+
 
 class GuiLauncher : Application() {
 
@@ -30,6 +38,32 @@ class GuiLauncher : Application() {
 
         settings.show()
         log.info("GUI loaded")
+
+        showUpdateNotificationOnNewRelease()
+
+    }
+
+    private fun showUpdateNotificationOnNewRelease() {
+        kodein.instance<ReleaseChecker>().checkNewRelease { release ->
+            Platform.runLater {
+                val alert = Alert(AlertType.CONFIRMATION).apply {
+                    title = "Update notification"
+                    headerText = null
+                    graphic = null
+                    contentText = "New release available: version ${release.version}"
+                }
+
+                val changelogButton = ButtonType("Changelog", OK_DONE)
+                val closeButton = ButtonType("Close", ButtonData.CANCEL_CLOSE)
+                alert.buttonTypes.setAll(changelogButton, closeButton)
+
+                val result = alert.showAndWait().get()
+
+                if (result === changelogButton) {
+                    hostServices.showDocument(release.releasePageUrl)
+                }
+            }
+        }
     }
 
 }

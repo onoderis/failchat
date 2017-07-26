@@ -146,7 +146,6 @@ class ChatFrame(
                     app.hostServices.showDocument(webEngine.location)
                     log.debug("Opening url: {}", webEngine.location)
                 } else if (newLocation.contains("file:///")) {
-                    //todo вспомнить зачем это надо
                     val newLocationPath = Paths.get(newLocation.split("file:///").get(1))
                     if (newLocationPath.startsWith(skinsDirectory)) {
                         log.debug("Opening skin: {}", webEngine.location)
