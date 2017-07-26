@@ -35,9 +35,9 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
-object Bootstrap
+object Main
 
-private val log: Logger = LoggerFactory.getLogger(Bootstrap::class.java)
+private val log: Logger = LoggerFactory.getLogger(Main::class.java)
 
 fun main(args: Array<String>) {
     checkForAnotherInstance()
