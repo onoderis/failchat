@@ -77,6 +77,10 @@ fun main(args: Array<String>) {
     loadEmoticonsAsync()
 
 
+    if (args.contains("--disable-reporter")) {
+        config.setProperty("reporter.enabled", false)
+    }
+
     scheduleReportTasks()
 
 

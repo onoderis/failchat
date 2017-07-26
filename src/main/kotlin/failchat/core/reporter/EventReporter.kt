@@ -41,7 +41,10 @@ class EventReporter(
 
 
     fun reportEvent(category: EventCategory, action: EventAction): CompletableFuture<Unit> {
-        if (!enabled) return completedFuture(Unit)
+        if (!enabled) {
+            log.debug("Reporter disabled, event {}.{} ignored", category.name, action.name)
+            return completedFuture(Unit)
+        }
 
         val url = HttpUrl.Builder()
                 .scheme("https")
