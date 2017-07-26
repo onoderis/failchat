@@ -20,7 +20,7 @@ class GoogleAnalytics {
 
     @Test
     fun testReport() {
-        reporter.reportEvent(EventCategory.general, EventAction.start).join()
+        reporter.reportEvent(EventCategory.General, EventAction.AppLaunch).join()
     }
 
 }
