@@ -197,9 +197,6 @@
                                     <directory>${basedir}/src/main/resources/config</directory>
                                     <targetPath>${basedir}/target/classes/config</targetPath>
                                     <filtering>true</filtering>
-                                    <includes>
-                                        <include>default.properties</include>
-                                    </includes>
                                 </resource>
                                 <resource>
                                     <directory>${basedir}/src/main/external-resources</directory>
