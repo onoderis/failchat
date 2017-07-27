@@ -30,8 +30,8 @@
 
     <scm>
         <developerConnection>scm:git:https://github.com/onoderis/failchat.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
 
     <dependencies>
