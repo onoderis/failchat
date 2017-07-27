@@ -64,7 +64,7 @@ class ViewersCounter(
 
     fun sendViewersCountWsMessage() {
         val message = formViewersWsMessage(enabledOrigins)
-        wsServer.sendToAll(message.toString())
+        wsServer.send(message.toString())
     }
 
     private fun updateAndSendLoop() {

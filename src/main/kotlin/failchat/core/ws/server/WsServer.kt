@@ -5,8 +5,7 @@ interface WsServer {
     fun start()
     fun stop()
 
-    fun sendToAll(message: String)
-    fun sendToNativeClient(message: String)
+    fun send(message: String)
 
     fun setOnMessage(type: String, consumer: WsMessageHandler)
     /**

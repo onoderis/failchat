@@ -51,7 +51,7 @@ class GuiEventHandler(
                 }
             }
 
-            wsServer.sendToAll(messageNode.toString())
+            wsServer.send(messageNode.toString())
         }
     }
 

@@ -23,15 +23,11 @@ class TtnWsServer(private val om: ObjectMapper = ObjectMapper()) : WsServer {
     private val wsServerImpl = WsServerImpl(defaultAddress)
     private val messageConsumers: MutableMap<String, WsMessageHandler> = HashMap()
 
-    // Native client - браузер, запущенный в приложении
-    private var nativeClient: WebSocket? = null
-
-
     override fun start() = wsServerImpl.start()
 
     override fun stop() = wsServerImpl.stop()
 
-    override fun sendToAll(message: String) {
+    override fun send(message: String) {
 
         val connections = wsServerImpl.connections()
         /*
@@ -43,15 +39,6 @@ class TtnWsServer(private val om: ObjectMapper = ObjectMapper()) : WsServer {
         }
 
         log.debug("Sent to all web socket clients: {}", message)
-    }
-
-    override fun sendToNativeClient(message: String) {
-        nativeClient?.let { webSocket ->
-            if (webSocket.isOpen) {
-                webSocket.send(message)
-                log.debug("Sent to native web socket client: {}", message)
-            }
-        }
     }
 
     override fun setOnMessage(type: String, consumer: WsMessageHandler) {

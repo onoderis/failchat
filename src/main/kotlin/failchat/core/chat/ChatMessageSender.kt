@@ -81,7 +81,7 @@ class ChatMessageSender(
             }
         }
 
-        wsServer.sendToAll(messageNode.toString())
+        wsServer.send(messageNode.toString())
     }
 
     fun send(message: InfoMessage) {
@@ -99,7 +99,7 @@ class ChatMessageSender(
             }
         }
 
-        wsServer.sendToAll(messageNode.toString())
+        wsServer.send(messageNode.toString())
     }
 
 }
