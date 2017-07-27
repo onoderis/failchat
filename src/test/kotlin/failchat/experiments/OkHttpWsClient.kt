@@ -1,14 +1,18 @@
 package failchat.experiments
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import failchat.utils.sleep
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
+import org.junit.Ignore
 import org.junit.Test
+import java.time.Duration
 
+@Ignore
 class OkHttpWsClient {
 
     @Test
@@ -22,6 +26,8 @@ class OkHttpWsClient {
                 .build()
 
         client.newWebSocket(reuqest, Listener())
+
+        sleep(Duration.ofDays(1))
     }
 
     private class Listener : WebSocketListener() {
@@ -51,4 +57,6 @@ class OkHttpWsClient {
     }
 
 }
-
+/*
+{"type":"channel_counters","data":{"channel_id":"20296","clients_in_channel":"3","users_in_channel":1}}
+* */
