@@ -19,7 +19,11 @@ class GithubClientTest {
 
     @Test
     fun lastReleaseTest() {
-        val release = githubClient.requestLatestRelease("sph-u", "failchat").join()
+        val release = githubClient.requestLatestRelease(
+                config.getString("github.user-name"),
+                config.getString("github.repository")
+        )
+                .join()
 
         log.info(release.version.toString())
     }
