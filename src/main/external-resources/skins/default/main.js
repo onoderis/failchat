@@ -26,16 +26,13 @@ $(function () {
     var infoMessageTemplate = $("#info-message-template");
 
     //viewers bar
-    var viewersBarEnabled = false;
     var viewersBar = $(".viewers-bar");
     var peka2tvViewersBar = $("#peka2tv-source");
     var twitchViewersBar = $("#twitch-source");
     var goodgameViewersBar = $("#goodgame-source");
-    // var cybergameViewersBar = $("#cybergame-source");
     var peka2tvViewersCount = $("#peka2tv-viewers");
     var twitchViewersCount = $("#twitch-viewers");
     var goodgameViewersCount = $("#goodgame-viewers");
-    // var cybergameViewersCount = $("#cybergame-viewers");
 
 
     baron(failchat.baronParams);
@@ -127,6 +124,7 @@ $(function () {
     }
 
     function handleInfoMessage(content) {
+        if (content.mode === "native_client" && !nativeClient) return;
         content.textHtml = infoMessageTemplate.render(content);
     }
 

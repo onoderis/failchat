@@ -47,13 +47,17 @@ class SettingsFrame(
 
     //second tab
     private val bgColorPicker = scene.lookup("#bgcolor") as ColorPicker
-    private val infoMessagesMode = scene.lookup("#info_messages") as ChoiceBox<String>
+    private val infoMessagesMode = scene.lookup("#info_messages") as ChoiceBox<InfoMessageMode>
     private val ignoreList = scene.lookup("#ignore_list") as TextArea
 
     //opacity
     private val opacitySlider = scene.lookup("#opacity") as Slider
 
     private val startButton = scene.lookup("#start_button") as Button
+
+
+    private val infoMessagesModeConverter = InfoMessageModeConverter()
+
 
     init {
         stage.scene = scene
@@ -73,7 +77,8 @@ class SettingsFrame(
         skin.converter = SkinConverter(skinList)
         skin.items = FXCollections.observableArrayList(skinList)
 
-        infoMessagesMode.items = FXCollections.observableList(InfoMessageMode.values().map { it.toString() })
+        infoMessagesMode.converter = infoMessagesModeConverter
+        infoMessagesMode.items = FXCollections.observableList(InfoMessageMode.values().toList())
 
         stage.setOnCloseRequest {
             saveSettingsValues()
@@ -125,16 +130,9 @@ class SettingsFrame(
 
         bgColorPicker.value = Color.web(config.getString("background-color"))
         opacitySlider.value = config.getDouble("opacity")
-        infoMessagesMode.setValue(config.getString("info-message-mode"))
+        infoMessagesMode.value = infoMessagesModeConverter.fromString(config.getString("info-message-mode"))
 
-        val sb = StringBuilder()
-        for (o in config.getList("ignore")) {
-            sb.append(o).append("\n")
-        }
-        if (sb.length > 0) {
-            sb.deleteCharAt(sb.length - 1)
-        }
-        ignoreList.text = sb.toString()
+        ignoreList.text = config.getList("ignore").joinToString(separator = "\n")
     }
 
     //todo optimize
@@ -155,7 +153,7 @@ class SettingsFrame(
 
         config.setProperty("background-color", bgColorPicker.value.toString())
         config.setProperty("opacity", opacitySlider.value.toInt())
-        config.setProperty("info-message-mode", infoMessagesMode.value.toString())
+        config.setProperty("info-message-mode", infoMessagesModeConverter.toString(infoMessagesMode.value))
         config.setProperty("ignore", ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
     }
 
@@ -163,8 +161,7 @@ class SettingsFrame(
         if (editable) {
             this.style = ""
             this.isEditable = true
-        }
-        else {
+        } else {
             this.style = "-fx-background-color: lightgrey"
             this.isEditable = false
         }

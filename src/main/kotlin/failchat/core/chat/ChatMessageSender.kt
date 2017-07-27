@@ -2,11 +2,13 @@ package failchat.core.chat
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
+import failchat.core.chat.InfoMessageMode.NOWHERE
 import failchat.core.chat.handlers.IgnoreFilter
 import failchat.core.chat.handlers.ImageLinkHandler
 import failchat.core.chat.handlers.LinkHandler
 import failchat.core.emoticon.Emoticon
 import failchat.core.ws.server.WsServer
+import failchat.gui.InfoMessageModeConverter
 import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -28,6 +30,8 @@ class ChatMessageSender(
             imageLinkHandler
     )
     private val filters: List<MessageFilter<ChatMessage>> = listOf(ignoreFilter)
+    private val infoMessagesModeConverter = InfoMessageModeConverter()
+
 
     fun send(message: ChatMessage) {
         // Apply filters and handlers
@@ -81,9 +85,9 @@ class ChatMessageSender(
     }
 
     fun send(message: InfoMessage) {
-        val mode = InfoMessageMode.getValueByString(config.getString("info-message-mode"))
+        val mode = infoMessagesModeConverter.fromString(config.getString("info-message-mode"))
+        if (mode == NOWHERE) return
 
-        //todo optimize: don't build if not required
         val messageNode = objectMapper.createObjectNode().apply {
             put("type", "info")
             putObject("content").apply {
@@ -91,14 +95,11 @@ class ChatMessageSender(
                 put("source", message.origin.name)
                 put("text", message.text)
                 put("timestamp", message.timestamp.toEpochMilli())
+                put("mode", mode.lowerCaseString)
             }
         }
 
-        when (mode) {
-            InfoMessageMode.EVERYWHERE -> wsServer.sendToAll(messageNode.toString())
-            InfoMessageMode.ON_NATIVE_CLIENT -> wsServer.sendToNativeClient(messageNode.toString())
-            else -> {}
-        }
+        wsServer.sendToAll(messageNode.toString())
     }
 
 }
