@@ -1,6 +1,6 @@
-package failchat.exceptions
+package failchat.exception
 
-open class UnexpectedResponseException : Exception {
+class InvalidConfigurationException : Exception {
     constructor() : super()
     constructor(message: String?) : super(message)
     constructor(message: String?, cause: Throwable?) : super(message, cause)

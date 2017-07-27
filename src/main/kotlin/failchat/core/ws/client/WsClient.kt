@@ -5,7 +5,7 @@ import failchat.core.ws.client.WsClient.Status.ERROR
 import failchat.core.ws.client.WsClient.Status.READY
 import failchat.core.ws.client.WsClient.Status.SHUTDOWN
 import failchat.core.ws.client.WsClient.Status.WORKING
-import failchat.utils.sleep
+import failchat.util.sleep
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.slf4j.Logger

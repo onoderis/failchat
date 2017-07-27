@@ -1,4 +1,4 @@
-package failchat.utils
+package failchat.util
 
 inline fun String.withPrefix(prefix: String): String {
     if (this.startsWith(prefix)) return this

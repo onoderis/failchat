@@ -1,7 +1,7 @@
 package failchat.peka2tv
 
-import failchat.utils.get
-import failchat.utils.loadConfig
+import failchat.util.get
+import failchat.util.loadConfig
 import okhttp3.OkHttpClient
 import org.junit.Ignore
 import org.junit.Test

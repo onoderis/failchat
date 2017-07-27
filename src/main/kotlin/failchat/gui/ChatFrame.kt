@@ -1,7 +1,7 @@
 package failchat.gui
 
-import failchat.utils.removeTransparency
-import failchat.utils.urlPattern
+import failchat.util.removeTransparency
+import failchat.util.urlPattern
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.concurrent.Worker

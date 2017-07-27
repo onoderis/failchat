@@ -1,4 +1,4 @@
-package failchat.utils
+package failchat.util
 
 import java.time.Duration
 import java.util.concurrent.CompletableFuture

@@ -17,7 +17,7 @@ import failchat.core.emoticon.EmoticonFinder
 import failchat.core.viewers.ViewersCountLoader
 import failchat.core.ws.client.WsClient
 import failchat.twitch.TwitchChatClient
-import failchat.utils.whileNotNull
+import failchat.util.whileNotNull
 import org.java_websocket.handshake.ServerHandshake
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

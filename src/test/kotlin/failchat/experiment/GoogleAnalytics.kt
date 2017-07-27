@@ -1,4 +1,4 @@
-package failchat.experiments
+package failchat.experiment
 
 import failchat.core.ConfigLoader
 import failchat.core.reporter.EventAction

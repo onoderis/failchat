@@ -1,4 +1,4 @@
-package failchat.utils
+package failchat.util
 
 import javafx.scene.paint.Color
 

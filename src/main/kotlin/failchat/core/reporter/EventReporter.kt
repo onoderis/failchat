@@ -1,10 +1,10 @@
 package failchat.core.reporter
 
 import failchat.core.ConfigLoader
-import failchat.exceptions.UnexpectedResponseCodeException
-import failchat.utils.completedFuture
-import failchat.utils.thenApplySafe
-import failchat.utils.toFuture
+import failchat.exception.UnexpectedResponseCodeException
+import failchat.util.completedFuture
+import failchat.util.thenApplySafe
+import failchat.util.toFuture
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request

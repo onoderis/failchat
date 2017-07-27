@@ -3,7 +3,7 @@ package failchat.core.chat.handlers
 import failchat.core.chat.ChatMessage
 import failchat.core.chat.Link
 import failchat.core.chat.MessageHandler
-import failchat.utils.urlPattern
+import failchat.util.urlPattern
 
 class LinkHandler : MessageHandler<ChatMessage> {
 
