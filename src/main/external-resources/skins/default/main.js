@@ -34,6 +34,10 @@ $(function () {
     var twitchViewersCount = $("#twitch-viewers");
     var goodgameViewersCount = $("#goodgame-viewers");
 
+    //set default values
+    peka2tvViewersCount.text("?");
+    twitchViewersCount.text("?");
+    goodgameViewersCount.text("?");
 
     baron(failchat.baronParams);
 
