@@ -28,6 +28,12 @@
         <pircbotx.version>2.1</pircbotx.version>
     </properties>
 
+
+    <scm>
+        <developerConnection>scm:git:https://github.com/onoderis/failchat.git</developerConnection>
+    </scm>
+
+
     <dependencies>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
