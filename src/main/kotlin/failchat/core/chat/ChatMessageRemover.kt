@@ -15,7 +15,7 @@ class ChatMessageRemover(
                 put("messageId", messageId)
             }
         }
-        wsServer.sendToAll(removeMessage.toString())
+        wsServer.send(removeMessage.toString())
     }
 
     fun remove(message: ChatMessage) = remove(message.id)
