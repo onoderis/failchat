@@ -49,7 +49,7 @@ class GuiLauncher : Application() {
                     title = "Update notification"
                     headerText = null
                     graphic = null
-                    contentText = "New release available: version ${release.version}"
+                    contentText = "New release available: ${release.version}"
                 }
                 val stage = notification.dialogPane.scene.window as Stage
                 stage.icons.setAll(appIcon)
