@@ -15,7 +15,7 @@ Chat message aggregator for twitch, sc2tv, goodgame
 Java 8 (recommended u60 and newer)
 
 ### Screenshots
-![Settings](http://i.imgur.com/bTBC6yO.png)
+![Settings](http://i.imgur.com/nffg7Zj.png)
 
 ![Chat](http://i.imgur.com/zLf5mmZ.png)
 
