@@ -1,4 +1,4 @@
-package failchat.exceptions
+package failchat.exception
 
 open class DataNotFoundException : Exception {
     constructor() : super()

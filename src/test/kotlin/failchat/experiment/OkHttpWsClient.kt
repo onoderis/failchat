@@ -1,7 +1,7 @@
-package failchat.experiments
+package failchat.experiment
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import failchat.utils.sleep
+import failchat.util.sleep
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response

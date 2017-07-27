@@ -7,9 +7,9 @@ import failchat.core.viewers.ViewersCounter.State.ready
 import failchat.core.viewers.ViewersCounter.State.shutdown
 import failchat.core.viewers.ViewersCounter.State.working
 import failchat.core.ws.server.WsServer
-import failchat.exceptions.ChannelOfflineException
-import failchat.utils.await
-import failchat.utils.info
+import failchat.exception.ChannelOfflineException
+import failchat.util.await
+import failchat.util.info
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration

@@ -1,4 +1,4 @@
-package failchat.exceptions
+package failchat.exception
 
 import failchat.core.Origin
 

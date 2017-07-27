@@ -1,4 +1,4 @@
-package failchat.utils
+package failchat.util
 
 inline fun <T> whileNotNull(supplier: () -> T, operation: (T) -> Unit) {
     var value = supplier.invoke()

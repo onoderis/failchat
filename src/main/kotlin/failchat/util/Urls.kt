@@ -1,4 +1,4 @@
-package failchat.utils
+package failchat.util
 
 import java.util.regex.Pattern
 

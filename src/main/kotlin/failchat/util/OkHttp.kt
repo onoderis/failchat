@@ -1,4 +1,4 @@
-package failchat.utils
+package failchat.util
 
 import okhttp3.Call
 import okhttp3.Callback

@@ -1,4 +1,4 @@
-package failchat.exceptions
+package failchat.exception
 
 class EmoticonLoadException: Exception {
     constructor() : super()

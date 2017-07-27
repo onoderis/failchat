@@ -1,4 +1,4 @@
-package failchat.utils
+package failchat.util
 
 import org.slf4j.Logger
 

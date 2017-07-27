@@ -1,4 +1,4 @@
-package failchat.utils
+package failchat.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.OkHttpClient

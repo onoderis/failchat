@@ -11,7 +11,7 @@ import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.handlers.HtmlHandler
 import failchat.core.chat.handlers.MessageObjectCleaner
 import failchat.core.emoticon.EmoticonFinder
-import failchat.utils.notEmptyOrNull
+import failchat.util.notEmptyOrNull
 import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
 import org.pircbotx.hooks.ListenerAdapter

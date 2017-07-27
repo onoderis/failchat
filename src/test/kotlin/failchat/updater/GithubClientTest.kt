@@ -1,9 +1,9 @@
 package failchat.updater
 
 import failchat.github.GithubClient
-import failchat.utils.config
-import failchat.utils.objectMapper
-import failchat.utils.okHttpClient
+import failchat.util.config
+import failchat.util.objectMapper
+import failchat.util.okHttpClient
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

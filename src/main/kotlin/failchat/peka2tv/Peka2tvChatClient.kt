@@ -17,8 +17,8 @@ import failchat.core.chat.handlers.HtmlHandler
 import failchat.core.chat.handlers.MessageObjectCleaner
 import failchat.core.emoticon.EmoticonFinder
 import failchat.core.viewers.ViewersCountLoader
-import failchat.exceptions.UnexpectedResponseException
-import failchat.utils.warn
+import failchat.exception.UnexpectedResponseException
+import failchat.util.warn
 import io.socket.client.IO
 import io.socket.client.Socket
 import okhttp3.OkHttpClient

@@ -1,8 +1,8 @@
 package failchat.twitch
 
-import failchat.exceptions.ChannelOfflineException
-import failchat.utils.loadConfig
-import failchat.utils.okHttpClient
+import failchat.exception.ChannelOfflineException
+import failchat.util.loadConfig
+import failchat.util.okHttpClient
 import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger

@@ -2,13 +2,13 @@ package failchat.peka2tv
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import failchat.exceptions.UnexpectedResponseCodeException
-import failchat.exceptions.UnexpectedResponseException
-import failchat.utils.emptyBody
-import failchat.utils.jsonMediaType
-import failchat.utils.thenApplySafe
-import failchat.utils.toFuture
-import failchat.utils.withSuffix
+import failchat.exception.UnexpectedResponseCodeException
+import failchat.exception.UnexpectedResponseException
+import failchat.util.emptyBody
+import failchat.util.jsonMediaType
+import failchat.util.thenApplySafe
+import failchat.util.toFuture
+import failchat.util.withSuffix
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody

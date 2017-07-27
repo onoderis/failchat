@@ -2,12 +2,12 @@ package failchat.github
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import failchat.exceptions.NoReleasesFoundException
-import failchat.exceptions.UnexpectedResponseCodeException
-import failchat.exceptions.UnexpectedResponseException
-import failchat.utils.isEmpty
-import failchat.utils.thenApplySafe
-import failchat.utils.toFuture
+import failchat.exception.NoReleasesFoundException
+import failchat.exception.UnexpectedResponseCodeException
+import failchat.exception.UnexpectedResponseException
+import failchat.util.isEmpty
+import failchat.util.thenApplySafe
+import failchat.util.toFuture
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.slf4j.Logger
