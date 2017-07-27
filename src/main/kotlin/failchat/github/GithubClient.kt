@@ -24,9 +24,9 @@ class GithubClient(
         val log: Logger = LoggerFactory.getLogger(GithubClient::class.java)
     }
 
-    fun requestLatestRelease(username: String, repository: String): CompletableFuture<Release> {
+    fun requestLatestRelease(userName: String, repository: String): CompletableFuture<Release> {
         val request = Request.Builder()
-                .url("${apiUrl.removeSuffix("/")}/repos/$username/$repository/releases")
+                .url("${apiUrl.removeSuffix("/")}/repos/$userName/$repository/releases")
                 .get()
                 .build()
 

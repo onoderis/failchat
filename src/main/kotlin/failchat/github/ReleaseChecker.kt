@@ -14,6 +14,9 @@ class ReleaseChecker(
         val lastNotifiedKey = "update-checker.latest-notified-version"
     }
 
+    val userName = config.getString("github.user-name")
+    val repository = config.getString("github.repository")
+
     fun checkNewRelease(onNewRelease: (Release) -> Unit) {
         if (!config.getBoolean("update-checker.enabled")) {
             log.debug("Release check skipped")
@@ -21,7 +24,7 @@ class ReleaseChecker(
         }
 
         githubClient
-                .requestLatestRelease("sph-u", "failchat")
+                .requestLatestRelease(userName, repository)
                 .thenApply { lastRelease ->
                     val lastNotifiedReleaseVersion = Version.parse(config.getString(lastNotifiedKey))
                     if (lastRelease.version <= lastNotifiedReleaseVersion) {
