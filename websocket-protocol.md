@@ -35,7 +35,8 @@
 ```
 
 #### Информационное сообщение
-Сюда входят сообщения об подключение и отключение к источникам
+Сюда входят сообщения об подключение и отключение к источникам  
+`content.mode` может принимать значения: `everywhere`, `native_client`
 ```json
 {
     "type": "info",
@@ -44,7 +45,7 @@
         "source": "twitch",
         "text": "connected",
         "timestamp": 1499789037199,
-        "mode": "everywhere" //or "native_client"
+        "mode": "everywhere"
     }
 }
 ```
