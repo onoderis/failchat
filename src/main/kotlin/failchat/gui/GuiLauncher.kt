@@ -18,7 +18,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
-
 class GuiLauncher : Application() {
 
     companion object {
@@ -46,18 +45,20 @@ class GuiLauncher : Application() {
     private fun showUpdateNotificationOnNewRelease() {
         kodein.instance<ReleaseChecker>().checkNewRelease { release ->
             Platform.runLater {
-                val alert = Alert(AlertType.CONFIRMATION).apply {
+                val notification = Alert(AlertType.CONFIRMATION).apply {
                     title = "Update notification"
                     headerText = null
                     graphic = null
                     contentText = "New release available: version ${release.version}"
                 }
+                val stage = notification.dialogPane.scene.window as Stage
+                stage.icons.setAll(appIcon)
 
                 val changelogButton = ButtonType("Download", OK_DONE)
                 val closeButton = ButtonType("Close", ButtonData.CANCEL_CLOSE)
-                alert.buttonTypes.setAll(changelogButton, closeButton)
+                notification.buttonTypes.setAll(changelogButton, closeButton)
 
-                val result = alert.showAndWait().get()
+                val result = notification.showAndWait().get()
 
                 if (result === changelogButton) {
                     hostServices.showDocument(release.releasePageUrl)
