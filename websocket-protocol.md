@@ -36,14 +36,15 @@
 
 #### Информационное сообщение
 Сюда входят сообщения об подключение и отключение к источникам  
+`content.status` может принимать значения: `connected`, `disconnected`  
 `content.mode` может принимать значения: `everywhere`, `native_client`
 ```json
 {
-    "type": "info",
+    "type": "origin-status",
     "content": {
         "id": 123,
         "source": "twitch",
-        "text": "connected",
+        "status": "connected",
         "timestamp": 1499789037199,
         "mode": "everywhere"
     }

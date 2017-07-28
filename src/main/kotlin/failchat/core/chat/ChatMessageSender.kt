@@ -2,13 +2,13 @@ package failchat.core.chat
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
-import failchat.core.chat.InfoMessageMode.NOWHERE
+import failchat.core.chat.StatusMessageMode.NOWHERE
 import failchat.core.chat.handlers.IgnoreFilter
 import failchat.core.chat.handlers.ImageLinkHandler
 import failchat.core.chat.handlers.LinkHandler
 import failchat.core.emoticon.Emoticon
 import failchat.core.ws.server.WsServer
-import failchat.gui.InfoMessageModeConverter
+import failchat.gui.StatusMessageModeConverter
 import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,7 +30,7 @@ class ChatMessageSender(
             imageLinkHandler
     )
     private val filters: List<MessageFilter<ChatMessage>> = listOf(ignoreFilter)
-    private val infoMessagesModeConverter = InfoMessageModeConverter()
+    private val statusMessagesModeConverter = StatusMessageModeConverter()
 
 
     fun send(message: ChatMessage) {
@@ -84,18 +84,17 @@ class ChatMessageSender(
         wsServer.send(messageNode.toString())
     }
 
-    fun send(message: InfoMessage) {
-        val mode = infoMessagesModeConverter.fromString(config.getString("info-message-mode"))
+    fun send(message: StatusMessage) {
+        val mode = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
         if (mode == NOWHERE) return
 
         val messageNode = objectMapper.createObjectNode().apply {
-            put("type", "info")
+            put("type", "origin-status")
             putObject("content").apply {
-                put("id", message.id)
                 put("source", message.origin.name)
-                put("text", message.text)
+                put("status", message.status.lowerCaseString)
                 put("timestamp", message.timestamp.toEpochMilli())
-                put("mode", mode.lowerCaseString)
+                put("mode", mode.lowerCaseString) //todo don't send mode here
             }
         }
 

@@ -1,6 +1,6 @@
 package failchat.core.chat
 
-enum class InfoMessageMode {
+enum class StatusMessageMode {
     EVERYWHERE,
     NATIVE_CLIENT,
     NOWHERE;

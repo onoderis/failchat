@@ -224,7 +224,7 @@
                                           <Insets bottom="6.0" left="2.0" right="2.0" />
                                        </VBox.margin>
                                     </Slider>
-                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Show info messages">
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Show status messages">
                                        <font>
                                           <Font size="12.0" />
                                        </font>
@@ -232,7 +232,7 @@
                                           <Insets left="2.0" right="2.0" />
                                        </VBox.margin>
                                     </Text>
-                                    <ChoiceBox fx:id="info_messages" prefWidth="150.0">
+                                    <ChoiceBox fx:id="status_messages" prefWidth="150.0">
                                        <VBox.margin>
                                           <Insets bottom="6.0" left="2.0" right="2.0" />
                                        </VBox.margin>

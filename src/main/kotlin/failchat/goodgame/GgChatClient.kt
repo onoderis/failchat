@@ -8,9 +8,11 @@ import failchat.core.Origin.goodgame
 import failchat.core.chat.ChatClient
 import failchat.core.chat.ChatClientStatus
 import failchat.core.chat.ChatClientStatus.offline
-import failchat.core.chat.InfoMessage
 import failchat.core.chat.MessageHandler
 import failchat.core.chat.MessageIdGenerator
+import failchat.core.chat.OriginStatus.CONNECTED
+import failchat.core.chat.OriginStatus.DISCONNECTED
+import failchat.core.chat.StatusMessage
 import failchat.core.chat.handlers.CommonHighlightHandler
 import failchat.core.chat.handlers.MessageObjectCleaner
 import failchat.core.emoticon.EmoticonFinder
@@ -59,7 +61,7 @@ class GgChatClient(
     private val viewersCountFutures: Queue<CompletableFuture<Int>> = ConcurrentLinkedQueue()
 
     private var chatMessageConsumer: ((GgMessage) -> Unit)? = null
-    private var infoMessageConsumer: ((InfoMessage) -> Unit)? = null
+    private var statusMessageConsumer: ((StatusMessage) -> Unit)? = null
     private var messageDeletedCallback: ((GgMessage) -> Unit)? = null
 
 
@@ -83,8 +85,8 @@ class GgChatClient(
         chatMessageConsumer = consumer
     }
 
-    override fun onInfoMessage(consumer: (InfoMessage) -> Unit) {
-        infoMessageConsumer = consumer
+    override fun onStatusMessage(consumer: (StatusMessage) -> Unit) {
+        statusMessageConsumer = consumer
     }
 
     override fun onChatMessageDeleted(operation: (GgMessage) -> Unit) {
@@ -131,7 +133,7 @@ class GgChatClient(
             log.info("Goodgame chat client connected to channel {}", channelId)
 
             wsClient.send(joinMessage.toString())
-            infoMessageConsumer?.invoke(InfoMessage(messageIdGenerator.generate(), goodgame, "connected"))
+            statusMessageConsumer?.invoke(StatusMessage(goodgame, CONNECTED))
         }
 
         override fun onClose(code: Int, reason: String, remote: Boolean) {
@@ -157,7 +159,7 @@ class GgChatClient(
 
         override fun onReconnect() {
             log.info("Goodgame chat client disconnected, trying to reconnect")
-            infoMessageConsumer?.invoke(InfoMessage(messageIdGenerator.generate(), goodgame, "disconnected"))
+            statusMessageConsumer?.invoke(StatusMessage(goodgame, DISCONNECTED))
         }
 
         private fun handleUserMessage(dataNode: JsonNode) {

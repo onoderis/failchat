@@ -114,11 +114,11 @@ span.highlighted {
     color: #74CD36;
 }
 
-span.info-source {
+span.status-source {
     font-weight: bold;
     color: #FFDB5F;
 }
-span.info-text {
+span.status-text {
     color: #FFFFFF;
 }
 

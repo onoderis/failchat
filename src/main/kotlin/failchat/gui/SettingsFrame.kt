@@ -1,6 +1,6 @@
 package failchat.gui
 
-import failchat.core.chat.InfoMessageMode
+import failchat.core.chat.StatusMessageMode
 import failchat.core.skin.Skin
 import javafx.collections.FXCollections
 import javafx.fxml.FXMLLoader
@@ -47,7 +47,7 @@ class SettingsFrame(
 
     //second tab
     private val bgColorPicker = scene.lookup("#bgcolor") as ColorPicker
-    private val infoMessagesMode = scene.lookup("#info_messages") as ChoiceBox<InfoMessageMode>
+    private val statusMessagesMode = scene.lookup("#status_messages") as ChoiceBox<StatusMessageMode>
     private val ignoreList = scene.lookup("#ignore_list") as TextArea
 
     //opacity
@@ -56,7 +56,7 @@ class SettingsFrame(
     private val startButton = scene.lookup("#start_button") as Button
 
 
-    private val infoMessagesModeConverter = InfoMessageModeConverter()
+    private val statusMessagesModeConverter = StatusMessageModeConverter()
 
 
     init {
@@ -77,8 +77,8 @@ class SettingsFrame(
         skin.converter = SkinConverter(skinList)
         skin.items = FXCollections.observableArrayList(skinList)
 
-        infoMessagesMode.converter = infoMessagesModeConverter
-        infoMessagesMode.items = FXCollections.observableList(InfoMessageMode.values().toList())
+        statusMessagesMode.converter = statusMessagesModeConverter
+        statusMessagesMode.items = FXCollections.observableList(StatusMessageMode.values().toList())
 
         stage.setOnCloseRequest {
             saveSettingsValues()
@@ -130,7 +130,7 @@ class SettingsFrame(
 
         bgColorPicker.value = Color.web(config.getString("background-color"))
         opacitySlider.value = config.getDouble("opacity")
-        infoMessagesMode.value = infoMessagesModeConverter.fromString(config.getString("info-message-mode"))
+        statusMessagesMode.value = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
 
         ignoreList.text = config.getList("ignore").joinToString(separator = "\n")
     }
@@ -153,7 +153,7 @@ class SettingsFrame(
 
         config.setProperty("background-color", bgColorPicker.value.toString())
         config.setProperty("opacity", opacitySlider.value.toInt())
-        config.setProperty("info-message-mode", infoMessagesModeConverter.toString(infoMessagesMode.value))
+        config.setProperty("status-message-mode", statusMessagesModeConverter.toString(statusMessagesMode.value))
         config.setProperty("ignore", ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
     }
 

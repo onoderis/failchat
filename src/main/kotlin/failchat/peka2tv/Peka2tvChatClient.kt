@@ -9,10 +9,12 @@ import failchat.core.chat.ChatClientStatus.connected
 import failchat.core.chat.ChatClientStatus.connecting
 import failchat.core.chat.ChatClientStatus.offline
 import failchat.core.chat.ChatClientStatus.ready
-import failchat.core.chat.InfoMessage
 import failchat.core.chat.MessageFilter
 import failchat.core.chat.MessageHandler
 import failchat.core.chat.MessageIdGenerator
+import failchat.core.chat.OriginStatus.CONNECTED
+import failchat.core.chat.OriginStatus.DISCONNECTED
+import failchat.core.chat.StatusMessage
 import failchat.core.chat.handlers.HtmlHandler
 import failchat.core.chat.handlers.MessageObjectCleaner
 import failchat.core.emoticon.EmoticonFinder
@@ -64,7 +66,7 @@ class Peka2tvChatClient(
     )
 
     private var chatMessageConsumer: ((Peka2tvMessage) -> Unit)? = null
-    private var infoMessageConsumer: ((InfoMessage) -> Unit)? = null
+    private var statusMessageConsumer: ((StatusMessage) -> Unit)? = null
     private var messageDeletedCallback: ((Peka2tvMessage) -> Unit)? = null
 
 
@@ -88,8 +90,8 @@ class Peka2tvChatClient(
         chatMessageConsumer = consumer
     }
 
-    override fun onInfoMessage(consumer: (InfoMessage) -> Unit) {
-        infoMessageConsumer = consumer
+    override fun onStatusMessage(consumer: (StatusMessage) -> Unit) {
+        statusMessageConsumer = consumer
     }
 
     override fun onChatMessageDeleted(operation: (Peka2tvMessage) -> Unit) {
@@ -146,7 +148,7 @@ class Peka2tvChatClient(
                     socket.emit("/chat/join", arrayOf(message)) {
                         log.info("Connected to ${Origin.peka2tv}")
                         _status.set(connected)
-                        infoMessageConsumer?.invoke(InfoMessage(messageIdGenerator.generate(), peka2tv, "connected"))
+                        statusMessageConsumer?.invoke(StatusMessage(peka2tv, CONNECTED))
                     }
                 }
 
@@ -154,7 +156,7 @@ class Peka2tvChatClient(
                 .on(Socket.EVENT_DISCONNECT) {
                     _status.set(connecting)
                     log.info("Received disconnected event from peka2tv ")
-                    infoMessageConsumer?.invoke(InfoMessage(messageIdGenerator.generate(), peka2tv, "disconnected"))
+                    statusMessageConsumer?.invoke(StatusMessage(peka2tv, DISCONNECTED))
                 }
 
                 // Message
