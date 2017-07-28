@@ -59,22 +59,22 @@ body {
     height: calc(100% - 36px);
 }
 
-.viewers-sources {
+.viewers-origins {
     text-align: center;
     white-space: nowrap;
     padding: 10px 0 5px ;
 }
 
-.viewers-source {
+.viewers-origin {
     display: none;
     margin: 0 10px;
 }
 
-.viewers-source-on {
+.viewers-origin-on {
     display: inline;
 }
 
-.viewers-source span {
+.viewers-origin span {
     font-weight: bold;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
@@ -104,7 +104,7 @@ span.highlighted {
     color: #f36223;
 }
 
-span.status-source {
+span.status-origin {
     font-weight: bold;
     color: #567197;
 }

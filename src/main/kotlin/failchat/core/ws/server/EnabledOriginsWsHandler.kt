@@ -10,14 +10,12 @@ class EnabledOriginsWsHandler(
 ) : WsMessageHandler {
 
     override fun invoke(message: InboundWsMessage) {
-        val enabledOriginsArray = countableOrigins
-                .filter { config.getBoolean("${it.name}.enabled") }
-                .fold(objectMapper.createArrayNode()) { acc, origin -> acc.add(origin.name) }
-
         val messageNode = objectMapper.createObjectNode().apply {
             put("type", "enabled-origins")
             putObject("content").apply {
-                set("origins", enabledOriginsArray)
+                countableOrigins.forEach { origin ->
+                    put(origin.name, config.getBoolean("${origin.name}.enabled"))
+                }
             }
         }
 

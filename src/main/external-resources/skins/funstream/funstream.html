@@ -26,8 +26,8 @@
 </script>
 
 <script id="message-template" type="text/x-jsrender">
-    <p class="message" id="message-{{:id}}" data-user="{{:author}}#{{:source}}">
-        <img class="icon" src="{{:source}}.png">
+    <p class="message" id="message-{{:id}}" data-user="{{:author}}#{{:origin}}">
+        <img class="icon" src="{{:origin}}.png">
         <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author}}: </span>
         <span class="mod-icons">
             <span title="delete" onclick="deleteMessage(this.parentNode.parentNode)">&#10060;</span>
@@ -47,19 +47,20 @@
 </script>
 <script id="status-message-template" type="text/x-jsrender">
     <p class="message status-message">
-        <img class="icon" src="{{:source}}.png">
-        <span class="status-source" title="{{time:timestamp}}">{{:source}} </span>
+        <img class="icon" src="{{:origin}}.png">
+        <span class="status-origin" title="{{time:timestamp}}">{{:origin}} </span>
         <span class="status-text">{{:status}}</span>
     </p>
 </script>
+<script id="origin-viewers-bar-template" type="text/x-jsrender">
+    <span id="{{:origin}}-origin" class="viewers-origin">
+        <img class="icon" src="{{:origin}}.png"> <span id="{{:origin}}-viewers"></span>
+    </span>
+</script>
+
 
 <div class="viewers-bar">
-    <div class="viewers-sources">
-        <span id="peka2tv-source" class="viewers-source"><img class="icon" src="peka2tv.png"> <span id="peka2tv-viewers"></span></span>
-        <span id="twitch-source" class="viewers-source"><img class="icon" src="twitch.png"> <span id="twitch-viewers"></span></span>
-        <span id="goodgame-source" class="viewers-source"><img class="icon" src="goodgame.png"> <span id="goodgame-viewers"></span></span>
-        <span id="cybergame-source" class="viewers-source"><img class="icon" src="cybergame.png"> <span id="cybergame-viewers"></span></span>
-    </div>
+    <div class="viewers-origins"></div>
 </div>
 <div class="chat-wrapper">
     <div class="scroller">

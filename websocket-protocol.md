@@ -80,10 +80,9 @@
 {
     "type": "enabled-origins",
     "content": {
-        "origins": [
-            "peka2tv",
-            "twitch"
-        ]
+        "peka2tv": false,
+        "twitch": true,
+        "goodgame": true   
     }
 }
 ```
