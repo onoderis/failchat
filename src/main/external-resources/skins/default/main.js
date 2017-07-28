@@ -27,17 +27,21 @@ $(function () {
 
     //viewers bar
     var viewersBar = $(".viewers-bar");
-    var peka2tvViewersBar = $("#peka2tv-source");
-    var twitchViewersBar = $("#twitch-source");
-    var goodgameViewersBar = $("#goodgame-source");
-    var peka2tvViewersCount = $("#peka2tv-viewers");
-    var twitchViewersCount = $("#twitch-viewers");
-    var goodgameViewersCount = $("#goodgame-viewers");
+    var originViewersBarTemplate = $("#origin-viewers-bar-template");
+    var viewersCountItems = {};
+    for (var i = 0; i < failchat.origins.length; i++) {
+        var origin = failchat.origins[i];
+        var viewersBarHtml = originViewersBarTemplate.render({"origin": origin});
+        $(".viewers-origins").append(viewersBarHtml);
+        viewersCountItems[origin] = {
+            "bar": $("#" + origin + "-origin"),
+            "counter": $("#" + origin + "-viewers")
+        };
 
-    //set default values
-    peka2tvViewersCount.text("?");
-    twitchViewersCount.text("?");
-    goodgameViewersCount.text("?");
+        //set default value
+        viewersCountItems[origin].counter.text("?")
+    }
+
 
     baron(failchat.baronParams);
 
@@ -50,7 +54,7 @@ $(function () {
 
 
     socket.onopen = function () {
-        var connectedMessage = {"source": "failchat", "status": "connected", "timestamp": Date.now()};
+        var connectedMessage = {"origin": "failchat", "status": "connected", "timestamp": Date.now()};
         handleStatusMessage(connectedMessage);
         appendToMessageContainer(connectedMessage);
         if (nativeClient) {
@@ -61,7 +65,7 @@ $(function () {
     };
 
     socket.onclose = function () {
-        var disconnectedMessage = {"source": "failchat", "text": "disconnected", "timestamp": Date.now()};
+        var disconnectedMessage = {"origin": "failchat", "status": "disconnected", "timestamp": Date.now()};
         handleStatusMessage(disconnectedMessage);
         appendToMessageContainer(disconnectedMessage);
     };
@@ -133,24 +137,13 @@ $(function () {
     }
 
     function handleEnabledOriginsMessage(content) {
-        // todo refactor
-        var origins = content.origins;
-        if (origins.indexOf("peka2tv") !== -1) {
-            peka2tvViewersBar.addClass("viewers-source-on");
-        } else {
-            peka2tvViewersBar.removeClass("viewers-source-on");
-        }
-
-        if (origins.indexOf("twitch") !== -1) {
-            twitchViewersBar.addClass("viewers-source-on");
-        } else {
-            twitchViewersBar.removeClass("viewers-source-on");
-        }
-
-        if (origins.indexOf("goodgame") !== -1) {
-            goodgameViewersBar.addClass("viewers-source-on");
-        } else {
-            goodgameViewersBar.removeClass("viewers-source-on");
+        for (var origin in content) {
+            if (!content.hasOwnProperty(origin)) continue;
+            if (content[origin] === true) {
+                viewersCountItems[origin].bar.addClass("viewers-origin-on");
+            } else {
+                viewersCountItems[origin].bar.removeClass("viewers-origin-on");
+            }
         }
     }
 
@@ -169,28 +162,15 @@ $(function () {
     }
 
     function updateViewersValues(counters) {
-        //todo refactor
-        var value;
-        if (counters.peka2tv !== undefined) {
-            value = counters.peka2tv;
-            if (value === null) {
-                value = "?";
+        for (var origin in counters) {
+            if (!counters.hasOwnProperty(origin)) continue;
+
+            var count = counters[origin];
+            if (count === null) {
+                viewersCountItems[origin].counter.text("?");
+                continue;
             }
-            peka2tvViewersCount.text(value);
-        }
-        if (counters.twitch !== undefined) {
-            value = counters.twitch;
-            if (value === null) {
-                value = "?";
-            }
-            twitchViewersCount.text(value);
-        }
-        if (counters.goodgame !== undefined) {
-            value = counters.goodgame;
-            if (value === null) {
-                value = "?";
-            }
-            goodgameViewersCount.text(value);
+            viewersCountItems[origin].counter.text(count);
         }
     }
 

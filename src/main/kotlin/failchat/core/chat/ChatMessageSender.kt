@@ -45,7 +45,7 @@ class ChatMessageSender(
             put("type", "message")
             with("content").apply {
                 put("id", message.id)
-                put("source", message.origin.name)
+                put("origin", message.origin.name)
                 put("author", message.author)
                 put("text", message.text)
                 put("timestamp", message.timestamp.toEpochMilli())
@@ -91,7 +91,7 @@ class ChatMessageSender(
         val messageNode = objectMapper.createObjectNode().apply {
             put("type", "origin-status")
             putObject("content").apply {
-                put("source", message.origin.name)
+                put("origin", message.origin.name)
                 put("status", message.status.lowerCaseString)
                 put("timestamp", message.timestamp.toEpochMilli())
                 put("mode", mode.lowerCaseString) //todo don't send mode here
