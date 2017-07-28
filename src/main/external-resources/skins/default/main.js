@@ -23,7 +23,7 @@ $(function () {
     var linkTemplate = $("#link-template");
     var imageTemplate = $("#image-template");
     var messageTemplate = $("#message-template");
-    var infoMessageTemplate = $("#info-message-template");
+    var statusMessageTemplate = $("#status-message-template");
 
     //viewers bar
     var viewersBar = $(".viewers-bar");
@@ -50,8 +50,8 @@ $(function () {
 
 
     socket.onopen = function () {
-        var connectedMessage = {"id": "-10", "source": "failchat", "text": "connected", "timestamp": Date.now()};
-        handleInfoMessage(connectedMessage);
+        var connectedMessage = {"source": "failchat", "status": "connected", "timestamp": Date.now()};
+        handleStatusMessage(connectedMessage);
         appendToMessageContainer(connectedMessage);
         if (nativeClient) {
             socket.send(JSON.stringify({"type": "enabled-origins", "content": {}}));
@@ -61,8 +61,8 @@ $(function () {
     };
 
     socket.onclose = function () {
-        var disconnectedMessage = {"id": "-10", "source": "failchat", "text": "disconnected", "timestamp": Date.now()};
-        handleInfoMessage(disconnectedMessage);
+        var disconnectedMessage = {"source": "failchat", "text": "disconnected", "timestamp": Date.now()};
+        handleStatusMessage(disconnectedMessage);
         appendToMessageContainer(disconnectedMessage);
     };
 
@@ -75,8 +75,8 @@ $(function () {
             case "message":
                 handleChatMessage(content);
                 break;
-            case "info":
-                handleInfoMessage(content);
+            case "origin-status":
+                handleStatusMessage(content);
                 break;
             case "delete-message":
                 handleDeleteMessage(content);
@@ -127,9 +127,9 @@ $(function () {
         content.textHtml = messageTemplate.render(content);
     }
 
-    function handleInfoMessage(content) {
+    function handleStatusMessage(content) {
         if (content.mode === "native_client" && !nativeClient) return;
-        content.textHtml = infoMessageTemplate.render(content);
+        content.textHtml = statusMessageTemplate.render(content);
     }
 
     function handleEnabledOriginsMessage(content) {

@@ -15,7 +15,7 @@ interface ChatClient<out T : ChatMessage> {
 
     fun onChatMessage(consumer: (T) -> Unit)
 
-    fun onInfoMessage(consumer: (InfoMessage) -> Unit)
+    fun onStatusMessage(consumer: (StatusMessage) -> Unit)
 
     fun onChatMessageDeleted(operation: (T) -> Unit)
 

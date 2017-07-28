@@ -174,7 +174,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
 
     private fun ChatClient<*>.setCallbacks() {
         onChatMessage { chatMessageSender.send(it) }
-        onInfoMessage { chatMessageSender.send(it) }
+        onStatusMessage { chatMessageSender.send(it) }
         onChatMessageDeleted { chatMessageRemover.remove(it) }
     }
 

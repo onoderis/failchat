@@ -5,9 +5,11 @@ import failchat.core.Origin
 import failchat.core.Origin.twitch
 import failchat.core.chat.ChatClient
 import failchat.core.chat.ChatClientStatus
-import failchat.core.chat.InfoMessage
 import failchat.core.chat.MessageHandler
 import failchat.core.chat.MessageIdGenerator
+import failchat.core.chat.OriginStatus.CONNECTED
+import failchat.core.chat.OriginStatus.DISCONNECTED
+import failchat.core.chat.StatusMessage
 import failchat.core.chat.handlers.HtmlHandler
 import failchat.core.chat.handlers.MessageObjectCleaner
 import failchat.core.emoticon.EmoticonFinder
@@ -62,7 +64,7 @@ class TwitchChatClient(
     private val historyLock: Lock = ReentrantLock()
 
     private var chatMessageConsumer: ((TwitchMessage) -> Unit)? = null
-    private var infoMessageConsumer: ((InfoMessage) -> Unit)? = null
+    private var statusMessageConsumer: ((StatusMessage) -> Unit)? = null
     private var messageDeletedCallback: ((TwitchMessage) -> Unit)? = null
 
     override val origin = Origin.twitch
@@ -91,8 +93,8 @@ class TwitchChatClient(
         chatMessageConsumer = consumer
     }
 
-    override fun onInfoMessage(consumer: (InfoMessage) -> Unit) {
-        infoMessageConsumer = consumer
+    override fun onStatusMessage(consumer: (StatusMessage) -> Unit) {
+        statusMessageConsumer = consumer
     }
 
     override fun onChatMessageDeleted(operation: (TwitchMessage) -> Unit) {
@@ -124,7 +126,7 @@ class TwitchChatClient(
             _status.set(ChatClientStatus.connected)
             twitchIrcClient.sendCAP().request("twitch.tv/tags")
             twitchIrcClient.sendCAP().request("twitch.tv/commands")
-            infoMessageConsumer?.invoke(InfoMessage(messageIdGenerator.generate(), twitch, "connected"))
+            statusMessageConsumer?.invoke(StatusMessage(twitch, CONNECTED))
         }
 
         override fun onDisconnect(event: DisconnectEvent) {
@@ -134,7 +136,7 @@ class TwitchChatClient(
                 else -> {
                     _status.set(ChatClientStatus.connecting)
                     log.info("Twitch irc client disconnected")
-                    infoMessageConsumer?.invoke(InfoMessage(messageIdGenerator.generate(), twitch, "disconnected"))
+                    statusMessageConsumer?.invoke(StatusMessage(twitch, DISCONNECTED))
                 }
             }
         }
