@@ -46,6 +46,14 @@ class GgChatClient(
         const val historySize = 50
     }
 
+    override val origin = Origin.goodgame
+    override val status: ChatClientStatus get() = _status.get()
+
+    override var onChatMessage: ((GgMessage) -> Unit)? = null
+    override var onStatusMessage: ((StatusMessage) -> Unit)? = null
+    override var onChatMessageDeleted: ((GgMessage) -> Unit)? = null
+
+
     private var wsClient: WsClient = GgWsClient(URI.create(webSocketUri))
     private val _status: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
 
@@ -60,16 +68,9 @@ class GgChatClient(
     private val historyLock: Lock = ReentrantLock()
     private val viewersCountFutures: Queue<CompletableFuture<Int>> = ConcurrentLinkedQueue()
 
-    private var chatMessageConsumer: ((GgMessage) -> Unit)? = null
-    private var statusMessageConsumer: ((StatusMessage) -> Unit)? = null
-    private var messageDeletedCallback: ((GgMessage) -> Unit)? = null
-
-
-    override val origin = Origin.goodgame
-    override val status: ChatClientStatus get() = _status.get()
-
 
     override fun start() {
+        //todo change to connecting
         if (_status.get() != ChatClientStatus.ready) {
             return
         }
@@ -79,18 +80,6 @@ class GgChatClient(
     override fun stop() {
         _status.set(offline)
         wsClient.stop()
-    }
-
-    override fun onChatMessage(consumer: (GgMessage) -> Unit) {
-        chatMessageConsumer = consumer
-    }
-
-    override fun onStatusMessage(consumer: (StatusMessage) -> Unit) {
-        statusMessageConsumer = consumer
-    }
-
-    override fun onChatMessageDeleted(operation: (GgMessage) -> Unit) {
-        messageDeletedCallback = operation
     }
 
     override fun loadViewersCount(): CompletableFuture<Int> {
@@ -133,7 +122,7 @@ class GgChatClient(
             log.info("Goodgame chat client connected to channel {}", channelId)
 
             wsClient.send(joinMessage.toString())
-            statusMessageConsumer?.invoke(StatusMessage(goodgame, CONNECTED))
+            onStatusMessage?.invoke(StatusMessage(goodgame, CONNECTED))
         }
 
         override fun onClose(code: Int, reason: String, remote: Boolean) {
@@ -159,7 +148,7 @@ class GgChatClient(
 
         override fun onReconnect() {
             log.info("Goodgame chat client disconnected, trying to reconnect")
-            statusMessageConsumer?.invoke(StatusMessage(goodgame, DISCONNECTED))
+            onStatusMessage?.invoke(StatusMessage(goodgame, DISCONNECTED))
         }
 
         private fun handleUserMessage(dataNode: JsonNode) {
@@ -173,7 +162,7 @@ class GgChatClient(
             messageHandlers.forEach { it.handleMessage(ggMessage) }
 
             historyLock.withLock { history.add(ggMessage) }
-            chatMessageConsumer?.invoke(ggMessage)
+            onChatMessage?.invoke(ggMessage)
         }
 
         private fun handleModMessage(dataNode: JsonNode) {
@@ -182,7 +171,7 @@ class GgChatClient(
             val foundMessage = historyLock.withLock {
                 history.find { it.ggId == idToRemove }
             }
-            foundMessage?.let { messageDeletedCallback?.invoke(it) }
+            foundMessage?.let { onChatMessageDeleted?.invoke(it) }
         }
 
         private fun handleViewersMessage(dataNode: JsonNode) {

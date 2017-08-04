@@ -49,6 +49,14 @@ class Peka2tvChatClient(
         const val historySize = 50
     }
 
+    override val status: ChatClientStatus get() = _status.get()
+    override val origin = peka2tv
+
+    override var onChatMessage: ((Peka2tvMessage) -> Unit)? = null
+    override var onStatusMessage: ((StatusMessage) -> Unit)? = null
+    override var onChatMessageDeleted: ((Peka2tvMessage) -> Unit)? = null
+
+
     private val socket = buildSocket()
     private val _status: AtomicReference<ChatClientStatus> = AtomicReference(ready)
     private val history: Queue<Peka2tvMessage> = EvictingQueue.create(historySize)
@@ -65,16 +73,9 @@ class Peka2tvChatClient(
             AnnounceMessageFilter()
     )
 
-    private var chatMessageConsumer: ((Peka2tvMessage) -> Unit)? = null
-    private var statusMessageConsumer: ((StatusMessage) -> Unit)? = null
-    private var messageDeletedCallback: ((Peka2tvMessage) -> Unit)? = null
-
-
-    override val status: ChatClientStatus get() = _status.get()
-    override val origin = peka2tv
 
     override fun start() {
-        if (_status.get() != ChatClientStatus.ready) {
+        if (!_status.compareAndSet(ready, connecting)) {
             return
         }
 
@@ -84,18 +85,6 @@ class Peka2tvChatClient(
     override fun stop() {
         _status.set(offline)
         socket.disconnect()
-    }
-
-    override fun onChatMessage(consumer: (Peka2tvMessage) -> Unit) {
-        chatMessageConsumer = consumer
-    }
-
-    override fun onStatusMessage(consumer: (StatusMessage) -> Unit) {
-        statusMessageConsumer = consumer
-    }
-
-    override fun onChatMessageDeleted(operation: (Peka2tvMessage) -> Unit) {
-        messageDeletedCallback = operation
     }
 
     override fun loadViewersCount(): CompletableFuture<Int> {
@@ -148,7 +137,7 @@ class Peka2tvChatClient(
                     socket.emit("/chat/join", arrayOf(message)) {
                         log.info("Connected to ${Origin.peka2tv}")
                         _status.set(connected)
-                        statusMessageConsumer?.invoke(StatusMessage(peka2tv, CONNECTED))
+                        onStatusMessage?.invoke(StatusMessage(peka2tv, CONNECTED))
                     }
                 }
 
@@ -156,7 +145,7 @@ class Peka2tvChatClient(
                 .on(Socket.EVENT_DISCONNECT) {
                     _status.set(connecting)
                     log.info("Received disconnected event from peka2tv ")
-                    statusMessageConsumer?.invoke(StatusMessage(peka2tv, DISCONNECTED))
+                    onStatusMessage?.invoke(StatusMessage(peka2tv, DISCONNECTED))
                 }
 
                 // Message
@@ -186,7 +175,7 @@ class Peka2tvChatClient(
                     messageHandlers.forEach { it.handleMessage(message) }
 
                     historyLock.withLock { history.add(message) }
-                    chatMessageConsumer?.invoke(message)
+                    onChatMessage?.invoke(message)
                 }
 
                 // Message removal
@@ -197,7 +186,7 @@ class Peka2tvChatClient(
                     val foundMessage = historyLock.withLock {
                         history.find { it.peka2tvId == idToRemove }
                     }
-                    foundMessage?.let { messageDeletedCallback?.invoke(it) }
+                    foundMessage?.let { onChatMessageDeleted?.invoke(it) }
                 }
 
         return socket

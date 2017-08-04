@@ -51,8 +51,16 @@ class TwitchChatClient(
         const val historySize = 50
     }
 
+    override val origin = Origin.twitch
+    override val status: ChatClientStatus get() = _status.get()
+
+    override var onChatMessage: ((TwitchMessage) -> Unit)? = null
+    override var onStatusMessage: ((StatusMessage) -> Unit)? = null
+    override var onChatMessageDeleted: ((TwitchMessage) -> Unit)? = null
+
+
     private val twitchIrcClient: PircBotX
-    val serverEntries = listOf(Configuration.ServerEntry(ircAddress, ircPort))
+    private val serverEntries = listOf(Configuration.ServerEntry(ircAddress, ircPort))
     private val _status: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
     private val messageHandlers: List<MessageHandler<TwitchMessage>> = listOf(
             MessageObjectCleaner(),
@@ -62,13 +70,6 @@ class TwitchChatClient(
     )
     private val history: Queue<TwitchMessage> = EvictingQueue.create(historySize)
     private val historyLock: Lock = ReentrantLock()
-
-    private var chatMessageConsumer: ((TwitchMessage) -> Unit)? = null
-    private var statusMessageConsumer: ((StatusMessage) -> Unit)? = null
-    private var messageDeletedCallback: ((TwitchMessage) -> Unit)? = null
-
-    override val origin = Origin.twitch
-    override val status: ChatClientStatus get() = _status.get()
 
 
     init {
@@ -87,18 +88,6 @@ class TwitchChatClient(
                 .buildConfiguration()
 
         twitchIrcClient = PircBotX(configuration)
-    }
-
-    override fun onChatMessage(consumer: (TwitchMessage) -> Unit) {
-        chatMessageConsumer = consumer
-    }
-
-    override fun onStatusMessage(consumer: (StatusMessage) -> Unit) {
-        statusMessageConsumer = consumer
-    }
-
-    override fun onChatMessageDeleted(operation: (TwitchMessage) -> Unit) {
-        messageDeletedCallback = operation
     }
 
     override fun start() {
@@ -126,7 +115,7 @@ class TwitchChatClient(
             _status.set(ChatClientStatus.connected)
             twitchIrcClient.sendCAP().request("twitch.tv/tags")
             twitchIrcClient.sendCAP().request("twitch.tv/commands")
-            statusMessageConsumer?.invoke(StatusMessage(twitch, CONNECTED))
+            onStatusMessage?.invoke(StatusMessage(twitch, CONNECTED))
         }
 
         override fun onDisconnect(event: DisconnectEvent) {
@@ -136,7 +125,7 @@ class TwitchChatClient(
                 else -> {
                     _status.set(ChatClientStatus.connecting)
                     log.info("Twitch irc client disconnected")
-                    statusMessageConsumer?.invoke(StatusMessage(twitch, DISCONNECTED))
+                    onStatusMessage?.invoke(StatusMessage(twitch, DISCONNECTED))
                 }
             }
         }
@@ -145,7 +134,7 @@ class TwitchChatClient(
             val message = parseMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
             historyLock.withLock { history.add(message) }
-            chatMessageConsumer?.invoke(message)
+            onChatMessage?.invoke(message)
         }
 
         /**
@@ -155,7 +144,7 @@ class TwitchChatClient(
             val message = parseMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
             historyLock.withLock { history.add(message) }
-            chatMessageConsumer?.invoke(message)
+            onChatMessage?.invoke(message)
         }
 
         override fun onUnknown(event: UnknownEvent) {
@@ -167,7 +156,7 @@ class TwitchChatClient(
                 history.filter { it.author.equals(author, ignoreCase = true) }
             }
 
-            messageDeletedCallback?.let { messagesToDelete.forEach(it) }
+            onChatMessageDeleted?.let { messagesToDelete.forEach(it) }
         }
     }
 

@@ -6,6 +6,7 @@ import com.github.salomonbrys.kodein.bind
 import com.github.salomonbrys.kodein.factory
 import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.singleton
+import com.google.api.services.youtube.YouTube
 import failchat.core.chat.ChatMessageRemover
 import failchat.core.chat.ChatMessageSender
 import failchat.core.chat.MessageIdGenerator
@@ -35,6 +36,9 @@ import failchat.twitch.TwitchApiClient
 import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchEmoticonLoader
 import failchat.twitch.TwitchViewersCountLoader
+import failchat.youtube.YouTubeFactory
+import failchat.youtube.YtApiClient
+import failchat.youtube.YtChatClient
 import okhttp3.OkHttpClient
 import org.apache.commons.configuration2.Configuration
 import java.nio.file.Path
@@ -119,10 +123,10 @@ val kodein = Kodein {
 
 
     //Background task executor
-    bind<ScheduledExecutorService>() with singleton {
+    bind<ScheduledExecutorService>("background") with singleton {
         val threadNumber = AtomicInteger()
         Executors.newScheduledThreadPool(2) {
-            Thread(it, "BackgroundTaskThread-${threadNumber.getAndIncrement()}").apply {
+            Thread(it, "BackgroundExecutor-${threadNumber.getAndIncrement()}").apply {
                 isDaemon = true
                 priority = 3
             }
@@ -201,5 +205,23 @@ val kodein = Kodein {
         )
     }
     bind<GgEmoticonLoader>() with singleton { GgEmoticonLoader(instance<GgApiClient>()) }
+
+
+    // Youtube
+    bind<YouTube>() with singleton { YouTubeFactory.create(instance<Configuration>()) }
+    bind<YtApiClient>() with singleton { YtApiClient(instance<YouTube>()) }
+    bind<ScheduledExecutorService>("youtube") with singleton {
+        Executors.newSingleThreadScheduledExecutor { Thread(it, "YoutubeExecutor") }
+    }
+    bind<YtChatClient>() with factory { channelId: String ->
+        YtChatClient(
+                channelId,
+                instance<YouTube>(),
+                instance<YtApiClient>(),
+                instance<ScheduledExecutorService>("youtube"),
+                instance<MessageIdGenerator>()
+        )
+    }
+
 
 }

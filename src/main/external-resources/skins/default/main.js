@@ -3,7 +3,7 @@
 var failchat = {
     "maxMessages": 50,
     "messageCount": 0,
-    "origins": ["peka2tv", "twitch", "goodgame"],
+    "origins": ["peka2tv", "twitch", "goodgame", "youtube"],
     "deletedTextPlaceholder": "message deleted"
 };
 

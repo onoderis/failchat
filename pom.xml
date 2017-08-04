@@ -25,6 +25,7 @@
         <mockito-kotlin.version>1.5.0</mockito-kotlin.version>
         <logback.version>1.2.3</logback.version>
         <pircbotx.version>2.1</pircbotx.version>
+        <project.youtube.version>v3-rev183-1.22.0</project.youtube.version>
     </properties>
 
 
@@ -141,6 +142,12 @@
             <version>${slf4j.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-youtube</artifactId>
+            <version>${project.youtube.version}</version>
+        </dependency>
+
         <!--Test-->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -167,6 +174,7 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <version>${kotlin.version}</version>
                 <configuration>
+                    <myIncremental>true</myIncremental>
                     <languageVersion>1.1</languageVersion>
                     <jvmTarget>1.8</jvmTarget>
                     <experimentalCoroutines>enable</experimentalCoroutines>

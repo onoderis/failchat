@@ -65,7 +65,7 @@ fun main(args: Array<String>) {
 
 
     // Reporter
-    val backgroundExecutor = kodein.instance<ScheduledExecutorService>()
+    val backgroundExecutor = kodein.instance<ScheduledExecutorService>("background")
     scheduleReportTasks(backgroundExecutor)
 
 

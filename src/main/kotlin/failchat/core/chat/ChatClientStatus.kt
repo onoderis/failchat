@@ -5,5 +5,5 @@ enum class ChatClientStatus {
     connected,
     connecting,
     error,
-    offline
+    offline //todo rename
 }
