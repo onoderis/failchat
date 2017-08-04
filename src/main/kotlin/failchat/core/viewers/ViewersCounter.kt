@@ -80,7 +80,7 @@ class ViewersCounter(
     private fun updateViewersCount() {
         viewersCountLoaders.forEach { accessor ->
             val count: Int? = try {
-                accessor.loadViewersCount().join()
+                accessor.loadViewersCount().join() //todo get(timeout)
             } catch (e: CompletionException) {
                 val cause = e.cause
                 if (cause is ChannelOfflineException) {
@@ -88,11 +88,14 @@ class ViewersCounter(
                 } else {
                     log.warn("Failed to get viewers count for origin {}", accessor.origin, e)
                 }
-                viewersCount.remove(accessor.origin)
+                null
+            } catch (e: Exception) {
+                log.warn("Unexpected exception during loading viewers count for origin '{}'", accessor.origin.name, e)
                 null
             }
 
             count?.let { viewersCount.put(accessor.origin, it) }
+                    ?: viewersCount.remove(accessor.origin)
         }
     }
 

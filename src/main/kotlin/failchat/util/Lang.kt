@@ -7,3 +7,9 @@ inline fun <T> whileNotNull(supplier: () -> T, operation: (T) -> Unit) {
         value = supplier.invoke()
     }
 }
+
+inline fun Collection<*>?.isNullOrEmpty(): Boolean {
+    if (this == null) return true
+    if (this.isEmpty()) return true
+    return false
+}

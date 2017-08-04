@@ -7,6 +7,7 @@ enum class Origin {
     peka2tv,
     goodgame,
     twitch,
+    youtube,
     cybergame,
     failchat,
     test;

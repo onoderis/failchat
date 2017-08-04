@@ -5,18 +5,16 @@ import failchat.core.Origin
 /**
 * Not reusable.
 * */
-interface ChatClient<out T : ChatMessage> {
-
-    fun start()
-    fun stop()
+interface ChatClient<T : ChatMessage> {
 
     val origin: Origin
     val status: ChatClientStatus
 
-    fun onChatMessage(consumer: (T) -> Unit)
+    var onChatMessage: ((T) -> Unit)?
+    var onStatusMessage: ((StatusMessage) -> Unit)?
+    var onChatMessageDeleted: ((T) -> Unit)?
 
-    fun onStatusMessage(consumer: (StatusMessage) -> Unit)
-
-    fun onChatMessageDeleted(operation: (T) -> Unit)
+    fun start()
+    fun stop()
 
 }

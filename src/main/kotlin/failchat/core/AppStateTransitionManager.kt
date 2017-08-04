@@ -26,12 +26,15 @@ import failchat.util.error
 import failchat.util.formatStackTraces
 import failchat.util.ls
 import failchat.util.sleep
+import failchat.youtube.YtApiClient
+import failchat.youtube.YtChatClient
 import javafx.application.Platform
 import okhttp3.OkHttpClient
 import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
+import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
@@ -51,11 +54,13 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     private val chatMessageRemover: ChatMessageRemover = kodein.instance()
     private val peka2tvApiClient: Peka2tvApiClient = kodein.instance()
     private val goodgameApiClient: GgApiClient = kodein.instance()
+    private val ytApiClient: YtApiClient = kodein.instance()
     private val configLoader: ConfigLoader = kodein.instance()
     private val ignoreFilter: IgnoreFilter = kodein.instance()
     private val imageLinkHandler: ImageLinkHandler = kodein.instance()
     private val okHttpClient: OkHttpClient = kodein.instance()
     private val viewersCountWsHandler: ViewersCountWsHandler = kodein.instance()
+    private val youtubeExecutor: ScheduledExecutorService = kodein.instance("youtube")
 
     private val lock: Lock = ReentrantLock()
     private val config: Configuration = configLoader.get()
@@ -99,7 +104,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
         }
 
 
-        //Goodgame
+        // Goodgame
         checkEnabled(Origin.goodgame)?.let { channelName ->
             // get channel id by channel name
             val channelId = try {
@@ -114,6 +119,33 @@ class AppStateTransitionManager(private val kodein: Kodein) {
                     .also { it.setCallbacks() }
 
             chatClientMap.put(Origin.goodgame, chatClient)
+            viewersCountLoaders.add(chatClient)
+        }
+
+
+        // Youtube
+        checkEnabled(Origin.youtube)?.let { channelId ->
+            /*// get video id by channel id
+            val videoId = try {
+                ytApiClient.getLiveBroadcastId(channelId)
+            } catch (e: Exception) {
+                log.warn("Failed to get youtube video id . channel id: {}", channelId, e)
+                return@let
+            }
+
+            // get live chat id by video id
+            val liveChatId = try {
+                ytApiClient.getLiveChatId(videoId)
+            } catch (e: Exception) {
+                log.warn("Failed to get youtube live chat id. video id: {}", videoId, e)
+                return@let
+            }*/
+
+            val chatClient = kodein.factory<String, YtChatClient>()
+                    .invoke(channelId)
+                    .also { it.setCallbacks() }
+
+            chatClientMap.put(Origin.youtube, chatClient)
             viewersCountLoaders.add(chatClient)
         }
 
@@ -153,8 +185,10 @@ class AppStateTransitionManager(private val kodein: Kodein) {
             wsServer.stop()
             log.info("Websocket server stopped")
 
+            youtubeExecutor.shutdownNow()
+
             okHttpClient.dispatcher().executorService().shutdown()
-            log.info("OkHttpClient thread pool shutdown")
+            log.info("OkHttpClient thread pool shutdown completed")
             okHttpClient.connectionPool().evictAll()
             log.info("OkHttpClient connections evicted")
         }
@@ -173,9 +207,9 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     }
 
     private fun ChatClient<*>.setCallbacks() {
-        onChatMessage { chatMessageSender.send(it) }
-        onStatusMessage { chatMessageSender.send(it) }
-        onChatMessageDeleted { chatMessageRemover.remove(it) }
+        onChatMessage = { chatMessageSender.send(it) }
+        onStatusMessage = { chatMessageSender.send(it) }
+        onChatMessageDeleted = { chatMessageRemover.remove(it) }
     }
 
     private fun reset() {
