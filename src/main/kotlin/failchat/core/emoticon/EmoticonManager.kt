@@ -38,7 +38,7 @@ class EmoticonManager(
         val (emoticons, loadedFrom) = load(loader, cacheFile, now)
 
         // Save to cache file if required
-        if (loadedFrom == LoadSource.loader && isCacheOutdated(loader.origin, now)) {
+        if (loadedFrom == LoadSource.loader) {
             try {
                 saveToCache(emoticons, cacheFile)
                 config.setProperty("${origin.name}.emoticons.last-updated", now.toEpochMilli())
