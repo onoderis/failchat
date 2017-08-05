@@ -14,7 +14,7 @@ import failchat.core.chat.OriginStatus.CONNECTED
 import failchat.core.chat.OriginStatus.DISCONNECTED
 import failchat.core.chat.StatusMessage
 import failchat.core.chat.handlers.CommonHighlightHandler
-import failchat.core.chat.handlers.MessageObjectCleaner
+import failchat.core.chat.handlers.ElementLabelEscaper
 import failchat.core.emoticon.EmoticonFinder
 import failchat.core.viewers.ViewersCountLoader
 import failchat.core.ws.client.WsClient
@@ -58,7 +58,7 @@ class GgChatClient(
     private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
 
     private val messageHandlers: List<MessageHandler<GgMessage>> = listOf(
-            MessageObjectCleaner(),
+            ElementLabelEscaper(),
             HtmlUrlCleaner(),
             GgEmoticonHandler(emoticonFinder),
             CommonHighlightHandler(channelName)
