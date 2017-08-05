@@ -1,6 +1,7 @@
 package failchat.youtube
 
 import com.google.api.services.youtube.YouTube
+import failchat.util.debug
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -10,51 +11,75 @@ class YtApiClient(private val youTube: YouTube) {
         val log: Logger = LoggerFactory.getLogger(YtApiClient::class.java)
     }
 
+    fun getChannelTitle(channelId: String): String? {
+        // https://developers.google.com/youtube/v3/docs/channels/list
+        val request = youTube.channels()
+                .list("snippet")
+                .setId(channelId)
+        log.debug { "Sending request: $request" }
+
+        val response = request.execute()
+        log.debug { "Got response: $response" }
+
+        return response.items.firstOrNull()?.snippet?.title
+    }
+
     /**
      * @return null if live broadcast not found.
      * */
-    fun getLiveBroadcastId(channelId: String): String? = getBroadcastId(channelId, "live")
+    fun findLiveBroadcast(channelId: String): String? = findBroadcast(channelId, "live")
 
     /**
      * @return null if upcoming broadcast not found.
      * */
-    fun getUpcomingBroadcastId(channelId: String): String? = getBroadcastId(channelId, "upcoming")
+    fun findUpcomingBroadcast(channelId: String): String? = findBroadcast(channelId, "upcoming")
 
     /**
      * @return null if live chat not found.
      * */
     fun getLiveChatId(liveBroadcastId: String): String? {
-        val videoListResponse = youTube.videos()
+        val request = youTube.videos()
                 .list("liveStreamingDetails")
-//                .setFields("items/liveStreamingDetails/activeLiveChatId")
                 .setId(liveBroadcastId)
-                .execute()
+        log.debug { "Sending request: $request" }
+
+        val response = request.execute()
+        log.debug { "Got response: $response" }
+
 
         // items is empty if liveBroadcastId not found
         // activeLiveChatId отсутствует если стрим закончен (или не начат?)
-        return videoListResponse.items.firstOrNull()?.liveStreamingDetails?.activeLiveChatId
+        return response.items.firstOrNull()?.liveStreamingDetails?.activeLiveChatId
     }
 
     fun getViewersCount(videoId: String): Int? {
         // https://developers.google.com/youtube/v3/docs/videos#liveStreamingDetails.concurrentViewers
-
-        val videoListResponse = youTube.videos()
+        val request = youTube.videos()
                 .list("liveStreamingDetails")
                 .setId(videoId)
-                .execute()
+        log.debug { "Sending request: $request" }
 
-        return videoListResponse.items.firstOrNull()?.liveStreamingDetails?.concurrentViewers?.intValueExact()
+        val response = request.execute()
+        log.debug { "Got response: $response" }
+
+        return response.items.firstOrNull()?.liveStreamingDetails?.concurrentViewers?.intValueExact()
     }
 
-    private fun getBroadcastId(channelId: String, eventType: String): String? {
-        val searchResponse = youTube.search()
+    /**
+     * @return broadcast id.
+     * */
+    private fun findBroadcast(channelId: String, eventType: String): String? {
+        val request = youTube.search()
                 .list("snippet")
                 .setType("video")
                 .setEventType(eventType)
                 .setChannelId(channelId)
-                .execute()
+        log.debug { "Sending request: $request" }
 
-        return searchResponse.items.firstOrNull()?.id?.videoId
+        val response = request.execute()
+        log.debug { "Got response: $response" }
+
+        return response.items.firstOrNull()?.id?.videoId
     }
 
 }
