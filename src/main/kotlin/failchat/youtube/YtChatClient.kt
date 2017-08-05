@@ -21,6 +21,7 @@ import failchat.exception.ChannelOfflineException
 import failchat.util.ConcurrentEvictingQueue
 import failchat.util.debug
 import failchat.util.scheduleWithCatch
+import failchat.util.value
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -55,10 +56,10 @@ class YtChatClient(
 
     private val messageHandlers: List<MessageHandler<YtMessage>> = listOf(
             MessageObjectCleaner(),
-            HtmlHandler()
+            HtmlHandler() // символы < и > приходят неэкранированными
     )
     private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
-    private val searchInterval: Duration = Duration.ofSeconds(5)
+    private val searchInterval: Duration = Duration.ofSeconds(10)
     private val reconnectInterval: Duration = Duration.ofSeconds(5)
     private val liveBroadcastId: AtomicReference<String?> = AtomicReference(null)
     private val messageHistory: Queue<YtMessage> = ConcurrentEvictingQueue(50)
@@ -80,7 +81,7 @@ class YtChatClient(
     override fun loadViewersCount(): CompletableFuture<Int> {
         return CompletableFuture.supplyAsync<Int>(Supplier {
             //todo change exceptions
-            val lbId = liveBroadcastId.get()
+            val lbId = liveBroadcastId.value
                     ?: throw ChannelOfflineException(Origin.youtube, channelId)
 
             return@Supplier ytApiClient.getViewersCount(lbId)
@@ -104,7 +105,7 @@ class YtChatClient(
                     ?: throw LiveChatNotFoundException(channelId, lbId)
             log.debug("Got liveChatId: '{}'", lcId)
 
-            liveBroadcastId.set(lbId)
+            liveBroadcastId.value = lbId
             lcId
         } catch (e: Exception) {
             log.warn("Failed to get liveChatId. Retry in {} ms. channelId: '{}'", searchInterval.toMillis(), channelId, e)

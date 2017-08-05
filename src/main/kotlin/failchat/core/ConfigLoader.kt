@@ -20,9 +20,10 @@ class ConfigLoader(workingDirectory: Path) {
         val log: Logger = LoggerFactory.getLogger(ConfigLoader::class.java)
     }
 
-    private val configPath = workingDirectory.resolve("config/user.properties")
-    private val userConfigBuilder = createUserConfigBuilder()
-    private val defaultConfigBuilder = createDefaultConfigBuilder()
+    private val userConfigPath = workingDirectory.resolve("config/user.properties")
+    private val userConfigBuilder = createOptionalConfigBuilder(userConfigPath)
+    private val defaultConfigBuilder = createMandatoryConfigBuilder("/config/default.properties")
+    private val privateConfigBuilder = createMandatoryConfigBuilder("/config/private.properties")
     private val compositeConfig = CompositeConfiguration()
 
     init {
@@ -32,6 +33,7 @@ class ConfigLoader(workingDirectory: Path) {
         // он будет последний в списке на чтение
         compositeConfig.addConfiguration(userConfig, true)
         compositeConfig.addConfiguration(defaultConfigBuilder)
+        compositeConfig.addConfiguration(privateConfigBuilder)
         compositeConfig.synchronizer = ReadWriteSynchronizer()
         compositeConfig.isThrowExceptionOnMissing = true
     }
@@ -40,26 +42,26 @@ class ConfigLoader(workingDirectory: Path) {
 
     fun save() {
         userConfigBuilder.save()
-        log.info("User config saved to '{}'", configPath)
+        log.info("User config saved to '{}'", userConfigPath)
     }
 
-    private fun createUserConfigBuilder(): FileBasedConfigurationBuilder<PropertiesConfiguration> {
+    private fun createOptionalConfigBuilder(path: Path): FileBasedConfigurationBuilder<PropertiesConfiguration> {
         // last argument (true) - do not throw exception if config not exists, just get empty config
         return FileBasedConfigurationBuilder(PropertiesConfiguration::class.java, null, true)
                 .configure(
                         Parameters()
                                 .properties()
-                                .setPath(configPath.toAbsolutePath().toString())
+                                .setPath(path.toAbsolutePath().toString())
                                 .setThrowExceptionOnMissing(true)
                 )
     }
 
-    private fun createDefaultConfigBuilder(): PropertiesConfiguration {
+    private fun createMandatoryConfigBuilder(resource: String): PropertiesConfiguration {
         return FileBasedConfigurationBuilder(PropertiesConfiguration::class.java)
                 .configure(
                         Parameters()
                                 .properties()
-                                .setURL(javaClass.getResource("/config/default.properties"))
+                                .setURL(javaClass.getResource(resource))
                                 .setThrowExceptionOnMissing(true)
                 )
                 .configuration
