@@ -21,9 +21,9 @@ class ConfigLoader(workingDirectory: Path) {
     }
 
     private val userConfigPath = workingDirectory.resolve("config/user.properties")
-    private val userConfigBuilder = createOptionalConfigBuilder(userConfigPath)
-    private val defaultConfigBuilder = createMandatoryConfigBuilder("/config/default.properties")
-    private val privateConfigBuilder = createMandatoryConfigBuilder("/config/private.properties")
+    private val userConfigBuilder = createOptionalConfig(userConfigPath)
+    private val defaultConfigBuilder = createMandatoryConfig("/config/default.properties")
+    private val privateConfigBuilder = createMandatoryConfig("/config/private.properties")
     private val compositeConfig = CompositeConfiguration()
 
     init {
@@ -45,7 +45,7 @@ class ConfigLoader(workingDirectory: Path) {
         log.info("User config saved to '{}'", userConfigPath)
     }
 
-    private fun createOptionalConfigBuilder(path: Path): FileBasedConfigurationBuilder<PropertiesConfiguration> {
+    private fun createOptionalConfig(path: Path): FileBasedConfigurationBuilder<PropertiesConfiguration> {
         // last argument (true) - do not throw exception if config not exists, just get empty config
         return FileBasedConfigurationBuilder(PropertiesConfiguration::class.java, null, true)
                 .configure(
@@ -56,7 +56,7 @@ class ConfigLoader(workingDirectory: Path) {
                 )
     }
 
-    private fun createMandatoryConfigBuilder(resource: String): PropertiesConfiguration {
+    private fun createMandatoryConfig(resource: String): PropertiesConfiguration {
         return FileBasedConfigurationBuilder(PropertiesConfiguration::class.java)
                 .configure(
                         Parameters()
