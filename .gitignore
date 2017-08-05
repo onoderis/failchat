@@ -8,3 +8,4 @@ failchat.iml
 #etc
 deps
 docs/*
+src/main/resources/config/failchat-service-account.json
