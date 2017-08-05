@@ -125,22 +125,6 @@ class AppStateTransitionManager(private val kodein: Kodein) {
 
         // Youtube
         checkEnabled(Origin.youtube)?.let { channelId ->
-            /*// get video id by channel id
-            val videoId = try {
-                ytApiClient.getLiveBroadcastId(channelId)
-            } catch (e: Exception) {
-                log.warn("Failed to get youtube video id . channel id: {}", channelId, e)
-                return@let
-            }
-
-            // get live chat id by video id
-            val liveChatId = try {
-                ytApiClient.getLiveChatId(videoId)
-            } catch (e: Exception) {
-                log.warn("Failed to get youtube live chat id. video id: {}", videoId, e)
-                return@let
-            }*/
-
             val chatClient = kodein.factory<String, YtChatClient>()
                     .invoke(channelId)
                     .also { it.setCallbacks() }

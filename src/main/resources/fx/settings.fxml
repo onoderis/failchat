@@ -119,7 +119,7 @@
                                                 <Font size="12.0" />
                                              </font>
                                           </CheckBox>
-                                          <TextField fx:id="youtube_channel" promptText="video id">
+                                          <TextField fx:id="youtube_channel" promptText="channel id">
                                              <font>
                                                 <Font size="12.0" />
                                              </font>
