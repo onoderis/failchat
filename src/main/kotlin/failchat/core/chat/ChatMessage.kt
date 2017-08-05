@@ -39,26 +39,27 @@ open class ChatMessage(
      * - [Link]
      * - [Image]
      * */
-    val elements: List<Any> get() = _elements
+    val elements: List<Any> get() = mutableElements
 
     var highlighted = false
 
-    private val _elements: MutableList<Any> = ArrayList()
+    private val mutableElements: MutableList<Any> = ArrayList()
 
     /**
      * @return formatted string for added element.
      * */
     fun addElement(element: Any): String {
-        _elements.add(element)
-        return "{!${_elements.size - 1}}"
+        mutableElements.add(element)
+        return "{!${mutableElements.size - 1}}"
     }
 
     fun replaceElement(index: Int, replacement: Any): Any? {
-        return _elements.set(index, replacement)
+        return mutableElements.set(index, replacement)
     }
 
     override fun toString(): String {
-        return "ChatMessage(id=$id, origin=$origin, author=$author, text='$text', timestamp=$timestamp, highlighted=$highlighted, _elements=$_elements)"
+        return "ChatMessage(id=$id, origin=$origin, author=$author, text='$text', timestamp=$timestamp, " +
+                "highlighted=$highlighted, mutableElements=$mutableElements)"
     }
 
 }

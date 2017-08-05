@@ -47,7 +47,7 @@ class GgChatClient(
     }
 
     override val origin = Origin.goodgame
-    override val status: ChatClientStatus get() = _status.get()
+    override val status: ChatClientStatus get() = atomicStatus.get()
 
     override var onChatMessage: ((GgMessage) -> Unit)? = null
     override var onStatusMessage: ((StatusMessage) -> Unit)? = null
@@ -55,7 +55,7 @@ class GgChatClient(
 
 
     private var wsClient: WsClient = GgWsClient(URI.create(webSocketUri))
-    private val _status: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
+    private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
 
     private val messageHandlers: List<MessageHandler<GgMessage>> = listOf(
             MessageObjectCleaner(),
@@ -71,14 +71,14 @@ class GgChatClient(
 
     override fun start() {
         //todo change to connecting
-        if (_status.get() != ChatClientStatus.ready) {
+        if (atomicStatus.get() != ChatClientStatus.ready) {
             return
         }
         wsClient.start()
     }
 
     override fun stop() {
-        _status.set(offline)
+        atomicStatus.set(offline)
         wsClient.stop()
     }
 
@@ -118,7 +118,7 @@ class GgChatClient(
                     put("isHidden", false)
                 }
             }
-            _status.set(ChatClientStatus.connected)
+            atomicStatus.set(ChatClientStatus.connected)
             log.info("Goodgame chat client connected to channel {}", channelId)
 
             wsClient.send(joinMessage.toString())

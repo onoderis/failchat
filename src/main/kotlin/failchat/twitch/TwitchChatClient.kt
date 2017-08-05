@@ -52,7 +52,7 @@ class TwitchChatClient(
     }
 
     override val origin = Origin.twitch
-    override val status: ChatClientStatus get() = _status.get()
+    override val status: ChatClientStatus get() = atomicStatus.get()
 
     override var onChatMessage: ((TwitchMessage) -> Unit)? = null
     override var onStatusMessage: ((StatusMessage) -> Unit)? = null
@@ -61,7 +61,7 @@ class TwitchChatClient(
 
     private val twitchIrcClient: PircBotX
     private val serverEntries = listOf(Configuration.ServerEntry(ircAddress, ircPort))
-    private val _status: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
+    private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
     private val messageHandlers: List<MessageHandler<TwitchMessage>> = listOf(
             MessageObjectCleaner(), //todo fix bug: message with { and emoticons
             TwitchEmoticonHandler(emoticonFinder),
@@ -91,7 +91,7 @@ class TwitchChatClient(
     }
 
     override fun start() {
-        val statusChanged = _status.compareAndSet(ChatClientStatus.ready, ChatClientStatus.connected)
+        val statusChanged = atomicStatus.compareAndSet(ChatClientStatus.ready, ChatClientStatus.connected)
         if (!statusChanged) throw IllegalStateException("Expected status: ${ChatClientStatus.ready.name}")
 
         thread(start = true, name = "TwitchIrcClientThread") {
@@ -104,7 +104,7 @@ class TwitchChatClient(
     }
 
     override fun stop() {
-        _status.set(ChatClientStatus.offline)
+        atomicStatus.set(ChatClientStatus.offline)
         twitchIrcClient.close()
     }
 
@@ -112,18 +112,18 @@ class TwitchChatClient(
 
         override fun onConnect(event: ConnectEvent) {
             log.info("Connected to irc channel: {}", userName)
-            _status.set(ChatClientStatus.connected)
+            atomicStatus.set(ChatClientStatus.connected)
             twitchIrcClient.sendCAP().request("twitch.tv/tags")
             twitchIrcClient.sendCAP().request("twitch.tv/commands")
             onStatusMessage?.invoke(StatusMessage(twitch, CONNECTED))
         }
 
         override fun onDisconnect(event: DisconnectEvent) {
-            when (_status.get()) {
+            when (atomicStatus.get()) {
                 ChatClientStatus.offline,
                 ChatClientStatus.error -> return
                 else -> {
-                    _status.set(ChatClientStatus.connecting)
+                    atomicStatus.set(ChatClientStatus.connecting)
                     log.info("Twitch irc client disconnected")
                     onStatusMessage?.invoke(StatusMessage(twitch, DISCONNECTED))
                 }
