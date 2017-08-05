@@ -14,10 +14,13 @@ import failchat.core.chat.OriginStatus
 import failchat.core.chat.StatusMessage
 import failchat.core.viewers.ViewersCountLoader
 import failchat.exception.ChannelOfflineException
-import failchat.util.schedule
+import failchat.util.ConcurrentEvictingQueue
+import failchat.util.debug
+import failchat.util.scheduleWithCatch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
+import java.util.Queue
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.atomic.AtomicReference
@@ -51,11 +54,11 @@ class YtChatClient(
     private val searchInterval: Duration = Duration.ofSeconds(5)
     private val reconnectInterval: Duration = Duration.ofSeconds(5)
     private val liveBroadcastId: AtomicReference<String?> = AtomicReference(null)
-
+    private val messageHistory: Queue<YtMessage> = ConcurrentEvictingQueue(50)
 
     override fun start() {
         val statusChanged = atomicStatus.compareAndSet(ready, connecting)
-        if (!statusChanged) return //todo throw IllegalStateException?
+        if (!statusChanged) return
 
         youtubeExecutor.execute { getLiveChatIdRecursiveTask() }
     }
@@ -69,6 +72,7 @@ class YtChatClient(
      * */
     override fun loadViewersCount(): CompletableFuture<Int> {
         return CompletableFuture.supplyAsync<Int>(Supplier {
+            //todo change exceptions
             val lbId = liveBroadcastId.get()
                     ?: throw ChannelOfflineException(Origin.youtube, channelId)
 
@@ -79,14 +83,14 @@ class YtChatClient(
 
     private fun getLiveChatIdRecursiveTask() {
         if (atomicStatus.get() == offline) {
-            log.debug("Shutting down youtube chat client. task: 'getMessagesRecursiveTask'")
+            log.info("Shutting down youtube chat client. task: 'getMessagesRecursiveTask'")
             return
         }
 
         val liveChatId = try {
             val lbId = ytApiClient.getLiveBroadcastId(channelId)
                     ?: ytApiClient.getUpcomingBroadcastId(channelId)
-                    ?: throw BroadcastNotFoundException("Youtube broadcast not ")
+                    ?: throw BroadcastNotFoundException(channelId)
             log.debug("Got liveBroadcastId: '{}'", lbId)
 
             val lcId = ytApiClient.getLiveChatId(lbId)
@@ -97,7 +101,7 @@ class YtChatClient(
             lcId
         } catch (e: Exception) {
             log.warn("Failed to get liveChatId. Retry in {} ms. channelId: '{}'", searchInterval.toMillis(), channelId, e)
-            youtubeExecutor.schedule(searchInterval) { getLiveChatIdRecursiveTask() }
+            youtubeExecutor.scheduleWithCatch(searchInterval) { getLiveChatIdRecursiveTask() }
             return
         }
 
@@ -106,7 +110,7 @@ class YtChatClient(
 
     private fun getMessagesRecursiveTask(params: YtRequestParameters) {
         if (atomicStatus.get() == offline) {
-            log.debug("Shutting down youtube chat client. task: 'getMessagesRecursiveTask'")
+            log.info("Shutting down youtube chat client. task: 'getMessagesRecursiveTask'")
             return
         }
 
@@ -114,14 +118,13 @@ class YtChatClient(
         log.debug("Requesting liveChatMessages. channelId: '{}', liveChatId: '{}'", channelId, params.liveChatId)
         val response = try {
             youTube.LiveChatMessages()
-                    .list(params.liveChatId, "snippet, authorDetails") //не кидает исключение если невалидный id
+                    .list(params.liveChatId, "id, snippet, authorDetails") //не кидает исключение если невалидный id
                     .setPageToken(params.nextPageToken)
                     .execute()
         } catch (e: Exception) {
             log.warn("Failed to get liveChatMessages", e)
 
-            //todo сколько сообщений подгрузится после реконнекта - все или какие нужны. т.е. когда у гугла протухает nextPageToken
-            youtubeExecutor.schedule(reconnectInterval) { getMessagesRecursiveTask(params) }
+            youtubeExecutor.scheduleWithCatch(reconnectInterval) { getMessagesRecursiveTask(params) }
 
             // Change status to disconnected / send status message
             val statusChanged = atomicStatus.compareAndSet(connected, connecting)
@@ -129,9 +132,12 @@ class YtChatClient(
             return
         }
 
+        log.debug { "Got liveChatMessages response: $response" }
         val messageUpdateInterval = Duration.ofMillis(response.pollingIntervalMillis)
-        log.debug("messageUpdateInterval: {} ms", messageUpdateInterval.toMillis())
 
+        // Schedule task
+        val nextRequestParameters = params.copy(nextPageToken = response.nextPageToken, isFirstRequest = false)
+        youtubeExecutor.scheduleWithCatch(messageUpdateInterval) { getMessagesRecursiveTask(nextRequestParameters) }
 
         // Send "connected" status message
         val statusChanged = atomicStatus.compareAndSet(connecting, connected)
@@ -139,26 +145,32 @@ class YtChatClient(
 
         // Skip messages from first request
         if (params.isFirstRequest) {
-            val nextRequestParameters = params.copy(
-                    nextPageToken = response.nextPageToken,
-                    isFirstRequest = false
-            )
-            youtubeExecutor.schedule(messageUpdateInterval) { getMessagesRecursiveTask(nextRequestParameters) }
             log.debug("Messages from first success request skipped. channelId: '{}', liveChatId: '{}'", channelId, params.liveChatId)
             return
         }
 
-        // Handle messages
-        response.items
-                .map { it.toYsChatMessage() }
-                .forEach { onChatMessage?.invoke(it) }
+        // Handle chat messages
+        response.items.asSequence()
+                .filter { it.snippet.type == "textMessageEvent" || it.snippet.type == "superChatEvent" }
+                .map {
+                    val ytMessage = it.toYtChatMessage()
+                    if (it.snippet.type == "superChatEvent") ytMessage.highlighted = true
+                    ytMessage
+                }
+                .forEach {
+                    messageHistory.add(it)
+                    onChatMessage?.invoke(it)
+                }
 
-        // Schedule task
-        val nextRequestParameters = params.copy(nextPageToken = response.nextPageToken)
-        youtubeExecutor.schedule(messageUpdateInterval) { getMessagesRecursiveTask(nextRequestParameters) }
+        // Handle message deletions
+        response.items.asSequence()
+                .filter { it.snippet.type == "messageDeletedEvent" }
+                .map { ytMessage -> messageHistory.find { it.ytId == ytMessage.snippet.messageDeletedDetails.deletedMessageId } }
+                .filterNotNull()
+                .forEach { onChatMessageDeleted?.invoke(it) }
     }
 
-    private fun LiveChatMessage.toYsChatMessage(): YtMessage {
+    private fun LiveChatMessage.toYtChatMessage(): YtMessage {
         return YtMessage(
                 messageIdGenerator.generate(),
                 this.id,

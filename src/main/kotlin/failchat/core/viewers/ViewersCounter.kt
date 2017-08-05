@@ -90,12 +90,12 @@ class ViewersCounter(
                 }
                 null
             } catch (e: Exception) {
-                log.warn("Unexpected exception during loading viewers count for origin '{}'", accessor.origin.name, e)
+                log.warn("Unexpected exception during loading viewers count. origin: '{}'", accessor.origin.name, e)
                 null
             }
 
-            count?.let { viewersCount.put(accessor.origin, it) }
-                    ?: viewersCount.remove(accessor.origin)
+            if (count != null) viewersCount.put(accessor.origin, count)
+            else viewersCount.remove(accessor.origin)
         }
     }
 
