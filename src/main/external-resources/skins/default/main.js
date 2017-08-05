@@ -189,11 +189,11 @@ $(function () {
         }
     }
 
-    $("body,html").bind("keydown wheel mousewheel", function(e){
+    $("body,html").bind("keydown wheel mousewheel", function (e) {
         //checks for disabling autoscroll
         if (autoScroll) {
             if (e.originalEvent.deltaY < 0 ||
-                (e.type === "keydown" && (e.keyCode === 38||e.keyCode === 36||e.keyCode === 33)) // 38-up;36-home;33-pageup
+                (e.type === "keydown" && (e.keyCode === 38 || e.keyCode === 36 || e.keyCode === 33)) // 38-up;36-home;33-pageup
             ) {
                 autoScroll = false;
                 scrollBar.css("visibility", "visible");
@@ -223,9 +223,9 @@ function ignore(messageNode) {
     deleteMessage(messageNode);
     failchat.socket.send(JSON.stringify(
         {
-            "type": "ignore-user",
+            "type": "ignore-author",
             "content": {
-                "user": messageNode.getAttribute("data-user"),
+                "authorId": messageNode.getAttribute("author-id")
             }
         }
     ));

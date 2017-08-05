@@ -59,7 +59,7 @@ fun main(args: Array<String>) {
         setOnMessage("viewers-count", kodein.instance<ViewersCountWsHandler>())
         setOnMessage("show-viewers-count", ShowViewersCountWsHandler(config, objectMapper))
         setOnMessage("delete-message", DeleteWsMessageHandler(kodein.instance<ChatMessageRemover>()))
-        setOnMessage("ignore-user", IgnoreWsMessageHandler(kodein.instance<IgnoreFilter>(), config))
+        setOnMessage("ignore-author", IgnoreWsMessageHandler(kodein.instance<IgnoreFilter>(), config))
     }
     wsServer.start()
 

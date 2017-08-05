@@ -63,9 +63,9 @@ class TwitchChatClient(
     private val serverEntries = listOf(Configuration.ServerEntry(ircAddress, ircPort))
     private val _status: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
     private val messageHandlers: List<MessageHandler<TwitchMessage>> = listOf(
-            MessageObjectCleaner(),
-            HtmlHandler(),
+            MessageObjectCleaner(), //todo fix bug: message with { and emoticons
             TwitchEmoticonHandler(emoticonFinder),
+            HtmlHandler(),
             TwitchHighlightHandler(userName)
     )
     private val history: Queue<TwitchMessage> = EvictingQueue.create(historySize)
@@ -153,7 +153,7 @@ class TwitchChatClient(
 
             val author = matcher.group(1)
             val messagesToDelete = historyLock.withLock {
-                history.filter { it.author.equals(author, ignoreCase = true) }
+                history.filter { it.author.id.equals(author, ignoreCase = true) }
             }
 
             onChatMessageDeleted?.let { messagesToDelete.forEach(it) }

@@ -46,7 +46,10 @@ class ChatMessageSender(
             with("content").apply {
                 put("id", message.id)
                 put("origin", message.origin.name)
-                put("author", message.author)
+                putObject("author").apply {
+                    put("name", message.author.name)
+                    put("id", message.author.id)
+                }
                 put("text", message.text)
                 put("timestamp", message.timestamp.toEpochMilli())
                 put("highlighted", message.highlighted)

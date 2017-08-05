@@ -20,7 +20,7 @@ open class ChatMessage(
         /**
          * Автор сообщения.
          * */
-        val author: String,
+        val author: Author,
 
         /**
          * Текст сообщения.
@@ -55,6 +55,10 @@ open class ChatMessage(
 
     fun replaceElement(index: Int, replacement: Any): Any? {
         return _elements.set(index, replacement)
+    }
+
+    override fun toString(): String {
+        return "ChatMessage(id=$id, origin=$origin, author=$author, text='$text', timestamp=$timestamp, highlighted=$highlighted, _elements=$_elements)"
     }
 
 }

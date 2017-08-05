@@ -142,7 +142,7 @@ class SettingsFrame(
         opacitySlider.value = config.getDouble("opacity")
         statusMessagesMode.value = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
 
-        ignoreList.text = config.getList("ignore").joinToString(separator = "\n")
+        ignoreList.text = config.getList("ignore").joinToString(separator = "\n", postfix = "\n")
     }
 
     //todo optimize

@@ -1,6 +1,7 @@
 package failchat.goodgame
 
 import failchat.core.Origin
+import failchat.core.chat.Author
 import failchat.core.chat.ChatMessage
 
 class GgMessage(
@@ -9,4 +10,4 @@ class GgMessage(
         author: String,
         text: String,
         val authorHasPremium: Boolean
-) : ChatMessage(id, Origin.goodgame, author, text)
+) : ChatMessage(id, Origin.goodgame, Author(author), text)
