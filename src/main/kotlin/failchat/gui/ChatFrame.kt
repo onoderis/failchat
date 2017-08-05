@@ -197,26 +197,25 @@ class ChatFrame(
     private fun switchDecorations() {
         val toDecorated = currentChatStage === undecoratedChatStage || currentChatStage === transparentChatStage
         val fromChatStage = currentChatStage
+
         val bgColor = Color.web(config.getString("background-color"))
-        if (toDecorated) {
-            currentChatStage = decoratedChatStage
+        val toChatStage = if (toDecorated) {
             chatScene.fill = bgColor.removeTransparency()
             config.setProperty("frame", true)
+            decoratedChatStage
         } else {
-            if (bgColor.isOpaque) {
-                currentChatStage = undecoratedChatStage
-            } else {
-                currentChatStage = transparentChatStage
-            }
             chatScene.fill = bgColor
             config.setProperty("frame", false)
+            if (bgColor.isOpaque) undecoratedChatStage
+            else transparentChatStage
         }
 
-        fromChatStage.hide()
         saveChatPosition(fromChatStage)
-        configureChatStage(currentChatStage)
-        currentChatStage.scene = chatScene
-        currentChatStage.show()
+        configureChatStage(toChatStage)
+        fromChatStage.hide()
+        toChatStage.scene = chatScene
+        toChatStage.show()
+        currentChatStage = toChatStage
         log.debug("Chat stage switched. Decorated: {}", toDecorated)
     }
 
