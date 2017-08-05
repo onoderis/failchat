@@ -149,7 +149,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
                 .invoke(viewersCountLoaders)
                 .apply { start() }
 
-        viewersCountWsHandler.viewersCounter = viewersCounter
+        viewersCountWsHandler.viewersCounter.set(viewersCounter)
     }
 
     fun stopChat() = lock.withLock {
@@ -197,7 +197,7 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     }
 
     private fun reset() {
-        viewersCountWsHandler.viewersCounter = null
+        viewersCountWsHandler.viewersCounter.set(null)
 
         chatClients.values.forEach { it.stop() }
         // Значение может быть null если вызваны shutDown() и stopChat() последовательно, в любой последовательности,
