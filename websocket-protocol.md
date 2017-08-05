@@ -11,7 +11,7 @@
         "highlighted": true,
         "author": "theauthor",
         "text": "@someuser emoticon ${!0} / link ${!1} / image ${!2}",
-        "source": "twitch",
+        "origin": "twitch",
         "elements": [
             {
                 "type": "emoticon",
@@ -42,8 +42,7 @@
 {
     "type": "origin-status",
     "content": {
-        "id": 123,
-        "source": "twitch",
+        "origin": "twitch",
         "status": "connected",
         "timestamp": 1499789037199,
         "mode": "everywhere"
@@ -52,7 +51,8 @@
 ```
 
 #### Viewers message
-Текущие подключённые источники и количество зрителей на их каналах. null означает что не удалось получить количество зрителей, но счётчик включён 
+Текущие подключённые источники и количество зрителей на их каналах. 
+`null` означает что не удалось получить количество зрителей, но счётчик включён 
 ```json
 {
     "type": "viewers-count",
@@ -82,7 +82,8 @@
     "content": {
         "peka2tv": false,
         "twitch": true,
-        "goodgame": true   
+        "goodgame": true,
+        "youtube": false      
     }
 }
 ```
