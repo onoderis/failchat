@@ -54,12 +54,14 @@ class YtChatClient(
     override var onStatusMessage: ((StatusMessage) -> Unit)? = null
     override var onChatMessageDeleted: ((YtMessage) -> Unit)? = null
 
+    private val highlightHandler = YtHighlightHandler()
     private val messageHandlers: List<MessageHandler<YtMessage>> = listOf(
             MessageObjectCleaner(),
-            HtmlHandler() // символы < и > приходят неэкранированными
+            HtmlHandler(), // символы < и > приходят неэкранированными
+            highlightHandler
     )
     private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
-    private val searchInterval: Duration = Duration.ofSeconds(10)
+    private val searchInterval: Duration = Duration.ofSeconds(15)
     private val reconnectInterval: Duration = Duration.ofSeconds(5)
     private val liveBroadcastId: AtomicReference<String?> = AtomicReference(null)
     private val messageHistory: Queue<YtMessage> = ConcurrentEvictingQueue(50)
@@ -96,8 +98,8 @@ class YtChatClient(
         }
 
         val liveChatId = try {
-            val lbId = ytApiClient.getLiveBroadcastId(channelId)
-                    ?: ytApiClient.getUpcomingBroadcastId(channelId)
+            val lbId = ytApiClient.findLiveBroadcast(channelId)
+                    ?: ytApiClient.findUpcomingBroadcast(channelId)
                     ?: throw BroadcastNotFoundException(channelId)
             log.debug("Got liveBroadcastId: '{}'", lbId)
 
@@ -105,10 +107,14 @@ class YtChatClient(
                     ?: throw LiveChatNotFoundException(channelId, lbId)
             log.debug("Got liveChatId: '{}'", lcId)
 
+            val channelTitle = ytApiClient.getChannelTitle(channelId)
+                    ?: throw ChannelNotFoundException(channelId)
+
+            highlightHandler.channelTitle.value = channelTitle
             liveBroadcastId.value = lbId
             lcId
         } catch (e: Exception) {
-            log.warn("Failed to get liveChatId. Retry in {} ms. channelId: '{}'", searchInterval.toMillis(), channelId, e)
+            log.warn("Failed to find stream. Retry in {} ms. channelId: '{}'", searchInterval.toMillis(), channelId, e)
             youtubeExecutor.scheduleWithCatch(searchInterval) { getLiveChatIdRecursiveTask() }
             return
         }
