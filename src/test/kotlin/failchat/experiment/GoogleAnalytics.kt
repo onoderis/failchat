@@ -18,7 +18,7 @@ class GoogleAnalytics {
         val log: Logger = LoggerFactory.getLogger(GoogleAnalytics::class.java)
     }
 
-    val reporter = EventReporter(OkHttpClient(), ConfigLoader(Paths.get("target/test-classes/config")))
+    val reporter = EventReporter("test-id", OkHttpClient(), ConfigLoader(Paths.get("target/test-classes/config")))
 
     @Test
     fun testReport() {

@@ -16,6 +16,7 @@ import failchat.core.emoticon.EmoticonFinder
 import failchat.core.emoticon.EmoticonManager
 import failchat.core.emoticon.EmoticonStorage
 import failchat.core.reporter.EventReporter
+import failchat.core.reporter.UserIdLoader
 import failchat.core.skin.Skin
 import failchat.core.skin.SkinScanner
 import failchat.core.viewers.ViewersCountLoader
@@ -108,7 +109,15 @@ val kodein = Kodein {
     bind<Path>("workingDirectory") with singleton { Paths.get("") }
     bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastId")) }
     bind<List<Skin>>() with singleton { SkinScanner(instance("workingDirectory")).scan() }
-    bind<EventReporter>() with singleton { EventReporter(instance<OkHttpClient>(), instance<ConfigLoader>()) }
+    bind<UserIdLoader>() with singleton { UserIdLoader(instance<ConfigLoader>()) }
+    bind<String>("userId") with singleton { instance<UserIdLoader>().getUserId() }
+    bind<EventReporter>() with singleton {
+        EventReporter(
+                instance<String>("userId"),
+                instance<OkHttpClient>(),
+                instance<ConfigLoader>()
+        )
+    }
 
 
     // Release related

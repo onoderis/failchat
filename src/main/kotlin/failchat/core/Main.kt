@@ -12,6 +12,7 @@ import failchat.core.emoticon.EmoticonStoreOptions
 import failchat.core.reporter.EventAction
 import failchat.core.reporter.EventCategory
 import failchat.core.reporter.EventReporter
+import failchat.core.reporter.UserIdLoader
 import failchat.core.viewers.ShowViewersCountWsHandler
 import failchat.core.viewers.ViewersCountWsHandler
 import failchat.core.ws.server.DeleteWsMessageHandler
@@ -62,6 +63,11 @@ fun main(args: Array<String>) {
         setOnMessage("ignore-author", IgnoreWsMessageHandler(kodein.instance<IgnoreFilter>(), config))
     }
     wsServer.start()
+
+
+    // Save user id to config/home file
+    val userId = kodein.instance<String>("userId")
+    kodein.instance<UserIdLoader>().saveUserId(userId)
 
 
     // Reporter
