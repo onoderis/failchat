@@ -2,6 +2,7 @@ package failchat.twitch
 
 import failchat.exception.ChannelOfflineException
 import failchat.util.loadConfig
+import failchat.util.loadPrivateConfig
 import failchat.util.okHttpClient
 import org.junit.Ignore
 import org.junit.Test
@@ -17,6 +18,7 @@ class TwitchApiTest {
     companion object {
         val log: Logger = LoggerFactory.getLogger(TwitchApiTest::class.java)
         val config = loadConfig()
+        val privateConfig = loadPrivateConfig()
         val timeout: Duration = Duration.ofSeconds(50)
         val userNames = setOf("lirik", "Doublelift", "C9Sneaky", "TSM_Dyrus", "MOONMOON_OW", "aimbotcalvin")
         val userIds = setOf<Long>(23161357, 40017619, 24538518, 30080751, 121059319, 84574550)
@@ -25,7 +27,7 @@ class TwitchApiTest {
     val apiClient = TwitchApiClient(
             okHttpClient,
             config.getString("twitch.api-url"),
-            config.getString("twitch.api-token")
+            privateConfig.getString("twitch.api-token")
     )
 
     @Test

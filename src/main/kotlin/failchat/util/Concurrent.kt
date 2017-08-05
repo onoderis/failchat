@@ -20,7 +20,7 @@ inline fun ScheduledExecutorService.schedule(delay: Duration, noinline command: 
 }
 
 fun ScheduledExecutorService.scheduleWithCatch(delay: Duration, command: () -> Unit): ScheduledFuture<*> {
-    val wrapperCommand = {
+    val wrappedCommand = {
         try {
             command.invoke()
         } catch (t: Throwable) {
@@ -28,7 +28,7 @@ fun ScheduledExecutorService.scheduleWithCatch(delay: Duration, command: () -> U
         }
     }
 
-    return schedule(delay, wrapperCommand)
+    return schedule(delay, wrappedCommand)
 }
 
 inline var <T> AtomicReference<T>.value
