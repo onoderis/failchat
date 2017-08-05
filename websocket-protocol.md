@@ -8,10 +8,13 @@
     "content": {
         "id": 52,
         "timestamp": 1499789037199,
-        "highlighted": true,
-        "author": "theauthor",
+        "author": {
+            "name": "theauthor",
+            "id": "abc123"
+        },
         "text": "@someuser emoticon ${!0} / link ${!1} / image ${!2}",
         "origin": "twitch",
+        "highlighted": true,
         "elements": [
             {
                 "type": "emoticon",
@@ -120,9 +123,9 @@
 Запрос клиента на блокировку сообщений от пользователя
 ```json
 {
-    "type": "ignore-user",
+    "type": "ignore-author",
     "content": {
-        "user": "baduser#twitch",
+        "authorId": "badauthor#twitch"
     }
 }
 ```

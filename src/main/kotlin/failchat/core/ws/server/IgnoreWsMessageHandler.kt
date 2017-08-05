@@ -9,10 +9,10 @@ class IgnoreWsMessageHandler(
 ) : WsMessageHandler {
 
     override fun invoke(message: InboundWsMessage) {
-        val username = message.content.get("user").asText()
+        val authorId = message.content.get("authorId").asText()
         val updatedIgnoreSet = config.getStringArray("ignore")
                 .toMutableSet()
-                .apply { add(username) }
+                .apply { add(authorId) }
         config.setProperty("ignore", updatedIgnoreSet)
 
         ignoreFilter.reloadConfig()

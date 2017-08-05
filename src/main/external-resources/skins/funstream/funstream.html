@@ -26,9 +26,9 @@
 </script>
 
 <script id="message-template" type="text/x-jsrender">
-    <p class="message" id="message-{{:id}}" data-user="{{:author}}#{{:origin}}">
+    <p class="message" id="message-{{:id}}" author-id="{{:author.id}}#{{:origin}}">
         <img class="icon" src="{{:origin}}.png">
-        <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author}}: </span>
+        <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author.name}}: </span>
         <span class="mod-icons">
             <span title="delete" onclick="deleteMessage(this.parentNode.parentNode)">&#10060;</span>
             <span title="ignore" onclick="ignore(this.parentNode.parentNode)">&#128683;</span>

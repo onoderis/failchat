@@ -3,14 +3,17 @@ package failchat.core.chat.handlers
 import failchat.core.Origin
 import failchat.core.chat.ChatMessage
 import failchat.core.chat.MessageFilter
+import failchat.util.debug
+import failchat.util.value
 import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.concurrent.atomic.AtomicReference
 import java.util.regex.Pattern
 
 /**
- * Фильтрует сообщения от пользователей в игнор-листе
- * Баны хранятся в формате username#origin
+ * Фильтрует сообщения от пользователей в игнор-листе.
+ * Баны хранятся в формате authorId#origin.
  */
 class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessage> {
 
@@ -20,7 +23,7 @@ class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessag
 
     private val banFormat: Pattern
 
-    private var ignoreSet: Set<String> = emptySet()
+    private var atomicIgnoreSet: AtomicReference<Set<String>> = AtomicReference(emptySet())
 
     init {
         val originsPattern = Origin.values()
@@ -33,14 +36,17 @@ class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessag
     }
 
     override fun filterMessage(message: ChatMessage): Boolean {
-        return ignoreSet.contains(message.author + "#" + message.origin.name)
+        val ignoreMessage = atomicIgnoreSet.value.contains(message.author.id + "#" + message.origin.name)
+        if (ignoreMessage) log.debug { "Message filtered by ignore filter: $message" }
+        return ignoreMessage
     }
 
     fun reloadConfig() {
-        ignoreSet = config.getList("ignore")
+        atomicIgnoreSet.value = config.getList("ignore")
                 .map { it as String }
                 .filter { banFormat.matcher(it).find() }
                 .toSet()
+        log.debug("IgnoreFilter reloaded a config")
     }
 
 }

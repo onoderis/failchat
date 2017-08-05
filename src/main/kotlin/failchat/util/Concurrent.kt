@@ -6,6 +6,7 @@ import java.time.Duration
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.Condition
 
 private val log: Logger = LoggerFactory.getLogger("failchat.util.ConcurrentKt")
@@ -29,3 +30,7 @@ fun ScheduledExecutorService.scheduleWithCatch(delay: Duration, command: () -> U
 
     return schedule(delay, wrapperCommand)
 }
+
+inline var <T> AtomicReference<T>.value
+    get(): T = this.get()
+    set(value: T) = this.set(value)

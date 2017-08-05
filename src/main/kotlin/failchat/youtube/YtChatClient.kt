@@ -3,15 +3,19 @@ package failchat.youtube
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.LiveChatMessage
 import failchat.core.Origin
+import failchat.core.chat.Author
 import failchat.core.chat.ChatClient
 import failchat.core.chat.ChatClientStatus
 import failchat.core.chat.ChatClientStatus.connected
 import failchat.core.chat.ChatClientStatus.connecting
 import failchat.core.chat.ChatClientStatus.offline
 import failchat.core.chat.ChatClientStatus.ready
+import failchat.core.chat.MessageHandler
 import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.OriginStatus
 import failchat.core.chat.StatusMessage
+import failchat.core.chat.handlers.HtmlHandler
+import failchat.core.chat.handlers.MessageObjectCleaner
 import failchat.core.viewers.ViewersCountLoader
 import failchat.exception.ChannelOfflineException
 import failchat.util.ConcurrentEvictingQueue
@@ -49,7 +53,10 @@ class YtChatClient(
     override var onStatusMessage: ((StatusMessage) -> Unit)? = null
     override var onChatMessageDeleted: ((YtMessage) -> Unit)? = null
 
-
+    private val messageHandlers: List<MessageHandler<YtMessage>> = listOf(
+            MessageObjectCleaner(),
+            HtmlHandler()
+    )
     private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
     private val searchInterval: Duration = Duration.ofSeconds(5)
     private val reconnectInterval: Duration = Duration.ofSeconds(5)
@@ -157,9 +164,10 @@ class YtChatClient(
                     if (it.snippet.type == "superChatEvent") ytMessage.highlighted = true
                     ytMessage
                 }
-                .forEach {
-                    messageHistory.add(it)
-                    onChatMessage?.invoke(it)
+                .forEach { message ->
+                    messageHandlers.forEach { it.handleMessage(message) }
+                    messageHistory.add(message)
+                    onChatMessage?.invoke(message)
                 }
 
         // Handle message deletions
@@ -174,7 +182,7 @@ class YtChatClient(
         return YtMessage(
                 messageIdGenerator.generate(),
                 this.id,
-                this.authorDetails.displayName,
+                Author(this.authorDetails.displayName, this.authorDetails.channelId),
                 this.snippet.displayMessage
         )
     }
