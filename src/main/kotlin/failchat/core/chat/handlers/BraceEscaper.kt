@@ -6,11 +6,10 @@ import failchat.core.chat.MessageHandler
 /**
  * Заменяет символы '<' и '>' на html character entities.
  */
-class HtmlHandler : MessageHandler<ChatMessage> {
+class BraceEscaper : MessageHandler<ChatMessage> {
     override fun handleMessage(message: ChatMessage) {
-        message.text = message.text.apply {
-            replace("<", "&lt;")
-            replace(">", "&gt;")
-        }
+        message.text = message.text
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
     }
 }

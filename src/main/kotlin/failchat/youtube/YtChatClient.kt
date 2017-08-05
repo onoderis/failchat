@@ -14,8 +14,8 @@ import failchat.core.chat.MessageHandler
 import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.OriginStatus
 import failchat.core.chat.StatusMessage
-import failchat.core.chat.handlers.HtmlHandler
-import failchat.core.chat.handlers.MessageObjectCleaner
+import failchat.core.chat.handlers.BraceEscaper
+import failchat.core.chat.handlers.ElementLabelEscaper
 import failchat.core.viewers.ViewersCountLoader
 import failchat.exception.ChannelOfflineException
 import failchat.util.ConcurrentEvictingQueue
@@ -56,8 +56,8 @@ class YtChatClient(
 
     private val highlightHandler = YtHighlightHandler()
     private val messageHandlers: List<MessageHandler<YtMessage>> = listOf(
-            MessageObjectCleaner(),
-            HtmlHandler(), // символы < и > приходят неэкранированными
+            ElementLabelEscaper(),
+            BraceEscaper(), // символы < и > приходят неэкранированными
             highlightHandler
     )
     private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)

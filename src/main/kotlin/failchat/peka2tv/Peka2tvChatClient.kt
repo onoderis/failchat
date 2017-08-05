@@ -15,8 +15,8 @@ import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.OriginStatus.CONNECTED
 import failchat.core.chat.OriginStatus.DISCONNECTED
 import failchat.core.chat.StatusMessage
-import failchat.core.chat.handlers.HtmlHandler
-import failchat.core.chat.handlers.MessageObjectCleaner
+import failchat.core.chat.handlers.BraceEscaper
+import failchat.core.chat.handlers.ElementLabelEscaper
 import failchat.core.emoticon.EmoticonFinder
 import failchat.core.viewers.ViewersCountLoader
 import failchat.exception.UnexpectedResponseException
@@ -63,8 +63,8 @@ class Peka2tvChatClient(
     private val historyLock: Lock = ReentrantLock()
 
     private val messageHandlers: List<MessageHandler<Peka2tvMessage>> = listOf(
-            MessageObjectCleaner(),
-            HtmlHandler(),
+            ElementLabelEscaper(),
+            BraceEscaper(),
             Peka2tvHighlightHandler(channelName),
             Peka2tvEmoticonHandler(emoticonFinder)
     )

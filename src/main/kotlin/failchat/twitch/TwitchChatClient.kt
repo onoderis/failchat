@@ -10,8 +10,8 @@ import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.OriginStatus.CONNECTED
 import failchat.core.chat.OriginStatus.DISCONNECTED
 import failchat.core.chat.StatusMessage
-import failchat.core.chat.handlers.HtmlHandler
-import failchat.core.chat.handlers.MessageObjectCleaner
+import failchat.core.chat.handlers.BraceEscaper
+import failchat.core.chat.handlers.ElementLabelEscaper
 import failchat.core.emoticon.EmoticonFinder
 import failchat.util.notEmptyOrNull
 import org.pircbotx.Configuration
@@ -47,7 +47,7 @@ class TwitchChatClient(
     private companion object {
         val log: Logger = LoggerFactory.getLogger(TwitchChatClient::class.java)
         val reconnectTimeout: Duration = Duration.ofSeconds(10)
-        val banMessagePattern: Pattern = Pattern.compile(":tmi.twitch.tv CLEARCHAT #.+ :(.+)")
+        val banMessagePattern: Pattern = Pattern.compile(""":tmi\.twitch\.tv CLEARCHAT #.+ :(.+)""")
         const val historySize = 50
     }
 
@@ -63,9 +63,9 @@ class TwitchChatClient(
     private val serverEntries = listOf(Configuration.ServerEntry(ircAddress, ircPort))
     private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
     private val messageHandlers: List<MessageHandler<TwitchMessage>> = listOf(
-            MessageObjectCleaner(), //todo fix bug: message with { and emoticons
+            ElementLabelEscaper(),
             TwitchEmoticonHandler(emoticonFinder),
-            HtmlHandler(),
+            BraceEscaper(),
             TwitchHighlightHandler(userName)
     )
     private val history: Queue<TwitchMessage> = EvictingQueue.create(historySize)
@@ -131,6 +131,7 @@ class TwitchChatClient(
         }
 
         override fun onMessage(event: MessageEvent) {
+            log.debug("twitch message {}", event.message)
             val message = parseMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
             historyLock.withLock { history.add(message) }
