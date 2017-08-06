@@ -1,6 +1,5 @@
 package failchat.twitch
 
-import com.google.common.collect.EvictingQueue
 import failchat.core.Origin
 import failchat.core.Origin.twitch
 import failchat.core.chat.ChatClient
@@ -13,6 +12,7 @@ import failchat.core.chat.StatusMessage
 import failchat.core.chat.handlers.BraceEscaper
 import failchat.core.chat.handlers.ElementLabelEscaper
 import failchat.core.emoticon.EmoticonFinder
+import failchat.util.ConcurrentEvictingQueue
 import failchat.util.notEmptyOrNull
 import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
@@ -28,11 +28,8 @@ import java.nio.charset.Charset
 import java.time.Duration
 import java.util.Queue
 import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
 import java.util.regex.Pattern
 import kotlin.concurrent.thread
-import kotlin.concurrent.withLock
 
 class TwitchChatClient(
         private val userName: String,
@@ -68,8 +65,7 @@ class TwitchChatClient(
             BraceEscaper(),
             TwitchHighlightHandler(userName)
     )
-    private val history: Queue<TwitchMessage> = EvictingQueue.create(historySize)
-    private val historyLock: Lock = ReentrantLock()
+    private val history: Queue<TwitchMessage> = ConcurrentEvictingQueue(50)
 
 
     init {
@@ -134,7 +130,7 @@ class TwitchChatClient(
             log.debug("twitch message {}", event.message)
             val message = parseMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
-            historyLock.withLock { history.add(message) }
+            history.add(message)
             onChatMessage?.invoke(message)
         }
 
@@ -144,7 +140,7 @@ class TwitchChatClient(
         override fun onAction(event: ActionEvent) {
             val message = parseMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
-            historyLock.withLock { history.add(message) }
+            history.add(message)
             onChatMessage?.invoke(message)
         }
 
@@ -153,9 +149,7 @@ class TwitchChatClient(
             if (matcher.find()) return
 
             val author = matcher.group(1)
-            val messagesToDelete = historyLock.withLock {
-                history.filter { it.author.id.equals(author, ignoreCase = true) }
-            }
+            val messagesToDelete = history.filter { it.author.id.equals(author, ignoreCase = true) }
 
             onChatMessageDeleted?.let { messagesToDelete.forEach(it) }
         }
