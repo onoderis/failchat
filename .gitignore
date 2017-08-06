@@ -1,5 +1,7 @@
-#directories
 target
+src/main/external-resources/js/*
+src/main/resources/config/failchat-service-account.json
+src/main/resources/config/private.properties
 
 #idea
 .idea
@@ -8,5 +10,3 @@ failchat.iml
 #etc
 deps
 docs/*
-src/main/resources/config/failchat-service-account.json
-src/main/resources/config/private.properties
