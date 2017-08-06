@@ -1,6 +1,5 @@
-package failchat.updater
+package failchat.github
 
-import failchat.github.GithubClient
 import failchat.util.config
 import failchat.util.objectMapper
 import failchat.util.okHttpClient
