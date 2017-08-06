@@ -64,7 +64,7 @@ class YtChatClient(
     private val searchInterval: Duration = Duration.ofSeconds(15)
     private val reconnectInterval: Duration = Duration.ofSeconds(5)
     private val liveBroadcastId: AtomicReference<String?> = AtomicReference(null)
-    private val messageHistory: Queue<YtMessage> = ConcurrentEvictingQueue(50)
+    private val history: Queue<YtMessage> = ConcurrentEvictingQueue(50)
 
     override fun start() {
         val statusChanged = atomicStatus.compareAndSet(ready, connecting)
@@ -173,14 +173,14 @@ class YtChatClient(
                 }
                 .forEach { message ->
                     messageHandlers.forEach { it.handleMessage(message) }
-                    messageHistory.add(message)
+                    history.add(message)
                     onChatMessage?.invoke(message)
                 }
 
         // Handle message deletions
         response.items.asSequence()
                 .filter { it.snippet.type == "messageDeletedEvent" }
-                .map { ytMessage -> messageHistory.find { it.ytId == ytMessage.snippet.messageDeletedDetails.deletedMessageId } }
+                .map { ytMessage -> history.find { it.ytId == ytMessage.snippet.messageDeletedDetails.deletedMessageId } }
                 .filterNotNull()
                 .forEach { onChatMessageDeleted?.invoke(it) }
     }

@@ -2,7 +2,6 @@ package failchat.goodgame
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.common.collect.EvictingQueue
 import failchat.core.Origin
 import failchat.core.Origin.goodgame
 import failchat.core.chat.ChatClient
@@ -19,6 +18,7 @@ import failchat.core.emoticon.EmoticonFinder
 import failchat.core.viewers.ViewersCountLoader
 import failchat.core.ws.client.WsClient
 import failchat.twitch.TwitchChatClient
+import failchat.util.ConcurrentEvictingQueue
 import failchat.util.whileNotNull
 import org.java_websocket.handshake.ServerHandshake
 import org.slf4j.Logger
@@ -28,9 +28,6 @@ import java.util.Queue
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 class GgChatClient(
         private val channelName: String,
@@ -43,7 +40,6 @@ class GgChatClient(
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(TwitchChatClient::class.java)
-        const val historySize = 50
     }
 
     override val origin = Origin.goodgame
@@ -64,8 +60,7 @@ class GgChatClient(
             CommonHighlightHandler(channelName)
     )
 
-    private val history: Queue<GgMessage> = EvictingQueue.create(historySize)
-    private val historyLock: Lock = ReentrantLock()
+    private val history: Queue<GgMessage> = ConcurrentEvictingQueue(50)
     private val viewersCountFutures: Queue<CompletableFuture<Int>> = ConcurrentLinkedQueue()
 
 
@@ -161,16 +156,14 @@ class GgChatClient(
             )
             messageHandlers.forEach { it.handleMessage(ggMessage) }
 
-            historyLock.withLock { history.add(ggMessage) }
+            history.add(ggMessage)
             onChatMessage?.invoke(ggMessage)
         }
 
         private fun handleModMessage(dataNode: JsonNode) {
             val idToRemove = dataNode.get("message_id").asText().toLong()
 
-            val foundMessage = historyLock.withLock {
-                history.find { it.ggId == idToRemove }
-            }
+            val foundMessage = history.find { it.ggId == idToRemove }
             foundMessage?.let { onChatMessageDeleted?.invoke(it) }
         }
 

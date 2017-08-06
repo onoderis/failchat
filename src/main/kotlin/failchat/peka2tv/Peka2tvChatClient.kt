@@ -1,6 +1,5 @@
 package failchat.peka2tv
 
-import com.google.common.collect.EvictingQueue
 import failchat.core.Origin
 import failchat.core.Origin.peka2tv
 import failchat.core.chat.ChatClient
@@ -20,6 +19,7 @@ import failchat.core.chat.handlers.ElementLabelEscaper
 import failchat.core.emoticon.EmoticonFinder
 import failchat.core.viewers.ViewersCountLoader
 import failchat.exception.UnexpectedResponseException
+import failchat.util.ConcurrentEvictingQueue
 import failchat.util.warn
 import io.socket.client.IO
 import io.socket.client.Socket
@@ -30,9 +30,6 @@ import org.slf4j.LoggerFactory
 import java.util.Queue
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 class Peka2tvChatClient(
         private val channelName: String,
@@ -46,7 +43,6 @@ class Peka2tvChatClient(
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(Peka2tvChatClient::class.java)
-        const val historySize = 50
     }
 
     override val status: ChatClientStatus get() = atomicStatus.get()
@@ -59,8 +55,7 @@ class Peka2tvChatClient(
 
     private val socket = buildSocket()
     private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ready)
-    private val history: Queue<Peka2tvMessage> = EvictingQueue.create(historySize)
-    private val historyLock: Lock = ReentrantLock()
+    private val history: Queue<Peka2tvMessage> = ConcurrentEvictingQueue(50)
 
     private val messageHandlers: List<MessageHandler<Peka2tvMessage>> = listOf(
             ElementLabelEscaper(),
@@ -174,7 +169,7 @@ class Peka2tvChatClient(
                     //handle message
                     messageHandlers.forEach { it.handleMessage(message) }
 
-                    historyLock.withLock { history.add(message) }
+                    history.add(message)
                     onChatMessage?.invoke(message)
                 }
 
@@ -183,9 +178,7 @@ class Peka2tvChatClient(
                     val removeMessage = objects[0] as JSONObject
                     val idToRemove = removeMessage.getLong("id")
 
-                    val foundMessage = historyLock.withLock {
-                        history.find { it.peka2tvId == idToRemove }
-                    }
+                    val foundMessage = history.find { it.peka2tvId == idToRemove }
                     foundMessage?.let { onChatMessageDeleted?.invoke(it) }
                 }
 
