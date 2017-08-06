@@ -237,7 +237,7 @@ function deleteMessage(messageNode) {
         {
             "type": "delete-message",
             "content": {
-                "messageId": messageNode.getAttribute("id").slice(8)
+                "messageId": messageNode.getAttribute("message-id")
             }
         }
     ));
