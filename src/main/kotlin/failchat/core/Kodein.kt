@@ -33,6 +33,9 @@ import failchat.gui.GuiEventHandler
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvChatClient
 import failchat.peka2tv.Peka2tvEmoticonLoader
+import failchat.twitch.BttvApiClient
+import failchat.twitch.BttvEmoticonHandler
+import failchat.twitch.BttvGlobalEmoticonLoader
 import failchat.twitch.TwitchApiClient
 import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchEmoticonLoader
@@ -186,13 +189,24 @@ val kodein = Kodein {
                 botName = config.getString("twitch.bot-name"),
                 botPassword = config.getString("twitch.bot-password"),
                 emoticonFinder = instance<EmoticonFinder>(),
-                messageIdGenerator = instance<MessageIdGenerator>()
+                messageIdGenerator = instance<MessageIdGenerator>(),
+                bttvEmoticonHandler = instance<BttvEmoticonHandler>()
         )
     }
     bind<TwitchViewersCountLoader>() with factory { channelName: String ->
         TwitchViewersCountLoader(channelName, instance<TwitchApiClient>())
     }
 
+    // BTTV
+    bind<BttvApiClient>() with singleton {
+        BttvApiClient(
+                httpClient = instance<OkHttpClient>(),
+                apiUrl = instance<Configuration>().getString("bttv.api-url"),
+                objectMapper = instance<ObjectMapper>()
+        )
+    }
+    bind<BttvEmoticonHandler>() with singleton { BttvEmoticonHandler(instance<EmoticonFinder>()) }
+    bind<BttvGlobalEmoticonLoader>() with singleton { BttvGlobalEmoticonLoader(instance<BttvApiClient>()) }
 
     // Goodgame
     bind<GgChatClient>() with factory { channelNameAndId: Pair<String, Long> ->

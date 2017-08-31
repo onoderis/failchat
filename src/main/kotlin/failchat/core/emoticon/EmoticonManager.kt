@@ -48,7 +48,10 @@ class EmoticonManager(
             }
         }
 
+
         // Put data in storage
+        storage.putList(origin, emoticons)
+
         if (options.storeByCode) {
             val codeToEmoticon = emoticons
                     .map { it.code.toLowerCase() to it }

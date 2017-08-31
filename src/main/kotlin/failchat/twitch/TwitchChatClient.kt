@@ -20,6 +20,7 @@ import org.pircbotx.hooks.ListenerAdapter
 import org.pircbotx.hooks.events.ActionEvent
 import org.pircbotx.hooks.events.ConnectEvent
 import org.pircbotx.hooks.events.DisconnectEvent
+import org.pircbotx.hooks.events.ListenerExceptionEvent
 import org.pircbotx.hooks.events.MessageEvent
 import org.pircbotx.hooks.events.UnknownEvent
 import org.slf4j.Logger
@@ -38,14 +39,14 @@ class TwitchChatClient(
         botName: String,
         botPassword: String,
         emoticonFinder: EmoticonFinder,
-        private val messageIdGenerator: MessageIdGenerator
+        private val messageIdGenerator: MessageIdGenerator,
+        private val bttvEmoticonHandler: BttvEmoticonHandler
 ) : ChatClient<TwitchMessage> {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(TwitchChatClient::class.java)
         val reconnectTimeout: Duration = Duration.ofSeconds(10)
-        val banMessagePattern: Pattern = Pattern.compile(""":tmi\.twitch\.tv CLEARCHAT #.+ :(.+)""")
-        const val historySize = 50
+        val banMessagePattern: Pattern = Pattern.compile("""^:tmi\.twitch\.tv CLEARCHAT #.+ :(.+)""")
     }
 
     override val origin = Origin.twitch
@@ -62,6 +63,7 @@ class TwitchChatClient(
     private val messageHandlers: List<MessageHandler<TwitchMessage>> = listOf(
             ElementLabelEscaper(),
             TwitchEmoticonHandler(emoticonFinder),
+            bttvEmoticonHandler,
             BraceEscaper(),
             TwitchHighlightHandler(userName)
     )
@@ -134,6 +136,10 @@ class TwitchChatClient(
             onChatMessage?.invoke(message)
         }
 
+        override fun onListenerException(event: ListenerExceptionEvent) {
+            log.warn("Listener exception", event.exception)
+        }
+
         /**
          * Handle "/me" messages.
          * */
@@ -145,8 +151,9 @@ class TwitchChatClient(
         }
 
         override fun onUnknown(event: UnknownEvent) {
+            log.debug("Unknown event: {}", event.line)
             val matcher = banMessagePattern.matcher(event.line)
-            if (matcher.find()) return
+            if (!matcher.find()) return
 
             val author = matcher.group(1)
             val messagesToDelete = history.filter { it.author.id.equals(author, ignoreCase = true) }
