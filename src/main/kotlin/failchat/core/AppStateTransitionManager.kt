@@ -11,6 +11,7 @@ import failchat.core.chat.ChatMessageSender
 import failchat.core.chat.MessageIdGenerator
 import failchat.core.chat.handlers.IgnoreFilter
 import failchat.core.chat.handlers.ImageLinkHandler
+import failchat.core.emoticon.EmoticonStorage
 import failchat.core.viewers.ViewersCountLoader
 import failchat.core.viewers.ViewersCountWsHandler
 import failchat.core.viewers.ViewersCounter
@@ -20,13 +21,14 @@ import failchat.goodgame.GgApiClient
 import failchat.goodgame.GgChatClient
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvChatClient
+import failchat.twitch.BttvApiClient
+import failchat.twitch.BttvEmoticonHandler
 import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.util.error
 import failchat.util.formatStackTraces
 import failchat.util.ls
 import failchat.util.sleep
-import failchat.youtube.YtApiClient
 import failchat.youtube.YtChatClient
 import javafx.application.Platform
 import okhttp3.OkHttpClient
@@ -54,13 +56,15 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     private val chatMessageRemover: ChatMessageRemover = kodein.instance()
     private val peka2tvApiClient: Peka2tvApiClient = kodein.instance()
     private val goodgameApiClient: GgApiClient = kodein.instance()
-    private val ytApiClient: YtApiClient = kodein.instance()
     private val configLoader: ConfigLoader = kodein.instance()
     private val ignoreFilter: IgnoreFilter = kodein.instance()
     private val imageLinkHandler: ImageLinkHandler = kodein.instance()
     private val okHttpClient: OkHttpClient = kodein.instance()
     private val viewersCountWsHandler: ViewersCountWsHandler = kodein.instance()
     private val youtubeExecutor: ScheduledExecutorService = kodein.instance("youtube")
+    private val bttvEmoticonHandler: BttvEmoticonHandler = kodein.instance()
+    private val bttvApiClient: BttvApiClient = kodein.instance()
+    private val emoticonStorage: EmoticonStorage = kodein.instance()
 
     private val lock: Lock = ReentrantLock()
     private val config: Configuration = configLoader.get()
@@ -101,6 +105,13 @@ class AppStateTransitionManager(private val kodein: Kodein) {
                     .also { it.setCallbacks() }
             chatClientMap.put(Origin.twitch, chatClient)
             viewersCountLoaders.add(kodein.factory<String, TwitchViewersCountLoader>().invoke(channelName))
+
+            // load BTTV channel emoticons in background
+            bttvApiClient.loadChannelEmoticons(channelName)
+                    .thenAccept {
+                        emoticonStorage.putCodeMapping(Origin.bttvChannel, it.map { it.code.toLowerCase() to it }.toMap())
+                        emoticonStorage.putList(Origin.bttvChannel, it)
+                    }
         }
 
 
@@ -198,6 +209,12 @@ class AppStateTransitionManager(private val kodein: Kodein) {
 
     private fun reset() {
         viewersCountWsHandler.viewersCounter.set(null)
+
+        // reset BTTV channel emoticons
+        emoticonStorage.putList(Origin.bttvChannel, emptyList())
+        emoticonStorage.putCodeMapping(Origin.bttvChannel, emptyMap())
+        emoticonStorage.putIdMapping(Origin.bttvChannel, emptyMap())
+        bttvEmoticonHandler.resetChannelPattern()
 
         chatClients.values.forEach { it.stop() }
         // Значение может быть null если вызваны shutDown() и stopChat() последовательно, в любой последовательности,

@@ -12,4 +12,6 @@ interface EmoticonFinder {
 
     fun findById(origin: Origin, id: Long): Emoticon?
 
+    fun getList(origin: Origin): List<Emoticon>
+
 }

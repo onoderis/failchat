@@ -23,6 +23,7 @@ import failchat.core.ws.server.WsServer
 import failchat.goodgame.GgEmoticonLoader
 import failchat.gui.GuiLauncher
 import failchat.peka2tv.Peka2tvEmoticonLoader
+import failchat.twitch.BttvGlobalEmoticonLoader
 import failchat.twitch.TwitchEmoticonLoader
 import javafx.application.Application
 import org.apache.commons.configuration2.Configuration
@@ -110,6 +111,7 @@ private fun loadEmoticonsAsync(executor: ExecutorService) = executor.submit {
     val loadersAndOptions: List<Pair<EmoticonLoader<out Emoticon>, EmoticonStoreOptions>> = listOf(
             kodein.instance<Peka2tvEmoticonLoader>() to EmoticonStoreOptions(true, false),
             kodein.instance<GgEmoticonLoader>() to EmoticonStoreOptions(true, false),
+            kodein.instance<BttvGlobalEmoticonLoader>() to EmoticonStoreOptions(true, false),
             kodein.instance<TwitchEmoticonLoader>() to EmoticonStoreOptions(true, true)
     )
 

@@ -28,7 +28,7 @@ fun Call.toFuture(): CompletableFuture<Response> {
 }
 
 /**
- * Execute operation and call [Response.close] in finally block.
+ * Execute operation and close [Response].
  * */
 inline fun <T> CompletableFuture<Response>.thenApplySafe(crossinline operation: (Response) -> T): CompletableFuture<T> {
     return this.thenApply { response ->
