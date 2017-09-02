@@ -108,9 +108,13 @@ class AppStateTransitionManager(private val kodein: Kodein) {
 
             // load BTTV channel emoticons in background
             bttvApiClient.loadChannelEmoticons(channelName)
-                    .thenAccept {
-                        emoticonStorage.putCodeMapping(Origin.bttvChannel, it.map { it.code.toLowerCase() to it }.toMap())
-                        emoticonStorage.putList(Origin.bttvChannel, it)
+                    .thenApply<Unit> { emoticons ->
+                        emoticonStorage.putCodeMapping(Origin.bttvChannel, emoticons.map { it.code.toLowerCase() to it }.toMap())
+                        emoticonStorage.putList(Origin.bttvChannel, emoticons)
+                        log.info("BTTV emoticons loaded for channel '{}', count: {}", channelName, emoticons.size)
+                    }
+                    .exceptionally { e ->
+                        log.warn("Failed to load BTTV emoticons for channel '{}'", channelName, e)
                     }
         }
 
