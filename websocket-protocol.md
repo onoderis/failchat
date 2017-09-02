@@ -20,7 +20,8 @@
                 "type": "emoticon",
                 "origin": "peka2tv",
                 "code": "peka",
-                "url": "http://peka2.tv/img/peka.png"
+                "url": "http://peka2.tv/img/peka.png",
+                "format": "raster"
             },
             {
                 "type": "link",

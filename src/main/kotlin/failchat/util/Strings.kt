@@ -26,3 +26,7 @@ fun formatStackTraces(stackTraces: Map<Thread, Array<StackTraceElement>>): Strin
             }
             .joinToString(separator = ls)
 }
+
+inline fun Int.toHexString(): String = java.lang.Integer.toHexString(this)
+
+inline fun toCodePoint(high: Char, low: Char): Int = java.lang.Character.toCodePoint(high, low)
