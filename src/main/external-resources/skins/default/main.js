@@ -20,6 +20,7 @@ $(function () {
 
     //templates
     var smileTemplate = $("#smile-template");
+    var vectorSmileTemplate = $("#vector-smile-template");
     var linkTemplate = $("#link-template");
     var imageTemplate = $("#image-template");
     var messageTemplate = $("#message-template");
@@ -115,7 +116,11 @@ $(function () {
             var elementHtml;
             switch(element.type) {
                 case "emoticon":
-                    elementHtml = smileTemplate.render(element);
+                    if (element.format === "vector") {
+                        elementHtml = vectorSmileTemplate.render(element);
+                    } else {
+                        elementHtml = smileTemplate.render(element);
+                    }
                     break;
                 case "link":
                     elementHtml = linkTemplate.render(element);

@@ -131,6 +131,11 @@ img.smile {
     max-height: 30px;
 }
 
+img.smile-vector {
+    width: 30px;
+    height: 30px;
+}
+
 img.image {
     max-height: 250px;
     max-width: 100%;

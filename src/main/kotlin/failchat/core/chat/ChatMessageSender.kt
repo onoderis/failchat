@@ -67,6 +67,7 @@ class ChatMessageSender(
                         .put("origin", element.origin.name)
                         .put("code", element.code)
                         .put("url", element.url)
+                        .put("format", element.format.name)
 
                 is Link -> elementsArray.addObject()
                         .put("type", "link")

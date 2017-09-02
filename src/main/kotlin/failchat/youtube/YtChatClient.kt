@@ -58,6 +58,7 @@ class YtChatClient(
     private val messageHandlers: List<MessageHandler<YtMessage>> = listOf(
             ElementLabelEscaper(),
             BraceEscaper(), // символы < и > приходят неэкранированными
+            YtEmojiHandler(),
             highlightHandler
     )
     private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
