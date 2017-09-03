@@ -1,5 +1,5 @@
 ### Description
-Chat message aggregator for twitch, sc2tv, goodgame
+Chat message aggregator for twitch, youtube, goodgame, peka2tv 
 
 ### Features
 * Emote icons, highlights
@@ -15,7 +15,7 @@ Chat message aggregator for twitch, sc2tv, goodgame
 Java 8 (recommended u60 and newer)
 
 ### Screenshots
-![Settings](http://i.imgur.com/nffg7Zj.png)
+![Settings](https://i.imgur.com/J7z8yNN.png)
 
 ![Chat](http://i.imgur.com/zLf5mmZ.png)
 
