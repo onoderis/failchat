@@ -1,8 +1,8 @@
 package failchat.twitch
 
-import failchat.core.Origin
-import failchat.core.emoticon.Emoticon
-import failchat.core.emoticon.EmoticonLoader
+import failchat.Origin
+import failchat.emoticon.Emoticon
+import failchat.emoticon.EmoticonLoader
 import java.util.concurrent.CompletableFuture
 
 class BttvGlobalEmoticonLoader(private val bttvApiClient: BttvApiClient) : EmoticonLoader<Emoticon> {

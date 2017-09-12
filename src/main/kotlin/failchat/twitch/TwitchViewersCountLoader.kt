@@ -1,7 +1,7 @@
 package failchat.twitch
 
-import failchat.core.Origin
-import failchat.core.viewers.ViewersCountLoader
+import failchat.Origin
+import failchat.viewers.ViewersCountLoader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture

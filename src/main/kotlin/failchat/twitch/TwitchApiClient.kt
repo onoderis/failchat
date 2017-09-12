@@ -2,7 +2,7 @@ package failchat.twitch
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import failchat.core.Origin
+import failchat.Origin
 import failchat.exception.ChannelOfflineException
 import failchat.exception.DataNotFoundException
 import failchat.exception.UnexpectedResponseCodeException

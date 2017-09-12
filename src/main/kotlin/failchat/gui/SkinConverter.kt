@@ -1,6 +1,6 @@
 package failchat.gui
 
-import failchat.core.skin.Skin
+import failchat.skin.Skin
 import javafx.util.StringConverter
 
 class SkinConverter(skins: List<Skin>) : StringConverter<Skin>() {

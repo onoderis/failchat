@@ -1,8 +1,8 @@
 package failchat.youtube
 
-import failchat.core.Origin.youtube
-import failchat.core.chat.Author
-import failchat.core.chat.ChatMessage
+import failchat.Origin.youtube
+import failchat.chat.Author
+import failchat.chat.ChatMessage
 
 class YtMessage(
         id: Long,

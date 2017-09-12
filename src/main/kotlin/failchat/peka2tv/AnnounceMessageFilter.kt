@@ -1,6 +1,6 @@
 package failchat.peka2tv
 
-import failchat.core.chat.MessageFilter
+import failchat.chat.MessageFilter
 import org.slf4j.LoggerFactory
 
 class AnnounceMessageFilter : MessageFilter<Peka2tvMessage> {

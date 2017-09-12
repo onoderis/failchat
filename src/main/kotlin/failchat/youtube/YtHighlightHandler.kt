@@ -1,6 +1,6 @@
 package failchat.youtube
 
-import failchat.core.chat.MessageHandler
+import failchat.chat.MessageHandler
 import failchat.util.value
 import java.util.concurrent.atomic.AtomicReference
 

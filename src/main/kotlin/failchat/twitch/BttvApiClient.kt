@@ -1,8 +1,8 @@
 package failchat.twitch
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import failchat.core.Origin
-import failchat.core.emoticon.Emoticon
+import failchat.Origin
+import failchat.emoticon.Emoticon
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.thenApplySafe

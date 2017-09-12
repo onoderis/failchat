@@ -1,10 +1,10 @@
 package failchat.gui
 
 import com.github.salomonbrys.kodein.instance
-import failchat.core.ConfigLoader
-import failchat.core.kodein
-import failchat.core.skin.Skin
+import failchat.ConfigLoader
 import failchat.github.ReleaseChecker
+import failchat.kodein
+import failchat.skin.Skin
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.control.Alert

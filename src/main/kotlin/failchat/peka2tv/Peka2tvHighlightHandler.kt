@@ -1,6 +1,6 @@
 package failchat.peka2tv
 
-import failchat.core.chat.MessageHandler
+import failchat.chat.MessageHandler
 
 class Peka2tvHighlightHandler(private val channelName: String) : MessageHandler<Peka2tvMessage> {
 

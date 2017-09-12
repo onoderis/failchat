@@ -1,9 +1,9 @@
 package failchat.experiment
 
-import failchat.core.ConfigLoader
-import failchat.core.reporter.EventAction
-import failchat.core.reporter.EventCategory
-import failchat.core.reporter.EventReporter
+import failchat.ConfigLoader
+import failchat.reporter.EventAction
+import failchat.reporter.EventCategory
+import failchat.reporter.EventReporter
 import okhttp3.OkHttpClient
 import org.junit.Ignore
 import org.junit.Test

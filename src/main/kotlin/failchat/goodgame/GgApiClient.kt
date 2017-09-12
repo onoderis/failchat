@@ -2,7 +2,7 @@ package failchat.goodgame
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import failchat.core.Origin
+import failchat.Origin
 import failchat.exception.ChannelOfflineException
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException

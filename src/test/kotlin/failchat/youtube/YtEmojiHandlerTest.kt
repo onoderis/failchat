@@ -1,7 +1,7 @@
 package failchat.youtube
 
-import failchat.core.chat.Author
-import failchat.core.emoticon.Emoticon
+import failchat.chat.Author
+import failchat.emoticon.Emoticon
 import failchat.util.okHttpClient
 import okhttp3.Request
 import org.junit.Test

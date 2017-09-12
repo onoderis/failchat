@@ -1,7 +1,7 @@
 package failchat.gui
 
-import failchat.core.chat.StatusMessageMode
-import failchat.core.skin.Skin
+import failchat.chat.StatusMessageMode
+import failchat.skin.Skin
 import javafx.collections.FXCollections
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent

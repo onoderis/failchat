@@ -1,9 +1,9 @@
 package failchat.twitch
 
-import failchat.core.Origin
-import failchat.core.chat.MessageHandler
-import failchat.core.emoticon.Emoticon
-import failchat.core.emoticon.EmoticonFinder
+import failchat.Origin
+import failchat.chat.MessageHandler
+import failchat.emoticon.Emoticon
+import failchat.emoticon.EmoticonFinder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.regex.Pattern

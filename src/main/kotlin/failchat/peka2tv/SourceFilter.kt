@@ -1,6 +1,6 @@
 package failchat.peka2tv
 
-import failchat.core.chat.MessageFilter
+import failchat.chat.MessageFilter
 
 /**
  * Фильтруент сообщения с других источников
