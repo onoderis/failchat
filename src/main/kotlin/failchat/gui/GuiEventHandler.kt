@@ -1,8 +1,8 @@
 package failchat.gui
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import failchat.core.AppStateTransitionManager
-import failchat.core.ws.server.WsServer
+import failchat.AppStateTransitionManager
+import failchat.ws.server.WsServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors

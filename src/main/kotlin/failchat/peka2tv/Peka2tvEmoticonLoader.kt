@@ -1,7 +1,7 @@
 package failchat.peka2tv
 
-import failchat.core.Origin.peka2tv
-import failchat.core.emoticon.EmoticonLoader
+import failchat.Origin.peka2tv
+import failchat.emoticon.EmoticonLoader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture

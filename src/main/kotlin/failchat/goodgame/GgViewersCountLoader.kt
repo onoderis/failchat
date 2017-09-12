@@ -1,7 +1,7 @@
 package failchat.goodgame
 
-import failchat.core.Origin
-import failchat.core.viewers.ViewersCountLoader
+import failchat.Origin
+import failchat.viewers.ViewersCountLoader
 import java.util.concurrent.CompletableFuture
 
 class GgViewersCountLoader(

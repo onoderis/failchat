@@ -1,9 +1,9 @@
 package failchat.peka2tv
 
-import failchat.core.Origin
-import failchat.core.chat.MessageHandler
-import failchat.core.emoticon.Emoticon
-import failchat.core.emoticon.EmoticonFinder
+import failchat.Origin
+import failchat.chat.MessageHandler
+import failchat.emoticon.Emoticon
+import failchat.emoticon.EmoticonFinder
 import java.util.regex.Pattern
 
 class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHandler<Peka2tvMessage> {

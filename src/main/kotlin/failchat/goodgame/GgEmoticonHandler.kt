@@ -1,8 +1,8 @@
 package failchat.goodgame
 
-import failchat.core.Origin
-import failchat.core.chat.MessageHandler
-import failchat.core.emoticon.EmoticonFinder
+import failchat.Origin
+import failchat.chat.MessageHandler
+import failchat.emoticon.EmoticonFinder
 import java.util.regex.Pattern
 
 class GgEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHandler<GgMessage> {

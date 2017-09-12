@@ -6,7 +6,7 @@ import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
-import failchat.core.emoticon.EmoticonFinder
+import failchat.emoticon.EmoticonFinder
 import org.junit.Test
 
 class TwitchEmoticonHandlerTest {

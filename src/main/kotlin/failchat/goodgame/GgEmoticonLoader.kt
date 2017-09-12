@@ -1,7 +1,7 @@
 package failchat.goodgame
 
-import failchat.core.Origin
-import failchat.core.emoticon.EmoticonLoader
+import failchat.Origin
+import failchat.emoticon.EmoticonLoader
 import java.util.concurrent.CompletableFuture
 
 class GgEmoticonLoader(private val ggApiClient: GgApiClient) : EmoticonLoader<GgEmoticon> {

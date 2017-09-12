@@ -2,26 +2,28 @@ package failchat.youtube
 
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.LiveChatMessage
-import failchat.core.Origin
-import failchat.core.chat.Author
-import failchat.core.chat.ChatClient
-import failchat.core.chat.ChatClientStatus
-import failchat.core.chat.ChatClientStatus.connected
-import failchat.core.chat.ChatClientStatus.connecting
-import failchat.core.chat.ChatClientStatus.offline
-import failchat.core.chat.ChatClientStatus.ready
-import failchat.core.chat.MessageHandler
-import failchat.core.chat.MessageIdGenerator
-import failchat.core.chat.OriginStatus
-import failchat.core.chat.StatusMessage
-import failchat.core.chat.handlers.BraceEscaper
-import failchat.core.chat.handlers.ElementLabelEscaper
-import failchat.core.viewers.ViewersCountLoader
+import failchat.Origin
+import failchat.Origin.youtube
+import failchat.chat.Author
+import failchat.chat.ChatClient
+import failchat.chat.ChatClientStatus
+import failchat.chat.ChatClientStatus.connected
+import failchat.chat.ChatClientStatus.connecting
+import failchat.chat.ChatClientStatus.offline
+import failchat.chat.ChatClientStatus.ready
+import failchat.chat.MessageHandler
+import failchat.chat.MessageIdGenerator
+import failchat.chat.OriginStatus.CONNECTED
+import failchat.chat.OriginStatus.DISCONNECTED
+import failchat.chat.StatusMessage
+import failchat.chat.handlers.BraceEscaper
+import failchat.chat.handlers.ElementLabelEscaper
 import failchat.exception.ChannelOfflineException
 import failchat.util.ConcurrentEvictingQueue
 import failchat.util.debug
 import failchat.util.scheduleWithCatch
 import failchat.util.value
+import failchat.viewers.ViewersCountLoader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -143,7 +145,7 @@ class YtChatClient(
 
             // Change status to disconnected / send status message
             val statusChanged = atomicStatus.compareAndSet(connected, connecting)
-            if (statusChanged) onStatusMessage?.invoke(StatusMessage(Origin.youtube, OriginStatus.DISCONNECTED))
+            if (statusChanged) onStatusMessage?.invoke(StatusMessage(youtube, DISCONNECTED))
             return
         }
 
@@ -156,7 +158,7 @@ class YtChatClient(
 
         // Send "connected" status message
         val statusChanged = atomicStatus.compareAndSet(connecting, connected)
-        if (statusChanged) onStatusMessage?.invoke(StatusMessage(Origin.youtube, OriginStatus.CONNECTED))
+        if (statusChanged) onStatusMessage?.invoke(StatusMessage(youtube, CONNECTED))
 
         // Skip messages from first request
         if (params.isFirstRequest) {

@@ -1,6 +1,6 @@
 package failchat.twitch
 
-import failchat.core.chat.MessageHandler
+import failchat.chat.MessageHandler
 
 class TwitchHighlightHandler(channel: String) : MessageHandler<TwitchMessage> {
 

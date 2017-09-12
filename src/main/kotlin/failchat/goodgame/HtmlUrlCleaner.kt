@@ -1,6 +1,6 @@
 package failchat.goodgame
 
-import failchat.core.chat.MessageHandler
+import failchat.chat.MessageHandler
 
 import java.util.regex.Pattern
 

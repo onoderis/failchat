@@ -1,8 +1,8 @@
 package failchat.goodgame
 
-import failchat.core.Origin
-import failchat.core.chat.Author
-import failchat.core.chat.ChatMessage
+import failchat.Origin
+import failchat.chat.Author
+import failchat.chat.ChatMessage
 
 class GgMessage(
         id: Long,

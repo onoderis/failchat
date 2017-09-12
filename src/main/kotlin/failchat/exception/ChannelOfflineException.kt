@@ -1,6 +1,6 @@
 package failchat.exception
 
-import failchat.core.Origin
+import failchat.Origin
 
 class ChannelOfflineException(
         val origin: Origin,

@@ -1,9 +1,9 @@
 package failchat.gui
 
-import failchat.core.chat.StatusMessageMode
-import failchat.core.chat.StatusMessageMode.EVERYWHERE
-import failchat.core.chat.StatusMessageMode.NATIVE_CLIENT
-import failchat.core.chat.StatusMessageMode.NOWHERE
+import failchat.chat.StatusMessageMode
+import failchat.chat.StatusMessageMode.EVERYWHERE
+import failchat.chat.StatusMessageMode.NATIVE_CLIENT
+import failchat.chat.StatusMessageMode.NOWHERE
 import javafx.util.StringConverter
 
 class StatusMessageModeConverter : StringConverter<StatusMessageMode>() {

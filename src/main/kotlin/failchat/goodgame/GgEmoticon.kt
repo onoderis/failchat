@@ -1,7 +1,7 @@
 package failchat.goodgame
 
-import failchat.core.Origin
-import failchat.core.emoticon.Emoticon
+import failchat.Origin
+import failchat.emoticon.Emoticon
 
 class GgEmoticon(
         code: String,

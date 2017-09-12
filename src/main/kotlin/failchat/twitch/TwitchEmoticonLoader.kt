@@ -1,7 +1,7 @@
 package failchat.twitch
 
-import failchat.core.Origin
-import failchat.core.emoticon.EmoticonLoader
+import failchat.Origin
+import failchat.emoticon.EmoticonLoader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture

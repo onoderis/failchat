@@ -1,8 +1,8 @@
 package failchat.peka2tv
 
-import failchat.core.Origin.peka2tv
-import failchat.core.chat.Author
-import failchat.core.chat.ChatMessage
+import failchat.Origin.peka2tv
+import failchat.chat.Author
+import failchat.chat.ChatMessage
 
 class Peka2tvMessage(
         id: Long,
