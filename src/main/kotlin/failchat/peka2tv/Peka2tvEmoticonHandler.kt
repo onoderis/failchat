@@ -4,6 +4,7 @@ import failchat.Origin
 import failchat.chat.MessageHandler
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonFinder
+import failchat.goodgame.GgEmoticon
 import java.util.regex.Pattern
 
 class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHandler<Peka2tvMessage> {
@@ -41,7 +42,12 @@ class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messa
     private fun findByMultiOriginCode(code: String): Emoticon? {
         return when {
             code.startsWith("tw-") -> emoticonFinder.findByCode(Origin.twitch, code.substring(3))
-            code.startsWith("gg-") -> emoticonFinder.findByCode(Origin.goodgame, code.substring(3))
+            code.startsWith("gg-") -> {
+                val emoticon = emoticonFinder.findByCode(Origin.goodgame, code.substring(3))
+                        ?.let { it as GgEmoticon }
+                val animatedEmoticon = emoticon?.animatedInstance
+                animatedEmoticon ?: emoticon
+            }
             else -> emoticonFinder.findByCode(Origin.peka2tv, code)
         }
     }
