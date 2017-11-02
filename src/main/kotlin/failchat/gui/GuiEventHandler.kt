@@ -1,7 +1,7 @@
 package failchat.gui
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import failchat.AppStateTransitionManager
+import failchat.AppStateManager
 import failchat.ws.server.WsServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -13,7 +13,7 @@ import java.util.concurrent.Executors
  * */
 class GuiEventHandler(
         private val wsServer: WsServer,
-        private val appStateTransitionManager: AppStateTransitionManager,
+        private val appStateManager: AppStateManager,
         private val objectMapper: ObjectMapper = ObjectMapper()
 ) {
 
@@ -25,19 +25,19 @@ class GuiEventHandler(
 
     fun startChat() {
         executor.submit {
-            appStateTransitionManager.startChat()
+            appStateManager.startChat()
         }
     }
 
     fun stopChat() {
         executor.submit {
-            appStateTransitionManager.stopChat()
+            appStateManager.stopChat()
         }
     }
 
     fun shutDown() {
         executor.submit {
-            appStateTransitionManager.shutDown()
+            appStateManager.shutDown()
         }
         executor.shutdown()
     }
