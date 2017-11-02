@@ -29,7 +29,7 @@ class ConfigLoader(workingDirectory: Path) {
     init {
         val userConfig = userConfigBuilder.configuration
 
-        // если передавать в конструктор CompositeConfiguration как imMemoryConfig,
+        // Если передавать в конструктор CompositeConfiguration как inMemoryConfig,
         // он будет последний в списке на чтение
         compositeConfig.addConfiguration(userConfig, true)
         compositeConfig.addConfiguration(defaultConfigBuilder)
