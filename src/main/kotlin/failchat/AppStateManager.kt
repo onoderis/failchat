@@ -3,8 +3,8 @@ package failchat
 import com.github.salomonbrys.kodein.Kodein
 import com.github.salomonbrys.kodein.factory
 import com.github.salomonbrys.kodein.instance
-import failchat.AppState.chat
-import failchat.AppState.settings
+import failchat.AppState.CHAT
+import failchat.AppState.SETTINGS
 import failchat.Origin.bttvChannel
 import failchat.Origin.goodgame
 import failchat.Origin.peka2tv
@@ -47,11 +47,10 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 
-//todo refactor
-class AppStateTransitionManager(private val kodein: Kodein) {
+class AppStateManager(private val kodein: Kodein) {
 
     private companion object {
-        val log: Logger = LoggerFactory.getLogger(AppStateTransitionManager::class.java)
+        val log: Logger = LoggerFactory.getLogger(AppStateManager::class.java)
         val shutdownTimeout: Duration = Duration.ofSeconds(20)
     }
 
@@ -77,10 +76,10 @@ class AppStateTransitionManager(private val kodein: Kodein) {
     private var chatClients: Map<Origin, ChatClient<*>> = emptyMap()
     private var viewersCounter: ViewersCounter? = null
     
-    private var state: AppState = settings
+    private var state: AppState = SETTINGS
 
     fun startChat() = lock.withLock {
-        if (state != settings) IllegalStateException("Expected: $settings, actual: $state")
+        if (state != SETTINGS) IllegalStateException("Expected: $SETTINGS, actual: $state")
 
         val viewersCountLoaders: MutableList<ViewersCountLoader> = ArrayList()
         val chatClientMap: MutableMap<Origin, ChatClient<*>> = HashMap() //todo rename
@@ -157,23 +156,32 @@ class AppStateTransitionManager(private val kodein: Kodein) {
         ignoreFilter.reloadConfig()
         imageLinkHandler.reloadConfig()
 
-        //todo try catch
         // Start chat clients
-        chatClientMap.values.forEach { it.start() }
+        chatClientMap.values.forEach {
+            try {
+                it.start()
+            } catch (t: Throwable) {
+                log.error("Failed to start ${it.origin} chat client", t)
+            }
+        }
         chatClients = chatClientMap
 
-        //todo try catch
         // Start viewers counter
-        viewersCounter = kodein
-                .factory<List<ViewersCountLoader>, ViewersCounter>()
-                .invoke(viewersCountLoaders)
-                .apply { start() }
+        viewersCounter = try {
+            kodein
+                    .factory<List<ViewersCountLoader>, ViewersCounter>()
+                    .invoke(viewersCountLoaders)
+                    .apply { start() }
+        } catch (t: Throwable) {
+            log.error("Failed to start viewers counter", t)
+            null
+        }
 
         viewersCountWsHandler.viewersCounter.set(viewersCounter)
     }
 
     fun stopChat() = lock.withLock {
-        if (state != chat) IllegalStateException("Expected: $chat, actual: $state")
+        if (state != CHAT) IllegalStateException("Expected: $CHAT, actual: $state")
         reset()
     }
 
@@ -225,7 +233,15 @@ class AppStateTransitionManager(private val kodein: Kodein) {
         emoticonStorage.putIdMapping(bttvChannel, emptyMap())
         bttvEmoticonHandler.resetChannelPattern()
 
-        chatClients.values.forEach { it.stop() }
+        // stop chat clients
+        chatClients.values.forEach {
+            try {
+                it.stop()
+            } catch (t: Throwable) {
+                log.error("Failed to stop ${it.origin} chat client", t)
+            }
+        }
+
         // Значение может быть null если вызваны shutDown() и stopChat() последовательно, в любой последовательности,
         // либо если приложение было закрыто без запуска чата.
         viewersCounter?.stop()

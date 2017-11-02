@@ -60,7 +60,7 @@ val kodein = Kodein {
     }
 
     // Core dependencies
-    bind<AppStateTransitionManager>() with singleton { AppStateTransitionManager(kodein) }
+    bind<AppStateManager>() with singleton { AppStateManager(kodein) }
     bind<ConfigLoader>() with singleton { ConfigLoader(instance<Path>("workingDirectory")) }
     bind<Configuration>() with singleton { instance<ConfigLoader>().get() }
     bind<ChatMessageSender>() with singleton {
@@ -85,7 +85,7 @@ val kodein = Kodein {
     bind<GuiEventHandler>() with singleton {
         GuiEventHandler(
                 instance<WsServer>(),
-                instance<AppStateTransitionManager>(),
+                instance<AppStateManager>(),
                 instance<ObjectMapper>()
         )
     }
