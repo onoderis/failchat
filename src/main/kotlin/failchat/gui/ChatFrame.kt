@@ -39,9 +39,9 @@ class ChatFrame(
 
     private val skinsDirectory: Path = workingDirectory.resolve("skins") //todo load skin in another way
 
-    private val decoratedChatStage: Stage = buildChatStage(StageType.decorated)
-    private val undecoratedChatStage: Stage = buildChatStage(StageType.undecorated) //for opaque background color
-    private val transparentChatStage: Stage = buildChatStage(StageType.transparent) //for transparent background color
+    private val decoratedChatStage: Stage = buildChatStage(StageType.DECORATED)
+    private val undecoratedChatStage: Stage = buildChatStage(StageType.UNDECORATED) //for opaque background color
+    private val transparentChatStage: Stage = buildChatStage(StageType.TRANSPARENT) //for transparent background color
     private val webView: WebView = WebView()
     private val webEngine: WebEngine = webView.engine
     private val chatScene: Scene = buildChatScene()
@@ -89,14 +89,14 @@ class ChatFrame(
     private fun buildChatStage(type: StageType): Stage {
         val stage = Stage()
         when (type) {
-            StageType.decorated -> {
+            StageType.DECORATED -> {
                 stage.title = "failchat"
             }
-            StageType.undecorated -> {
+            StageType.UNDECORATED -> {
                 stage.title = "failchat u"
                 stage.initStyle(StageStyle.UNDECORATED)
             }
-            StageType.transparent -> {
+            StageType.TRANSPARENT -> {
                 stage.title = "failchat t"
                 stage.initStyle(StageStyle.TRANSPARENT)
             }

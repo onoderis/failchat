@@ -131,17 +131,17 @@ private fun scheduleReportTasks(executor: ScheduledExecutorService) {
     val reporter = kodein.instance<EventReporter>()
 
     val exceptionHandler = { e: Throwable ->
-        log.warn("Failed to report event {}.{}", EventCategory.General.name, EventAction.AppLaunch.name, e)
+        log.warn("Failed to report event {}.{}", EventCategory.GENERAL.name, EventAction.APP_LAUNCH.name, e)
     }
     executor.execute {
         reporter
-                .reportEvent(EventCategory.General, EventAction.AppLaunch)
+                .reportEvent(EventCategory.GENERAL, EventAction.APP_LAUNCH)
                 .exceptionally(exceptionHandler)
     }
     //todo don't start task if reporter disabled
     executor.scheduleAtFixedRate({
         reporter
-                .reportEvent(EventCategory.General, EventAction.Heartbeat)
+                .reportEvent(EventCategory.GENERAL, EventAction.HEARTBEAT)
                 .exceptionally(exceptionHandler)
     }, 5, 5, TimeUnit.MINUTES)
 }

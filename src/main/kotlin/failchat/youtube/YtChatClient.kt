@@ -7,10 +7,9 @@ import failchat.Origin.youtube
 import failchat.chat.Author
 import failchat.chat.ChatClient
 import failchat.chat.ChatClientStatus
-import failchat.chat.ChatClientStatus.connected
-import failchat.chat.ChatClientStatus.connecting
-import failchat.chat.ChatClientStatus.offline
-import failchat.chat.ChatClientStatus.ready
+import failchat.chat.ChatClientStatus.CONNECTING
+import failchat.chat.ChatClientStatus.OFFLINE
+import failchat.chat.ChatClientStatus.READY
 import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
@@ -63,21 +62,21 @@ class YtChatClient(
             YtEmojiHandler(),
             highlightHandler
     )
-    private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
+    private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.READY)
     private val searchInterval: Duration = Duration.ofSeconds(15)
     private val reconnectInterval: Duration = Duration.ofSeconds(5)
     private val liveBroadcastId: AtomicReference<String?> = AtomicReference(null)
     private val history: Queue<YtMessage> = ConcurrentEvictingQueue(50)
 
     override fun start() {
-        val statusChanged = atomicStatus.compareAndSet(ready, connecting)
+        val statusChanged = atomicStatus.compareAndSet(READY, CONNECTING)
         if (!statusChanged) return
 
         youtubeExecutor.execute { getLiveChatIdRecursiveTask() }
     }
 
     override fun stop() {
-        atomicStatus.set(offline)
+        atomicStatus.set(OFFLINE)
     }
 
     /**
@@ -95,7 +94,7 @@ class YtChatClient(
     }
 
     private fun getLiveChatIdRecursiveTask() {
-        if (atomicStatus.get() == offline) {
+        if (atomicStatus.get() == OFFLINE) {
             log.info("Shutting down youtube chat client. task: 'getMessagesRecursiveTask'")
             return
         }
@@ -126,7 +125,7 @@ class YtChatClient(
     }
 
     private fun getMessagesRecursiveTask(params: YtRequestParameters) {
-        if (atomicStatus.get() == offline) {
+        if (atomicStatus.get() == OFFLINE) {
             log.info("Shutting down youtube chat client. task: 'getMessagesRecursiveTask'")
             return
         }
@@ -144,7 +143,7 @@ class YtChatClient(
             youtubeExecutor.scheduleWithCatch(reconnectInterval) { getMessagesRecursiveTask(params) }
 
             // Change status to disconnected / send status message
-            val statusChanged = atomicStatus.compareAndSet(connected, connecting)
+            val statusChanged = atomicStatus.compareAndSet(ChatClientStatus.CONNECTED, CONNECTING)
             if (statusChanged) onStatusMessage?.invoke(StatusMessage(youtube, DISCONNECTED))
             return
         }
@@ -157,7 +156,7 @@ class YtChatClient(
         youtubeExecutor.scheduleWithCatch(messageUpdateInterval) { getMessagesRecursiveTask(nextRequestParameters) }
 
         // Send "connected" status message
-        val statusChanged = atomicStatus.compareAndSet(connecting, connected)
+        val statusChanged = atomicStatus.compareAndSet(CONNECTING, ChatClientStatus.CONNECTED)
         if (statusChanged) onStatusMessage?.invoke(StatusMessage(youtube, CONNECTED))
 
         // Skip messages from first request
