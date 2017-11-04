@@ -2,7 +2,6 @@ package failchat.emoticon
 
 import failchat.Origin
 import failchat.emoticon.EmoticonManager.LoadSource.cache
-import failchat.exception.EmoticonLoadException
 import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

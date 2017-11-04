@@ -2,7 +2,6 @@ package failchat.github
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import failchat.exception.NoReleasesFoundException
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.isEmpty

@@ -1,4 +1,4 @@
-package failchat.exception
+package failchat.github
 
 class NoReleasesFoundException : Exception {
     constructor() : super()
