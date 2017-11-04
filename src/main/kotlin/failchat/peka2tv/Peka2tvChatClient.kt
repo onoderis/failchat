@@ -4,10 +4,9 @@ import failchat.Origin
 import failchat.Origin.peka2tv
 import failchat.chat.ChatClient
 import failchat.chat.ChatClientStatus
-import failchat.chat.ChatClientStatus.connected
-import failchat.chat.ChatClientStatus.connecting
-import failchat.chat.ChatClientStatus.offline
-import failchat.chat.ChatClientStatus.ready
+import failchat.chat.ChatClientStatus.CONNECTING
+import failchat.chat.ChatClientStatus.OFFLINE
+import failchat.chat.ChatClientStatus.READY
 import failchat.chat.MessageFilter
 import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
@@ -54,7 +53,7 @@ class Peka2tvChatClient(
 
 
     private val socket = buildSocket()
-    private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ready)
+    private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(READY)
     private val history: Queue<Peka2tvMessage> = ConcurrentEvictingQueue(50)
 
     private val messageHandlers: List<MessageHandler<Peka2tvMessage>> = listOf(
@@ -70,7 +69,7 @@ class Peka2tvChatClient(
 
 
     override fun start() {
-        if (!atomicStatus.compareAndSet(ready, connecting)) {
+        if (!atomicStatus.compareAndSet(READY, CONNECTING)) {
             return
         }
 
@@ -78,7 +77,7 @@ class Peka2tvChatClient(
     }
 
     override fun stop() {
-        atomicStatus.set(offline)
+        atomicStatus.set(OFFLINE)
         socket.disconnect()
     }
 
@@ -121,7 +120,7 @@ class Peka2tvChatClient(
         socket
                 // Connect
                 .on(Socket.EVENT_CONNECT) {
-                    if (atomicStatus.get() == ChatClientStatus.offline) { //for quick close case
+                    if (atomicStatus.get() == ChatClientStatus.OFFLINE) { //for quick close case
                         socket.disconnect()
                         return@on
                     }
@@ -131,14 +130,14 @@ class Peka2tvChatClient(
                     }
                     socket.emit("/chat/join", arrayOf(message)) {
                         log.info("Connected to ${Origin.peka2tv}")
-                        atomicStatus.set(connected)
+                        atomicStatus.set(ChatClientStatus.CONNECTED)
                         onStatusMessage?.invoke(StatusMessage(peka2tv, CONNECTED))
                     }
                 }
 
                 // Disconnect
                 .on(Socket.EVENT_DISCONNECT) {
-                    atomicStatus.set(connecting)
+                    atomicStatus.set(CONNECTING)
                     log.info("Received disconnected event from peka2tv ")
                     onStatusMessage?.invoke(StatusMessage(peka2tv, DISCONNECTED))
                 }

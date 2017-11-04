@@ -1,6 +1,6 @@
 package failchat.reporter
 
 enum class EventAction {
-    AppLaunch,
-    Heartbeat
+    APP_LAUNCH,
+    HEARTBEAT
 }

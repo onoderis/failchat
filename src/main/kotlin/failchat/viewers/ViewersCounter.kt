@@ -6,9 +6,9 @@ import failchat.Origin
 import failchat.exception.ChannelOfflineException
 import failchat.util.await
 import failchat.util.info
-import failchat.viewers.ViewersCounter.State.ready
-import failchat.viewers.ViewersCounter.State.shutdown
-import failchat.viewers.ViewersCounter.State.working
+import failchat.viewers.ViewersCounter.State.READY
+import failchat.viewers.ViewersCounter.State.SHUTDOWN
+import failchat.viewers.ViewersCounter.State.WORKING
 import failchat.ws.server.WsServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -40,12 +40,12 @@ class ViewersCounter(
     private val enabledOrigins: List<Origin> = viewersCountLoaders.map { it.origin }
     private val viewersCount: MutableMap<Origin, Int> = ConcurrentHashMap()
 
-    private var state: AtomicReference<State> = AtomicReference(State.ready)
+    private var state: AtomicReference<State> = AtomicReference(State.READY)
 
 
     fun start() {
-        val changed = state.compareAndSet(ready, working)
-        if (!changed) throw IllegalStateException("Expected state: ${ready.name}, actual: ${state.get().name}." +
+        val changed = state.compareAndSet(READY, WORKING)
+        if (!changed) throw IllegalStateException("Expected state: ${READY.name}, actual: ${state.get().name}." +
                 "(Actual state could change after unsuccessful CAS operation)")
 
         thread(start = true, name = "ViewersCounterThread") {
@@ -55,7 +55,7 @@ class ViewersCounter(
     }
 
     fun stop() {
-        val changed = state.compareAndSet(working, shutdown)
+        val changed = state.compareAndSet(WORKING, SHUTDOWN)
         if (!changed) return
 
         lock.withLock { shutdownCondition.signal() }
@@ -68,7 +68,7 @@ class ViewersCounter(
     }
 
     private fun updateAndSendLoop() {
-        while (state.get() != shutdown) {
+        while (state.get() != SHUTDOWN) {
             updateViewersCount()
             sendViewersCountWsMessage()
             lock.withLock { shutdownCondition.await(updateInterval) }
@@ -116,9 +116,9 @@ class ViewersCounter(
     }
 
     private enum class State {
-        ready,
-        working,
-        shutdown
+        READY,
+        WORKING,
+        SHUTDOWN
     }
 
 }

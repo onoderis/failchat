@@ -1,7 +1,7 @@
 package failchat.emoticon
 
 import failchat.Origin
-import failchat.emoticon.EmoticonManager.LoadSource.cache
+import failchat.emoticon.EmoticonManager.LoadSource.CACHE
 import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -38,7 +38,7 @@ class EmoticonManager(
         val (emoticons, loadedFrom) = load(loader, cacheFile, now)
 
         // Save to cache file if required
-        if (loadedFrom == LoadSource.loader) {
+        if (loadedFrom == LoadSource.LOADER) {
             try {
                 saveToCache(emoticons, cacheFile)
                 config.setProperty("${origin.name}.emoticons.last-updated", now.toEpochMilli())
@@ -79,7 +79,7 @@ class EmoticonManager(
             try {
                 val emoticons = loadFromCache<List<T>>(cacheFile)
                 log.info("Actual version of emoticon list loaded from cache file. origin: {}, count: {}", origin.name, emoticons.size)
-                return emoticons to cache
+                return emoticons to CACHE
             } catch (e: Exception) {
                 log.warn("Failed to load actual emoticon list from cache file. origin: {}", origin.name, e)
             }
@@ -90,7 +90,7 @@ class EmoticonManager(
         try {
             val emoticons = loader.loadEmoticons().join()
             log.info("Emoticon list loaded from origin {}. count: {}", origin.name, emoticons.size)
-            return emoticons to LoadSource.loader
+            return emoticons to LoadSource.LOADER
         } catch (e: Exception) {
             log.warn("Failed to load emoticon list for {}", origin.name, e)
         }
@@ -99,7 +99,7 @@ class EmoticonManager(
         if (fileExists) {
             val emoticons = loadFromCache<List<T>>(cacheFile)
             log.info("Outdated version of emoticon list loaded from cache file. origin: {}, count: {}", origin.name, emoticons.size)
-            return emoticons to cache
+            return emoticons to CACHE
         }
 
         throw EmoticonLoadException("Failed to load emoticons for origin ${origin.name}. Cache file exists: $fileExists")
@@ -127,7 +127,7 @@ class EmoticonManager(
     }
 
     private enum class LoadSource {
-        loader, cache
+        LOADER, CACHE
     }
 
 }

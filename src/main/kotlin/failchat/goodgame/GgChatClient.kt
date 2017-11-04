@@ -6,7 +6,7 @@ import failchat.Origin
 import failchat.Origin.goodgame
 import failchat.chat.ChatClient
 import failchat.chat.ChatClientStatus
-import failchat.chat.ChatClientStatus.offline
+import failchat.chat.ChatClientStatus.OFFLINE
 import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
@@ -51,7 +51,7 @@ class GgChatClient(
 
 
     private var wsClient: WsClient = GgWsClient(URI.create(webSocketUri))
-    private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.ready)
+    private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.READY)
 
     private val messageHandlers: List<MessageHandler<GgMessage>> = listOf(
             ElementLabelEscaper(),
@@ -66,14 +66,14 @@ class GgChatClient(
 
     override fun start() {
         //todo change to connecting
-        if (atomicStatus.get() != ChatClientStatus.ready) {
+        if (atomicStatus.get() != ChatClientStatus.READY) {
             return
         }
         wsClient.start()
     }
 
     override fun stop() {
-        atomicStatus.set(offline)
+        atomicStatus.set(OFFLINE)
         wsClient.stop()
     }
 
@@ -113,7 +113,7 @@ class GgChatClient(
                     put("isHidden", false)
                 }
             }
-            atomicStatus.set(ChatClientStatus.connected)
+            atomicStatus.set(ChatClientStatus.CONNECTED)
             log.info("Goodgame chat client connected to channel {}", channelId)
 
             wsClient.send(joinMessage.toString())
