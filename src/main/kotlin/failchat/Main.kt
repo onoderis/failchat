@@ -23,12 +23,13 @@ import failchat.viewers.ViewersCountWsHandler
 import failchat.ws.server.DeleteWsMessageHandler
 import failchat.ws.server.EnabledOriginsWsHandler
 import failchat.ws.server.IgnoreWsMessageHandler
-import failchat.ws.server.TtnWsServer
 import failchat.ws.server.WsServer
 import javafx.application.Application
 import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.nio.file.Path
 import java.util.concurrent.ExecutorService
@@ -37,6 +38,8 @@ import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 object Main
+
+val wsServerAddress = InetSocketAddress(InetAddress.getLoopbackAddress(), 10880)
 
 private val log: Logger = LoggerFactory.getLogger(Main::class.java)
 
@@ -84,12 +87,11 @@ fun main(args: Array<String>) {
 }
 
 private fun checkForAnotherInstance() {
-    val sAddress = TtnWsServer.defaultAddress
     try {
-        val serverSocket = ServerSocket(sAddress.port, 10, sAddress.address)
+        val serverSocket = ServerSocket(wsServerAddress.port, 10, wsServerAddress.address)
         serverSocket.close()
     } catch (e: Exception) {
-        System.err.println("Another instance is running on $sAddress")
+        System.err.println("Another instance is running at $wsServerAddress. Exception: $e")
         System.exit(0)
     }
 }

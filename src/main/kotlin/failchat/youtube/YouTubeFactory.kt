@@ -5,12 +5,11 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.YouTubeScopes
-import com.google.common.collect.Lists
 import org.apache.commons.configuration2.Configuration
 
 object YouTubeFactory {
 
-    val readOnlyScope: List<String> = Lists.newArrayList(YouTubeScopes.YOUTUBE_READONLY)
+    private val readOnlyScope: List<String> = listOf(YouTubeScopes.YOUTUBE_READONLY)
 
     fun create(config: Configuration): YouTube {
         val credential = GoogleCredential

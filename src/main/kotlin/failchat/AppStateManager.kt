@@ -187,7 +187,12 @@ class AppStateManager(private val kodein: Kodein) {
 
     fun shutDown() = lock.withLock {
         log.info("Shutting down")
-        reset()
+
+        try {
+            reset()
+        } catch (t: Throwable) {
+            log.error("Failed to reset {} during shutdown", this.javaClass.simpleName, t)
+        }
 
         // Запуск в отдельном треде чтобы javafx thread мог завершиться и GUI закрывался сразу
         thread(start = true, name = "ShutdownThread") {
@@ -212,7 +217,7 @@ class AppStateManager(private val kodein: Kodein) {
                 "Process terminated after ${shutdownTimeout.seconds} seconds of shutDown() call. Verbose information:$ls" +
                         formatStackTraces(Thread.getAllStackTraces())
             }
-            System.exit(10)
+            System.exit(5)
         }
 
         Platform.exit()

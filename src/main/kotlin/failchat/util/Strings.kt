@@ -18,11 +18,10 @@ inline fun String?.notEmptyOrNull(): String? {
 fun formatStackTraces(stackTraces: Map<Thread, Array<StackTraceElement>>): String {
     return stackTraces
             .map { (thread, stackTraceElements) ->
-                thread.run {
-                    //kotlin's run function
+                with(thread) {
                     "Thread[name=$name; id=$id; state=${state.name}; isDaemon=$isDaemon; isInterrupted=$isInterrupted;" +
-                            "priority=$priority; threadGroup=${threadGroup.name}]"
-                } + ls + stackTraceElements.joinToString(separator = ls)
+                            "priority=$priority; threadGroup=${threadGroup.name}]$ls"
+                } + stackTraceElements.joinToString(separator = '\t' + ls)
             }
             .joinToString(separator = ls)
 }

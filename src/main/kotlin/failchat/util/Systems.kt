@@ -1,6 +1,6 @@
 package failchat.util
 
 /**
- * Line separator.
+ * Line separator shortcut.
  * */
-val ls: String = System.lineSeparator()
+inline val ls: String get() = System.lineSeparator()
