@@ -7,32 +7,39 @@ import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.net.InetAddress
 import java.net.InetSocketAddress
 
 /**
  * WsServer implementation for TooTallNate's java websocket library.
  **/
-class TtnWsServer(private val om: ObjectMapper = ObjectMapper()) : WsServer {
+class TtnWsServer(
+        private val address: InetSocketAddress,
+        private val om: ObjectMapper = ObjectMapper()
+) : WsServer {
 
-    companion object {
-        private val log: Logger = LoggerFactory.getLogger(TtnWsServer::class.java)
-        val defaultAddress = InetSocketAddress(InetAddress.getLoopbackAddress(), 10880)
+    private companion object {
+        val log: Logger = LoggerFactory.getLogger(TtnWsServer::class.java)
     }
 
-    private val wsServerImpl = WsServerImpl(defaultAddress)
+    private val wsServerImpl = WsServerImpl(address)
     private val messageConsumers: MutableMap<String, WsMessageHandler> = HashMap()
 
-    override fun start() = wsServerImpl.start()
+    override fun start() {
+        wsServerImpl.start()
+        log.info("Websocket server started at {}", address)
+    }
 
-    override fun stop() = wsServerImpl.stop()
+    override fun stop() {
+        wsServerImpl.stop()
+        log.info("Websocket server stopped at {}", address)
+    }
 
     override fun send(message: String) {
-
         val connections = wsServerImpl.connections()
+
         /*
         * Нужна синхронизация по коллекции с WebSocket'ами т.к. библеотека отдаёт не копию, и объект с которым она работает.
-        * Сама библиотека так же использует блок synchronized.
+        * Сама библиотека использует synchronized.
         * */
         synchronized(connections) {
             connections.forEach { it.send(message) }

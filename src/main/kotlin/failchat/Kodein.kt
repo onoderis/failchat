@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger
 val kodein = Kodein {
 
     // Websocket server
-    bind<WsServer>() with singleton { TtnWsServer(instance<ObjectMapper>()) }
+    bind<WsServer>() with singleton { TtnWsServer(wsServerAddress, instance<ObjectMapper>()) }
     bind<ViewersCountWsHandler>() with singleton {
         ViewersCountWsHandler(instance<Configuration>(), instance<ObjectMapper>())
     }
