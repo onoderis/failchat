@@ -1,7 +1,8 @@
 package failchat.youtube
 
-import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.model.LiveChatMessage
+import either.Either
+import either.fold
 import failchat.Origin
 import failchat.Origin.youtube
 import failchat.chat.Author
@@ -19,6 +20,7 @@ import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.exception.ChannelOfflineException
 import failchat.util.ConcurrentEvictingQueue
+import failchat.util.any
 import failchat.util.debug
 import failchat.util.scheduleWithCatch
 import failchat.util.value
@@ -36,16 +38,17 @@ import java.util.function.Supplier
  * Youtube chat client.
  * */
 class YtChatClient(
-        private val channelId: String,
-        private val youTube: YouTube,
+        private val channelIdOrBroadcastId: Either<ChannelId, VideoId>,
         private val ytApiClient: YtApiClient,
         private val youtubeExecutor: ScheduledExecutorService,
         private val messageIdGenerator: MessageIdGenerator
 ) : ChatClient<YtMessage>,
-        ViewersCountLoader {
+    ViewersCountLoader {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(YtChatClient::class.java)
+        val searchInterval: Duration = Duration.ofSeconds(15)
+        val reconnectInterval: Duration = Duration.ofSeconds(5)
     }
 
     override val origin = Origin.youtube
@@ -62,10 +65,11 @@ class YtChatClient(
             YtEmojiHandler(),
             highlightHandler
     )
-    private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.READY)
-    private val searchInterval: Duration = Duration.ofSeconds(15)
-    private val reconnectInterval: Duration = Duration.ofSeconds(5)
-    private val liveBroadcastId: AtomicReference<String?> = AtomicReference(null)
+
+    private val atomicStatus = AtomicReference<ChatClientStatus>(ChatClientStatus.READY)
+    private val channelId = AtomicReference<String?>()
+    private val liveBroadcastId = AtomicReference<String?>()
+    private val liveChatId = AtomicReference<String?>()
     private val history: Queue<YtMessage> = ConcurrentEvictingQueue(50)
 
     override fun start() {
@@ -80,16 +84,16 @@ class YtChatClient(
     }
 
     /**
-     * Load viewers count in asynchronous blocking way on dedicated [java.util.concurrent.ExecutorService].
+     * Load viewers count.
      * */
     override fun loadViewersCount(): CompletableFuture<Int> {
         return CompletableFuture.supplyAsync<Int>(Supplier {
             //todo change exceptions
             val lbId = liveBroadcastId.value
-                    ?: throw ChannelOfflineException(Origin.youtube, channelId)
+                    ?: throw ChannelOfflineException(Origin.youtube, channelIdOrBroadcastId.any())
 
             return@Supplier ytApiClient.getViewersCount(lbId)
-                    ?: throw ChannelOfflineException(Origin.youtube, channelId)
+                    ?: throw ChannelOfflineException(Origin.youtube, channelIdOrBroadcastId.any())
         }, youtubeExecutor)
     }
 
@@ -99,29 +103,50 @@ class YtChatClient(
             return
         }
 
-        val liveChatId = try {
-            val lbId = ytApiClient.findLiveBroadcast(channelId)
-                    ?: ytApiClient.findUpcomingBroadcast(channelId)
-                    ?: throw BroadcastNotFoundException(channelId)
-            log.debug("Got liveBroadcastId: '{}'", lbId)
+        // meh
+        try {
+            val channelId = channelIdOrBroadcastId.fold(
+                    { it },
+                    {
+                        ytApiClient.getChannelId(it)
+                                ?.also { log.debug("Got channelId: '{}'", it) }
+                                ?: throw BroadcastNotFoundException("videos", it)
+                    }
+            )
 
-            val lcId = ytApiClient.getLiveChatId(lbId)
-                    ?: throw LiveChatNotFoundException(channelId, lbId)
-            log.debug("Got liveChatId: '{}'", lcId)
+            val liveBroadcastId = channelIdOrBroadcastId.fold(
+                    {
+                        ytApiClient.findFirstLiveBroadcast(it)
+                                ?: ytApiClient.findFirstUpcomingBroadcast(it)
+                                ?.also { log.debug("Got liveBroadcastId: '{}'", it) }
+                                ?: throw BroadcastNotFoundException("search", it)
+                    },
+                    { it }
+            )
+
+            val liveChatId = ytApiClient.getLiveChatId(liveBroadcastId)
+                    ?: channelIdOrBroadcastId.fold(
+                            { throw LiveChatNotFoundException(it, liveBroadcastId) },
+                            { throw LiveChatNotFoundException(it) }
+                    )
+            log.debug("Got liveChatId: '{}'", liveChatId)
 
             val channelTitle = ytApiClient.getChannelTitle(channelId)
                     ?: throw ChannelNotFoundException(channelId)
+            log.debug("Got channelTitle: '{}'", channelTitle)
 
-            highlightHandler.channelTitle.value = channelTitle
-            liveBroadcastId.value = lbId
-            lcId
+            highlightHandler.channelTitle.value = channelTitle //todo refactor
+            this.liveBroadcastId.value = liveBroadcastId
+            this.channelId.value = channelId
+            this.liveChatId.value = liveChatId
         } catch (e: Exception) {
-            log.warn("Failed to find stream. Retry in {} ms. channelId: '{}'", searchInterval.toMillis(), channelId, e)
+            log.warn("Failed to find stream. Retry in {} ms. channelId/broadcastId: '{}'", searchInterval.toMillis(),
+                    channelIdOrBroadcastId.fold({ it }, { it }), e)
             youtubeExecutor.scheduleWithCatch(searchInterval) { getLiveChatIdRecursiveTask() }
             return
         }
 
-        youtubeExecutor.execute { getMessagesRecursiveTask(YtRequestParameters(liveChatId, null, true)) }
+        youtubeExecutor.execute { getMessagesRecursiveTask(YtRequestParameters(liveChatId.value!!, null, true)) }
     }
 
     private fun getMessagesRecursiveTask(params: YtRequestParameters) {
@@ -131,12 +156,9 @@ class YtChatClient(
         }
 
         // Get message list
-        log.debug("Requesting liveChatMessages. channelId: '{}', liveChatId: '{}'", channelId, params.liveChatId)
+        log.debug("Requesting liveChatMessages. channelId/broadcastId: '{}', liveChatId: '{}'", channelId, params.liveChatId)
         val response = try {
-            youTube.LiveChatMessages()
-                    .list(params.liveChatId, "id, snippet, authorDetails") //не кидает исключение если невалидный id
-                    .setPageToken(params.nextPageToken)
-                    .execute()
+            ytApiClient.getLiveChatMessages(params.liveChatId, params.nextPageToken)
         } catch (e: Exception) {
             log.warn("Failed to get liveChatMessages", e)
 
@@ -180,6 +202,7 @@ class YtChatClient(
                 }
 
         // Handle message deletions
+        // Code is not tested because youtube doesn't send delete message events
         response.items.asSequence()
                 .filter { it.snippet.type == "messageDeletedEvent" }
                 .map { ytMessage -> history.find { it.ytId == ytMessage.snippet.messageDeletedDetails.deletedMessageId } }

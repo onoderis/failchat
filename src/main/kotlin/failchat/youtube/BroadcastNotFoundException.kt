@@ -1,5 +1,5 @@
 package failchat.youtube
 
-class BroadcastNotFoundException(channelId: String) : Exception(
-        "Youtube broadcast not found. resource: 'search', channel id: '$channelId'"
+class BroadcastNotFoundException(resourse: String, channelId: String) : Exception(
+        "Youtube broadcast not found. resource: '$resourse', channel id: '$channelId'"
 )
