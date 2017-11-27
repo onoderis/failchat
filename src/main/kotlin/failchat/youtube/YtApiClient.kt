@@ -1,6 +1,9 @@
 package failchat.youtube
 
+import com.google.api.client.json.GenericJson
 import com.google.api.services.youtube.YouTube
+import com.google.api.services.youtube.YouTubeRequest
+import com.google.api.services.youtube.model.LiveChatMessageListResponse
 import failchat.util.debug
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -16,23 +19,35 @@ class YtApiClient(private val youTube: YouTube) {
         val request = youTube.channels()
                 .list("snippet")
                 .setId(channelId)
-        log.debug { "Sending request: $request" }
+                .also { it.log() }
 
         val response = request.execute()
-        log.debug { "Got response: $response" }
+                .also { it.log() }
 
         return response.items.firstOrNull()?.snippet?.title
+    }
+
+    fun getChannelId(liveBroadcastId: String): String? {
+        val request = youTube.videos()
+                .list("snippet")
+                .setId(liveBroadcastId)
+                .also { it.log() }
+
+        val response = request.execute()
+                .also { it.log() }
+
+        return response.items.firstOrNull()?.snippet?.channelId
     }
 
     /**
      * @return null if live broadcast not found.
      * */
-    fun findLiveBroadcast(channelId: String): String? = findBroadcast(channelId, "live")
+    fun findFirstLiveBroadcast(channelId: String): String? = findBroadcast(channelId, "live")
 
     /**
      * @return null if upcoming broadcast not found.
      * */
-    fun findUpcomingBroadcast(channelId: String): String? = findBroadcast(channelId, "upcoming")
+    fun findFirstUpcomingBroadcast(channelId: String): String? = findBroadcast(channelId, "upcoming")
 
     /**
      * @return null if live chat not found.
@@ -41,11 +56,10 @@ class YtApiClient(private val youTube: YouTube) {
         val request = youTube.videos()
                 .list("liveStreamingDetails")
                 .setId(liveBroadcastId)
-        log.debug { "Sending request: $request" }
+                .also { it.log() }
 
         val response = request.execute()
-        log.debug { "Got response: $response" }
-
+                .also { it.log() }
 
         // items is empty if liveBroadcastId not found
         // activeLiveChatId отсутствует если стрим закончен (или не начат?)
@@ -57,12 +71,21 @@ class YtApiClient(private val youTube: YouTube) {
         val request = youTube.videos()
                 .list("liveStreamingDetails")
                 .setId(videoId)
-        log.debug { "Sending request: $request" }
+                .also { it.log() }
 
         val response = request.execute()
-        log.debug { "Got response: $response" }
+                .also { it.log() }
 
         return response.items.firstOrNull()?.liveStreamingDetails?.concurrentViewers?.intValueExact()
+    }
+
+    fun getLiveChatMessages(liveChatId: String, nextPageToken: String? = null): LiveChatMessageListResponse {
+        val request = youTube.LiveChatMessages()
+                .list(liveChatId, "id, snippet, authorDetails") //не кидает исключение если невалидный id
+                .setPageToken(nextPageToken)
+
+        return request.execute()
+                .also { it.log() }
     }
 
     /**
@@ -74,12 +97,15 @@ class YtApiClient(private val youTube: YouTube) {
                 .setType("video")
                 .setEventType(eventType)
                 .setChannelId(channelId)
-        log.debug { "Sending request: $request" }
+                .also { it.log() }
 
         val response = request.execute()
-        log.debug { "Got response: $response" }
+                .also { it.log() }
 
         return response.items.firstOrNull()?.id?.videoId
     }
+
+    private fun YouTubeRequest<*>.log() = log.debug { "Sending request: $this" }
+    private fun GenericJson.log() = log.debug { "Got response: $this" }
 
 }

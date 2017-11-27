@@ -7,6 +7,7 @@ import com.github.salomonbrys.kodein.factory
 import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.singleton
 import com.google.api.services.youtube.YouTube
+import either.Either
 import failchat.chat.ChatMessageRemover
 import failchat.chat.ChatMessageSender
 import failchat.chat.MessageIdGenerator
@@ -40,6 +41,8 @@ import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
 import failchat.ws.server.TtnWsServer
 import failchat.ws.server.WsServer
+import failchat.youtube.ChannelId
+import failchat.youtube.VideoId
 import failchat.youtube.YouTubeFactory
 import failchat.youtube.YtApiClient
 import failchat.youtube.YtChatClient
@@ -51,6 +54,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.atomic.AtomicInteger
 
+@Suppress("RemoveExplicitTypeArguments")
 val kodein = Kodein {
 
     // Websocket server
@@ -236,10 +240,9 @@ val kodein = Kodein {
     bind<ScheduledExecutorService>("youtube") with singleton {
         Executors.newSingleThreadScheduledExecutor { Thread(it, "YoutubeExecutor") }
     }
-    bind<YtChatClient>() with factory { channelId: String ->
+    bind<YtChatClient>() with factory { channelIdOrVideoId: Either<ChannelId, VideoId> ->
         YtChatClient(
-                channelId,
-                instance<YouTube>(),
+                channelIdOrVideoId,
                 instance<YtApiClient>(),
                 instance<ScheduledExecutorService>("youtube"),
                 instance<MessageIdGenerator>()

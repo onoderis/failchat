@@ -3,6 +3,7 @@ package failchat
 import com.github.salomonbrys.kodein.Kodein
 import com.github.salomonbrys.kodein.factory
 import com.github.salomonbrys.kodein.instance
+import either.Either
 import failchat.AppState.CHAT
 import failchat.AppState.SETTINGS
 import failchat.Origin.bttvChannel
@@ -34,6 +35,9 @@ import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
 import failchat.ws.server.WsServer
+import failchat.youtube.ChannelId
+import failchat.youtube.VideoId
+import failchat.youtube.YoutubeUtils
 import failchat.youtube.YtChatClient
 import javafx.application.Platform
 import okhttp3.OkHttpClient
@@ -143,9 +147,10 @@ class AppStateManager(private val kodein: Kodein) {
 
 
         // Youtube
-        checkEnabled(youtube)?.let { channelId ->
-            val chatClient = kodein.factory<String, YtChatClient>()
-                    .invoke(channelId)
+        checkEnabled(youtube)?.let { channelIdOrVideoId ->
+            val eitherId = YoutubeUtils.determineId(channelIdOrVideoId)
+            val chatClient = kodein.factory<Either<ChannelId, VideoId>, YtChatClient>()
+                    .invoke(eitherId)
                     .also { it.setCallbacks() }
 
             chatClientMap.put(youtube, chatClient)
