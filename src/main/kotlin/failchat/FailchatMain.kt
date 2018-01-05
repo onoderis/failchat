@@ -37,11 +37,11 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
-object Main
+object FailchatMain
 
 val wsServerAddress = InetSocketAddress(InetAddress.getLoopbackAddress(), 10880)
 
-private val log: Logger = LoggerFactory.getLogger(Main::class.java)
+private val log: Logger = LoggerFactory.getLogger(FailchatMain::class.java)
 
 fun main(args: Array<String>) {
     checkForAnotherInstance()
