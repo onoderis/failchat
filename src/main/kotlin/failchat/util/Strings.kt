@@ -1,31 +1,20 @@
 package failchat.util
 
-inline fun String.withPrefix(prefix: String): String {
+fun String.withPrefix(prefix: String): String {
     if (this.startsWith(prefix)) return this
     return prefix + this
 }
 
-inline fun String.withSuffix(suffix: String): String {
+fun String.withSuffix(suffix: String): String {
     if (this.endsWith(suffix)) return this
     return this + suffix
 }
 
-inline fun String?.notEmptyOrNull(): String? {
+fun String?.notEmptyOrNull(): String? {
     if (this.isNullOrEmpty()) return null
     return this
 }
 
-fun formatStackTraces(stackTraces: Map<Thread, Array<StackTraceElement>>): String {
-    return stackTraces
-            .map { (thread, stackTraceElements) ->
-                with(thread) {
-                    "Thread[name=$name; id=$id; state=${state.name}; isDaemon=$isDaemon; isInterrupted=$isInterrupted;" +
-                            "priority=$priority; threadGroup=${threadGroup.name}]$ls"
-                } + stackTraceElements.joinToString(separator = '\t' + ls)
-            }
-            .joinToString(separator = ls)
-}
+fun Int.toHexString(): String = java.lang.Integer.toHexString(this)
 
-inline fun Int.toHexString(): String = java.lang.Integer.toHexString(this)
-
-inline fun toCodePoint(high: Char, low: Char): Int = java.lang.Character.toCodePoint(high, low)
+fun toCodePoint(high: Char, low: Char): Int = java.lang.Character.toCodePoint(high, low)
