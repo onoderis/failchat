@@ -55,7 +55,7 @@ class AppStateManager(private val kodein: Kodein) {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(AppStateManager::class.java)
-        val shutdownTimeout: Duration = Duration.ofSeconds(20)
+        val shutdownTimeout: Duration = Duration.ofSeconds(3).plusMillis(500)
     }
 
     private val wsServer: WsServer = kodein.instance()
@@ -219,7 +219,7 @@ class AppStateManager(private val kodein: Kodein) {
             sleep(shutdownTimeout)
 
             log.error {
-                "Process terminated after ${shutdownTimeout.seconds} seconds of shutDown() call. Verbose information:$ls" +
+                "Process terminated after ${shutdownTimeout.toMillis()} ms of shutDown() call. Verbose information:$ls" +
                         formatStackTraces(Thread.getAllStackTraces())
             }
             System.exit(5)
