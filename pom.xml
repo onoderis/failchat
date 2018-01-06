@@ -11,7 +11,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <kotlin.version>1.1.61</kotlin.version>
+        <kotlin.version>1.2.10</kotlin.version>
 
         <kodein.version>4.0.0</kodein.version>
         <jackson.version>2.5.2</jackson.version>
@@ -192,7 +192,8 @@
                 <version>${kotlin.version}</version>
                 <configuration>
                     <myIncremental>true</myIncremental>
-                    <languageVersion>1.1</languageVersion>
+                    <languageVersion>1.2</languageVersion>
+                    <apiVersion>1.2</apiVersion>
                     <jvmTarget>1.8</jvmTarget>
                     <experimentalCoroutines>enable</experimentalCoroutines>
                 </configuration>
