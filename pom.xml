@@ -356,7 +356,7 @@
                     <outputDirectory>${basedir}/target</outputDirectory>
                     <archive>
                         <manifest>
-                            <mainClass>failchat.core.MainKt</mainClass>
+                            <mainClass>failchat.FailchatMainKt</mainClass>
                             <addClasspath>true</addClasspath>
                         </manifest>
                     </archive>
@@ -386,7 +386,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
-                            <mainClass>failchat.core.MainKt</mainClass>
+                            <mainClass>failchat.FailchatMainKt</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
