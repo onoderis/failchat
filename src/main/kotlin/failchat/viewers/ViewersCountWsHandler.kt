@@ -29,13 +29,13 @@ class ViewersCountWsHandler(
         // viewersCounter is null
         // Send message with null values for enabled origins
         val enabledOrigins = countableOrigins.filter {
-            config.getBoolean("${it.name}.enabled")
+            config.getBoolean("${it.commonName}.enabled")
         }
 
         val messageNode = objectMapper.createObjectNode().apply {
             put("type", "viewers-count")
             putObject("content").apply {
-                enabledOrigins.forEach { putNull(it.name) }
+                enabledOrigins.forEach { putNull(it.commonName) }
             }
         }
 

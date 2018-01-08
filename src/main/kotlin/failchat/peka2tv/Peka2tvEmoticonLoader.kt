@@ -1,6 +1,6 @@
 package failchat.peka2tv
 
-import failchat.Origin.peka2tv
+import failchat.Origin.PEKA2TV
 import failchat.emoticon.EmoticonLoader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -14,7 +14,7 @@ class Peka2tvEmoticonLoader(
         val log: Logger = LoggerFactory.getLogger(Peka2tvEmoticonLoader::class.java)
     }
 
-    override val origin = peka2tv
+    override val origin = PEKA2TV
 
     override fun loadEmoticons(): CompletableFuture<List<Peka2tvEmoticon>> {
         // https://github.com/peka2tv/api/blob/master/smile.md#Смайлы

@@ -46,7 +46,7 @@ class TwitchApiClient(
         return request("/streams/$userId")
                 .thenApply {
                     val streamNode = it.get("stream")
-                    if (streamNode.isNull) throw ChannelOfflineException(Origin.twitch, userId.toString())
+                    if (streamNode.isNull) throw ChannelOfflineException(Origin.TWITCH, userId.toString())
                     return@thenApply streamNode.get("viewers").asInt()
                 }
     }

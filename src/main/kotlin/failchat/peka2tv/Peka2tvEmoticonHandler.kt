@@ -41,14 +41,14 @@ class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messa
 
     private fun findByMultiOriginCode(code: String): Emoticon? {
         return when {
-            code.startsWith("tw-") -> emoticonFinder.findByCode(Origin.twitch, code.substring(3))
+            code.startsWith("tw-") -> emoticonFinder.findByCode(Origin.TWITCH, code.substring(3))
             code.startsWith("gg-") -> {
-                val emoticon = emoticonFinder.findByCode(Origin.goodgame, code.substring(3))
+                val emoticon = emoticonFinder.findByCode(Origin.GOODGAME, code.substring(3))
                         ?.let { it as GgEmoticon }
                 val animatedEmoticon = emoticon?.animatedInstance
                 animatedEmoticon ?: emoticon
             }
-            else -> emoticonFinder.findByCode(Origin.peka2tv, code)
+            else -> emoticonFinder.findByCode(Origin.PEKA2TV, code)
         }
     }
 

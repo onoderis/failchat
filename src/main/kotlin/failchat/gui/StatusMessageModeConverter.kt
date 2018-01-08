@@ -18,7 +18,7 @@ class StatusMessageModeConverter : StringConverter<StatusMessageMode>() {
     override fun toString(mode: StatusMessageMode): String {
         return modeToTitleList
                 .find { it.first == mode }?.second
-                ?: throw IllegalArgumentException("Unmapped StatusMessageMode: ${mode.name}")
+                ?: throw IllegalArgumentException("Unmapped StatusMessageMode: $mode")
     }
 
     override fun fromString(modTitle: String): StatusMessageMode {

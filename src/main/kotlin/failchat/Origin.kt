@@ -1,18 +1,14 @@
 package failchat
 
 /**
- * Первоисточник сообщений / emoticon'ов. Название сериализуется при отправке сообщений клиентам.
+ * Первоисточник сообщений / emoticon'ов.
  */
-enum class Origin {
-    //todo use upper case for names
-    peka2tv,
-    goodgame,
-    twitch,
-    //todo refactor?
-    bttvGlobal,
-    bttvChannel,
-    youtube,
-    cybergame,
-    failchat,
-    test;
+enum class Origin(val commonName: String) {
+    PEKA2TV("peka2tv"),
+    GOODGAME("goodgame"),
+    TWITCH("twitch"),
+    BTTV_GLOBAL("bttvGlobal"), //todo refactor?
+    BTTV_CHANNEL("bttvChannel"),
+    YOUTUBE("youtube"),
+    FAILCHAT("failchat")
 }

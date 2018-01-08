@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture
 
 class BttvGlobalEmoticonLoader(private val bttvApiClient: BttvApiClient) : EmoticonLoader<Emoticon> {
 
-    override val origin get() = Origin.bttvGlobal
+    override val origin get() = Origin.BTTV_GLOBAL
 
     override fun loadEmoticons(): CompletableFuture<List<Emoticon>> {
         return bttvApiClient.loadGlobalEmoticons()

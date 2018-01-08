@@ -4,7 +4,7 @@ import com.google.api.services.youtube.model.LiveChatMessage
 import either.Either
 import either.fold
 import failchat.Origin
-import failchat.Origin.youtube
+import failchat.Origin.YOUTUBE
 import failchat.chat.Author
 import failchat.chat.ChatClient
 import failchat.chat.ChatClientStatus
@@ -51,7 +51,7 @@ class YtChatClient(
         val reconnectInterval: Duration = Duration.ofSeconds(5)
     }
 
-    override val origin = Origin.youtube
+    override val origin = Origin.YOUTUBE
     override val status: ChatClientStatus get() = atomicStatus.get()
 
     override var onChatMessage: ((YtMessage) -> Unit)? = null
@@ -90,10 +90,10 @@ class YtChatClient(
         return CompletableFuture.supplyAsync<Int>(Supplier {
             //todo change exceptions
             val lbId = liveBroadcastId.value
-                    ?: throw ChannelOfflineException(Origin.youtube, channelIdOrBroadcastId.any())
+                    ?: throw ChannelOfflineException(Origin.YOUTUBE, channelIdOrBroadcastId.any())
 
             return@Supplier ytApiClient.getViewersCount(lbId)
-                    ?: throw ChannelOfflineException(Origin.youtube, channelIdOrBroadcastId.any())
+                    ?: throw ChannelOfflineException(Origin.YOUTUBE, channelIdOrBroadcastId.any())
         }, youtubeExecutor)
     }
 
@@ -166,7 +166,7 @@ class YtChatClient(
 
             // Change status to disconnected / send status message
             val statusChanged = atomicStatus.compareAndSet(ChatClientStatus.CONNECTED, CONNECTING)
-            if (statusChanged) onStatusMessage?.invoke(StatusMessage(youtube, DISCONNECTED))
+            if (statusChanged) onStatusMessage?.invoke(StatusMessage(YOUTUBE, DISCONNECTED))
             return
         }
 
@@ -179,7 +179,7 @@ class YtChatClient(
 
         // Send "connected" status message
         val statusChanged = atomicStatus.compareAndSet(CONNECTING, ChatClientStatus.CONNECTED)
-        if (statusChanged) onStatusMessage?.invoke(StatusMessage(youtube, CONNECTED))
+        if (statusChanged) onStatusMessage?.invoke(StatusMessage(YOUTUBE, CONNECTED))
 
         // Skip messages from first request
         if (params.isFirstRequest) {

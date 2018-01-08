@@ -133,7 +133,7 @@ private fun scheduleReportTasks(executor: ScheduledExecutorService) {
     val reporter = kodein.instance<EventReporter>()
 
     val exceptionHandler = { e: Throwable ->
-        log.warn("Failed to report event {}.{}", EventCategory.GENERAL.name, EventAction.APP_LAUNCH.name, e)
+        log.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.APP_LAUNCH, e)
     }
     executor.execute {
         reporter

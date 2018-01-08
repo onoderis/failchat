@@ -1,7 +1,7 @@
 package failchat.peka2tv
 
 import failchat.Origin
-import failchat.Origin.peka2tv
+import failchat.Origin.PEKA2TV
 import failchat.chat.ChatClient
 import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.CONNECTING
@@ -45,7 +45,7 @@ class Peka2tvChatClient(
     }
 
     override val status: ChatClientStatus get() = atomicStatus.get()
-    override val origin = peka2tv
+    override val origin = PEKA2TV
 
     override var onChatMessage: ((Peka2tvMessage) -> Unit)? = null
     override var onStatusMessage: ((StatusMessage) -> Unit)? = null
@@ -129,9 +129,9 @@ class Peka2tvChatClient(
                         put("channel", "stream/$channelId")
                     }
                     socket.emit("/chat/join", arrayOf(message)) {
-                        log.info("Connected to ${Origin.peka2tv}")
+                        log.info("Connected to ${Origin.PEKA2TV}")
                         atomicStatus.set(ChatClientStatus.CONNECTED)
-                        onStatusMessage?.invoke(StatusMessage(peka2tv, CONNECTED))
+                        onStatusMessage?.invoke(StatusMessage(PEKA2TV, CONNECTED))
                     }
                 }
 
@@ -139,7 +139,7 @@ class Peka2tvChatClient(
                 .on(Socket.EVENT_DISCONNECT) {
                     atomicStatus.set(CONNECTING)
                     log.info("Received disconnected event from peka2tv ")
-                    onStatusMessage?.invoke(StatusMessage(peka2tv, DISCONNECTED))
+                    onStatusMessage?.invoke(StatusMessage(PEKA2TV, DISCONNECTED))
                 }
 
                 // Message

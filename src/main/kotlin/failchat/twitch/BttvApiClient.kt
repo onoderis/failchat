@@ -32,7 +32,7 @@ class BttvApiClient(
                     if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
                     val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
                     val bodyString = responseBody.string()
-                    return@thenApplySafe parseEmoticons(bodyString, Origin.bttvGlobal)
+                    return@thenApplySafe parseEmoticons(bodyString, Origin.BTTV_GLOBAL)
                 }
     }
 
@@ -53,7 +53,7 @@ class BttvApiClient(
                     if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
                     val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
                     val bodyString = responseBody.string()
-                    return@thenApplySafe parseEmoticons(bodyString, Origin.bttvChannel)
+                    return@thenApplySafe parseEmoticons(bodyString, Origin.BTTV_CHANNEL)
                 }
     }
 

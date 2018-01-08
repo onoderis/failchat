@@ -9,7 +9,7 @@ class GgViewersCountLoader(
         private val apiClient: GgApiClient
 ) : ViewersCountLoader {
 
-    override val origin = Origin.goodgame
+    override val origin = Origin.GOODGAME
 
     override fun loadViewersCount(): CompletableFuture<Int> {
         return apiClient.requestViewersCount(channelName)

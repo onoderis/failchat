@@ -10,4 +10,4 @@ class GgMessage(
         author: String,
         text: String,
         val authorHasPremium: Boolean
-) : ChatMessage(id, Origin.goodgame, Author(author), text)
+) : ChatMessage(id, Origin.GOODGAME, Author(author), text)

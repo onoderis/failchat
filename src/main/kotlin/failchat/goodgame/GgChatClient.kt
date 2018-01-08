@@ -3,7 +3,7 @@ package failchat.goodgame
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.Origin
-import failchat.Origin.goodgame
+import failchat.Origin.GOODGAME
 import failchat.chat.ChatClient
 import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.OFFLINE
@@ -42,7 +42,7 @@ class GgChatClient(
         val log: Logger = LoggerFactory.getLogger(TwitchChatClient::class.java)
     }
 
-    override val origin = Origin.goodgame
+    override val origin = Origin.GOODGAME
     override val status: ChatClientStatus get() = atomicStatus.get()
 
     override var onChatMessage: ((GgMessage) -> Unit)? = null
@@ -117,7 +117,7 @@ class GgChatClient(
             log.info("Goodgame chat client connected to channel {}", channelId)
 
             wsClient.send(joinMessage.toString())
-            onStatusMessage?.invoke(StatusMessage(goodgame, CONNECTED))
+            onStatusMessage?.invoke(StatusMessage(GOODGAME, CONNECTED))
         }
 
         override fun onClose(code: Int, reason: String, remote: Boolean) {
@@ -143,7 +143,7 @@ class GgChatClient(
 
         override fun onReconnect() {
             log.info("Goodgame chat client disconnected, trying to reconnect")
-            onStatusMessage?.invoke(StatusMessage(goodgame, DISCONNECTED))
+            onStatusMessage?.invoke(StatusMessage(GOODGAME, DISCONNECTED))
         }
 
         private fun handleUserMessage(dataNode: JsonNode) {

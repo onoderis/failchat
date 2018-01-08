@@ -45,7 +45,7 @@ class ViewersCounter(
 
     fun start() {
         val changed = state.compareAndSet(READY, WORKING)
-        if (!changed) throw IllegalStateException("Expected state: ${READY.name}, actual: ${state.get().name}." +
+        if (!changed) throw IllegalStateException("Expected state: $READY, actual: ${state.get()}." +
                 "(Actual state could change after unsuccessful CAS operation)")
 
         thread(start = true, name = "ViewersCounterThread") {
@@ -84,13 +84,13 @@ class ViewersCounter(
             } catch (e: CompletionException) {
                 val cause = e.cause
                 if (cause is ChannelOfflineException) {
-                    log.info("Couldn't update viewers count, channel {}#{} is offline", cause.channel, cause.origin.name)
+                    log.info("Couldn't update viewers count, channel {}#{} is offline", cause.channel, cause.origin)
                 } else {
                     log.warn("Failed to get viewers count for origin {}", accessor.origin, e)
                 }
                 null
             } catch (e: Exception) {
-                log.warn("Unexpected exception during loading viewers count. origin: '{}'", accessor.origin.name, e)
+                log.warn("Unexpected exception during loading viewers count. origin: '{}'", accessor.origin, e)
                 null
             }
 
@@ -108,8 +108,8 @@ class ViewersCounter(
 
         originsToInclude.forEach { origin ->
             viewersCount.get(origin)
-                    ?.let { contentNode.put(origin.name, it) }
-                    ?: contentNode.putNull(origin.name)
+                    ?.let { contentNode.put(origin.commonName, it) }
+                    ?: contentNode.putNull(origin.commonName)
         }
 
         return messageNode

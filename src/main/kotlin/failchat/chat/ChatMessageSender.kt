@@ -45,7 +45,7 @@ class ChatMessageSender(
             put("type", "message")
             with("content").apply {
                 put("id", message.id)
-                put("origin", message.origin.name)
+                put("origin", message.origin.commonName)
                 putObject("author").apply {
                     put("name", message.author.name)
                     put("id", message.author.id)
@@ -64,10 +64,10 @@ class ChatMessageSender(
             when (element) {
                 is Emoticon -> elementsArray.addObject()
                         .put("type", "emoticon") //todo enum
-                        .put("origin", element.origin.name)
+                        .put("origin", element.origin.commonName)
                         .put("code", element.code)
                         .put("url", element.url)
-                        .put("format", element.format.name)
+                        .put("format", element.format.jsonValue)
 
                 is Link -> elementsArray.addObject()
                         .put("type", "link")
@@ -89,16 +89,17 @@ class ChatMessageSender(
     }
 
     fun send(message: StatusMessage) {
+        //todo optimize
         val mode = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
         if (mode == NOWHERE) return
 
         val messageNode = objectMapper.createObjectNode().apply {
             put("type", "origin-status")
             putObject("content").apply {
-                put("origin", message.origin.name)
-                put("status", message.status.lowerCaseString)
+                put("origin", message.origin.commonName)
+                put("status", message.status.jsonValue)
                 put("timestamp", message.timestamp.toEpochMilli())
-                put("mode", mode.lowerCaseString) //todo don't send mode here
+                put("mode", mode.jsonValue) //todo don't send mode here
             }
         }
 

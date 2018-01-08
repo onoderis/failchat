@@ -58,7 +58,7 @@ class GgApiClient(
         return requestChannelStatus(channelName)
                 .thenApply {
                     val statusNode = it.first()
-                    if (statusNode.get("status").asText() != "Live") throw ChannelOfflineException(Origin.goodgame, channelName)
+                    if (statusNode.get("status").asText() != "Live") throw ChannelOfflineException(Origin.GOODGAME, channelName)
                     return@thenApply statusNode.get("viewers").asText().toInt()
                 }
     }

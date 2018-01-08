@@ -39,7 +39,7 @@ class EventReporter(
 
     fun reportEvent(category: EventCategory, action: EventAction): CompletableFuture<Unit> {
         if (!enabled) {
-            log.debug("Reporter disabled, event {}.{} ignored", category.name, action.name)
+            log.debug("Reporter disabled, event {}.{} ignored", category, action)
             return completedFuture(Unit)
         }
 
@@ -52,8 +52,8 @@ class EventReporter(
                 .addQueryParameter("tid", trackingId) //Tracking ID
                 .addQueryParameter("cid", clientId) //Client ID
                 .addQueryParameter("t", "event") //Hit Type
-                .addQueryParameter("ec", category.name) //Event Category
-                .addQueryParameter("ea", action.name) //Event Action
+                .addQueryParameter("ec", category.queryParamValue) //Event Category
+                .addQueryParameter("ea", action.queryParamValue) //Event Action
                 .addQueryParameter("ul", languageTag) //User Language
                 .addQueryParameter("an", "failchat") //Application Name
                 .addQueryParameter("av", failchatVersion) //Application Version
@@ -72,7 +72,7 @@ class EventReporter(
                 .thenApplySafe { response ->
                     val code = response.code()
                     if (code !in 200..299) throw UnexpectedResponseCodeException(code)
-                    log.info("Event successfully reported: {}.{}", category.name, action.name)
+                    log.info("Event successfully reported: {}.{}", category, action)
                 }
     }
 
