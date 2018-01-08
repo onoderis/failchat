@@ -139,14 +139,14 @@ class YtChatClient(
             this.liveBroadcastId.value = liveBroadcastId
             this.channelId.value = channelId
             this.liveChatId.value = liveChatId
+
+            youtubeExecutor.execute { getMessagesRecursiveTask(YtRequestParameters(liveChatId, null, true)) }
         } catch (e: Exception) {
             log.warn("Failed to find stream. Retry in {} ms. channelId/broadcastId: '{}'", searchInterval.toMillis(),
-                    channelIdOrBroadcastId.fold({ it }, { it }), e)
+                    channelIdOrBroadcastId.any(), e)
             youtubeExecutor.scheduleWithCatch(searchInterval) { getLiveChatIdRecursiveTask() }
             return
         }
-
-        youtubeExecutor.execute { getMessagesRecursiveTask(YtRequestParameters(liveChatId.value!!, null, true)) }
     }
 
     private fun getMessagesRecursiveTask(params: YtRequestParameters) {
