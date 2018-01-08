@@ -1,5 +1,5 @@
 package failchat.reporter
 
-enum class EventCategory {
-    GENERAL
+enum class EventCategory(val queryParamValue: String) {
+    GENERAL("General")
 }

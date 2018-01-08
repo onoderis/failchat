@@ -1,6 +1,6 @@
 package failchat.reporter
 
-enum class EventAction {
-    APP_LAUNCH,
-    HEARTBEAT
+enum class EventAction(val queryParamValue: String) {
+    APP_LAUNCH("AppLaunch"),
+    HEARTBEAT("Heartbeat")
 }

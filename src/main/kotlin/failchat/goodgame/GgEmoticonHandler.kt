@@ -17,7 +17,7 @@ class GgEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHan
         var position = 0 // чтобы не начинать искать сначала, если :something: найдено, но это не смайл
         while (matcher.find(position)) {
             val code = matcher.group().toLowerCase()
-            var smile = emoticonFinder.findByCode(Origin.goodgame, code) as? GgEmoticon
+            var smile = emoticonFinder.findByCode(Origin.GOODGAME, code) as? GgEmoticon
             if (smile != null) {
                 if (message.authorHasPremium && smile.animatedInstance != null) {
                     smile = smile.animatedInstance!!

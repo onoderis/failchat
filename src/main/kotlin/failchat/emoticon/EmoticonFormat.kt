@@ -1,6 +1,6 @@
 package failchat.emoticon
 
-enum class EmoticonFormat {
-    RASTER,
-    VECTOR
+enum class EmoticonFormat(val jsonValue: String) {
+    RASTER("raster"),
+    VECTOR("vector")
 }

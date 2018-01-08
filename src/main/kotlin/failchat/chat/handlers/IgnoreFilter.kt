@@ -27,7 +27,7 @@ class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessag
 
     init {
         val originsPattern = Origin.values()
-                .map { it.name }
+                .map { it.commonName }
                 .joinToString(separator = "|", prefix = "(", postfix = ")")
 
         banFormat = Pattern.compile(".+#" + originsPattern)
@@ -36,7 +36,7 @@ class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessag
     }
 
     override fun filterMessage(message: ChatMessage): Boolean {
-        val ignoreMessage = atomicIgnoreSet.value.contains(message.author.id + "#" + message.origin.name)
+        val ignoreMessage = atomicIgnoreSet.value.contains(message.author.id + "#" + message.origin.commonName)
         if (ignoreMessage) log.debug { "Message filtered by ignore filter: $message" }
         return ignoreMessage
     }

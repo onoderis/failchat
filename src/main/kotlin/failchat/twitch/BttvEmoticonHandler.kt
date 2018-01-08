@@ -19,16 +19,16 @@ class BttvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageH
 
     override fun handleMessage(message: TwitchMessage) {
         //todo optimize
-        if (globalEmoticonsPattern == null && emoticonFinder.getList(Origin.bttvGlobal).isNotEmpty()) {
-            globalEmoticonsPattern = compileEmoticonPattern(emoticonFinder.getList(Origin.bttvGlobal))
+        if (globalEmoticonsPattern == null && emoticonFinder.getList(Origin.BTTV_GLOBAL).isNotEmpty()) {
+            globalEmoticonsPattern = compileEmoticonPattern(emoticonFinder.getList(Origin.BTTV_GLOBAL))
         }
 
-        if (channelEmoticonsPattern == null && emoticonFinder.getList(Origin.bttvChannel).isNotEmpty()) {
-            channelEmoticonsPattern = compileEmoticonPattern(emoticonFinder.getList(Origin.bttvChannel))
+        if (channelEmoticonsPattern == null && emoticonFinder.getList(Origin.BTTV_CHANNEL).isNotEmpty()) {
+            channelEmoticonsPattern = compileEmoticonPattern(emoticonFinder.getList(Origin.BTTV_CHANNEL))
         }
 
-        handleEmoticons(message, globalEmoticonsPattern, Origin.bttvGlobal)
-        handleEmoticons(message, channelEmoticonsPattern, Origin.bttvChannel)
+        handleEmoticons(message, globalEmoticonsPattern, Origin.BTTV_GLOBAL)
+        handleEmoticons(message, channelEmoticonsPattern, Origin.BTTV_CHANNEL)
     }
 
     fun resetChannelPattern() {
@@ -42,7 +42,7 @@ class BttvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageH
             val emoticon = emoticonFinder.findByCode(origin, code.toLowerCase())
             if (emoticon == null) {
                 log.warn("Emoticon code '{}' found in message, but emoticon is not. Message: '{}', emoticon origin: '{}'",
-                        code, message.text, origin.name)
+                        code, message.text, origin)
                 return
             }
 

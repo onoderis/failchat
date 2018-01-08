@@ -1,6 +1,6 @@
 package failchat.youtube
 
-import failchat.Origin.youtube
+import failchat.Origin.YOUTUBE
 import failchat.chat.Author
 import failchat.chat.ChatMessage
 
@@ -10,4 +10,4 @@ class YtMessage(
         author: Author,
         text: String
 
-) : ChatMessage(id, youtube, author, text)
+) : ChatMessage(id, YOUTUBE, author, text)

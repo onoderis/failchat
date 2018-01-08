@@ -18,7 +18,7 @@ class TwitchViewersCountLoader(
 
     private val lazyUserId: AtomicReference<Long?> = AtomicReference(null)
 
-    override val origin = Origin.twitch
+    override val origin = Origin.TWITCH
 
     override fun loadViewersCount(): CompletableFuture<Int> {
         val userIdFuture: CompletableFuture<Long> = lazyUserId.get()

@@ -12,7 +12,7 @@ class TwitchEmoticonLoader(private val twitchClient: TwitchApiClient) : Emoticon
         val log: Logger = LoggerFactory.getLogger(TwitchEmoticonLoader::class.java)
     }
 
-    override val origin = Origin.twitch
+    override val origin = Origin.TWITCH
 
     override fun loadEmoticons(): CompletableFuture<List<TwitchEmoticon>> {
         return twitchClient.requestEmoticons()

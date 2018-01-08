@@ -9,4 +9,4 @@ class TwitchMessage(
         author: String,
         text: String,
         val emotesTag: String?
-) : ChatMessage(id, Origin.twitch, Author(author), text)
+) : ChatMessage(id, Origin.TWITCH, Author(author), text)

@@ -1,9 +1,7 @@
 package failchat.chat
 
-enum class StatusMessageMode {
-    EVERYWHERE,
-    NATIVE_CLIENT,
-    NOWHERE;
-
-    val lowerCaseString: String = this.toString().toLowerCase()
+enum class StatusMessageMode(val jsonValue: String) {
+    EVERYWHERE("everywhere"),
+    NATIVE_CLIENT("native_client"),
+    NOWHERE("nowhere");
 }

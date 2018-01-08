@@ -1,10 +1,10 @@
 package failchat.viewers
 
 import failchat.Origin
-import failchat.Origin.goodgame
-import failchat.Origin.peka2tv
-import failchat.Origin.twitch
-import failchat.Origin.youtube
+import failchat.Origin.GOODGAME
+import failchat.Origin.PEKA2TV
+import failchat.Origin.TWITCH
+import failchat.Origin.YOUTUBE
 import java.util.EnumSet
 
-val countableOrigins: Set<Origin> = EnumSet.of(peka2tv, goodgame, twitch, youtube)
+val countableOrigins: Set<Origin> = EnumSet.of(PEKA2TV, GOODGAME, TWITCH, YOUTUBE)

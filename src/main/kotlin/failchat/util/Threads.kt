@@ -4,7 +4,7 @@ fun formatStackTraces(stackTraces: Map<Thread, Array<StackTraceElement>>): Strin
     return stackTraces
             .map { (thread, stackTraceElements) ->
                 with(thread) {
-                    "Thread[name=$name; id=$id; state=${state.name}; isDaemon=$isDaemon; isInterrupted=$isInterrupted;" +
+                    "Thread[name=$name; id=$id; state=$state; isDaemon=$isDaemon; isInterrupted=$isInterrupted;" +
                             "priority=$priority; threadGroup=${threadGroup.name}]$ls"
                 } +
                         if (stackTraceElements.isEmpty()) ""

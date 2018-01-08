@@ -38,7 +38,7 @@ class TwitchEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messag
                     val (idString, positionsString) = emoteWithPositions.split(":", limit = 2)
                     val id = idString.toLong()
 
-                    val emoticon = emoticonFinder.findById(Origin.twitch, id)
+                    val emoticon = emoticonFinder.findById(Origin.TWITCH, id)
                             as? TwitchEmoticon
                             ?: return@flatMap emptyList<RangingEmoticon>()
 

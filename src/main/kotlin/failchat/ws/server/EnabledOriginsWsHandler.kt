@@ -14,7 +14,7 @@ class EnabledOriginsWsHandler(
             put("type", "enabled-origins")
             putObject("content").apply {
                 countableOrigins.forEach { origin ->
-                    put(origin.name, config.getBoolean("${origin.name}.enabled"))
+                    put(origin.commonName, config.getBoolean("${origin.commonName}.enabled"))
                 }
             }
         }

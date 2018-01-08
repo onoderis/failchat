@@ -1,7 +1,7 @@
 package failchat.twitch
 
 import failchat.Origin
-import failchat.Origin.twitch
+import failchat.Origin.TWITCH
 import failchat.chat.ChatClient
 import failchat.chat.ChatClientStatus
 import failchat.chat.MessageHandler
@@ -49,7 +49,7 @@ class TwitchChatClient(
         val banMessagePattern: Pattern = Pattern.compile("""^:tmi\.twitch\.tv CLEARCHAT #.+ :(.+)""")
     }
 
-    override val origin = Origin.twitch
+    override val origin = Origin.TWITCH
     override val status: ChatClientStatus get() = atomicStatus.get()
 
     override var onChatMessage: ((TwitchMessage) -> Unit)? = null
@@ -90,7 +90,7 @@ class TwitchChatClient(
 
     override fun start() {
         val statusChanged = atomicStatus.compareAndSet(ChatClientStatus.READY, ChatClientStatus.CONNECTED)
-        if (!statusChanged) throw IllegalStateException("Expected status: ${ChatClientStatus.READY.name}")
+        if (!statusChanged) throw IllegalStateException("Expected status: ${ChatClientStatus.READY}")
 
         thread(start = true, name = "TwitchIrcClientThread") {
             try {
@@ -113,7 +113,7 @@ class TwitchChatClient(
             atomicStatus.set(ChatClientStatus.CONNECTED)
             twitchIrcClient.sendCAP().request("twitch.tv/tags")
             twitchIrcClient.sendCAP().request("twitch.tv/commands")
-            onStatusMessage?.invoke(StatusMessage(twitch, CONNECTED))
+            onStatusMessage?.invoke(StatusMessage(TWITCH, CONNECTED))
         }
 
         override fun onDisconnect(event: DisconnectEvent) {
@@ -123,7 +123,7 @@ class TwitchChatClient(
                 else -> {
                     atomicStatus.set(ChatClientStatus.CONNECTING)
                     log.info("Twitch irc client disconnected")
-                    onStatusMessage?.invoke(StatusMessage(twitch, DISCONNECTED))
+                    onStatusMessage?.invoke(StatusMessage(TWITCH, DISCONNECTED))
                 }
             }
         }

@@ -6,11 +6,11 @@ import com.github.salomonbrys.kodein.instance
 import either.Either
 import failchat.AppState.CHAT
 import failchat.AppState.SETTINGS
-import failchat.Origin.bttvChannel
-import failchat.Origin.goodgame
-import failchat.Origin.peka2tv
-import failchat.Origin.twitch
-import failchat.Origin.youtube
+import failchat.Origin.BTTV_CHANNEL
+import failchat.Origin.GOODGAME
+import failchat.Origin.PEKA2TV
+import failchat.Origin.TWITCH
+import failchat.Origin.YOUTUBE
 import failchat.chat.ChatClient
 import failchat.chat.ChatMessageRemover
 import failchat.chat.ChatMessageSender
@@ -89,7 +89,7 @@ class AppStateManager(private val kodein: Kodein) {
         val chatClientMap: MutableMap<Origin, ChatClient<*>> = HashMap() //todo rename
 
         // Peka2tv chat client initialization
-        checkEnabled(peka2tv)?.let { channelName ->
+        checkEnabled(PEKA2TV)?.let { channelName ->
             // get channel id by channel name
             val channelId = try {
                 peka2tvApiClient.findUser(channelName).join().id
@@ -102,23 +102,23 @@ class AppStateManager(private val kodein: Kodein) {
                     .invoke(channelName to channelId)
                     .also { it.setCallbacks() }
 
-            chatClientMap.put(peka2tv, chatClient)
+            chatClientMap.put(PEKA2TV, chatClient)
             viewersCountLoaders.add(chatClient)
         }
 
         // Twitch
-        checkEnabled(twitch)?.let { channelName ->
+        checkEnabled(TWITCH)?.let { channelName ->
             val chatClient = kodein.factory<String, TwitchChatClient>()
                     .invoke(channelName)
                     .also { it.setCallbacks() }
-            chatClientMap.put(twitch, chatClient)
+            chatClientMap.put(TWITCH, chatClient)
             viewersCountLoaders.add(kodein.factory<String, TwitchViewersCountLoader>().invoke(channelName))
 
             // load BTTV channel emoticons in background
             bttvApiClient.loadChannelEmoticons(channelName)
                     .thenApply<Unit> { emoticons ->
-                        emoticonStorage.putCodeMapping(bttvChannel, emoticons.map { it.code.toLowerCase() to it }.toMap())
-                        emoticonStorage.putList(bttvChannel, emoticons)
+                        emoticonStorage.putCodeMapping(BTTV_CHANNEL, emoticons.map { it.code.toLowerCase() to it }.toMap())
+                        emoticonStorage.putList(BTTV_CHANNEL, emoticons)
                         log.info("BTTV emoticons loaded for channel '{}', count: {}", channelName, emoticons.size)
                     }
                     .exceptionally { e ->
@@ -128,7 +128,7 @@ class AppStateManager(private val kodein: Kodein) {
 
 
         // Goodgame
-        checkEnabled(goodgame)?.let { channelName ->
+        checkEnabled(GOODGAME)?.let { channelName ->
             // get channel id by channel name
             val channelId = try {
                 goodgameApiClient.requestChannelId(channelName).join()
@@ -141,19 +141,19 @@ class AppStateManager(private val kodein: Kodein) {
                     .invoke(channelName to channelId)
                     .also { it.setCallbacks() }
 
-            chatClientMap.put(goodgame, chatClient)
+            chatClientMap.put(GOODGAME, chatClient)
             viewersCountLoaders.add(chatClient)
         }
 
 
         // Youtube
-        checkEnabled(youtube)?.let { channelIdOrVideoId ->
+        checkEnabled(YOUTUBE)?.let { channelIdOrVideoId ->
             val eitherId = YoutubeUtils.determineId(channelIdOrVideoId)
             val chatClient = kodein.factory<Either<ChannelId, VideoId>, YtChatClient>()
                     .invoke(eitherId)
                     .also { it.setCallbacks() }
 
-            chatClientMap.put(youtube, chatClient)
+            chatClientMap.put(YOUTUBE, chatClient)
             viewersCountLoaders.add(chatClient)
         }
 
@@ -238,9 +238,9 @@ class AppStateManager(private val kodein: Kodein) {
         viewersCountWsHandler.viewersCounter.set(null)
 
         // reset BTTV channel emoticons
-        emoticonStorage.putList(bttvChannel, emptyList())
-        emoticonStorage.putCodeMapping(bttvChannel, emptyMap())
-        emoticonStorage.putIdMapping(bttvChannel, emptyMap())
+        emoticonStorage.putList(BTTV_CHANNEL, emptyList())
+        emoticonStorage.putCodeMapping(BTTV_CHANNEL, emptyMap())
+        emoticonStorage.putIdMapping(BTTV_CHANNEL, emptyMap())
         bttvEmoticonHandler.resetChannelPattern()
 
         // stop chat clients
@@ -261,9 +261,9 @@ class AppStateManager(private val kodein: Kodein) {
      * @return channel name if chat client should be started, null otherwise.
      * */
     private fun checkEnabled(origin: Origin): String? {
-        if (!config.getBoolean("${origin.name}.enabled")) return null
+        if (!config.getBoolean("${origin.commonName}.enabled")) return null
 
-        val channel = config.getString("${origin.name}.channel")
+        val channel = config.getString("${origin.commonName}.channel")
                 ?: throw InvalidConfigurationException("Channel is null. Origin: $origin")
         if (channel.isEmpty()) return null
 
