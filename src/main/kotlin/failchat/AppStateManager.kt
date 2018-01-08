@@ -55,7 +55,7 @@ class AppStateManager(private val kodein: Kodein) {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(AppStateManager::class.java)
-        val shutdownTimeout: Duration = Duration.ofSeconds(3).plusMillis(500)
+        val shutdownTimeout: Duration = Duration.ofMillis(3500)
     }
 
     private val wsServer: WsServer = kodein.instance()
