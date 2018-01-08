@@ -17,8 +17,8 @@ object YouTubeFactory {
     private val random = Random()
 
     fun create(config: Configuration): YouTube {
-        val serviceAccountNumber = random.nextInt(10)
-        val resource = "/config/failchat-service-account-$serviceAccountNumber.json"
+        val serviceAccountNumber = random.nextInt(9) + 1
+        val resource = "/config/youtube/failchat-service-account-$serviceAccountNumber.json"
         log.info("Creating youtube credentials from resource '{}'", resource)
 
         val credential = GoogleCredential
