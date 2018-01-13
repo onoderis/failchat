@@ -21,11 +21,6 @@ class GAEventReporter(
         val log: Logger = LoggerFactory.getLogger(GAEventReporter::class.java)
     }
 
-//    private val enabled = config.getBoolean("reporter.enabled")
-
-    // parameters
-//    private val failchatVersion = config.getString("version")
-//    private val trackingId = config.getString("reporter.tracking-id")
     private val languageTag = Locale.getDefault().toLanguageTag()
 
     // User-Agent header
