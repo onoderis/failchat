@@ -1,5 +1,6 @@
 package failchat.twitch
 
+import com.google.common.collect.EvictingQueue
 import failchat.Origin
 import failchat.Origin.TWITCH
 import failchat.chat.ChatClient
@@ -12,8 +13,8 @@ import failchat.chat.StatusMessage
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.emoticon.EmoticonFinder
-import failchat.util.ConcurrentEvictingQueue
 import failchat.util.notEmptyOrNull
+import failchat.util.synchronized
 import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
 import org.pircbotx.hooks.ListenerAdapter
@@ -27,7 +28,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.charset.Charset
 import java.time.Duration
-import java.util.Queue
 import java.util.concurrent.atomic.AtomicReference
 import java.util.regex.Pattern
 import kotlin.concurrent.thread
@@ -67,7 +67,7 @@ class TwitchChatClient(
             BraceEscaper(),
             TwitchHighlightHandler(userName)
     )
-    private val history: Queue<TwitchMessage> = ConcurrentEvictingQueue(50)
+    private val history = EvictingQueue.create<TwitchMessage>(50).synchronized()
 
 
     init {

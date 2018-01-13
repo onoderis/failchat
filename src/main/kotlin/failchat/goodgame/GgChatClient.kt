@@ -2,6 +2,7 @@ package failchat.goodgame
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.common.collect.EvictingQueue
 import failchat.Origin
 import failchat.Origin.GOODGAME
 import failchat.chat.ChatClient
@@ -16,7 +17,7 @@ import failchat.chat.handlers.CommonHighlightHandler
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.emoticon.EmoticonFinder
 import failchat.twitch.TwitchChatClient
-import failchat.util.ConcurrentEvictingQueue
+import failchat.util.synchronized
 import failchat.util.whileNotNull
 import failchat.viewers.ViewersCountLoader
 import failchat.ws.client.WsClient
@@ -60,7 +61,7 @@ class GgChatClient(
             CommonHighlightHandler(channelName)
     )
 
-    private val history: Queue<GgMessage> = ConcurrentEvictingQueue(50)
+    private val history = EvictingQueue.create<GgMessage>(50).synchronized()
     private val viewersCountFutures: Queue<CompletableFuture<Int>> = ConcurrentLinkedQueue()
 
 
