@@ -1,3 +1,3 @@
 package failchat.twitch
 
-class BttvChannelNotFoundException : Exception()
+class BttvChannelNotFoundException(val channel: String) : Exception()

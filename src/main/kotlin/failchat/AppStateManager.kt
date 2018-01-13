@@ -127,7 +127,7 @@ class AppStateManager(private val kodein: Kodein) {
                     .exceptionally { t ->
                         val completionCause = t.completionCause()
                         if (completionCause is BttvChannelNotFoundException) {
-                            log.info("BTTV emoticons not found for channel '{}'", channelName)
+                            log.info("BTTV emoticons not found for channel '{}'", completionCause.channel)
                         } else {
                             log.error("Failed to load BTTV emoticons for channel '{}'", channelName, completionCause)
                         }

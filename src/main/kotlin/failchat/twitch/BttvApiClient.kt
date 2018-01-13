@@ -52,7 +52,7 @@ class BttvApiClient(
                 .thenApplySafe {
                     when (it.code()) {
                         200 -> {}
-                        404 -> throw BttvChannelNotFoundException()
+                        404 -> throw BttvChannelNotFoundException(channel)
                         else -> throw UnexpectedResponseCodeException(it.code())
                     }
                     val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
