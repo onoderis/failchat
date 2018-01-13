@@ -24,11 +24,14 @@ import failchat.goodgame.GgChatClient
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvChatClient
 import failchat.twitch.BttvApiClient
+import failchat.twitch.BttvChannelNotFoundException
 import failchat.twitch.BttvEmoticonHandler
 import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchViewersCountLoader
+import failchat.util.completionCause
 import failchat.util.error
 import failchat.util.formatStackTraces
+import failchat.util.logException
 import failchat.util.ls
 import failchat.util.sleep
 import failchat.viewers.ViewersCountLoader
@@ -121,9 +124,15 @@ class AppStateManager(private val kodein: Kodein) {
                         emoticonStorage.putList(BTTV_CHANNEL, emoticons)
                         log.info("BTTV emoticons loaded for channel '{}', count: {}", channelName, emoticons.size)
                     }
-                    .exceptionally { e ->
-                        log.warn("Failed to load BTTV emoticons for channel '{}'", channelName, e)
+                    .exceptionally { t ->
+                        val completionCause = t.completionCause()
+                        if (completionCause is BttvChannelNotFoundException) {
+                            log.info("BTTV emoticons not found for channel '{}'", channelName)
+                        } else {
+                            log.error("Failed to load BTTV emoticons for channel '{}'", channelName, completionCause)
+                        }
                     }
+                    .logException()
         }
 
 
