@@ -25,6 +25,9 @@ import failchat.ws.server.EnabledOriginsWsHandler
 import failchat.ws.server.IgnoreWsMessageHandler
 import failchat.ws.server.WsServer
 import javafx.application.Application
+import kotlinx.coroutines.experimental.Unconfined
+import kotlinx.coroutines.experimental.asCoroutineDispatcher
+import kotlinx.coroutines.experimental.launch
 import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -131,19 +134,23 @@ private fun loadEmoticonsAsync(executor: ExecutorService) = executor.submit {
  * */
 private fun scheduleReportTasks(executor: ScheduledExecutorService) {
     val reporter = kodein.instance<EventReporter>()
+    val dispatcher = executor.asCoroutineDispatcher()
 
-    val exceptionHandler = { e: Throwable ->
-        log.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.APP_LAUNCH, e)
+    launch(dispatcher) {
+        try {
+            reporter.report(EventCategory.GENERAL, EventAction.APP_LAUNCH)
+        } catch (t: Throwable) {
+            log.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.APP_LAUNCH, t)
+        }
     }
-    executor.execute {
-        reporter
-                .reportEvent(EventCategory.GENERAL, EventAction.APP_LAUNCH)
-                .exceptionally(exceptionHandler)
-    }
-    //todo don't start task if reporter disabled
+
     executor.scheduleAtFixedRate({
-        reporter
-                .reportEvent(EventCategory.GENERAL, EventAction.HEARTBEAT)
-                .exceptionally(exceptionHandler)
+        launch(Unconfined) {
+            try {
+                reporter.report(EventCategory.GENERAL, EventAction.HEARTBEAT)
+            } catch (t: Throwable) {
+                log.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.HEARTBEAT, t)
+            }
+        }
     }, 5, 5, TimeUnit.MINUTES)
 }
