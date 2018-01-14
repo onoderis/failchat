@@ -1,6 +1,5 @@
 package failchat
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.salomonbrys.kodein.instance
 import failchat.chat.ChatMessageRemover
 import failchat.chat.handlers.IgnoreFilter
@@ -60,12 +59,11 @@ fun main(args: Array<String>) {
 
     // Websocket server
     val wsServer: WsServer = kodein.instance()
-    val objectMapper: ObjectMapper = kodein.instance()
     val config: Configuration = kodein.instance()
     wsServer.apply {
-        setOnMessage("enabled-origins", EnabledOriginsWsHandler(config, objectMapper))
+        setOnMessage("enabled-origins", EnabledOriginsWsHandler(config))
         setOnMessage("viewers-count", kodein.instance<ViewersCountWsHandler>())
-        setOnMessage("show-viewers-count", ShowViewersCountWsHandler(config, objectMapper))
+        setOnMessage("show-viewers-count", ShowViewersCountWsHandler(config))
         setOnMessage("delete-message", DeleteWsMessageHandler(kodein.instance<ChatMessageRemover>()))
         setOnMessage("ignore-author", IgnoreWsMessageHandler(kodein.instance<IgnoreFilter>(), config))
     }

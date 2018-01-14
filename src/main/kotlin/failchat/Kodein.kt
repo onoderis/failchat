@@ -62,7 +62,7 @@ val kodein = Kodein {
     // Websocket server
     bind<WsServer>() with singleton { TtnWsServer(wsServerAddress, instance<ObjectMapper>()) }
     bind<ViewersCountWsHandler>() with singleton {
-        ViewersCountWsHandler(instance<Configuration>(), instance<ObjectMapper>())
+        ViewersCountWsHandler(instance<Configuration>())
     }
 
     // Core dependencies
@@ -74,25 +74,22 @@ val kodein = Kodein {
                 instance<WsServer>(),
                 instance<Configuration>(),
                 instance<IgnoreFilter>(),
-                instance<ImageLinkHandler>(),
-                instance<ObjectMapper>()
+                instance<ImageLinkHandler>()
         )
     }
     bind<ChatMessageRemover>() with singleton {
-        ChatMessageRemover(instance<WsServer>(), instance<ObjectMapper>())
+        ChatMessageRemover(instance<WsServer>())
     }
     bind<ViewersCounter>() with factory { vcLoaders: List<ViewersCountLoader> ->
         ViewersCounter(
                 vcLoaders,
-                instance<WsServer>(),
-                instance<ObjectMapper>()
+                instance<WsServer>()
         )
     }
     bind<GuiEventHandler>() with singleton {
         GuiEventHandler(
                 instance<WsServer>(),
-                instance<AppStateManager>(),
-                instance<ObjectMapper>()
+                instance<AppStateManager>()
         )
     }
 

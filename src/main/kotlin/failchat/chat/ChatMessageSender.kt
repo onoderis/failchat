@@ -1,7 +1,7 @@
 package failchat.chat
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.chat.StatusMessageMode.NOWHERE
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
@@ -17,14 +17,14 @@ class ChatMessageSender(
         private val wsServer: WsServer,
         private val config: Configuration,
         ignoreFilter: IgnoreFilter,
-        imageLinkHandler: ImageLinkHandler,
-        private val objectMapper: ObjectMapper = ObjectMapper()
+        imageLinkHandler: ImageLinkHandler
 ) {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(ChatMessageSender::class.java)
     }
 
+    private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
     private val handlers: List<MessageHandler<ChatMessage>> = listOf(
             LinkHandler(),
             imageLinkHandler
@@ -41,7 +41,7 @@ class ChatMessageSender(
         handlers.forEach { it.handleMessage(message) }
 
 
-        val messageNode = objectMapper.createObjectNode().apply {
+        val messageNode = nodeFactory.objectNode().apply {
             put("type", "message")
             with("content").apply {
                 put("id", message.id)
@@ -93,7 +93,7 @@ class ChatMessageSender(
         val mode = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
         if (mode == NOWHERE) return
 
-        val messageNode = objectMapper.createObjectNode().apply {
+        val messageNode = nodeFactory.objectNode().apply {
             put("type", "origin-status")
             putObject("content").apply {
                 put("origin", message.origin.commonName)
