@@ -83,8 +83,8 @@ fun main(args: Array<String>) {
     // Load emoticons in background thread
     loadEmoticonsAsync(backgroundExecutor)
 
-
-    log.info("Application started. Working directory: {}", kodein.instance<Path>("workingDirectory").toAbsolutePath())
+    log.info("Application started. Version: {}. Working directory: {}", config.getString("version"),
+            kodein.instance<Path>("workingDirectory").toAbsolutePath())
 }
 
 private fun checkForAnotherInstance() {
