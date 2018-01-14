@@ -1,7 +1,7 @@
 package failchat.viewers
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.Origin
 import failchat.exception.ChannelOfflineException
 import failchat.util.await
@@ -27,14 +27,14 @@ import kotlin.concurrent.withLock
  * */
 class ViewersCounter(
         private val viewersCountLoaders: List<ViewersCountLoader>,
-        private val wsServer: WsServer,
-        private val objectMapper: ObjectMapper = ObjectMapper()
+        private val wsServer: WsServer
 ) {
     private companion object {
         val log: Logger = LoggerFactory.getLogger(ViewersCounter::class.java)
         val updateInterval: Duration = Duration.ofSeconds(15)
     }
 
+    private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
     private val lock: Lock = ReentrantLock()
     private val shutdownCondition: Condition = lock.newCondition()
     private val enabledOrigins: List<Origin> = viewersCountLoaders.map { it.origin }
@@ -101,7 +101,7 @@ class ViewersCounter(
 
 
     private fun formViewersWsMessage(originsToInclude: List<Origin>): JsonNode {
-        val messageNode = objectMapper.createObjectNode()
+        val messageNode = nodeFactory.objectNode()
                 .put("type", "viewers-count")
 
         val contentNode = messageNode.putObject("content")

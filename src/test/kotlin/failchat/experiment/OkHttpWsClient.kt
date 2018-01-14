@@ -1,6 +1,6 @@
 package failchat.experiment
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.util.sleep
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -34,7 +34,7 @@ class OkHttpWsClient {
         override fun onOpen(webSocket: WebSocket, response: Response) {
             println("onOpen")
 
-            val joinMessage = ObjectMapper().createObjectNode().apply {
+            val joinMessage = JsonNodeFactory.instance.objectNode().apply {
                 put("type", "join")
                 putObject("data").apply {
                     put("channel_id", 20296)

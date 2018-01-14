@@ -1,6 +1,6 @@
 package failchat.gui
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.AppStateManager
 import failchat.ws.server.WsServer
 import org.slf4j.Logger
@@ -13,10 +13,11 @@ import java.util.concurrent.Executors
  * */
 class GuiEventHandler(
         private val wsServer: WsServer,
-        private val appStateManager: AppStateManager,
-        private val objectMapper: ObjectMapper = ObjectMapper()
+        private val appStateManager: AppStateManager
 ) {
 
+    private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
+    
     private companion object {
         val log: Logger = LoggerFactory.getLogger(GuiEventHandler::class.java)
     }
@@ -44,7 +45,7 @@ class GuiEventHandler(
 
     fun notifyViewersCountToggled(show: Boolean) {
         executor.submit {
-            val messageNode = objectMapper.createObjectNode().apply {
+            val messageNode = nodeFactory.objectNode().apply {
                 put("type", "show-viewers-count")
                 putObject("content").apply {
                     put("show", show)

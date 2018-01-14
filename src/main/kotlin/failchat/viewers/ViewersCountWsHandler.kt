@@ -1,6 +1,6 @@
 package failchat.viewers
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.ws.server.InboundWsMessage
 import failchat.ws.server.WsMessageHandler
 import org.apache.commons.configuration2.Configuration
@@ -10,8 +10,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 
 class ViewersCountWsHandler(
-        private val config: Configuration,
-        private val objectMapper: ObjectMapper = ObjectMapper()
+        private val config: Configuration
 ) : WsMessageHandler {
 
     private companion object {
@@ -19,7 +18,10 @@ class ViewersCountWsHandler(
     }
 
     val viewersCounter: AtomicReference<ViewersCounter?> = AtomicReference(null)
+    
+    private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
 
+    
     override fun invoke(message: InboundWsMessage) {
         viewersCounter.get()?.let {
             it.sendViewersCountWsMessage()
@@ -32,7 +34,7 @@ class ViewersCountWsHandler(
             config.getBoolean("${it.commonName}.enabled")
         }
 
-        val messageNode = objectMapper.createObjectNode().apply {
+        val messageNode = nodeFactory.objectNode().apply {
             put("type", "viewers-count")
             putObject("content").apply {
                 enabledOrigins.forEach { putNull(it.commonName) }
