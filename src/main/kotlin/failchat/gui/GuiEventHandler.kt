@@ -1,8 +1,7 @@
 package failchat.gui
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.AppStateManager
-import failchat.ws.server.WsServer
+import failchat.chat.ChatMessageSender
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
@@ -12,12 +11,10 @@ import java.util.concurrent.Executors
  * графического интерфейса.
  * */
 class GuiEventHandler(
-        private val wsServer: WsServer,
-        private val appStateManager: AppStateManager
+        private val appStateManager: AppStateManager,
+        private val messageSender: ChatMessageSender
 ) {
 
-    private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
-    
     private companion object {
         val log: Logger = LoggerFactory.getLogger(GuiEventHandler::class.java)
     }
@@ -43,16 +40,9 @@ class GuiEventHandler(
         executor.shutdown()
     }
 
-    fun notifyViewersCountToggled(show: Boolean) {
+    fun notifyViewersCountToggled() {
         executor.submit {
-            val messageNode = nodeFactory.objectNode().apply {
-                put("type", "show-viewers-count")
-                putObject("content").apply {
-                    put("show", show)
-                }
-            }
-
-            wsServer.send(messageNode.toString())
+            messageSender.sendClientConfiguration()
         }
     }
 

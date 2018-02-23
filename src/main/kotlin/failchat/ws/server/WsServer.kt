@@ -7,7 +7,9 @@ interface WsServer {
 
     fun send(message: String)
 
+    /** Set message handler. */
     fun setOnMessage(type: String, consumer: WsMessageHandler)
+
     /**
      * Remove message handler.
      * @return previous callback for this type or null.

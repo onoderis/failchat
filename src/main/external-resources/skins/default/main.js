@@ -1,10 +1,10 @@
 "use strict";
 
 var failchat = {
-    "maxMessages": 50,
-    "messageCount": 0,
-    "origins": ["peka2tv", "twitch", "goodgame", "youtube"],
-    "deletedTextPlaceholder": "message deleted"
+    maxMessages: 50,
+    messageCount: 0,
+    origins: ["peka2tv", "twitch", "goodgame", "youtube"],
+    deletedTextPlaceholder: "message deleted"
 };
 
 $(function () {
@@ -15,8 +15,9 @@ $(function () {
     var scroller = $(failchat.baronParams.scroller);
     var scrollBar = $(failchat.baronParams.bar);
     var autoScroll = true;
-    var nativeClient = (navigator.userAgent.search("failchat") >= 0);
-    // var nativeClient = true; //todo think about debugging
+    // var nativeClient = (navigator.userAgent.search("failchat") >= 0);
+    var nativeClient = true; //todo think about debugging
+    var showStatusMessages = true;
 
     //templates
     var smileTemplate = $("#smile-template");
@@ -30,23 +31,22 @@ $(function () {
     var viewersBar = $(".viewers-bar");
     var originViewersBarTemplate = $("#origin-viewers-bar-template");
     var viewersCountItems = {};
-    for (var i = 0; i < failchat.origins.length; i++) {
-        var origin = failchat.origins[i];
+
+    failchat.origins.forEach(function (origin) {
         var viewersBarHtml = originViewersBarTemplate.render({"origin": origin});
         $(".viewers-origins").append(viewersBarHtml);
         viewersCountItems[origin] = {
-            "bar": $("#" + origin + "-origin"),
-            "counter": $("#" + origin + "-viewers")
+            bar: $("#" + origin + "-origin"),
+            counter: $("#" + origin + "-viewers")
         };
 
         //set default value
         viewersCountItems[origin].counter.text("?")
-    }
-
+    });
 
     baron(failchat.baronParams);
 
-    //autoscroll
+    // auto scroll
     new ResizeSensor(messageContainer, function() {
         if (autoScroll) {
             scroller.scrollTop(messageContainer.height());
@@ -58,11 +58,9 @@ $(function () {
         var connectedMessage = {"origin": "failchat", "status": "connected", "timestamp": Date.now()};
         handleStatusMessage(connectedMessage);
         appendToMessageContainer(connectedMessage);
-        if (nativeClient) {
-            socket.send(JSON.stringify({"type": "enabled-origins", "content": {}}));
-            socket.send(JSON.stringify({"type": "show-viewers-count", "content": {}}));
-            socket.send(JSON.stringify({"type": "viewers-count", "content": {}}));
-        }
+
+        socket.send(JSON.stringify({"type": "client-configuration", "content": {}}));
+        socket.send(JSON.stringify({"type": "viewers-count", "content": {}}));
     };
 
     socket.onclose = function () {
@@ -86,6 +84,9 @@ $(function () {
             case "delete-message":
                 handleDeleteMessage(content);
                 break;
+            case "client-configuration":
+                handleClientConfigurationMessage(content);
+                break;
         }
 
         if (content.textHtml !== undefined) {
@@ -96,12 +97,6 @@ $(function () {
         if (!nativeClient) return;
 
         switch (type) {
-            case "enabled-origins":
-                handleEnabledOriginsMessage(content);
-                break;
-            case "show-viewers-count":
-                handleShowViewersCountMessage(content);
-                break;
             case "viewers-count":
                 updateViewersValues(content);
                 break;
@@ -141,42 +136,55 @@ $(function () {
         content.textHtml = statusMessageTemplate.render(content);
     }
 
-    function handleEnabledOriginsMessage(content) {
-        for (var origin in content) {
-            if (!content.hasOwnProperty(origin)) continue;
-            if (content[origin] === true) {
-                viewersCountItems[origin].bar.addClass("viewers-origin-on");
-            } else {
-                viewersCountItems[origin].bar.removeClass("viewers-origin-on");
-            }
+    function handleClientConfigurationMessage(content) {
+        var statusMessageMode = content.statusMessageMode;
+        if ((statusMessageMode === "everywhere") ||
+            (nativeClient && statusMessageMode === "native_client")) {
+            showStatusMessages = true;
+        } else {
+            showStatusMessages = false;
         }
-    }
 
-    function handleShowViewersCountMessage(content) {
-        if (content.show === true) {
+
+        if (!nativeClient) return;
+        // handle viewers bar configuration
+
+        if (content.showViewersCount === true) {
             viewersBar.addClass("viewers-bar-on");
         } else {
             viewersBar.removeClass("viewers-bar-on");
         }
+
+        var enabledOrigins = content.enabledOrigins;
+        failchat.origins.forEach(function (origin) {
+            if (!enabledOrigins.hasOwnProperty(origin)) return;
+            if (enabledOrigins[origin] === true) {
+                viewersCountItems[origin].bar.addClass("viewers-origin-on");
+            } else {
+                viewersCountItems[origin].bar.removeClass("viewers-origin-on");
+            }
+        });
     }
 
     function handleDeleteMessage(content) {
         var messageText = $("#message-" + content.messageId + " .text");
         messageText.removeClass("highlighted");
+        //todo add class for deleted message
         messageText.text(failchat.deletedTextPlaceholder);
     }
 
     function updateViewersValues(counters) {
-        for (var origin in counters) {
-            if (!counters.hasOwnProperty(origin)) continue;
+        failchat.origins.forEach(function (origin) {
+            if (!counters.hasOwnProperty(origin)) return;
 
             var count = counters[origin];
+            var counter = viewersCountItems[origin].counter;
             if (count === null) {
-                viewersCountItems[origin].counter.text("?");
-                continue;
+                counter.text("?");
+            } else {
+                counter.text(count);
             }
-            viewersCountItems[origin].counter.text(count);
-        }
+        });
     }
 
     function appendToMessageContainer(message) {

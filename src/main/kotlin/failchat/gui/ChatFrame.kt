@@ -180,7 +180,7 @@ class ChatFrame(
         viewersItem.setOnAction { event ->
             val newValue = !config.getBoolean("show-viewers")
             config.setProperty("show-viewers", newValue)
-            guiEventHandler.notifyViewersCountToggled(newValue)
+            guiEventHandler.notifyViewersCountToggled()
         }
 
         return contextMenu

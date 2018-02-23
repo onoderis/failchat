@@ -8,6 +8,7 @@ import failchat.chat.handlers.ImageLinkHandler
 import failchat.chat.handlers.LinkHandler
 import failchat.emoticon.Emoticon
 import failchat.gui.StatusMessageModeConverter
+import failchat.viewers.COUNTABLE_ORIGINS
 import failchat.ws.server.WsServer
 import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
@@ -99,7 +100,26 @@ class ChatMessageSender(
                 put("origin", message.origin.commonName)
                 put("status", message.status.jsonValue)
                 put("timestamp", message.timestamp.toEpochMilli())
-                put("mode", mode.jsonValue) //todo don't send mode here
+            }
+        }
+
+        wsServer.send(messageNode.toString())
+    }
+
+    /** Send client configuration to all clients. */
+    fun sendClientConfiguration() {
+        val mode = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
+
+        val messageNode = nodeFactory.objectNode().apply {
+            put("type", "client-configuration")
+            putObject("content").apply {
+                put("statusMessageMode", mode.jsonValue)
+                put("showViewersCount", config.getBoolean("show-viewers"))
+                putObject("enabledOrigins").apply {
+                    COUNTABLE_ORIGINS.forEach { origin ->
+                        put(origin.commonName, config.getBoolean("${origin.commonName}.enabled"))
+                    }
+                }
             }
         }
 

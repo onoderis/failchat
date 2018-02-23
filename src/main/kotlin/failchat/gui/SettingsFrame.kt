@@ -169,14 +169,4 @@ class SettingsFrame(
         config.setProperty("ignore", ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
     }
 
-    private fun TextField.configureChannelField(editable: Boolean) {
-        if (editable) {
-            this.style = ""
-            this.isEditable = true
-        } else {
-            this.style = "-fx-background-color: lightgrey"
-            this.isEditable = false
-        }
-    }
-
 }

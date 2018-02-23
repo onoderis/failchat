@@ -22,7 +22,7 @@ class ViewersCountWsHandler(
     private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
 
     
-    override fun invoke(message: InboundWsMessage) {
+    override fun handle(message: InboundWsMessage) {
         viewersCounter.get()?.let {
             it.sendViewersCountWsMessage()
             return
@@ -30,7 +30,7 @@ class ViewersCountWsHandler(
 
         // viewersCounter is null
         // Send message with null values for enabled origins
-        val enabledOrigins = countableOrigins.filter {
+        val enabledOrigins = COUNTABLE_ORIGINS.filter {
             config.getBoolean("${it.commonName}.enabled")
         }
 
