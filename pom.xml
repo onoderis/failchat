@@ -237,8 +237,8 @@
                         <configuration>
                             <resources>
                                 <resource>
-                                    <directory>${basedir}/src/main/resources/config</directory>
-                                    <targetPath>${basedir}/target/classes/config</targetPath>
+                                    <directory>${basedir}/src/main/resources</directory>
+                                    <targetPath>${basedir}/target/classes</targetPath>
                                     <filtering>true</filtering>
                                 </resource>
                                 <resource>
