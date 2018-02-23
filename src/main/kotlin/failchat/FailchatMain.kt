@@ -2,6 +2,7 @@ package failchat
 
 import com.github.salomonbrys.kodein.instance
 import failchat.chat.ChatMessageRemover
+import failchat.chat.ChatMessageSender
 import failchat.chat.handlers.IgnoreFilter
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonLoader
@@ -17,10 +18,9 @@ import failchat.reporter.EventReporter
 import failchat.reporter.UserIdLoader
 import failchat.twitch.BttvGlobalEmoticonLoader
 import failchat.twitch.TwitchEmoticonLoader
-import failchat.viewers.ShowViewersCountWsHandler
 import failchat.viewers.ViewersCountWsHandler
+import failchat.ws.server.ClientConfigurationWsHandler
 import failchat.ws.server.DeleteWsMessageHandler
-import failchat.ws.server.EnabledOriginsWsHandler
 import failchat.ws.server.IgnoreWsMessageHandler
 import failchat.ws.server.WsServer
 import javafx.application.Application
@@ -61,9 +61,8 @@ fun main(args: Array<String>) {
     val wsServer: WsServer = kodein.instance()
     val config: Configuration = kodein.instance()
     wsServer.apply {
-        setOnMessage("enabled-origins", EnabledOriginsWsHandler(config))
+        setOnMessage("client-configuration", ClientConfigurationWsHandler(kodein.instance<ChatMessageSender>()))
         setOnMessage("viewers-count", kodein.instance<ViewersCountWsHandler>())
-        setOnMessage("show-viewers-count", ShowViewersCountWsHandler(config))
         setOnMessage("delete-message", DeleteWsMessageHandler(kodein.instance<ChatMessageRemover>()))
         setOnMessage("ignore-author", IgnoreWsMessageHandler(kodein.instance<IgnoreFilter>(), config))
     }

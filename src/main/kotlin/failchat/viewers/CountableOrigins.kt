@@ -7,4 +7,4 @@ import failchat.Origin.TWITCH
 import failchat.Origin.YOUTUBE
 import java.util.EnumSet
 
-val countableOrigins: Set<Origin> = EnumSet.of(PEKA2TV, GOODGAME, TWITCH, YOUTUBE)
+val COUNTABLE_ORIGINS: Set<Origin> = EnumSet.of(PEKA2TV, GOODGAME, TWITCH, YOUTUBE)

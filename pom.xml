@@ -11,8 +11,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <kotlin.version>1.2.10</kotlin.version>
-        <coroutines-lib.version>0.21</coroutines-lib.version>
+        <kotlin.version>1.2.21</kotlin.version>
+        <kotlinx-coroutines.version>0.21</kotlinx-coroutines.version>
 
         <kodein.version>4.0.0</kodein.version>
         <jackson.version>2.5.2</jackson.version>
@@ -27,6 +27,7 @@
         <logback.version>1.2.3</logback.version>
         <pircbotx.version>2.1</pircbotx.version>
         <youtube.version>v3-rev183-1.22.0</youtube.version>
+        <kotlin-either.version>2.0.1</kotlin-either.version>
     </properties>
 
 
@@ -45,13 +46,13 @@
     <dependencies>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jre8</artifactId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-jdk8</artifactId>
-            <version>${coroutines-lib.version}</version>
+            <version>${kotlinx-coroutines.version}</version>
         </dependency>
 
         <dependency>
@@ -68,7 +69,7 @@
         <dependency>
             <groupId>com.github.adelnizamutdinov</groupId>
             <artifactId>kotlin-either</artifactId>
-            <version>2.0.1</version>
+            <version>${kotlin-either.version}</version>
         </dependency>
 
         <dependency>
@@ -197,7 +198,7 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <version>${kotlin.version}</version>
                 <configuration>
-                    <myIncremental>true</myIncremental>
+                    <!--<myIncremental>true</myIncremental> // because of bug: copy-resources only on second run. KT-21581 -->
                     <languageVersion>1.2</languageVersion>
                     <apiVersion>1.2</apiVersion>
                     <jvmTarget>1.8</jvmTarget>
@@ -223,6 +224,10 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.0.2</version>
                 <executions>
+                    <execution>
+                        <id>default-resources</id>
+                        <phase>none</phase>
+                    </execution>
                     <execution>
                         <id>copy-resources-on-compile</id>
                         <phase>process-resources</phase>
@@ -256,12 +261,14 @@
                             <outputDirectory>${basedir}/target/failchat</outputDirectory>
                             <resources>
                                 <resource>
+                                    <!-- external-resources directory (w/o failchat.bat) -->
                                     <directory>${basedir}/src/main/external-resources</directory>
                                     <excludes>
                                         <exclude>failchat.bat</exclude>
                                     </excludes>
                                 </resource>
                                 <resource>
+                                    <!-- failchat.bat with filtering -->
                                     <directory>${basedir}/src/main/external-resources</directory>
                                     <filtering>true</filtering>
                                     <includes>

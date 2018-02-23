@@ -88,8 +88,8 @@ val kodein = Kodein {
     }
     bind<GuiEventHandler>() with singleton {
         GuiEventHandler(
-                instance<WsServer>(),
-                instance<AppStateManager>()
+                instance<AppStateManager>(),
+                instance<ChatMessageSender>()
         )
     }
 
