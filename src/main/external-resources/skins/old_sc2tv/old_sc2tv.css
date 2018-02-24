@@ -5,7 +5,7 @@ html, body {
 }
 
 body {
-    background-color: transparent;
+    background-color: black;
     margin: 0;
 }
 
@@ -91,6 +91,11 @@ span {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
     color: #CACACA;
+}
+
+.deleted-message > .text {
+    font-style: italic;
+    color: gray;
 }
 
 span.nick {
