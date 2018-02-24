@@ -48,7 +48,7 @@ body {
 
 .viewers-bar {
     display: none;
-    background-color: black;
+    background-color: transparent;
     height: 36px;
 }
 
