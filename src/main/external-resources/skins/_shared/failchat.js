@@ -13,7 +13,7 @@ $(function () {
     socket.maxReconnectInterval = 5000;
     failchat.socket = socket;
 
-    var bodyStyle = document.body.style;
+    var bodyWrapper = $("#body-wrapper");
     var messageContainer = $("#message-container");
     var scroller = $(failchat.baronParams.scroller);
     var scrollBar = $(failchat.baronParams.bar);
@@ -144,9 +144,9 @@ $(function () {
         }
 
         if (nativeClient) {
-            bodyStyle.backgroundColor = content.nativeClientBgColor
+            bodyWrapper.css("background-color", "rgba(" + hexToRgba(content.nativeClientBgColor.substring(1)) + ")");
         } else {
-            bodyStyle.backgroundColor = content.externalClientBgColor
+            bodyWrapper.css("background-color", "rgba(" + hexToRgba(content.externalClientBgColor.substring(1)) + ")");
         }
 
 
@@ -260,6 +260,16 @@ function deleteMessage(messageNode) {
             }
         }
     ));
+}
+
+function hexToRgba(hex) {
+    var int = parseInt(hex, 16);
+    var r = (int >> 24) & 255;
+    var g = (int >> 16) & 255;
+    var b = (int >> 8) & 255;
+    var a = (int & 255) / 255;
+
+    return r + "," + g + "," + b + "," + a;
 }
 
 $.views.converters("time", function(val) {
