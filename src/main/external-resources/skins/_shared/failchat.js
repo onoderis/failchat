@@ -171,9 +171,11 @@ $(function () {
     }
 
     function handleDeleteMessage(content) {
+        var message = $("#message-" + content.messageId);
+        message.addClass("deleted-message");
+
         var messageText = $("#message-" + content.messageId + " .text");
         messageText.removeClass("highlighted");
-        //todo add class for deleted message
         messageText.text(failchat.deletedTextPlaceholder);
     }
 

@@ -103,6 +103,11 @@ span {
     color: #FFFFFF;
 }
 
+.deleted-message > .text {
+    font-style: italic;
+    color: gray;
+}
+
 span.nick {
     font-weight: bold;
     color: #FFDB5F;
