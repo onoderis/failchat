@@ -3,6 +3,7 @@
 var failchat = {
     maxMessages: 50,
     messageCount: 0,
+    iconsPath: "../_shared/icons/", //could be overrided in skin.html
     origins: ["peka2tv", "twitch", "goodgame", "youtube"],
     deletedTextPlaceholder: "message deleted"
 };
@@ -15,25 +16,16 @@ $(function () {
     var scroller = $(failchat.baronParams.scroller);
     var scrollBar = $(failchat.baronParams.bar);
     var autoScroll = true;
-    // var nativeClient = (navigator.userAgent.search("failchat") >= 0);
-    var nativeClient = true; //todo think about debugging
+    var nativeClient = (navigator.userAgent.search("failchat") >= 0);
+    // var nativeClient = true; //todo think about debugging
     var showStatusMessages = true;
 
-    //templates
-    var smileTemplate = $("#smile-template");
-    var vectorSmileTemplate = $("#vector-smile-template");
-    var linkTemplate = $("#link-template");
-    var imageTemplate = $("#image-template");
-    var messageTemplate = $("#message-template");
-    var statusMessageTemplate = $("#status-message-template");
-
-    //viewers bar
+    // viewers bar
     var viewersBar = $(".viewers-bar");
-    var originViewersBarTemplate = $("#origin-viewers-bar-template");
     var viewersCountItems = {};
 
     failchat.origins.forEach(function (origin) {
-        var viewersBarHtml = originViewersBarTemplate.render({"origin": origin});
+        var viewersBarHtml = templates.originViewersBar.render({origin: origin, iconsPath: failchat.iconsPath});
         $(".viewers-origins").append(viewersBarHtml);
         viewersCountItems[origin] = {
             bar: $("#" + origin + "-origin"),
@@ -44,6 +36,7 @@ $(function () {
         viewersCountItems[origin].counter.text("?")
     });
 
+    // scroll bar
     baron(failchat.baronParams);
 
     // auto scroll
@@ -59,12 +52,12 @@ $(function () {
         handleStatusMessage(connectedMessage);
         appendToMessageContainer(connectedMessage);
 
-        socket.send(JSON.stringify({"type": "client-configuration", "content": {}}));
-        socket.send(JSON.stringify({"type": "viewers-count", "content": {}}));
+        socket.send(JSON.stringify({type: "client-configuration", content: {}}));
+        socket.send(JSON.stringify({type: "viewers-count", content: {}}));
     };
 
     socket.onclose = function () {
-        var disconnectedMessage = {"origin": "failchat", "status": "disconnected", "timestamp": Date.now()};
+        var disconnectedMessage = {origin: "failchat", status: "disconnected", timestamp: Date.now()};
         handleStatusMessage(disconnectedMessage);
         appendToMessageContainer(disconnectedMessage);
     };
@@ -112,28 +105,31 @@ $(function () {
             switch(element.type) {
                 case "emoticon":
                     if (element.format === "vector") {
-                        elementHtml = vectorSmileTemplate.render(element);
+                        elementHtml = templates.vectorSmile.render(element);
                     } else {
-                        elementHtml = smileTemplate.render(element);
+                        elementHtml = templates.rasterSmile.render(element);
                     }
                     break;
                 case "link":
-                    elementHtml = linkTemplate.render(element);
+                    elementHtml = templates.link.render(element);
                     break;
                 case "image":
-                    elementHtml = imageTemplate.render(element);
+                    elementHtml = templates.image.render(element);
                     break;
             }
 
             content.text = content.text.replace("{!" + i + "}", elementHtml);
         }
 
-        content.textHtml = messageTemplate.render(content);
+        content.iconsPath = failchat.iconsPath;
+        content.textHtml = templates.message.render(content);
     }
 
     function handleStatusMessage(content) {
         if (content.mode === "native_client" && !nativeClient) return;
-        content.textHtml = statusMessageTemplate.render(content);
+
+        content.iconsPath = failchat.iconsPath;
+        content.textHtml = templates.statusMessage.render(content);
     }
 
     function handleClientConfigurationMessage(content) {
@@ -236,9 +232,9 @@ function ignore(messageNode) {
     deleteMessage(messageNode);
     failchat.socket.send(JSON.stringify(
         {
-            "type": "ignore-author",
-            "content": {
-                "authorId": messageNode.getAttribute("author-id")
+            type: "ignore-author",
+            content: {
+                authorId: messageNode.getAttribute("author-id")
             }
         }
     ));
@@ -248,9 +244,9 @@ function ignore(messageNode) {
 function deleteMessage(messageNode) {
     failchat.socket.send(JSON.stringify(
         {
-            "type": "delete-message",
-            "content": {
-                "messageId": messageNode.getAttribute("message-id")
+            type: "delete-message",
+            content: {
+                messageId: messageNode.getAttribute("message-id")
             }
         }
     ));
@@ -269,3 +265,37 @@ $.views.converters("time", function(val) {
     }
     return h + ":" + m + ":" +  s;
 });
+
+// noinspection HtmlUnknownAttribute
+var templates = {
+    message: $.templates(
+        '<p class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">\n' +
+        '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png">\n' +
+        '    <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author.name}}: </span>\n' +
+        '    <span class="mod-icons">\n' +
+        '        <span title="delete" onclick="deleteMessage(this.parentNode.parentNode)">&#10060;</span>\n' +
+        '        <span title="ignore" onclick="ignore(this.parentNode.parentNode)">&#128683;</span>\n' +
+        '    </span>\n' +
+        '    <span class="text{{if highlighted}} highlighted{{/if}}">{{:text}}</span>\n' +
+        '</p>'
+    ),
+
+    rasterSmile: $.templates('<img class="smile" src="{{:url}}">'),
+    vectorSmile: $.templates('<img class="smile-vector" src="{{:url}}">'),
+    link: $.templates('<a href="{{:fullUrl}}">{{:domain}}</a>'),
+    image: $.templates('<br><a href="{{:url}}"><img class="image" align="middle" src="{{:url}}"></a><br>'),
+
+    statusMessage: $.templates('' +
+        '<p class="message status-message">\n' +
+        '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png">\n' +
+        '    <span class="status-origin" title="{{time:timestamp}}">{{:origin}} </span>\n' +
+        '    <span class="status-text">{{:status}}</span>\n' +
+        '</p>'
+    ),
+
+    originViewersBar: $.templates('' +
+        '<span id="{{:origin}}-origin" class="viewers-origin">\n' +
+        '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png"> <span id="{{:origin}}-viewers"></span>\n' +
+        '</span>'
+    )
+};
