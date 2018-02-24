@@ -115,6 +115,8 @@ class ChatMessageSender(
             putObject("content").apply {
                 put("statusMessageMode", mode.jsonValue)
                 put("showViewersCount", config.getBoolean("show-viewers"))
+                put("nativeClientBgColor", config.getString("background-color.native"))
+                put("externalClientBgColor", config.getString("background-color.external"))
                 putObject("enabledOrigins").apply {
                     COUNTABLE_ORIGINS.forEach { origin ->
                         put(origin.commonName, config.getBoolean("${origin.commonName}.enabled"))

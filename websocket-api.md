@@ -46,6 +46,8 @@
     "content": {
         "statusMessageMode": "everywhere",
         "showViewersCount": true,
+        "nativeClientBgColor": "0x000000ff",
+        "externalClientBgColor": "0x00000000",
         "enabledOrigins": {
             "peka2tv": false,
             "twitch": true,
