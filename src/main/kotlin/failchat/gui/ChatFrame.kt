@@ -57,7 +57,7 @@ class ChatFrame(
         buildContextMenu(chatScene)
     }
 
-    internal fun show() {
+    fun show() {
         val nativeBgColor = Color.web(config.getString("background-color.native"))
 
         if (config.getBoolean("frame")) {
@@ -76,7 +76,7 @@ class ChatFrame(
         currentChatStage.scene = chatScene
         configureChatStage(currentChatStage)
         updateContextMenu()
-        currentChatStage.show()
+
         val skin = config.getString("skin")
         try {
             webEngine.load(skinsDirectory.resolve(skin).resolve(skin + ".html").toUri().toURL().toString())
@@ -84,7 +84,13 @@ class ChatFrame(
             log.error("Failed to load skin {}", skin, e)
         }
 
+        currentChatStage.show()
+
         guiEventHandler.startChat()
+    }
+
+    fun clearWebContent() {
+        webEngine.loadContent("")
     }
 
     private fun buildChatStage(type: StageType): Stage {
@@ -191,7 +197,7 @@ class ChatFrame(
     private fun toSettings() {
         saveChatPosition(currentChatStage)
         currentChatStage.hide()
-        webEngine.loadContent("")
+        clearWebContent()
         settings.show()
         guiEventHandler.stopChat()
     }

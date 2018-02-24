@@ -38,6 +38,8 @@ class GuiLauncher : Application() {
         settings.show()
         log.info("GUI loaded")
 
+        chat.clearWebContent() // init web engine (fix for flickering)
+
         showUpdateNotificationOnNewRelease()
 
     }
