@@ -20,7 +20,7 @@ $(function () {
     var autoScroll = true;
     var nativeClient = (navigator.userAgent.search("failchat") >= 0);
     // var nativeClient = true; //todo think about debugging
-    var showStatusMessages = true;
+    var showStatusMessages = true; // show if origin-status message received before client-configuration message
 
     // viewers bar
     var viewersBar = $(".viewers-bar");
@@ -128,7 +128,7 @@ $(function () {
     }
 
     function handleStatusMessage(content) {
-        if (content.mode === "native_client" && !nativeClient) return;
+        if (!showStatusMessages) return;
 
         content.iconsPath = failchat.iconsPath;
         content.textHtml = templates.statusMessage.render(content);
