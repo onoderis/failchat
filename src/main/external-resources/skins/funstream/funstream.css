@@ -53,6 +53,7 @@ body {
     background-color: black;
     height: 36px;
     border: 2px solid rgba(16, 21, 28, 1);
+    margin-bottom: 1px;
     background-color: rgba(16, 21, 28, 0.9);
     border-radius: 12px;
 }
@@ -67,7 +68,7 @@ body {
 }
 
 .viewers-bar-on + .chat-wrapper {
-    height: calc(100% - 40px);
+    height: calc(100% - 41px);
 }
 
 .viewers-origins {
