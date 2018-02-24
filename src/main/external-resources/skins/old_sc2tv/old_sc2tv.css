@@ -5,8 +5,14 @@ html, body {
 }
 
 body {
-    background-color: black;
+    background-color: transparent;
     margin: 0;
+}
+
+#body-wrapper {
+    background-color: black;
+    height: 100%;
+    width: 100%;
 }
 
 #message-container {
@@ -93,7 +99,7 @@ span {
     color: #CACACA;
 }
 
-.deleted-message > .text {
+.deleted-message .text {
     font-style: italic;
     color: gray;
 }
