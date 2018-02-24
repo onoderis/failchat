@@ -238,7 +238,7 @@ class ChatFrame(
         stage.height = config.getDouble("chat.height")
         val x = config.getDouble("chat.x")
         val y = config.getDouble("chat.y")
-        if (x != -1.0 && y != -1.0) {
+        if (x != -1.0 && y != -1.0) { // magic numbers
             stage.x = x
             stage.y = y
         }
