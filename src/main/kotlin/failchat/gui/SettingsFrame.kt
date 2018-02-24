@@ -100,7 +100,7 @@ class SettingsFrame(
         startButton.setOnAction { toChat() }
     }
 
-    internal fun show() {
+    fun show() {
         updateSettingsValues()
         stage.show()
     }
