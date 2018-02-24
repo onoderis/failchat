@@ -2,6 +2,7 @@ package failchat.gui
 
 import failchat.chat.StatusMessageMode
 import failchat.skin.Skin
+import failchat.util.toHexFormat
 import javafx.collections.FXCollections
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
@@ -48,7 +49,8 @@ class SettingsFrame(
     private val showImages = scene.lookup("#show_images") as CheckBox
 
     //second tab
-    private val bgColorPicker = scene.lookup("#bgcolor") as ColorPicker
+    private val nativeBgColorPicker = scene.lookup("#bgcolor_native") as ColorPicker
+    private val externalBgColorPicker = scene.lookup("#bgcolor_external") as ColorPicker
     private val statusMessagesMode = scene.lookup("#status_messages") as ChoiceBox<StatusMessageMode>
     private val ignoreList = scene.lookup("#ignore_list") as TextArea
 
@@ -138,7 +140,8 @@ class SettingsFrame(
         showImages.isSelected = config.getBoolean("show-images")
         onTop.isSelected = config.getBoolean("on-top")
 
-        bgColorPicker.value = Color.web(config.getString("background-color"))
+        nativeBgColorPicker.value = Color.web(config.getString("background-color.native"))
+        externalBgColorPicker.value = Color.web(config.getString("background-color.external"))
         opacitySlider.value = config.getDouble("opacity")
         statusMessagesMode.value = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
 
@@ -163,7 +166,8 @@ class SettingsFrame(
         config.setProperty("show-viewers", showViewers.isSelected)
         config.setProperty("show-images", showImages.isSelected)
 
-        config.setProperty("background-color", bgColorPicker.value.toString())
+        config.setProperty("background-color.native", nativeBgColorPicker.value.toHexFormat())
+        config.setProperty("background-color.external", externalBgColorPicker.value.toHexFormat())
         config.setProperty("opacity", opacitySlider.value.toInt())
         config.setProperty("status-message-mode", statusMessagesModeConverter.toString(statusMessagesMode.value))
         config.setProperty("ignore", ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())

@@ -203,7 +203,7 @@
                                     <children>
                                         <VBox maxHeight="200.0">
                                             <children>
-                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Background color">
+                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Background color (native client)">
                                                     <font>
                                                         <Font size="12.0" />
                                                     </font>
@@ -211,7 +211,23 @@
                                                         <Insets left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </Text>
-                                                <ColorPicker fx:id="bgcolor">
+                                                <ColorPicker fx:id="bgcolor_native">
+                                                    <opaqueInsets>
+                                                        <Insets />
+                                                    </opaqueInsets>
+                                                    <VBox.margin>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" />
+                                                    </VBox.margin>
+                                                </ColorPicker>
+                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Background color (external client)">
+                                                    <font>
+                                                        <Font size="12.0" />
+                                                    </font>
+                                                    <VBox.margin>
+                                                        <Insets left="2.0" right="2.0" top="6.0" />
+                                                    </VBox.margin>
+                                                </Text>
+                                                <ColorPicker fx:id="bgcolor_external">
                                                     <opaqueInsets>
                                                         <Insets />
                                                     </opaqueInsets>

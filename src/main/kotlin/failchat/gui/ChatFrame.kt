@@ -1,6 +1,5 @@
 package failchat.gui
 
-import failchat.util.removeTransparency
 import failchat.util.urlPattern
 import javafx.application.Application
 import javafx.application.Platform
@@ -59,17 +58,19 @@ class ChatFrame(
     }
 
     internal fun show() {
-        val bgColor = Color.web(config.getString("background-color"))
+        val nativeBgColor = Color.web(config.getString("background-color.native"))
+
         if (config.getBoolean("frame")) {
             currentChatStage = decoratedChatStage
-            chatScene.fill = bgColor.removeTransparency()
+            chatScene.fill = Color.BLACK
         } else {
-            if (bgColor.isOpaque) {
+            if (nativeBgColor.isOpaque) {
                 currentChatStage = undecoratedChatStage
+                chatScene.fill = Color.BLACK
             } else {
                 currentChatStage = transparentChatStage
+                chatScene.fill = Color.TRANSPARENT
             }
-            chatScene.fill = bgColor
         }
 
         currentChatStage.scene = chatScene
@@ -131,6 +132,7 @@ class ChatFrame(
             when (key.code) {
                 KeyCode.ESCAPE -> toSettings()
                 KeyCode.SPACE -> switchDecorations()
+                else -> {}
             }
         }
 
@@ -198,16 +200,20 @@ class ChatFrame(
         val toDecorated = currentChatStage === undecoratedChatStage || currentChatStage === transparentChatStage
         val fromChatStage = currentChatStage
 
-        val bgColor = Color.web(config.getString("background-color"))
+        val bgColor = Color.web(config.getString("background-color.native"))
         val toChatStage = if (toDecorated) {
-            chatScene.fill = bgColor.removeTransparency()
             config.setProperty("frame", true)
+            chatScene.fill = Color.BLACK
             decoratedChatStage
         } else {
-            chatScene.fill = bgColor
             config.setProperty("frame", false)
-            if (bgColor.isOpaque) undecoratedChatStage
-            else transparentChatStage
+            if (bgColor.isOpaque) {
+                chatScene.fill = Color.BLACK
+                undecoratedChatStage
+            } else {
+                chatScene.fill = Color.TRANSPARENT
+                transparentChatStage
+            }
         }
 
         saveChatPosition(fromChatStage)

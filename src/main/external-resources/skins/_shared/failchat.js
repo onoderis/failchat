@@ -12,6 +12,8 @@ $(function () {
     var socket = new ReconnectingWebSocket("ws://localhost:10880");
     socket.maxReconnectInterval = 5000;
     failchat.socket = socket;
+
+    var bodyStyle = document.body.style;
     var messageContainer = $("#message-container");
     var scroller = $(failchat.baronParams.scroller);
     var scrollBar = $(failchat.baronParams.bar);
@@ -139,6 +141,12 @@ $(function () {
             showStatusMessages = true;
         } else {
             showStatusMessages = false;
+        }
+
+        if (nativeClient) {
+            bodyStyle.backgroundColor = content.nativeClientBgColor
+        } else {
+            bodyStyle.backgroundColor = content.externalClientBgColor
         }
 
 
