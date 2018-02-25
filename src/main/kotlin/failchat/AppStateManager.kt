@@ -210,7 +210,7 @@ class AppStateManager(private val kodein: Kodein) {
 
         // Запуск в отдельном треде чтобы javafx thread мог завершиться и GUI закрывался сразу
         thread(start = true, name = "ShutdownThread") {
-            config.setProperty("lastId", messageIdGenerator.lastId)
+            config.setProperty("lastMessageId", messageIdGenerator.lastId)
             configLoader.save()
 
             wsServer.stop()
