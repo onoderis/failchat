@@ -116,7 +116,7 @@ val kodein = Kodein {
     bind<Path>("homeDirectory") with singleton { Paths.get(System.getProperty("user.home")).resolve(".failchat") }
     bind<String>("userId") with singleton { instance<UserIdManager>().getUserId() }
 
-    bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastId")) }
+    bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastMessageId")) }
     bind<List<Skin>>() with singleton { SkinScanner(instance<Path>("workingDirectory")).scan() }
     bind<UserIdManager>() with singleton { UserIdManager(instance<Path>("homeDirectory")) }
     bind<EventReporter>() with singleton {
