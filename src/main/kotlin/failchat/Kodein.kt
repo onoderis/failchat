@@ -67,7 +67,7 @@ val kodein = Kodein {
 
     // Core dependencies
     bind<AppStateManager>() with singleton { AppStateManager(kodein) }
-    bind<ConfigLoader>() with singleton { ConfigLoader(instance<Path>("workingDirectory")) }
+    bind<ConfigLoader>() with singleton { ConfigLoader(instance<Path>("homeDirectory")) }
     bind<Configuration>() with singleton { instance<ConfigLoader>().get() }
     bind<ChatMessageSender>() with singleton {
         ChatMessageSender(
@@ -97,7 +97,7 @@ val kodein = Kodein {
     bind<EmoticonStorage>() with singleton { EmoticonStorage() }
     bind<EmoticonFinder>() with singleton { instance<EmoticonStorage>() }
     bind<EmoticonManager>() with singleton {
-        EmoticonManager(instance("workingDirectory"), instance<Configuration>())
+        EmoticonManager(instance<Path>("workingDirectory"), instance<Configuration>())
     }
 
 
@@ -113,10 +113,12 @@ val kodein = Kodein {
 
     // Etc
     bind<Path>("workingDirectory") with singleton { Paths.get("") }
-    bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastId")) }
-    bind<List<Skin>>() with singleton { SkinScanner(instance("workingDirectory")).scan() }
-    bind<UserIdManager>() with singleton { UserIdManager() }
+    bind<Path>("homeDirectory") with singleton { Paths.get(System.getProperty("user.home")).resolve(".failchat") }
     bind<String>("userId") with singleton { instance<UserIdManager>().getUserId() }
+
+    bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastId")) }
+    bind<List<Skin>>() with singleton { SkinScanner(instance<Path>("workingDirectory")).scan() }
+    bind<UserIdManager>() with singleton { UserIdManager(instance<Path>("homeDirectory")) }
     bind<EventReporter>() with singleton {
         val config = instance<Configuration>()
         ToggleEventReporter(

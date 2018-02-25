@@ -5,18 +5,16 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.security.MessageDigest
 import java.util.UUID
 
-class UserIdManager {
+class UserIdManager(private val homeDirectory: Path) {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(UserIdManager::class.java)
     }
 
-    private val homeAppDirectory: Path = Paths.get(System.getProperty("user.home")).resolve(".failchat")
-    private val userIdHomeFile: Path = homeAppDirectory.resolve("user-id")
+    private val userIdHomeFile: Path = homeDirectory.resolve("user-id")
 
 
     fun getUserId(): String {
@@ -39,7 +37,7 @@ class UserIdManager {
         log.info("User id generated: '{}'", generatedUserId)
 
         try {
-            Files.createDirectories(homeAppDirectory)
+            Files.createDirectories(homeDirectory)
             Files.write(userIdHomeFile, generatedUserId.toByteArray())
             log.info("User id '{}' saved to home file: '{}'", generatedUserId, userIdHomeFile)
             return generatedUserId
@@ -56,7 +54,7 @@ class UserIdManager {
 
         val hash = MessageDigest.getInstance("SHA-256").digest(userName.toByteArray())
         val hashChars = Hex.encodeHex(hash, true)
-        val backupUserId = "00000000-0000-0000-0000-" + String(hashChars.copyOfRange(0, 11))
+        val backupUserId = "00000000-0000-0000-0000-" + String(hashChars.copyOfRange(0, 12))
 
         log.info("Backup user id generated '{}'", backupUserId)
         return backupUserId
