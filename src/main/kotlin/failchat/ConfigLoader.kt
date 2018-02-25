@@ -14,13 +14,13 @@ import java.nio.file.Path
 /**
  * Загружает и сохраняет конфигурацию.
  * */
-class ConfigLoader(workingDirectory: Path) {
+class ConfigLoader(configDirectory: Path) {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(ConfigLoader::class.java)
     }
 
-    private val userConfigPath = workingDirectory.resolve("config/user.properties")
+    private val userConfigPath = configDirectory.resolve("user.properties")
     private val userConfigBuilder = createOptionalConfig(userConfigPath)
     private val defaultConfigBuilder = createMandatoryConfig("/config/default.properties")
     private val privateConfigBuilder = createMandatoryConfig("/config/private.properties")
