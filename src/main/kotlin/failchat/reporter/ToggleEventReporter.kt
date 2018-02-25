@@ -12,7 +12,7 @@ class ToggleEventReporter(
         val log: Logger = LoggerFactory.getLogger(ToggleEventReporter::class.java)
     }
 
-    suspend override fun report(category: EventCategory, action: EventAction) {
+    override suspend fun report(category: EventCategory, action: EventAction) {
         if (enabled) {
             delegate.report(category, action)
         } else {
