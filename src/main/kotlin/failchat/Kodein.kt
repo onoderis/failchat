@@ -28,7 +28,7 @@ import failchat.peka2tv.Peka2tvEmoticonLoader
 import failchat.reporter.EventReporter
 import failchat.reporter.GAEventReporter
 import failchat.reporter.ToggleEventReporter
-import failchat.reporter.UserIdLoader
+import failchat.reporter.UserIdManager
 import failchat.skin.Skin
 import failchat.skin.SkinScanner
 import failchat.twitch.BttvApiClient
@@ -115,8 +115,8 @@ val kodein = Kodein {
     bind<Path>("workingDirectory") with singleton { Paths.get("") }
     bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastId")) }
     bind<List<Skin>>() with singleton { SkinScanner(instance("workingDirectory")).scan() }
-    bind<UserIdLoader>() with singleton { UserIdLoader(instance<ConfigLoader>()) }
-    bind<String>("userId") with singleton { instance<UserIdLoader>().getUserId() }
+    bind<UserIdManager>() with singleton { UserIdManager() }
+    bind<String>("userId") with singleton { instance<UserIdManager>().getUserId() }
     bind<EventReporter>() with singleton {
         val config = instance<Configuration>()
         ToggleEventReporter(

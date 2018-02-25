@@ -28,6 +28,7 @@
         <pircbotx.version>2.1</pircbotx.version>
         <youtube.version>v3-rev183-1.22.0</youtube.version>
         <kotlin-either.version>2.0.1</kotlin-either.version>
+        <guava.version>23.0</guava.version>
     </properties>
 
 
@@ -91,6 +92,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.pircbotx</groupId>
             <artifactId>pircbotx</artifactId>
             <version>${pircbotx.version}</version>
@@ -106,12 +113,6 @@
             <groupId>io.socket</groupId>
             <artifactId>socket.io-client</artifactId>
             <version>${socket.io-client.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.squareup.okhttp3</groupId>
-                    <artifactId>okhttp</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>

@@ -15,7 +15,6 @@ import failchat.peka2tv.Peka2tvEmoticonLoader
 import failchat.reporter.EventAction
 import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
-import failchat.reporter.UserIdLoader
 import failchat.twitch.BttvGlobalEmoticonLoader
 import failchat.twitch.TwitchEmoticonLoader
 import failchat.viewers.ViewersCountWsHandler
@@ -67,11 +66,6 @@ fun main(args: Array<String>) {
         setOnMessage("ignore-author", IgnoreWsMessageHandler(kodein.instance<IgnoreFilter>(), config))
     }
     wsServer.start()
-
-
-    // Save user id to config/home file
-    val userId = kodein.instance<String>("userId")
-    kodein.instance<UserIdLoader>().saveUserId(userId)
 
 
     // Reporter

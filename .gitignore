@@ -8,5 +8,5 @@ src/main/resources/config/private.properties
 failchat.iml
 
 #etc
-deps
+tree
 docs/*
