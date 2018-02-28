@@ -6,6 +6,7 @@ import java.time.Duration
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.Condition
 
@@ -32,3 +33,7 @@ fun ScheduledExecutorService.scheduleWithCatch(delay: Duration, command: () -> U
 inline var <T> AtomicReference<T>.value
     get(): T = this.get()
     set(value: T) = this.set(value)
+
+inline var AtomicBoolean.value
+    get(): Boolean = this.get()
+    set(value: Boolean) = this.set(value)

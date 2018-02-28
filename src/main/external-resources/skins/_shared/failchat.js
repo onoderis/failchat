@@ -4,7 +4,7 @@ var failchat = {
     maxMessages: 50,
     messageCount: 0,
     iconsPath: "../_shared/icons/", //could be overrided in skin.html
-    origins: ["peka2tv", "twitch", "goodgame", "youtube"],
+    origins: ["peka2tv", "twitch", "goodgame", "youtube", "cybergame"],
     deletedTextPlaceholder: "message deleted"
 };
 

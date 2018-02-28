@@ -1,8 +1,8 @@
 package failchat.github
 
-import failchat.util.config
-import failchat.util.objectMapper
-import failchat.util.okHttpClient
+import failchat.config
+import failchat.objectMapper
+import failchat.okHttpClient
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

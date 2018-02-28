@@ -2,7 +2,7 @@ package failchat.youtube
 
 import failchat.chat.Author
 import failchat.emoticon.Emoticon
-import failchat.util.okHttpClient
+import failchat.okHttpClient
 import okhttp3.Request
 import org.junit.Test
 import kotlin.test.assertEquals

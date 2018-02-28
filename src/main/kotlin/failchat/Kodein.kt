@@ -13,6 +13,9 @@ import failchat.chat.ChatMessageSender
 import failchat.chat.MessageIdGenerator
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
+import failchat.cybergame.CgApiClient
+import failchat.cybergame.CgChatClient
+import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.EmoticonFinder
 import failchat.emoticon.EmoticonManager
 import failchat.emoticon.EmoticonStorage
@@ -255,5 +258,24 @@ val kodein = Kodein {
         )
     }
 
+    // Cybergame
+    bind<CgApiClient>() with singleton {
+        CgApiClient(
+                httpClient = instance<OkHttpClient>(),
+                apiUrl = instance<Configuration>().getString("cybergame.api-url")
+        )
+    }
+    bind<CgChatClient>() with factory { channelNameAndId: Pair<String, Long> ->
+        CgChatClient(
+                channelName = channelNameAndId.first,
+                channelId = channelNameAndId.second,
+                wsUrl = instance<Configuration>().getString("cybergame.ws-url"),
+                emoticonUrlPrefix = instance<Configuration>().getString("cybergame.emoticon-url-prefix"),
+                messageIdGenerator = instance<MessageIdGenerator>()
+        )
+    }
+    bind<CgViewersCountLoader>() with factory { channelName: String ->
+        CgViewersCountLoader(instance<CgApiClient>(), channelName)
+    }
 
 }
