@@ -1,10 +1,10 @@
 package failchat.experiment
 
+import failchat.okHttpClient
 import failchat.reporter.EventAction
 import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
 import failchat.reporter.GAEventReporter
-import failchat.util.okHttpClient
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Ignore
 import org.junit.Test

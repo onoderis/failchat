@@ -35,12 +35,14 @@ class SettingsFrame(
     private val goodgameChannel = scene.lookup("#goodgame_channel") as TextField
     private val twitchChannel = scene.lookup("#twitch_channel") as TextField
     private val youtubeChannel = scene.lookup("#youtube_channel") as TextField
+    private val cybergameChannel = scene.lookup("#cybergame_channel") as TextField
 
     //channels checkboxes
     private val peka2tvEnabled = scene.lookup("#peka2tv_enabled") as CheckBox
     private val goodgameEnabled = scene.lookup("#goodgame_enabled") as CheckBox
     private val twitchEnabled = scene.lookup("#twitch_enabled") as CheckBox
     private val youtubeEnabled = scene.lookup("#youtube_enabled") as CheckBox
+    private val cybergameEnabled = scene.lookup("#cybergame_enabled") as CheckBox
 
     private val skin = scene.lookup("#skin") as ChoiceBox<Skin>
     private val frame = scene.lookup("#frame") as CheckBox
@@ -80,6 +82,9 @@ class SettingsFrame(
         youtubeEnabled.selectedProperty().addListener { _, _, newValue ->
             youtubeChannel.configureChannelField(newValue)
         }
+        cybergameEnabled.selectedProperty().addListener { _, _, newValue ->
+            cybergameChannel.configureChannelField(newValue)
+        }
 
         skin.converter = SkinConverter(skinList)
         skin.items = FXCollections.observableArrayList(skinList)
@@ -116,6 +121,7 @@ class SettingsFrame(
         goodgameChannel.text = config.getString("goodgame.channel")
         twitchChannel.text = config.getString("twitch.channel")
         youtubeChannel.text = config.getString("youtube.channel")
+        cybergameChannel.text = config.getString("cybergame.channel")
 
         config.getBoolean("peka2tv.enabled").let {
             peka2tvEnabled.isSelected = it
@@ -132,6 +138,10 @@ class SettingsFrame(
         config.getBoolean("youtube.enabled").let {
             youtubeEnabled.isSelected = it
             youtubeChannel.configureChannelField(it)
+        }
+        config.getBoolean("cybergame.enabled").let {
+            cybergameEnabled.isSelected = it
+            cybergameChannel.configureChannelField(it)
         }
 
         skin.value = skin.converter.fromString(config.getString("skin"))
@@ -154,11 +164,13 @@ class SettingsFrame(
         config.setProperty("goodgame.channel", goodgameChannel.text)
         config.setProperty("twitch.channel", twitchChannel.text)
         config.setProperty("youtube.channel", youtubeChannel.text)
+        config.setProperty("cybergame.channel", cybergameChannel.text)
 
         config.setProperty("peka2tv.enabled", peka2tvEnabled.isSelected)
         config.setProperty("goodgame.enabled", goodgameEnabled.isSelected)
         config.setProperty("twitch.enabled", twitchEnabled.isSelected)
         config.setProperty("youtube.enabled", youtubeEnabled.isSelected)
+        config.setProperty("cybergame.enabled", cybergameEnabled.isSelected)
 
         config.setProperty("skin", skin.value.name)
         config.setProperty("frame", frame.isSelected)

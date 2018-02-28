@@ -7,6 +7,7 @@ import either.Either
 import failchat.AppState.CHAT
 import failchat.AppState.SETTINGS
 import failchat.Origin.BTTV_CHANNEL
+import failchat.Origin.CYBERGAME
 import failchat.Origin.GOODGAME
 import failchat.Origin.PEKA2TV
 import failchat.Origin.TWITCH
@@ -17,6 +18,9 @@ import failchat.chat.ChatMessageSender
 import failchat.chat.MessageIdGenerator
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
+import failchat.cybergame.CgApiClient
+import failchat.cybergame.CgChatClient
+import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.EmoticonStorage
 import failchat.exception.InvalidConfigurationException
 import failchat.goodgame.GgApiClient
@@ -43,6 +47,7 @@ import failchat.youtube.VideoId
 import failchat.youtube.YoutubeUtils
 import failchat.youtube.YtChatClient
 import javafx.application.Platform
+import kotlinx.coroutines.experimental.runBlocking
 import okhttp3.OkHttpClient
 import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
@@ -67,6 +72,7 @@ class AppStateManager(private val kodein: Kodein) {
     private val chatMessageRemover: ChatMessageRemover = kodein.instance()
     private val peka2tvApiClient: Peka2tvApiClient = kodein.instance()
     private val goodgameApiClient: GgApiClient = kodein.instance()
+    private val cybergameApiClient: CgApiClient = kodein.instance()
     private val configLoader: ConfigLoader = kodein.instance()
     private val ignoreFilter: IgnoreFilter = kodein.instance()
     private val imageLinkHandler: ImageLinkHandler = kodein.instance()
@@ -164,6 +170,24 @@ class AppStateManager(private val kodein: Kodein) {
 
             chatClientMap.put(YOUTUBE, chatClient)
             viewersCountLoaders.add(chatClient)
+        }
+
+        // Cybergame
+        checkEnabled(CYBERGAME)?.let { channelName ->
+            // get channel id by channel name
+            val channelId = try {
+                runBlocking { cybergameApiClient.requestChannelId(channelName) }
+            } catch (e: Exception) {
+                log.warn("Failed to get cybergame channel id. channel name: {}", channelName, e)
+                return@let
+            }
+
+            val chatClient = kodein.factory<Pair<String, Long>, CgChatClient>()
+                    .invoke(channelName to channelId)
+                    .also { it.setCallbacks() }
+
+            chatClientMap.put(CYBERGAME, chatClient)
+            viewersCountLoaders.add(kodein.factory<String, CgViewersCountLoader>().invoke(channelName))
         }
 
 

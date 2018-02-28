@@ -13,7 +13,7 @@ import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
 import failchat.chat.OriginStatus.DISCONNECTED
 import failchat.chat.StatusMessage
-import failchat.chat.handlers.CommonHighlightHandler
+import failchat.chat.handlers.CommaHighlightHandler
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.emoticon.EmoticonFinder
 import failchat.twitch.TwitchChatClient
@@ -58,7 +58,7 @@ class GgChatClient(
             ElementLabelEscaper(),
             HtmlUrlCleaner(),
             GgEmoticonHandler(emoticonFinder),
-            CommonHighlightHandler(channelName)
+            CommaHighlightHandler(channelName)
     )
 
     private val history = EvictingQueue.create<GgMessage>(50).synchronized()
@@ -131,7 +131,7 @@ class GgChatClient(
             val data = messageNode.get("data")
 
             //todo log on unknown type
-            when(type) {
+            when (type) {
                 "message" -> handleUserMessage(data)
                 "remove_message" -> handleModMessage(data)
                 "viewers" -> handleViewersMessage(data)
@@ -139,7 +139,7 @@ class GgChatClient(
         }
 
         override fun onError(e: Exception) {
-            log.warn("GgWsClient error", e)
+            log.error("Goodgame chat client error", e)
         }
 
         override fun onReconnect() {

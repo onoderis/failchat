@@ -1,6 +1,9 @@
 package failchat.chat
 
-class Author(
+data class Author(
+        /** Author's name. */
         val name: String,
+
+        /** Origin specific id. */
         val id: String = name
 )
