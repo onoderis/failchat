@@ -2,6 +2,7 @@ package failchat.gui
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.AppStateManager
+import failchat.util.submitWithCatch
 import failchat.ws.server.WsServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -24,26 +25,26 @@ class GuiEventHandler(
     private val executor = Executors.newSingleThreadExecutor()
 
     fun startChat() {
-        executor.submit {
+        executor.submitWithCatch {
             appStateManager.startChat()
         }
     }
 
     fun stopChat() {
-        executor.submit {
+        executor.submitWithCatch {
             appStateManager.stopChat()
         }
     }
 
     fun shutDown() {
-        executor.submit {
+        executor.submitWithCatch {
             appStateManager.shutDown()
         }
         executor.shutdown()
     }
 
     fun notifyViewersCountToggled(show: Boolean) {
-        executor.submit {
+        executor.submitWithCatch {
             val messageNode = objectMapper.createObjectNode().apply {
                 put("type", "show-viewers-count")
                 putObject("content").apply {
