@@ -19,7 +19,7 @@ class Peka2tvApiTest {
         val config = loadConfig()
     }
 
-    val apiClient = Peka2tvApiClient(OkHttpClient(), config.getString("peka2tv.socketio-url"))
+    val apiClient = Peka2tvApiClient(OkHttpClient(), config.getString("peka2tv.api-url"))
 
     @Test
     fun emoticonApiTest() {
