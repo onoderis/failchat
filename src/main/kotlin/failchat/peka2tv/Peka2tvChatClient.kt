@@ -1,5 +1,6 @@
 package failchat.peka2tv
 
+import com.google.common.collect.EvictingQueue
 import failchat.Origin
 import failchat.Origin.PEKA2TV
 import failchat.chat.ChatClient
@@ -17,7 +18,7 @@ import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.emoticon.EmoticonFinder
 import failchat.exception.UnexpectedResponseException
-import failchat.util.ConcurrentEvictingQueue
+import failchat.util.synchronized
 import failchat.util.warn
 import failchat.viewers.ViewersCountLoader
 import io.socket.client.IO
@@ -26,7 +27,6 @@ import okhttp3.OkHttpClient
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.Queue
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 
@@ -54,7 +54,7 @@ class Peka2tvChatClient(
 
     private val socket = buildSocket()
     private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(READY)
-    private val history: Queue<Peka2tvMessage> = ConcurrentEvictingQueue(50)
+    private val history = EvictingQueue.create<Peka2tvMessage>(50).synchronized()
 
     private val messageHandlers: List<MessageHandler<Peka2tvMessage>> = listOf(
             ElementLabelEscaper(),

@@ -1,52 +1,47 @@
 "use strict";
 
 var failchat = {
-    "maxMessages": 50,
-    "messageCount": 0,
-    "origins": ["peka2tv", "twitch", "goodgame", "youtube"],
-    "deletedTextPlaceholder": "message deleted"
+    maxMessages: 50,
+    messageCount: 0,
+    iconsPath: "../_shared/icons/", //could be overrided in skin.html
+    origins: ["peka2tv", "twitch", "goodgame", "youtube", "cybergame"],
+    deletedTextPlaceholder: "message deleted"
 };
 
 $(function () {
     var socket = new ReconnectingWebSocket("ws://localhost:10880");
     socket.maxReconnectInterval = 5000;
     failchat.socket = socket;
+
+    var bodyWrapper = $("#body-wrapper");
     var messageContainer = $("#message-container");
     var scroller = $(failchat.baronParams.scroller);
     var scrollBar = $(failchat.baronParams.bar);
     var autoScroll = true;
     var nativeClient = (navigator.userAgent.search("failchat") >= 0);
     // var nativeClient = true; //todo think about debugging
+    var showStatusMessages = true; // show if origin-status message received before client-configuration message
 
-    //templates
-    var smileTemplate = $("#smile-template");
-    var vectorSmileTemplate = $("#vector-smile-template");
-    var linkTemplate = $("#link-template");
-    var imageTemplate = $("#image-template");
-    var messageTemplate = $("#message-template");
-    var statusMessageTemplate = $("#status-message-template");
-
-    //viewers bar
+    // viewers bar
     var viewersBar = $(".viewers-bar");
-    var originViewersBarTemplate = $("#origin-viewers-bar-template");
     var viewersCountItems = {};
-    for (var i = 0; i < failchat.origins.length; i++) {
-        var origin = failchat.origins[i];
-        var viewersBarHtml = originViewersBarTemplate.render({"origin": origin});
+
+    failchat.origins.forEach(function (origin) {
+        var viewersBarHtml = templates.originViewersBar.render({origin: origin, iconsPath: failchat.iconsPath});
         $(".viewers-origins").append(viewersBarHtml);
         viewersCountItems[origin] = {
-            "bar": $("#" + origin + "-origin"),
-            "counter": $("#" + origin + "-viewers")
+            bar: $("#" + origin + "-origin"),
+            counter: $("#" + origin + "-viewers")
         };
 
         //set default value
         viewersCountItems[origin].counter.text("?")
-    }
+    });
 
-
+    // scroll bar
     baron(failchat.baronParams);
 
-    //autoscroll
+    // auto scroll
     new ResizeSensor(messageContainer, function() {
         if (autoScroll) {
             scroller.scrollTop(messageContainer.height());
@@ -58,15 +53,13 @@ $(function () {
         var connectedMessage = {"origin": "failchat", "status": "connected", "timestamp": Date.now()};
         handleStatusMessage(connectedMessage);
         appendToMessageContainer(connectedMessage);
-        if (nativeClient) {
-            socket.send(JSON.stringify({"type": "enabled-origins", "content": {}}));
-            socket.send(JSON.stringify({"type": "show-viewers-count", "content": {}}));
-            socket.send(JSON.stringify({"type": "viewers-count", "content": {}}));
-        }
+
+        socket.send(JSON.stringify({type: "client-configuration", content: {}}));
+        socket.send(JSON.stringify({type: "viewers-count", content: {}}));
     };
 
     socket.onclose = function () {
-        var disconnectedMessage = {"origin": "failchat", "status": "disconnected", "timestamp": Date.now()};
+        var disconnectedMessage = {origin: "failchat", status: "disconnected", timestamp: Date.now()};
         handleStatusMessage(disconnectedMessage);
         appendToMessageContainer(disconnectedMessage);
     };
@@ -86,6 +79,9 @@ $(function () {
             case "delete-message":
                 handleDeleteMessage(content);
                 break;
+            case "client-configuration":
+                handleClientConfigurationMessage(content);
+                break;
         }
 
         if (content.textHtml !== undefined) {
@@ -96,12 +92,6 @@ $(function () {
         if (!nativeClient) return;
 
         switch (type) {
-            case "enabled-origins":
-                handleEnabledOriginsMessage(content);
-                break;
-            case "show-viewers-count":
-                handleShowViewersCountMessage(content);
-                break;
             case "viewers-count":
                 updateViewersValues(content);
                 break;
@@ -117,66 +107,90 @@ $(function () {
             switch(element.type) {
                 case "emoticon":
                     if (element.format === "vector") {
-                        elementHtml = vectorSmileTemplate.render(element);
+                        elementHtml = templates.vectorSmile.render(element);
                     } else {
-                        elementHtml = smileTemplate.render(element);
+                        elementHtml = templates.rasterSmile.render(element);
                     }
                     break;
                 case "link":
-                    elementHtml = linkTemplate.render(element);
+                    elementHtml = templates.link.render(element);
                     break;
                 case "image":
-                    elementHtml = imageTemplate.render(element);
+                    elementHtml = templates.image.render(element);
                     break;
             }
 
             content.text = content.text.replace("{!" + i + "}", elementHtml);
         }
 
-        content.textHtml = messageTemplate.render(content);
+        content.iconsPath = failchat.iconsPath;
+        content.textHtml = templates.message.render(content);
     }
 
     function handleStatusMessage(content) {
-        if (content.mode === "native_client" && !nativeClient) return;
-        content.textHtml = statusMessageTemplate.render(content);
+        if (!showStatusMessages) return;
+
+        content.iconsPath = failchat.iconsPath;
+        content.textHtml = templates.statusMessage.render(content);
     }
 
-    function handleEnabledOriginsMessage(content) {
-        for (var origin in content) {
-            if (!content.hasOwnProperty(origin)) continue;
-            if (content[origin] === true) {
-                viewersCountItems[origin].bar.addClass("viewers-origin-on");
-            } else {
-                viewersCountItems[origin].bar.removeClass("viewers-origin-on");
-            }
+    function handleClientConfigurationMessage(content) {
+        var statusMessageMode = content.statusMessageMode;
+        if ((statusMessageMode === "everywhere") ||
+            (nativeClient && statusMessageMode === "native_client")) {
+            showStatusMessages = true;
+        } else {
+            showStatusMessages = false;
         }
-    }
 
-    function handleShowViewersCountMessage(content) {
-        if (content.show === true) {
+        if (nativeClient) {
+            bodyWrapper.css("background-color", "rgba(" + hexToRgba(content.nativeClientBgColor.substring(1)) + ")");
+        } else {
+            bodyWrapper.css("background-color", "rgba(" + hexToRgba(content.externalClientBgColor.substring(1)) + ")");
+        }
+
+
+        if (!nativeClient) return;
+        // handle viewers bar configuration
+
+        if (content.showViewersCount === true) {
             viewersBar.addClass("viewers-bar-on");
         } else {
             viewersBar.removeClass("viewers-bar-on");
         }
+
+        var enabledOrigins = content.enabledOrigins;
+        failchat.origins.forEach(function (origin) {
+            if (!enabledOrigins.hasOwnProperty(origin)) return;
+            if (enabledOrigins[origin] === true) {
+                viewersCountItems[origin].bar.addClass("viewers-origin-on");
+            } else {
+                viewersCountItems[origin].bar.removeClass("viewers-origin-on");
+            }
+        });
     }
 
     function handleDeleteMessage(content) {
+        var message = $("#message-" + content.messageId);
+        message.addClass("deleted-message");
+
         var messageText = $("#message-" + content.messageId + " .text");
         messageText.removeClass("highlighted");
         messageText.text(failchat.deletedTextPlaceholder);
     }
 
     function updateViewersValues(counters) {
-        for (var origin in counters) {
-            if (!counters.hasOwnProperty(origin)) continue;
+        failchat.origins.forEach(function (origin) {
+            if (!counters.hasOwnProperty(origin)) return;
 
             var count = counters[origin];
+            var counter = viewersCountItems[origin].counter;
             if (count === null) {
-                viewersCountItems[origin].counter.text("?");
-                continue;
+                counter.text("?");
+            } else {
+                counter.text(count);
             }
-            viewersCountItems[origin].counter.text(count);
-        }
+        });
     }
 
     function appendToMessageContainer(message) {
@@ -228,9 +242,9 @@ function ignore(messageNode) {
     deleteMessage(messageNode);
     failchat.socket.send(JSON.stringify(
         {
-            "type": "ignore-author",
-            "content": {
-                "authorId": messageNode.getAttribute("author-id")
+            type: "ignore-author",
+            content: {
+                authorId: messageNode.getAttribute("author-id")
             }
         }
     ));
@@ -240,12 +254,22 @@ function ignore(messageNode) {
 function deleteMessage(messageNode) {
     failchat.socket.send(JSON.stringify(
         {
-            "type": "delete-message",
-            "content": {
-                "messageId": messageNode.getAttribute("message-id")
+            type: "delete-message",
+            content: {
+                messageId: messageNode.getAttribute("message-id")
             }
         }
     ));
+}
+
+function hexToRgba(hex) {
+    var int = parseInt(hex, 16);
+    var r = (int >> 24) & 255;
+    var g = (int >> 16) & 255;
+    var b = (int >> 8) & 255;
+    var a = (int & 255) / 255;
+
+    return r + "," + g + "," + b + "," + a;
 }
 
 $.views.converters("time", function(val) {
@@ -261,3 +285,37 @@ $.views.converters("time", function(val) {
     }
     return h + ":" + m + ":" +  s;
 });
+
+// noinspection HtmlUnknownAttribute
+var templates = {
+    message: $.templates(
+        '<p class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">\n' +
+        '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png">\n' +
+        '    <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author.name}}: </span>\n' +
+        '    <span class="mod-icons">\n' +
+        '        <span title="delete" onclick="deleteMessage(this.parentNode.parentNode)">&#10060;</span>\n' +
+        '        <span title="ignore" onclick="ignore(this.parentNode.parentNode)">&#128683;</span>\n' +
+        '    </span>\n' +
+        '    <span class="text{{if highlighted}} highlighted{{/if}}">{{:text}}</span>\n' +
+        '</p>'
+    ),
+
+    rasterSmile: $.templates('<img class="smile" src="{{:url}}">'),
+    vectorSmile: $.templates('<img class="smile-vector" src="{{:url}}">'),
+    link: $.templates('<a href="{{:fullUrl}}">{{:domain}}</a>'),
+    image: $.templates('<br><a href="{{:url}}"><img class="image" align="middle" src="{{:url}}"></a><br>'),
+
+    statusMessage: $.templates('' +
+        '<p class="message status-message">\n' +
+        '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png">\n' +
+        '    <span class="status-origin" title="{{time:timestamp}}">{{:origin}} </span>\n' +
+        '    <span class="status-text">{{:status}}</span>\n' +
+        '</p>'
+    ),
+
+    originViewersBar: $.templates('' +
+        '<span id="{{:origin}}-origin" class="viewers-origin">\n' +
+        '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png"> <span id="{{:origin}}-viewers"></span>\n' +
+        '</span>'
+    )
+};

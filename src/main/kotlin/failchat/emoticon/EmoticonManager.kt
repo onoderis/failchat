@@ -53,13 +53,13 @@ class EmoticonManager(
         storage.putList(origin, emoticons)
 
         if (options.storeByCode) {
-            val codeToEmoticon = emoticons
+            val codeToEmoticon: Map<String, Emoticon> = emoticons
                     .map { it.code.toLowerCase() to it }
-                    .toMap((HashMap()))
+                    .fold(HashMap()) { map, pair -> map.also { it.putIfAbsent(pair.first, pair.second) } }
             storage.putCodeMapping(origin, codeToEmoticon)
         }
         if (options.storeById) {
-            val idToEmoticon = emoticons
+            val idToEmoticon: Map<Long, Emoticon> = emoticons
                     .map { loader.getId(it) to it }
                     .toMap((HashMap()))
             storage.putIdMapping(origin, idToEmoticon)
@@ -74,7 +74,7 @@ class EmoticonManager(
         val origin = loader.origin
         val fileExists = Files.exists(cacheFile)
 
-        // Load from  cache file actual emoticon list
+        // Load from cache file actual emoticon list
         if (!isCacheOutdated(origin, now) && fileExists) {
             try {
                 val emoticons = loadFromCache<List<T>>(cacheFile)

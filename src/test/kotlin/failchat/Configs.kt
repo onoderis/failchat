@@ -1,4 +1,4 @@
-package failchat.util
+package failchat
 
 import org.apache.commons.configuration2.Configuration
 import org.apache.commons.configuration2.PropertiesConfiguration

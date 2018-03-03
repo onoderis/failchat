@@ -8,19 +8,20 @@ import org.apache.commons.configuration2.builder.fluent.Parameters
 import org.apache.commons.configuration2.sync.ReadWriteSynchronizer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.nio.file.Files
 import java.nio.file.Path
 
 
 /**
  * Загружает и сохраняет конфигурацию.
  * */
-class ConfigLoader(workingDirectory: Path) {
+class ConfigLoader(private val configDirectory: Path) {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(ConfigLoader::class.java)
     }
 
-    private val userConfigPath = workingDirectory.resolve("config/user.properties")
+    private val userConfigPath = configDirectory.resolve("user.properties")
     private val userConfigBuilder = createOptionalConfig(userConfigPath)
     private val defaultConfigBuilder = createMandatoryConfig("/config/default.properties")
     private val privateConfigBuilder = createMandatoryConfig("/config/private.properties")
@@ -41,6 +42,7 @@ class ConfigLoader(workingDirectory: Path) {
     fun get(): Configuration = compositeConfig
 
     fun save() {
+        Files.createDirectories(configDirectory)
         userConfigBuilder.save()
         log.info("User config saved to '{}'", userConfigPath)
     }

@@ -3,17 +3,18 @@
 <head>
     <title>failchat</title>
     <meta charset="UTF-8">
-    <script src="../../js/jquery.min.js"></script>
-    <script src="../../js/jsrender.min.js"></script>
-    <script src="../../js/ResizeSensor.min.js"></script>
-    <script src="../../js/baron.min.js"></script>
-    <script src="../../js/reconnecting-websocket.min.js"></script>
-    <script src="../default/main.js"></script>
+    <script src="../_shared/lib/jquery.min.js"></script>
+    <script src="../_shared/lib/jsrender.min.js"></script>
+    <script src="../_shared/lib/ResizeSensor.min.js"></script>
+    <script src="../_shared/lib/baron.min.js"></script>
+    <script src="../_shared/lib/reconnecting-websocket.min.js"></script>
+    <script src="../_shared/failchat.js"></script>
     <link rel="stylesheet" href="funstream.css">
 </head>
 <body>
 
 <script>
+    failchat.iconsPath = "icons/";
     failchat.maxMessages = 50;
     failchat.messageSelector = ".message";
     failchat.baronParams = {
@@ -24,51 +25,17 @@
     };
 </script>
 
-<script id="message-template" type="text/x-jsrender">
-    <p class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">
-        <img class="icon" src="{{:origin}}.png">
-        <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author.name}}: </span>
-        <span class="mod-icons">
-            <span title="delete" onclick="deleteMessage(this.parentNode.parentNode)">&#10060;</span>
-            <span title="ignore" onclick="ignore(this.parentNode.parentNode)">&#128683;</span>
-        </span>
-        <span class="text{{if highlighted}} highlighted{{/if}}">{{:text}}</span>
-    </p>
-</script>
-<script id="smile-template" type="text/x-jsrender">
-    <img class="smile" src="{{:url}}">
-</script>
-<script id="vector-smile-template" type="text/x-jsrender">
-    <img class="smile-vector" src="{{:url}}">
-</script>
-<script id="link-template" type="text/x-jsrender">
-    <a href="{{:fullUrl}}">{{:domain}}</a>
-</script>
-<script id="image-template" type="text/x-jsrender">
-    <br><a href="{{:url}}"><img class="image" align="middle" src="{{:url}}"></a><br>
-</script>
-<script id="status-message-template" type="text/x-jsrender">
-    <p class="message status-message">
-        <img class="icon" src="{{:origin}}.png">
-        <span class="status-origin" title="{{time:timestamp}}">{{:origin}} </span>
-        <span class="status-text">{{:status}}</span>
-    </p>
-</script>
-<script id="origin-viewers-bar-template" type="text/x-jsrender">
-    <span id="{{:origin}}-origin" class="viewers-origin">
-        <img class="icon" src="{{:origin}}.png"> <span id="{{:origin}}-viewers"></span>
-    </span>
-</script>
-
-
-<div class="viewers-bar">
-    <div class="viewers-origins"></div>
-</div>
-<div class="chat-wrapper">
-    <div class="scroller">
-        <div id="message-container"></div>
-        <div class="scrollbar"></div>
+<div id="body-wrapper">
+    <div class="viewers-bar">
+        <div class="viewers-origins"></div>
+    </div>
+    <div class="chat-wrapper">
+        <div class="scroller">
+            <div id="message-container"></div>
+            <div class="scrollbar"></div>
+        </div>
     </div>
 </div>
+
 </body>
 </html>

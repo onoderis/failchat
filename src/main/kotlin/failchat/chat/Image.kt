@@ -1,6 +1,6 @@
 package failchat.chat
 
-class Image(
+data class Image(
         val link: Link
-)
+) : MessageElement
 

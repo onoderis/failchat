@@ -3,8 +3,8 @@ package failchat.chat.handlers
 import failchat.chat.ChatMessage
 import failchat.chat.MessageHandler
 
-class CommonHighlightHandler<in T>(username: String) : MessageHandler<T>
-where T : ChatMessage {
+class CommaHighlightHandler<in T>(username: String) : MessageHandler<T>
+        where T : ChatMessage {
 
     private val appeal: String = username + ','
 

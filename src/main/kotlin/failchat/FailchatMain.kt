@@ -1,8 +1,8 @@
 package failchat
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.salomonbrys.kodein.instance
 import failchat.chat.ChatMessageRemover
+import failchat.chat.ChatMessageSender
 import failchat.chat.handlers.IgnoreFilter
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonLoader
@@ -15,17 +15,18 @@ import failchat.peka2tv.Peka2tvEmoticonLoader
 import failchat.reporter.EventAction
 import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
-import failchat.reporter.UserIdLoader
 import failchat.twitch.BttvGlobalEmoticonLoader
 import failchat.twitch.TwitchEmoticonLoader
 import failchat.util.submitWithCatch
-import failchat.viewers.ShowViewersCountWsHandler
 import failchat.viewers.ViewersCountWsHandler
+import failchat.ws.server.ClientConfigurationWsHandler
 import failchat.ws.server.DeleteWsMessageHandler
-import failchat.ws.server.EnabledOriginsWsHandler
 import failchat.ws.server.IgnoreWsMessageHandler
 import failchat.ws.server.WsServer
 import javafx.application.Application
+import kotlinx.coroutines.experimental.Unconfined
+import kotlinx.coroutines.experimental.asCoroutineDispatcher
+import kotlinx.coroutines.experimental.launch
 import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -59,21 +60,14 @@ fun main(args: Array<String>) {
 
     // Websocket server
     val wsServer: WsServer = kodein.instance()
-    val objectMapper: ObjectMapper = kodein.instance()
     val config: Configuration = kodein.instance()
     wsServer.apply {
-        setOnMessage("enabled-origins", EnabledOriginsWsHandler(config, objectMapper))
+        setOnMessage("client-configuration", ClientConfigurationWsHandler(kodein.instance<ChatMessageSender>()))
         setOnMessage("viewers-count", kodein.instance<ViewersCountWsHandler>())
-        setOnMessage("show-viewers-count", ShowViewersCountWsHandler(config, objectMapper))
         setOnMessage("delete-message", DeleteWsMessageHandler(kodein.instance<ChatMessageRemover>()))
         setOnMessage("ignore-author", IgnoreWsMessageHandler(kodein.instance<IgnoreFilter>(), config))
     }
     wsServer.start()
-
-
-    // Save user id to config/home file
-    val userId = kodein.instance<String>("userId")
-    kodein.instance<UserIdLoader>().saveUserId(userId)
 
 
     // Reporter
@@ -84,8 +78,8 @@ fun main(args: Array<String>) {
     // Load emoticons in background thread
     loadEmoticonsAsync(backgroundExecutor)
 
-
-    log.info("Application started. Working directory: {}", kodein.instance<Path>("workingDirectory").toAbsolutePath())
+    log.info("Application started. Version: {}. Working directory: {}", config.getString("version"),
+            kodein.instance<Path>("workingDirectory").toAbsolutePath())
 }
 
 private fun checkForAnotherInstance() {
@@ -133,19 +127,23 @@ private fun loadEmoticonsAsync(executor: ExecutorService): Future<*> = executor.
  * */
 private fun scheduleReportTasks(executor: ScheduledExecutorService) {
     val reporter = kodein.instance<EventReporter>()
+    val dispatcher = executor.asCoroutineDispatcher()
 
-    val exceptionHandler = { e: Throwable ->
-        log.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.APP_LAUNCH, e)
+    launch(dispatcher) {
+        try {
+            reporter.report(EventCategory.GENERAL, EventAction.APP_LAUNCH)
+        } catch (t: Throwable) {
+            log.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.APP_LAUNCH, t)
+        }
     }
-    executor.execute {
-        reporter
-                .reportEvent(EventCategory.GENERAL, EventAction.APP_LAUNCH)
-                .exceptionally(exceptionHandler)
-    }
-    //todo don't start task if reporter disabled
+
     executor.scheduleAtFixedRate({
-        reporter
-                .reportEvent(EventCategory.GENERAL, EventAction.HEARTBEAT)
-                .exceptionally(exceptionHandler)
+        launch(Unconfined) {
+            try {
+                reporter.report(EventCategory.GENERAL, EventAction.HEARTBEAT)
+            } catch (t: Throwable) {
+                log.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.HEARTBEAT, t)
+            }
+        }
     }, 5, 5, TimeUnit.MINUTES)
 }

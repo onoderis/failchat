@@ -1,5 +1,5 @@
 target
-src/main/external-resources/js/*
+src/main/external-resources/skins/_shared/lib/*
 src/main/resources/config/youtube/*
 src/main/resources/config/private.properties
 
@@ -8,5 +8,5 @@ src/main/resources/config/private.properties
 failchat.iml
 
 #etc
-deps
+tree
 docs/*

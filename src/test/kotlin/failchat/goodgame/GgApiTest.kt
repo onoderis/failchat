@@ -1,6 +1,6 @@
 package failchat.goodgame
 
-import failchat.util.loadConfig
+import failchat.loadConfig
 import okhttp3.OkHttpClient
 import org.junit.Ignore
 import org.junit.Test

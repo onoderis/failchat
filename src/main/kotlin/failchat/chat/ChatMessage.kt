@@ -1,36 +1,30 @@
 package failchat.chat
 
 import failchat.Origin
+import failchat.emoticon.Emoticon
 import java.time.Instant
 
 /**
  * Сообщение из чата какого-либо первоисточника.
  * */
 open class ChatMessage(
-        /**
-         * Внутренний id, генерируемый приложением.
-         * */
+        /** Внутренний id, генерируемый приложением. */
         val id: Long,
 
-        /**
-         * Первоисточник сообщения.
-         * */
+        /** Первоисточник сообщения. */
         val origin: Origin,
 
-        /**
-         * Автор сообщения.
-         * */
+        /** Автор сообщения. */
         val author: Author,
 
-        /**
-         * Текст сообщения.
-         * */
+        /** Текст сообщения. */
         var text: String,
 
-        /**
-         * Время получения сообщения.
-         * */
-        val timestamp: Instant = Instant.now()
+        /** Время получения сообщения. */
+        val timestamp: Instant = Instant.now(),
+
+        /** Initial list of elements. */
+        elements: List<MessageElement> = emptyList()
 ) {
 
     /**
@@ -39,21 +33,20 @@ open class ChatMessage(
      * - [Link]
      * - [Image]
      * */
-    val elements: List<Any> get() = mutableElements
+    val elements: List<MessageElement> get() = mutableElements
+    private val mutableElements: MutableList<MessageElement> = elements.toMutableList()
 
     var highlighted = false
-
-    private val mutableElements: MutableList<Any> = ArrayList()
 
     /**
      * @return formatted string for added element.
      * */
-    fun addElement(element: Any): String {
+    fun addElement(element: MessageElement): String {
         mutableElements.add(element)
-        return "{!${mutableElements.size - 1}}"
+        return ElementFormatter.format(mutableElements.size - 1)
     }
 
-    fun replaceElement(index: Int, replacement: Any): Any? {
+    fun replaceElement(index: Int, replacement: MessageElement): Any? {
         return mutableElements.set(index, replacement)
     }
 

@@ -13,6 +13,9 @@ import failchat.chat.ChatMessageSender
 import failchat.chat.MessageIdGenerator
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
+import failchat.cybergame.CgApiClient
+import failchat.cybergame.CgChatClient
+import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.EmoticonFinder
 import failchat.emoticon.EmoticonManager
 import failchat.emoticon.EmoticonStorage
@@ -26,7 +29,9 @@ import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvChatClient
 import failchat.peka2tv.Peka2tvEmoticonLoader
 import failchat.reporter.EventReporter
-import failchat.reporter.UserIdLoader
+import failchat.reporter.GAEventReporter
+import failchat.reporter.ToggleEventReporter
+import failchat.reporter.UserIdManager
 import failchat.skin.Skin
 import failchat.skin.SkinScanner
 import failchat.twitch.BttvApiClient
@@ -60,37 +65,34 @@ val kodein = Kodein {
     // Websocket server
     bind<WsServer>() with singleton { TtnWsServer(wsServerAddress, instance<ObjectMapper>()) }
     bind<ViewersCountWsHandler>() with singleton {
-        ViewersCountWsHandler(instance<Configuration>(), instance<ObjectMapper>())
+        ViewersCountWsHandler(instance<Configuration>())
     }
 
     // Core dependencies
     bind<AppStateManager>() with singleton { AppStateManager(kodein) }
-    bind<ConfigLoader>() with singleton { ConfigLoader(instance<Path>("workingDirectory")) }
+    bind<ConfigLoader>() with singleton { ConfigLoader(instance<Path>("homeDirectory")) }
     bind<Configuration>() with singleton { instance<ConfigLoader>().get() }
     bind<ChatMessageSender>() with singleton {
         ChatMessageSender(
                 instance<WsServer>(),
                 instance<Configuration>(),
                 instance<IgnoreFilter>(),
-                instance<ImageLinkHandler>(),
-                instance<ObjectMapper>()
+                instance<ImageLinkHandler>()
         )
     }
     bind<ChatMessageRemover>() with singleton {
-        ChatMessageRemover(instance<WsServer>(), instance<ObjectMapper>())
+        ChatMessageRemover(instance<WsServer>())
     }
     bind<ViewersCounter>() with factory { vcLoaders: List<ViewersCountLoader> ->
         ViewersCounter(
                 vcLoaders,
-                instance<WsServer>(),
-                instance<ObjectMapper>()
+                instance<WsServer>()
         )
     }
     bind<GuiEventHandler>() with singleton {
         GuiEventHandler(
-                instance<WsServer>(),
                 instance<AppStateManager>(),
-                instance<ObjectMapper>()
+                instance<ChatMessageSender>()
         )
     }
 
@@ -98,7 +100,7 @@ val kodein = Kodein {
     bind<EmoticonStorage>() with singleton { EmoticonStorage() }
     bind<EmoticonFinder>() with singleton { instance<EmoticonStorage>() }
     bind<EmoticonManager>() with singleton {
-        EmoticonManager(instance("workingDirectory"), instance<Configuration>())
+        EmoticonManager(instance<Path>("workingDirectory"), instance<Configuration>())
     }
 
 
@@ -114,15 +116,22 @@ val kodein = Kodein {
 
     // Etc
     bind<Path>("workingDirectory") with singleton { Paths.get("") }
-    bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastId")) }
-    bind<List<Skin>>() with singleton { SkinScanner(instance("workingDirectory")).scan() }
-    bind<UserIdLoader>() with singleton { UserIdLoader(instance<ConfigLoader>()) }
-    bind<String>("userId") with singleton { instance<UserIdLoader>().getUserId() }
+    bind<Path>("homeDirectory") with singleton { Paths.get(System.getProperty("user.home")).resolve(".failchat") }
+    bind<String>("userId") with singleton { instance<UserIdManager>().getUserId() }
+
+    bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastMessageId")) }
+    bind<List<Skin>>() with singleton { SkinScanner(instance<Path>("workingDirectory")).scan() }
+    bind<UserIdManager>() with singleton { UserIdManager(instance<Path>("homeDirectory")) }
     bind<EventReporter>() with singleton {
-        EventReporter(
-                instance<String>("userId"),
-                instance<OkHttpClient>(),
-                instance<ConfigLoader>()
+        val config = instance<Configuration>()
+        ToggleEventReporter(
+                GAEventReporter(
+                        instance<OkHttpClient>(),
+                        instance<String>("userId"),
+                        config.getString("version"),
+                        config.getString("reporter.tracking-id")
+                ),
+                config.getBoolean("reporter.enabled")
         )
     }
 
@@ -249,5 +258,24 @@ val kodein = Kodein {
         )
     }
 
+    // Cybergame
+    bind<CgApiClient>() with singleton {
+        CgApiClient(
+                httpClient = instance<OkHttpClient>(),
+                apiUrl = instance<Configuration>().getString("cybergame.api-url")
+        )
+    }
+    bind<CgChatClient>() with factory { channelNameAndId: Pair<String, Long> ->
+        CgChatClient(
+                channelName = channelNameAndId.first,
+                channelId = channelNameAndId.second,
+                wsUrl = instance<Configuration>().getString("cybergame.ws-url"),
+                emoticonUrlPrefix = instance<Configuration>().getString("cybergame.emoticon-url-prefix"),
+                messageIdGenerator = instance<MessageIdGenerator>()
+        )
+    }
+    bind<CgViewersCountLoader>() with factory { channelName: String ->
+        CgViewersCountLoader(instance<CgApiClient>(), channelName)
+    }
 
 }

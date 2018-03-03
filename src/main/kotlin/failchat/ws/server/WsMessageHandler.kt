@@ -1,3 +1,5 @@
 package failchat.ws.server
 
-interface WsMessageHandler : (InboundWsMessage) -> Unit
+interface WsMessageHandler {
+    fun handle(message: InboundWsMessage)
+}
