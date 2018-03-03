@@ -22,6 +22,7 @@ import failchat.chat.handlers.ElementLabelEscaper
 import failchat.exception.ChannelOfflineException
 import failchat.util.any
 import failchat.util.debug
+import failchat.util.executeWithCatch
 import failchat.util.scheduleWithCatch
 import failchat.util.synchronized
 import failchat.util.value
@@ -76,7 +77,7 @@ class YtChatClient(
         val statusChanged = atomicStatus.compareAndSet(READY, CONNECTING)
         if (!statusChanged) return
 
-        youtubeExecutor.execute { getLiveChatIdRecursiveTask() }
+        youtubeExecutor.executeWithCatch { getLiveChatIdRecursiveTask() }
     }
 
     override fun stop() {
@@ -140,7 +141,7 @@ class YtChatClient(
             this.channelId.value = channelId
             this.liveChatId.value = liveChatId
 
-            youtubeExecutor.execute { getMessagesRecursiveTask(YtRequestParameters(liveChatId, null, true)) }
+            youtubeExecutor.executeWithCatch { getMessagesRecursiveTask(YtRequestParameters(liveChatId, null, true)) }
         } catch (e: Exception) {
             log.warn("Failed to find stream. Retry in {} ms. channelId/broadcastId: '{}'", searchInterval.toMillis(),
                     channelIdOrBroadcastId.any(), e)

@@ -2,7 +2,7 @@ package failchat.gui
 
 import failchat.AppStateManager
 import failchat.chat.ChatMessageSender
-import failchat.util.submitWithCatch
+import failchat.util.executeWithCatch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
@@ -23,26 +23,26 @@ class GuiEventHandler(
     private val executor = Executors.newSingleThreadExecutor()
 
     fun startChat() {
-        executor.submitWithCatch {
+        executor.executeWithCatch {
             appStateManager.startChat()
         }
     }
 
     fun stopChat() {
-        executor.submitWithCatch {
+        executor.executeWithCatch {
             appStateManager.stopChat()
         }
     }
 
     fun shutDown() {
-        executor.submitWithCatch {
+        executor.executeWithCatch {
             appStateManager.shutDown()
         }
         executor.shutdown()
     }
 
     fun notifyViewersCountToggled() {
-        executor.submit {
+        executor.executeWithCatch {
             messageSender.sendClientConfiguration()
         }
     }

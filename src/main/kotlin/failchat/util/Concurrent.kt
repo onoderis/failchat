@@ -4,7 +4,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.Future
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
@@ -27,7 +26,7 @@ fun ScheduledExecutorService.scheduleWithCatch(delay: Duration, command: () -> U
         try {
             command.invoke()
         } catch (t: Throwable) {
-            log.warn("Uncaught exception during executing scheduled task $command", t)
+            log.error("Uncaught exception during executing scheduled task $command", t)
         }
     }
 }
@@ -36,8 +35,8 @@ inline var <T> AtomicReference<T>.value
     get(): T = this.get()
     set(value: T) = this.set(value)
 
-fun ExecutorService.submitWithCatch(task: () -> Unit): Future<*> {
-    return submit {
+fun ExecutorService.executeWithCatch(task: () -> Unit) {
+    return execute {
         try {
             task.invoke()
         } catch (t: Throwable) {

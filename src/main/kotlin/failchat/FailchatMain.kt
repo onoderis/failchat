@@ -17,7 +17,7 @@ import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
 import failchat.twitch.BttvGlobalEmoticonLoader
 import failchat.twitch.TwitchEmoticonLoader
-import failchat.util.submitWithCatch
+import failchat.util.executeWithCatch
 import failchat.viewers.ViewersCountWsHandler
 import failchat.ws.server.ClientConfigurationWsHandler
 import failchat.ws.server.DeleteWsMessageHandler
@@ -34,8 +34,6 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.nio.file.Path
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Future
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -76,7 +74,7 @@ fun main(args: Array<String>) {
 
 
     // Load emoticons in background thread
-    loadEmoticonsAsync(backgroundExecutor)
+    backgroundExecutor.executeWithCatch { loadEmoticons() }
 
     log.info("Application started. Version: {}. Working directory: {}", config.getString("version"),
             kodein.instance<Path>("workingDirectory").toAbsolutePath())
@@ -103,7 +101,7 @@ private fun handleProgramArguments(args: Array<String>) {
     }
 }
 
-private fun loadEmoticonsAsync(executor: ExecutorService): Future<*> = executor.submitWithCatch {
+private fun loadEmoticons() {
     val manager: EmoticonManager = kodein.instance()
     val storage: EmoticonStorage = kodein.instance()
     val loadersAndOptions: List<Pair<EmoticonLoader<out Emoticon>, EmoticonStoreOptions>> = listOf(
