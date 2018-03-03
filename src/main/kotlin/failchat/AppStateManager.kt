@@ -35,6 +35,7 @@ import failchat.twitch.TwitchViewersCountLoader
 import failchat.util.completionCause
 import failchat.util.error
 import failchat.util.formatStackTraces
+import failchat.util.hotspotThreads
 import failchat.util.logException
 import failchat.util.ls
 import failchat.util.sleep
@@ -257,9 +258,12 @@ class AppStateManager(private val kodein: Kodein) {
         thread(start = true, name = "TerminationThread", isDaemon = true) {
             sleep(shutdownTimeout)
 
+            val threadsToPrint = Thread.getAllStackTraces()
+                    .filterNot { (thread, _) -> thread.isDaemon || hotspotThreads.contains(thread.name) }
+
             log.error {
                 "Process terminated after ${shutdownTimeout.toMillis()} ms of shutDown() call. Verbose information:$ls" +
-                        formatStackTraces(Thread.getAllStackTraces())
+                        formatStackTraces(threadsToPrint)
             }
             System.exit(5)
         }
