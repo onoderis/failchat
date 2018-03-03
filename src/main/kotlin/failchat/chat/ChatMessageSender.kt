@@ -1,13 +1,14 @@
 package failchat.chat
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.chat.StatusMessageMode.NOWHERE
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
 import failchat.chat.handlers.LinkHandler
 import failchat.emoticon.Emoticon
 import failchat.gui.StatusMessageModeConverter
+import failchat.viewers.COUNTABLE_ORIGINS
 import failchat.ws.server.WsServer
 import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
@@ -17,14 +18,14 @@ class ChatMessageSender(
         private val wsServer: WsServer,
         private val config: Configuration,
         ignoreFilter: IgnoreFilter,
-        imageLinkHandler: ImageLinkHandler,
-        private val objectMapper: ObjectMapper = ObjectMapper()
+        imageLinkHandler: ImageLinkHandler
 ) {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(ChatMessageSender::class.java)
     }
 
+    private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
     private val handlers: List<MessageHandler<ChatMessage>> = listOf(
             LinkHandler(),
             imageLinkHandler
@@ -41,7 +42,7 @@ class ChatMessageSender(
         handlers.forEach { it.handleMessage(message) }
 
 
-        val messageNode = objectMapper.createObjectNode().apply {
+        val messageNode = nodeFactory.objectNode().apply {
             put("type", "message")
             with("content").apply {
                 put("id", message.id)
@@ -93,13 +94,34 @@ class ChatMessageSender(
         val mode = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
         if (mode == NOWHERE) return
 
-        val messageNode = objectMapper.createObjectNode().apply {
+        val messageNode = nodeFactory.objectNode().apply {
             put("type", "origin-status")
             putObject("content").apply {
                 put("origin", message.origin.commonName)
                 put("status", message.status.jsonValue)
                 put("timestamp", message.timestamp.toEpochMilli())
-                put("mode", mode.jsonValue) //todo don't send mode here
+            }
+        }
+
+        wsServer.send(messageNode.toString())
+    }
+
+    /** Send client configuration to all clients. */
+    fun sendClientConfiguration() {
+        val mode = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
+
+        val messageNode = nodeFactory.objectNode().apply {
+            put("type", "client-configuration")
+            putObject("content").apply {
+                put("statusMessageMode", mode.jsonValue)
+                put("showViewersCount", config.getBoolean("show-viewers"))
+                put("nativeClientBgColor", config.getString("background-color.native"))
+                put("externalClientBgColor", config.getString("background-color.external"))
+                putObject("enabledOrigins").apply {
+                    COUNTABLE_ORIGINS.forEach { origin ->
+                        put(origin.commonName, config.getBoolean("${origin.commonName}.enabled"))
+                    }
+                }
             }
         }
 

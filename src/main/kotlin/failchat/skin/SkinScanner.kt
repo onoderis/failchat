@@ -12,6 +12,7 @@ class SkinScanner(workDirectory: Path) {
         Files.newDirectoryStream(skinsDirectory).use { stream ->
             return stream
                     .filterNotNull()
+                    .filterNot { it.fileName.toString().startsWith("_") } //ignore _shared directory
                     .map { Skin(it.fileName.toString(), it) }
         }
     }

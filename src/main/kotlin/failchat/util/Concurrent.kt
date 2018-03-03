@@ -8,6 +8,7 @@ import java.util.concurrent.Future
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.Condition
 
@@ -44,3 +45,7 @@ fun ExecutorService.submitWithCatch(task: () -> Unit): Future<*> {
         }
     }
 }
+
+inline var AtomicBoolean.value
+    get(): Boolean = this.get()
+    set(value: Boolean) = this.set(value)

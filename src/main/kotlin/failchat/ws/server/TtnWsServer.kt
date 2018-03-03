@@ -77,7 +77,7 @@ class TtnWsServer(
             val type: String = parsedMessage.get("type").asText()
 
             messageConsumers[type]
-                    ?.invoke(InboundWsMessage(webSocket, parsedMessage.get("content")))
+                    ?.handle(InboundWsMessage(webSocket, parsedMessage.get("content")))
                     ?: log.warn("Message consumer not found for message with type '{}'. Message: '{}'", type, inboundMessage)
         }
 

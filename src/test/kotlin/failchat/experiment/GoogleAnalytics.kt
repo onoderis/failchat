@@ -1,15 +1,15 @@
 package failchat.experiment
 
-import failchat.ConfigLoader
+import failchat.okHttpClient
 import failchat.reporter.EventAction
 import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
-import okhttp3.OkHttpClient
+import failchat.reporter.GAEventReporter
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.nio.file.Paths
 
 @Ignore
 class GoogleAnalytics {
@@ -18,11 +18,13 @@ class GoogleAnalytics {
         val log: Logger = LoggerFactory.getLogger(GoogleAnalytics::class.java)
     }
 
-    val reporter = EventReporter("test-id", OkHttpClient(), ConfigLoader(Paths.get("target/test-classes/config")))
+    val reporter: EventReporter = GAEventReporter(okHttpClient, "test-id", "2.2.0", "UA-73079300-3")
 
     @Test
     fun testReport() {
-        reporter.reportEvent(EventCategory.GENERAL, EventAction.APP_LAUNCH).join()
+        runBlocking {
+            reporter.report(EventCategory.GENERAL, EventAction.APP_LAUNCH)
+        }
     }
 
 }

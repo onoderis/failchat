@@ -2,6 +2,7 @@ package failchat.gui
 
 import failchat.chat.StatusMessageMode
 import failchat.skin.Skin
+import failchat.util.toHexFormat
 import javafx.collections.FXCollections
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
@@ -34,12 +35,14 @@ class SettingsFrame(
     private val goodgameChannel = scene.lookup("#goodgame_channel") as TextField
     private val twitchChannel = scene.lookup("#twitch_channel") as TextField
     private val youtubeChannel = scene.lookup("#youtube_channel") as TextField
+    private val cybergameChannel = scene.lookup("#cybergame_channel") as TextField
 
     //channels checkboxes
     private val peka2tvEnabled = scene.lookup("#peka2tv_enabled") as CheckBox
     private val goodgameEnabled = scene.lookup("#goodgame_enabled") as CheckBox
     private val twitchEnabled = scene.lookup("#twitch_enabled") as CheckBox
     private val youtubeEnabled = scene.lookup("#youtube_enabled") as CheckBox
+    private val cybergameEnabled = scene.lookup("#cybergame_enabled") as CheckBox
 
     private val skin = scene.lookup("#skin") as ChoiceBox<Skin>
     private val frame = scene.lookup("#frame") as CheckBox
@@ -48,7 +51,8 @@ class SettingsFrame(
     private val showImages = scene.lookup("#show_images") as CheckBox
 
     //second tab
-    private val bgColorPicker = scene.lookup("#bgcolor") as ColorPicker
+    private val nativeBgColorPicker = scene.lookup("#bgcolor_native") as ColorPicker
+    private val externalBgColorPicker = scene.lookup("#bgcolor_external") as ColorPicker
     private val statusMessagesMode = scene.lookup("#status_messages") as ChoiceBox<StatusMessageMode>
     private val ignoreList = scene.lookup("#ignore_list") as TextArea
 
@@ -78,6 +82,9 @@ class SettingsFrame(
         youtubeEnabled.selectedProperty().addListener { _, _, newValue ->
             youtubeChannel.configureChannelField(newValue)
         }
+        cybergameEnabled.selectedProperty().addListener { _, _, newValue ->
+            cybergameChannel.configureChannelField(newValue)
+        }
 
         skin.converter = SkinConverter(skinList)
         skin.items = FXCollections.observableArrayList(skinList)
@@ -98,7 +105,7 @@ class SettingsFrame(
         startButton.setOnAction { toChat() }
     }
 
-    internal fun show() {
+    fun show() {
         updateSettingsValues()
         stage.show()
     }
@@ -114,6 +121,7 @@ class SettingsFrame(
         goodgameChannel.text = config.getString("goodgame.channel")
         twitchChannel.text = config.getString("twitch.channel")
         youtubeChannel.text = config.getString("youtube.channel")
+        cybergameChannel.text = config.getString("cybergame.channel")
 
         config.getBoolean("peka2tv.enabled").let {
             peka2tvEnabled.isSelected = it
@@ -131,6 +139,10 @@ class SettingsFrame(
             youtubeEnabled.isSelected = it
             youtubeChannel.configureChannelField(it)
         }
+        config.getBoolean("cybergame.enabled").let {
+            cybergameEnabled.isSelected = it
+            cybergameChannel.configureChannelField(it)
+        }
 
         skin.value = skin.converter.fromString(config.getString("skin"))
         frame.isSelected = config.getBoolean("frame")
@@ -138,7 +150,8 @@ class SettingsFrame(
         showImages.isSelected = config.getBoolean("show-images")
         onTop.isSelected = config.getBoolean("on-top")
 
-        bgColorPicker.value = Color.web(config.getString("background-color"))
+        nativeBgColorPicker.value = Color.web(config.getString("background-color.native"))
+        externalBgColorPicker.value = Color.web(config.getString("background-color.external"))
         opacitySlider.value = config.getDouble("opacity")
         statusMessagesMode.value = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
 
@@ -151,11 +164,13 @@ class SettingsFrame(
         config.setProperty("goodgame.channel", goodgameChannel.text)
         config.setProperty("twitch.channel", twitchChannel.text)
         config.setProperty("youtube.channel", youtubeChannel.text)
+        config.setProperty("cybergame.channel", cybergameChannel.text)
 
         config.setProperty("peka2tv.enabled", peka2tvEnabled.isSelected)
         config.setProperty("goodgame.enabled", goodgameEnabled.isSelected)
         config.setProperty("twitch.enabled", twitchEnabled.isSelected)
         config.setProperty("youtube.enabled", youtubeEnabled.isSelected)
+        config.setProperty("cybergame.enabled", cybergameEnabled.isSelected)
 
         config.setProperty("skin", skin.value.name)
         config.setProperty("frame", frame.isSelected)
@@ -163,20 +178,11 @@ class SettingsFrame(
         config.setProperty("show-viewers", showViewers.isSelected)
         config.setProperty("show-images", showImages.isSelected)
 
-        config.setProperty("background-color", bgColorPicker.value.toString())
+        config.setProperty("background-color.native", nativeBgColorPicker.value.toHexFormat())
+        config.setProperty("background-color.external", externalBgColorPicker.value.toHexFormat())
         config.setProperty("opacity", opacitySlider.value.toInt())
         config.setProperty("status-message-mode", statusMessagesModeConverter.toString(statusMessagesMode.value))
         config.setProperty("ignore", ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
-    }
-
-    private fun TextField.configureChannelField(editable: Boolean) {
-        if (editable) {
-            this.style = ""
-            this.isEditable = true
-        } else {
-            this.style = "-fx-background-color: lightgrey"
-            this.isEditable = false
-        }
     }
 
 }

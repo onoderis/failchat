@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>failchat</title>
+    <meta charset="UTF-8">
+    <script src="../_shared/lib/jquery.min.js"></script>
+    <script src="../_shared/lib/jsrender.min.js"></script>
+    <script src="../_shared/lib/ResizeSensor.min.js"></script>
+    <script src="../_shared/lib/baron.min.js"></script>
+    <script src="../_shared/lib/reconnecting-websocket.min.js"></script>
+    <script src="../_shared/failchat.js"></script>
+    <link rel="stylesheet" href="old_sc2tv.css">
+</head>
+<body>
+
+<script>
+    failchat.maxMessages = 50;
+    failchat.messageSelector = ".message";
+    failchat.baronParams = {
+        root: ".chat-wrapper",
+        scroller: ".scroller",
+        bar: ".scrollbar",
+        barOnCls: "baron"
+    };
+</script>
+
+<div id="body-wrapper">
+    <div class="viewers-bar">
+        <div class="viewers-origins"></div>
+    </div>
+    <div class="chat-wrapper">
+        <div class="scroller">
+            <div id="message-container"></div>
+            <div class="scrollbar"></div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

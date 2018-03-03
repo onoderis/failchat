@@ -1,9 +1,9 @@
 package failchat.twitch
 
+import failchat.config
 import failchat.exception.ChannelOfflineException
-import failchat.util.loadConfig
-import failchat.util.loadPrivateConfig
-import failchat.util.okHttpClient
+import failchat.okHttpClient
+import failchat.privateConfig
 import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger
@@ -17,14 +17,12 @@ class TwitchApiTest {
 
     companion object {
         val log: Logger = LoggerFactory.getLogger(TwitchApiTest::class.java)
-        val config = loadConfig()
-        val privateConfig = loadPrivateConfig()
         val timeout: Duration = Duration.ofSeconds(50)
         val userNames = setOf("lirik", "Doublelift", "C9Sneaky", "TSM_Dyrus", "MOONMOON_OW", "aimbotcalvin")
         val userIds = setOf<Long>(23161357, 40017619, 24538518, 30080751, 121059319, 84574550)
     }
 
-    val apiClient = TwitchApiClient(
+    private val apiClient = TwitchApiClient(
             okHttpClient,
             config.getString("twitch.api-url"),
             privateConfig.getString("twitch.api-token")
@@ -61,7 +59,6 @@ class TwitchApiTest {
             log.debug("emoticons: {}", size)
         }
         log.debug("emoticons loaded in {} ms", time)
-
     }
 
 }

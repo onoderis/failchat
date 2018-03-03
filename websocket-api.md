@@ -38,18 +38,36 @@
 }
 ```
 
-#### Информационное сообщение
+#### Client configuration
+`status-message-mode` может принимать значения: `everywhere`, `native_client`, `nowhere`
+```json
+{
+    "type": "client-configuration",
+    "content": {
+        "statusMessageMode": "everywhere",
+        "showViewersCount": true,
+        "nativeClientBgColor": "0x000000ff",
+        "externalClientBgColor": "0x00000000",
+        "enabledOrigins": {
+            "peka2tv": false,
+            "twitch": true,
+            "goodgame": true,
+            "youtube": false
+        }
+    }
+}
+```
+
+#### Origin status
 Сюда входят сообщения об подключение и отключение к источникам  
 `content.status` может принимать значения: `connected`, `disconnected`  
-`content.mode` может принимать значения: `everywhere`, `native_client`
 ```json
 {
     "type": "origin-status",
     "content": {
         "origin": "twitch",
         "status": "connected",
-        "timestamp": 1499789037199,
-        "mode": "everywhere"
+        "timestamp": 1499789037199
     }
 }
 ```
@@ -64,30 +82,6 @@
         "peka2tv": 100,
         "twitch": 200,
         "goodgame": null
-    }
-}
-```
-
-
-#### Show viewers count
-```json
-{
-    "type": "show-viewers-count",
-    "content": {
-        "show": true
-    }
-}
-```
-
-#### Enabled-origins
-```json
-{
-    "type": "enabled-origins",
-    "content": {
-        "peka2tv": false,
-        "twitch": true,
-        "goodgame": true,
-        "youtube": false      
     }
 }
 ```
@@ -108,6 +102,14 @@
 
 # Сообщения от клиента
 
+#### Client configuration request 
+```json
+{
+    "type": "client-configuration",
+    "content": {}
+}
+```
+
 #### Delete message
 Запрос клиента на удаление сообщения
 ```json
@@ -118,7 +120,6 @@
     }
 }
 ```
-
 
 #### Ignore user
 Запрос клиента на блокировку сообщений от пользователя
@@ -138,21 +139,3 @@
     "content": {}
 }
 ```
-
-#### Show viewers count request 
-```json
-{
-    "type": "show-viewers-count",
-    "content": {}
-}
-```
-
-
-#### Enabled-origins
-```json
-{
-    "type": "enabled-origins",
-    "content": {}
-}
-```
-

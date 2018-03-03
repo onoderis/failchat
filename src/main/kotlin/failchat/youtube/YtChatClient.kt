@@ -1,6 +1,7 @@
 package failchat.youtube
 
 import com.google.api.services.youtube.model.LiveChatMessage
+import com.google.common.collect.EvictingQueue
 import either.Either
 import either.fold
 import failchat.Origin
@@ -19,16 +20,15 @@ import failchat.chat.StatusMessage
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.exception.ChannelOfflineException
-import failchat.util.ConcurrentEvictingQueue
 import failchat.util.any
 import failchat.util.debug
 import failchat.util.scheduleWithCatch
+import failchat.util.synchronized
 import failchat.util.value
 import failchat.viewers.ViewersCountLoader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
-import java.util.Queue
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.atomic.AtomicReference
@@ -70,7 +70,7 @@ class YtChatClient(
     private val channelId = AtomicReference<String?>()
     private val liveBroadcastId = AtomicReference<String?>()
     private val liveChatId = AtomicReference<String?>()
-    private val history: Queue<YtMessage> = ConcurrentEvictingQueue(50)
+    private val history = EvictingQueue.create<YtMessage>(50).synchronized()
 
     override fun start() {
         val statusChanged = atomicStatus.compareAndSet(READY, CONNECTING)

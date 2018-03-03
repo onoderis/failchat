@@ -16,14 +16,14 @@ class EmoticonStorage : EmoticonFinder {
     override fun getList(origin: Origin): List<Emoticon> = emoticonLists.get(origin) ?: emptyList()
 
     fun putCodeMapping(origin: Origin, emoticons: Map<String, Emoticon>) {
-        codeToEmoticon.put(origin, emoticons)
+        codeToEmoticon[origin] = emoticons
     }
 
     fun putIdMapping(origin: Origin, emoticons: Map<Long, Emoticon>) {
-        idToEmoticon.put(origin, emoticons)
+        idToEmoticon[origin] = emoticons
     }
 
     fun putList(origin: Origin, emoticons: List<Emoticon>) {
-        emoticonLists.set(origin, emoticons)
+        emoticonLists[origin] = emoticons
     }
 }

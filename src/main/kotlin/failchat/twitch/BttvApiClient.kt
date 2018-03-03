@@ -50,7 +50,11 @@ class BttvApiClient(
         return httpClient.newCall(request)
                 .toFuture()
                 .thenApplySafe {
-                    if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
+                    when (it.code()) {
+                        200 -> {}
+                        404 -> throw BttvChannelNotFoundException(channel)
+                        else -> throw UnexpectedResponseCodeException(it.code())
+                    }
                     val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
                     val bodyString = responseBody.string()
                     return@thenApplySafe parseEmoticons(bodyString, Origin.BTTV_CHANNEL)

@@ -1,12 +1,14 @@
 package failchat.ws.client
 
 import failchat.util.sleep
+import failchat.util.value
 import failchat.ws.client.WsClient.Status.CONNECTING
 import failchat.ws.client.WsClient.Status.ERROR
 import failchat.ws.client.WsClient.Status.READY
 import failchat.ws.client.WsClient.Status.SHUTDOWN
 import failchat.ws.client.WsClient.Status.WORKING
 import org.java_websocket.client.WebSocketClient
+import org.java_websocket.drafts.Draft_6455
 import org.java_websocket.handshake.ServerHandshake
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -26,6 +28,7 @@ open class WsClient(private val serverUri: URI) {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(WsClient::class.java)
+        val requestHeaders = mapOf("Connection" to "Upgrade")
     }
 
     private val reconnectInterval = Duration.ofSeconds(5)
@@ -40,13 +43,15 @@ open class WsClient(private val serverUri: URI) {
             tryReconnectLoop()
         }
 
-        log.info("WsClient starter")
+        log.info("WsClient started. uri: {}", serverUri)
     }
 
     fun stop() {
         status.set(SHUTDOWN)
         lock.withLock { reconnectCondition.signal() }
         wsClient.close()
+
+        log.info("WsClient stopped. uri: {}", serverUri)
     }
 
     fun send(message: String) = wsClient.send(message)
@@ -86,21 +91,30 @@ open class WsClient(private val serverUri: URI) {
     }
 
 
-    private inner class Wsc : WebSocketClient(this@WsClient.serverUri) {
+    private inner class Wsc : WebSocketClient(
+            this@WsClient.serverUri,
+            Draft_6455(),
+            requestHeaders,
+            0
+    ) {
 
-        private val status = this@WsClient.status
+        private val status: AtomicReference<Status> = this@WsClient.status
 
         override fun onOpen(serverHandshake: ServerHandshake) {
             status.set(WORKING)
+            log.debug("Connection open. uri: '{}'", serverUri)
             this@WsClient.onOpen(serverHandshake)
         }
 
         override fun onMessage(message: String) {
+            log.debug("Message received. uri: '{}', message: '{}'", serverUri, message)
             this@WsClient.onMessage(message)
         }
 
         override fun onClose(code: Int, reason: String, remote: Boolean) {
-            when (status.get()!!) {
+            log.debug("Connection closed. uri: '{}', code: '{}', reason: '{}'", serverUri, code, reason)
+
+            when (status.value) {
                 CONNECTING,
                 SHUTDOWN,
                 ERROR -> return
@@ -120,6 +134,8 @@ open class WsClient(private val serverUri: URI) {
         }
 
         override fun onError(e: Exception) {
+            log.debug("Error occurred. uri: {},", serverUri)
+
             val statusChanged = status.compareAndSet(WORKING, CONNECTING)
             if (statusChanged) this@WsClient.onReconnect()
 

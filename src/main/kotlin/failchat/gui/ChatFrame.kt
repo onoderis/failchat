@@ -1,6 +1,5 @@
 package failchat.gui
 
-import failchat.util.removeTransparency
 import failchat.util.urlPattern
 import javafx.application.Application
 import javafx.application.Platform
@@ -58,24 +57,26 @@ class ChatFrame(
         buildContextMenu(chatScene)
     }
 
-    internal fun show() {
-        val bgColor = Color.web(config.getString("background-color"))
+    fun show() {
+        val nativeBgColor = Color.web(config.getString("background-color.native"))
+
         if (config.getBoolean("frame")) {
             currentChatStage = decoratedChatStage
-            chatScene.fill = bgColor.removeTransparency()
+            chatScene.fill = Color.BLACK
         } else {
-            if (bgColor.isOpaque) {
+            if (nativeBgColor.isOpaque) {
                 currentChatStage = undecoratedChatStage
+                chatScene.fill = Color.BLACK
             } else {
                 currentChatStage = transparentChatStage
+                chatScene.fill = Color.TRANSPARENT
             }
-            chatScene.fill = bgColor
         }
 
         currentChatStage.scene = chatScene
         configureChatStage(currentChatStage)
         updateContextMenu()
-        currentChatStage.show()
+
         val skin = config.getString("skin")
         try {
             webEngine.load(skinsDirectory.resolve(skin).resolve(skin + ".html").toUri().toURL().toString())
@@ -83,7 +84,13 @@ class ChatFrame(
             log.error("Failed to load skin {}", skin, e)
         }
 
+        currentChatStage.show()
+
         guiEventHandler.startChat()
+    }
+
+    fun clearWebContent() {
+        webEngine.loadContent("")
     }
 
     private fun buildChatStage(type: StageType): Stage {
@@ -131,6 +138,7 @@ class ChatFrame(
             when (key.code) {
                 KeyCode.ESCAPE -> toSettings()
                 KeyCode.SPACE -> switchDecorations()
+                else -> {}
             }
         }
 
@@ -180,7 +188,7 @@ class ChatFrame(
         viewersItem.setOnAction { event ->
             val newValue = !config.getBoolean("show-viewers")
             config.setProperty("show-viewers", newValue)
-            guiEventHandler.notifyViewersCountToggled(newValue)
+            guiEventHandler.notifyViewersCountToggled()
         }
 
         return contextMenu
@@ -189,7 +197,7 @@ class ChatFrame(
     private fun toSettings() {
         saveChatPosition(currentChatStage)
         currentChatStage.hide()
-        webEngine.loadContent("")
+        clearWebContent()
         settings.show()
         guiEventHandler.stopChat()
     }
@@ -198,16 +206,20 @@ class ChatFrame(
         val toDecorated = currentChatStage === undecoratedChatStage || currentChatStage === transparentChatStage
         val fromChatStage = currentChatStage
 
-        val bgColor = Color.web(config.getString("background-color"))
+        val bgColor = Color.web(config.getString("background-color.native"))
         val toChatStage = if (toDecorated) {
-            chatScene.fill = bgColor.removeTransparency()
             config.setProperty("frame", true)
+            chatScene.fill = Color.BLACK
             decoratedChatStage
         } else {
-            chatScene.fill = bgColor
             config.setProperty("frame", false)
-            if (bgColor.isOpaque) undecoratedChatStage
-            else transparentChatStage
+            if (bgColor.isOpaque) {
+                chatScene.fill = Color.BLACK
+                undecoratedChatStage
+            } else {
+                chatScene.fill = Color.TRANSPARENT
+                transparentChatStage
+            }
         }
 
         saveChatPosition(fromChatStage)
@@ -226,7 +238,7 @@ class ChatFrame(
         stage.height = config.getDouble("chat.height")
         val x = config.getDouble("chat.x")
         val y = config.getDouble("chat.y")
-        if (x != -1.0 && y != -1.0) {
+        if (x != -1.0 && y != -1.0) { // magic numbers
             stage.x = x
             stage.y = y
         }
