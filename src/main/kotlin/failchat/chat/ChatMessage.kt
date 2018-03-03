@@ -24,10 +24,8 @@ open class ChatMessage(
         val timestamp: Instant = Instant.now(),
 
         /** Initial list of elements. */
-        elements: List<Any> = emptyList()
+        elements: List<MessageElement> = emptyList()
 ) {
-
-    var highlighted = false
 
     /**
      * Could contains next elements:
@@ -35,19 +33,20 @@ open class ChatMessage(
      * - [Link]
      * - [Image]
      * */
-    val elements: List<Any> get() = mutableElements
+    val elements: List<MessageElement> get() = mutableElements
+    private val mutableElements: MutableList<MessageElement> = elements.toMutableList()
 
-    private val mutableElements: MutableList<Any> = elements.toMutableList()
+    var highlighted = false
 
     /**
      * @return formatted string for added element.
      * */
-    fun addElement(element: Any): String {
+    fun addElement(element: MessageElement): String {
         mutableElements.add(element)
         return ElementFormatter.format(mutableElements.size - 1)
     }
 
-    fun replaceElement(index: Int, replacement: Any): Any? {
+    fun replaceElement(index: Int, replacement: MessageElement): Any? {
         return mutableElements.set(index, replacement)
     }
 

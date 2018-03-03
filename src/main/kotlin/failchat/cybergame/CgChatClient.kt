@@ -10,6 +10,7 @@ import failchat.chat.ChatClientStatus.READY
 import failchat.chat.ChatMessage
 import failchat.chat.ElementFormatter
 import failchat.chat.Link
+import failchat.chat.MessageElement
 import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
@@ -179,10 +180,10 @@ class CgChatClient(
 
     private class MessageContentFolder {
         val text: String get() = textBuilder.toString()
-        val elements: List<Any> get() = mutableElements
+        val elements: List<MessageElement> get() = mutableElements
 
         private val textBuilder = StringBuilder()
-        private val mutableElements = mutableListOf<Any>()
+        private val mutableElements = mutableListOf<MessageElement>()
 
         fun fold(part: MessagePart): MessageContentFolder {
             when (part) {
