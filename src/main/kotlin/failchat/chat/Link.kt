@@ -7,4 +7,4 @@ data class Link(
         val fullUrl: String,
         val domain: String,
         val shortUrl: String
-)
+) : MessageElement
