@@ -95,7 +95,7 @@ class AppStateManager(private val kodein: Kodein) {
         if (state != SETTINGS) IllegalStateException("Expected: $SETTINGS, actual: $state")
 
         val viewersCountLoaders: MutableList<ViewersCountLoader> = ArrayList()
-        val chatClientMap: MutableMap<Origin, ChatClient<*>> = HashMap() //todo rename
+        val initializedChatClients: MutableMap<Origin, ChatClient<*>> = HashMap()
 
         // Peka2tv chat client initialization
         checkEnabled(PEKA2TV)?.let { channelName ->
@@ -111,7 +111,7 @@ class AppStateManager(private val kodein: Kodein) {
                     .invoke(channelName to channelId)
                     .also { it.setCallbacks() }
 
-            chatClientMap.put(PEKA2TV, chatClient)
+            initializedChatClients.put(PEKA2TV, chatClient)
             viewersCountLoaders.add(chatClient)
         }
 
@@ -120,7 +120,7 @@ class AppStateManager(private val kodein: Kodein) {
             val chatClient = kodein.factory<String, TwitchChatClient>()
                     .invoke(channelName)
                     .also { it.setCallbacks() }
-            chatClientMap.put(TWITCH, chatClient)
+            initializedChatClients.put(TWITCH, chatClient)
             viewersCountLoaders.add(kodein.factory<String, TwitchViewersCountLoader>().invoke(channelName))
 
             // load BTTV channel emoticons in background
@@ -156,7 +156,7 @@ class AppStateManager(private val kodein: Kodein) {
                     .invoke(channelName to channelId)
                     .also { it.setCallbacks() }
 
-            chatClientMap.put(GOODGAME, chatClient)
+            initializedChatClients.put(GOODGAME, chatClient)
             viewersCountLoaders.add(chatClient)
         }
 
@@ -168,7 +168,7 @@ class AppStateManager(private val kodein: Kodein) {
                     .invoke(eitherId)
                     .also { it.setCallbacks() }
 
-            chatClientMap.put(YOUTUBE, chatClient)
+            initializedChatClients.put(YOUTUBE, chatClient)
             viewersCountLoaders.add(chatClient)
         }
 
@@ -186,7 +186,7 @@ class AppStateManager(private val kodein: Kodein) {
                     .invoke(channelName to channelId)
                     .also { it.setCallbacks() }
 
-            chatClientMap.put(CYBERGAME, chatClient)
+            initializedChatClients.put(CYBERGAME, chatClient)
             viewersCountLoaders.add(kodein.factory<String, CgViewersCountLoader>().invoke(channelName))
         }
 
@@ -195,32 +195,38 @@ class AppStateManager(private val kodein: Kodein) {
         imageLinkHandler.reloadConfig()
 
         // Start chat clients
-        chatClientMap.values.forEach {
+        chatClients = initializedChatClients
+        chatClients.values.forEach {
             try {
                 it.start()
             } catch (t: Throwable) {
                 log.error("Failed to start ${it.origin} chat client", t)
             }
         }
-        chatClients = chatClientMap
 
         // Start viewers counter
         viewersCounter = try {
             kodein
                     .factory<List<ViewersCountLoader>, ViewersCounter>()
                     .invoke(viewersCountLoaders)
-                    .apply { start() }
+                    .also { it.start() }
         } catch (t: Throwable) {
             log.error("Failed to start viewers counter", t)
             null
         }
 
         viewersCountWsHandler.viewersCounter.set(viewersCounter)
+
+        // Save config
+        configLoader.save()
     }
 
     fun stopChat() = lock.withLock {
         if (state != CHAT) IllegalStateException("Expected: $CHAT, actual: $state")
         reset()
+
+        // Save config
+        configLoader.save()
     }
 
     fun shutDown() = lock.withLock {
