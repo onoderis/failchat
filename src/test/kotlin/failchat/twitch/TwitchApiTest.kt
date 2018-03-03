@@ -4,22 +4,25 @@ import failchat.config
 import failchat.exception.ChannelOfflineException
 import failchat.okHttpClient
 import failchat.privateConfig
-import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.Duration
 import java.util.concurrent.CompletionException
 import kotlin.system.measureTimeMillis
+import kotlin.test.assertEquals
 
-@Ignore
 class TwitchApiTest {
 
     companion object {
         val log: Logger = LoggerFactory.getLogger(TwitchApiTest::class.java)
-        val timeout: Duration = Duration.ofSeconds(50)
-        val userNames = setOf("lirik", "Doublelift", "C9Sneaky", "TSM_Dyrus", "MOONMOON_OW", "aimbotcalvin")
-        val userIds = setOf<Long>(23161357, 40017619, 24538518, 30080751, 121059319, 84574550)
+        val userNameToId: Map<String, Long> = mapOf(
+                "lirik" to 23161357L,
+                "Doublelift" to 40017619L,
+                "TSM_Dyrus" to 6356773L,
+                "C9Sneaky" to 24538518L,
+                "MOONMOON_OW" to 121059319L,
+                "aimbotcalvin" to 84574550L
+        )
     }
 
     private val apiClient = TwitchApiClient(
@@ -30,35 +33,32 @@ class TwitchApiTest {
 
     @Test
     fun requestUserIdTest() {
-        userNames.forEach { userName ->
-            val userId = apiClient.requestUserId(userName).join()
-            log.debug("user id: {}", userId)
+        userNameToId.forEach { (name, expectedId) ->
+            val actualId = apiClient.requestUserId(name).join()
+            assertEquals(expectedId, actualId)
         }
     }
 
     @Test
     fun requestViewersCountTest() {
-        userIds.forEach { userId ->
+        userNameToId.forEach { (_, id) ->
             try {
-                val count = apiClient.requestViewersCount(userId).join()
-                log.debug("count: {}", count)
+                // todo investigate why coroutines doesn't unwrap CompletionException
+                apiClient.requestViewersCount(id).join()
             } catch (e: CompletionException) {
-                if (e.cause is ChannelOfflineException) {
-                    log.debug("user with id {} is offline", userId)
-                } else {
-                    throw e
-                }
+                if (e.cause !is ChannelOfflineException) throw e
             }
         }
     }
 
     @Test
     fun requestEmoticonsTest() {
+        var size: Int? = null
         val time = measureTimeMillis {
-            val size = apiClient.requestEmoticons().join().size
+            size = apiClient.requestEmoticons().join().size
             log.debug("emoticons: {}", size)
         }
-        log.debug("emoticons loaded in {} ms", time)
+        log.debug("emoticons loaded in {} ms. size: {}", time, size)
     }
 
 }
