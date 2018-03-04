@@ -1,5 +1,5 @@
 ### Description
-Chat message aggregator for twitch, youtube, goodgame, peka2tv 
+Chat message aggregator for twitch, youtube, goodgame, peka2tv, cybergame.tv 
 
 ### Features
 * Emote icons, highlights
