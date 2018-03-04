@@ -43,7 +43,7 @@ open class ChatMessage(
      * */
     fun addElement(element: MessageElement): String {
         mutableElements.add(element)
-        return ElementFormatter.format(mutableElements.size - 1)
+        return Elements.label(mutableElements.size - 1)
     }
 
     fun replaceElement(index: Int, replacement: MessageElement): Any? {

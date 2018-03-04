@@ -8,7 +8,7 @@ import failchat.chat.ChatClient
 import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.READY
 import failchat.chat.ChatMessage
-import failchat.chat.ElementFormatter
+import failchat.chat.Elements
 import failchat.chat.Link
 import failchat.chat.MessageElement
 import failchat.chat.MessageHandler
@@ -189,11 +189,11 @@ class CgChatClient(
             when (part) {
                 is MessagePart.Text -> textBuilder.append(part.text)
                 is MessagePart.Emoticon -> {
-                    textBuilder.append(ElementFormatter.format(part.elementNumber))
+                    textBuilder.append(Elements.label(part.elementNumber))
                     mutableElements.add(part.emoticon)
                 }
                 is MessagePart.Link -> {
-                    textBuilder.append(ElementFormatter.format(part.elementNumber))
+                    textBuilder.append(Elements.label(part.elementNumber))
                     mutableElements.add(part.parsedLink)
                 }
                 else -> throw IllegalStateException("Unexpected subtype of MessagePartType: ${part.javaClass.name}")

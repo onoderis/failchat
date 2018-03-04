@@ -1,6 +1,6 @@
 package failchat.chat
 
-object ElementFormatter {
+object Elements {
     /** Get string representation of element by it's number. */
-    fun format(number: Int) = "{!$number}"
+    fun label(number: Int) = "{!$number}"
 }
