@@ -1,3 +1,6 @@
 package failchat.exception
 
-class UnexpectedResponseCodeException(code: Int) : UnexpectedResponseException(code.toString())
+class UnexpectedResponseCodeException : UnexpectedResponseException{
+    constructor(code: Int) : super("code: '$code'")
+    constructor(code: Int, url: String) : super("code: '$code', url: '$url'")
+}

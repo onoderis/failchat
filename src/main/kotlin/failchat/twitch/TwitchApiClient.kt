@@ -1,13 +1,13 @@
 package failchat.twitch
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.Origin
 import failchat.exception.ChannelOfflineException
 import failchat.exception.DataNotFoundException
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.isEmpty
+import failchat.util.objectMapper
 import failchat.util.thenApplySafe
 import failchat.util.toFuture
 import failchat.util.withSuffix
@@ -21,7 +21,7 @@ class TwitchApiClient(
         private val httpClient: OkHttpClient,
         apiUrl: String,
         private val token: String,
-        private val objectMapper: ObjectMapper = ObjectMapper()
+        private val emoticonUrlFactory: TwitchEmoticonUrlFactory
 ) {
 
     private companion object {
@@ -60,7 +60,7 @@ class TwitchApiClient(
                 TwitchEmoticon(
                         id,
                         regex = it.get("code").asText(),
-                        url = "http://static-cdn.jtvnw.net/emoticons/v1/$id/1.0"
+                        url = emoticonUrlFactory.create(id)
                 )
             }
         }

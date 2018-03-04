@@ -44,7 +44,7 @@ class EmoticonManager(
                 config.setProperty("${origin.commonName}.emoticons.last-updated", now.toEpochMilli())
                 log.info("Updated emoticon list saved to cache file for origin {}", origin)
             } catch (e: Exception) {
-                log.warn("Failed to save updated emoticon list to cache file. origin {}", origin)
+                log.warn("Failed to save updated emoticon list to cache file. origin {}", origin, e)
             }
         }
 

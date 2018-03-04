@@ -3,6 +3,7 @@ package failchat.cybergame
 import com.fasterxml.jackson.databind.JsonNode
 import failchat.Origin
 import failchat.exception.ChannelOfflineException
+import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.await
 import failchat.util.objectMapper
@@ -39,7 +40,6 @@ class CgApiClient(
     }
 
     private suspend fun statusRequest(channelName: String) : JsonNode {
-        statusUrl.newBuilder()
         val requestUrl = statusUrl.newBuilder()
                 .addQueryParameter("channel", channelName)
                 .build()
@@ -51,6 +51,7 @@ class CgApiClient(
         return httpClient.newCall(request)
                 .await()
                 .use {
+                    if (it.code() != 200) throw UnexpectedResponseCodeException(it.code(), it.request().url().toString())
                     val body = it.body()?.bytes()
                             ?: throw UnexpectedResponseException("Response have no body. Request: $requestUrl")
                     objectMapper.readTree(body)

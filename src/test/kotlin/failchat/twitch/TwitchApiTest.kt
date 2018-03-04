@@ -4,6 +4,7 @@ import failchat.config
 import failchat.exception.ChannelOfflineException
 import failchat.okHttpClient
 import failchat.privateConfig
+import failchat.twitchEmoticonUrlFactory
 import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger
@@ -14,7 +15,7 @@ import kotlin.test.assertEquals
 
 class TwitchApiTest {
 
-    companion object {
+    private companion object {
         val log: Logger = LoggerFactory.getLogger(TwitchApiTest::class.java)
         val userNameToId: Map<String, Long> = mapOf(
                 "lirik" to 23161357L,
@@ -29,7 +30,8 @@ class TwitchApiTest {
     private val apiClient = TwitchApiClient(
             okHttpClient,
             config.getString("twitch.api-url"),
-            privateConfig.getString("twitch.api-token")
+            privateConfig.getString("twitch.api-token"),
+            twitchEmoticonUrlFactory
     )
 
     @Test
