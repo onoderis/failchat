@@ -15,7 +15,7 @@ Chat message aggregator for twitch, youtube, goodgame, peka2tv
 Java 8 (recommended u60 and newer)
 
 ### Screenshots
-![Settings](https://i.imgur.com/J7z8yNN.png)
+![Settings](https://i.imgur.com/diZtVLN.png)
 
-![Chat](http://i.imgur.com/zLf5mmZ.png)
+![Chat](https://i.imgur.com/zLf5mmZ.png)
 
