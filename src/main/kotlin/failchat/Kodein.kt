@@ -40,7 +40,9 @@ import failchat.twitch.BttvGlobalEmoticonLoader
 import failchat.twitch.TwitchApiClient
 import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchEmoticonLoader
+import failchat.twitch.TwitchEmoticonUrlFactory
 import failchat.twitch.TwitchViewersCountLoader
+import failchat.twitch.TwitchemotesApiClient
 import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
@@ -189,10 +191,27 @@ val kodein = Kodein {
                 httpClient = instance<OkHttpClient>(),
                 apiUrl = config.getString("twitch.api-url"),
                 token = config.getString("twitch.api-token"),
-                objectMapper = instance<ObjectMapper>()
+                emoticonUrlFactory = instance<TwitchEmoticonUrlFactory>()
         )
     }
-    bind<TwitchEmoticonLoader>() with singleton { TwitchEmoticonLoader(instance<TwitchApiClient>()) }
+    bind<TwitchEmoticonUrlFactory>() with singleton {
+        with(instance<Configuration>()) {
+            TwitchEmoticonUrlFactory(
+                    getString("twitch.emoticon-url-prefix"),
+                    getString("twitch.emoticon-url-suffix")
+            )
+        }
+    }
+    bind<TwitchemotesApiClient>() with singleton {
+        TwitchemotesApiClient(
+                instance<OkHttpClient>(),
+                instance<Configuration>().getString("twitch.twitchemotes-api-url"),
+                instance<TwitchEmoticonUrlFactory>()
+        )
+    }
+    bind<TwitchEmoticonLoader>() with singleton {
+        TwitchEmoticonLoader(instance<TwitchApiClient>(), instance<TwitchemotesApiClient>())
+    }
     bind<TwitchChatClient>() with factory { channelName: String ->
         val config = instance<Configuration>()
         TwitchChatClient(

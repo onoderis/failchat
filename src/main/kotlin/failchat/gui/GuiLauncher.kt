@@ -22,7 +22,7 @@ class GuiLauncher : Application() {
 
     companion object {
         val appIcon = Image(GuiLauncher::class.java.getResourceAsStream("/icons/failchat.png"))
-        val log: Logger = LoggerFactory.getLogger(GuiLauncher::class.java)
+        private val log: Logger = LoggerFactory.getLogger(GuiLauncher::class.java)
     }
 
     override fun start(primaryStage: Stage) {
