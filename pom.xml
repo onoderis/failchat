@@ -11,8 +11,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <kotlin.version>1.2.21</kotlin.version>
-        <kotlinx-coroutines.version>0.22.3</kotlinx-coroutines.version>
+        <kotlin.version>1.2.41</kotlin.version>
+        <kotlinx-coroutines.version>0.22.5</kotlinx-coroutines.version>
 
         <kodein.version>4.0.0</kodein.version>
         <jackson.version>2.5.2</jackson.version>
