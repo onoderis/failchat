@@ -147,7 +147,7 @@ class AppStateManager(private val kodein: Kodein) {
         checkEnabled(GOODGAME)?.let { channelName ->
             // get channel id by channel name
             val channelId = try {
-                goodgameApiClient.requestChannelId(channelName).join()
+                runBlocking { goodgameApiClient.requestChannelId(channelName) }
             } catch (e: Exception) {
                 log.warn("Failed to get goodgame channel id. channel name: {}", channelName, e)
                 return@let
