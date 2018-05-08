@@ -3,7 +3,6 @@ package failchat.goodgame
 import failchat.config
 import failchat.exception.ChannelOfflineException
 import failchat.okHttpClient
-import kotlinx.coroutines.experimental.future.await
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
 
@@ -16,21 +15,21 @@ class GgApiTest {
     )
 
     @Test
-    fun emoticonsRequestTest() {
-        apiClient.requestEmoticonList().join()
+    fun channelIdTest() = runBlocking<Unit> {
+        apiClient.requestChannelId("Miker")
+    }
+
+    @Test
+    fun emoticonsRequestTest() = runBlocking<Unit> {
+        apiClient.requestEmoticonList()
     }
 
     @Test
     fun viewersCountTest() = runBlocking<Unit> {
         try {
-            apiClient.requestViewersCount("Miker").await()
+            apiClient.requestViewersCount("Miker")
         } catch (ignored: ChannelOfflineException) {
         }
-    }
-
-    @Test
-    fun channelIdTest() {
-        apiClient.requestChannelId("Miker").join()
     }
 
 }

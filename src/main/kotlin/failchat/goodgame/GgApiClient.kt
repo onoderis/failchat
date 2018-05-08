@@ -6,14 +6,12 @@ import failchat.Origin
 import failchat.exception.ChannelOfflineException
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
-import failchat.util.thenApplySafe
-import failchat.util.toFuture
+import failchat.util.await
 import failchat.util.withSuffix
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.concurrent.CompletableFuture
 import java.util.regex.Pattern
 
 class GgApiClient(
@@ -24,59 +22,60 @@ class GgApiClient(
 ) {
 
     private companion object {
+        val globalEmoticonsPattern: Pattern = Pattern.compile("""Smiles : (\[.+?\]),""")
+        val channelEmoticonsPattern: Pattern = Pattern.compile("""Channel_Smiles : (\{.+?\}\]\}),""")
         val log: Logger = LoggerFactory.getLogger(GgApiClient::class.java)
-        val globalEmoticonsPattern = Pattern.compile("""Smiles : (\[.+?\]),""")
-        val channelEmoticonsPattern = Pattern.compile("""Channel_Smiles : (\{.+?\}\]\}),""")
     }
 
     private val apiUrl = apiUrl.withSuffix("/")
 
-    fun requestEmoticonList(): CompletableFuture<List<GgEmoticon>> {
+    suspend fun requestEmoticonList(): List<GgEmoticon> {
         val request = Request.Builder()
                 .url(emoticonsJsUrl)
                 .get()
                 .build()
 
         return httpClient.newCall(request)
-                .toFuture()
-                .thenApplySafe {
+                .await()
+                .use {
                     if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
                     val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
                     val jsContent = responseBody.string()
-                    return@thenApplySafe parseGlobalEmoticons(jsContent) + parseChannelEmoticons(jsContent)
+                    parseGlobalEmoticons(jsContent) + parseChannelEmoticons(jsContent)
                 }
     }
 
-    fun requestChannelId(channelName: String): CompletableFuture<Long> {
+    suspend fun requestChannelId(channelName: String): Long {
         // https://github.com/GoodGame/API/blob/master/Streams/stream_api.md
         return requestChannelStatus(channelName)
-                .thenApply { it.first().get("stream_id").asText().toLong() }
+                .first()
+                .get("stream_id")
+                .asText()
+                .toLong()
     }
 
-    fun requestViewersCount(channelName: String): CompletableFuture<Int> {
+    suspend fun requestViewersCount(channelName: String): Int {
         // https://github.com/GoodGame/API/blob/master/Streams/stream_api.md
-        return requestChannelStatus(channelName)
-                .thenApply {
-                    val statusNode = it.first()
-                    if (statusNode.get("status").asText() != "Live") throw ChannelOfflineException(Origin.GOODGAME, channelName)
-                    return@thenApply statusNode.get("viewers").asText().toInt()
-                }
+        val response = requestChannelStatus(channelName)
+        val statusNode = response.first()
+        if (statusNode.get("status").asText() != "Live") throw ChannelOfflineException(Origin.GOODGAME, channelName)
+        return statusNode.get("viewers").asText().toInt()
     }
 
-    fun requestChannelStatus(channelName: String): CompletableFuture<JsonNode> {
+    private suspend fun requestChannelStatus(channelName: String): JsonNode {
         val parameters = "?fmt=json&id=$channelName"
 
         val request = Request.Builder()
-                .url(apiUrl + "getchannelstatus" + parameters)
                 .get()
+                .url(apiUrl + "getchannelstatus" + parameters)
                 .build()
 
         return httpClient.newCall(request)
-                .toFuture()
-                .thenApplySafe {
+                .await()
+                .use {
                     if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
                     val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
-                    return@thenApplySafe objectMapper.readTree(responseBody.string())
+                    objectMapper.readTree(responseBody.string())
                 }
     }
 

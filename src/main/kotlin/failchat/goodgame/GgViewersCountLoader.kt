@@ -2,6 +2,7 @@ package failchat.goodgame
 
 import failchat.Origin
 import failchat.viewers.ViewersCountLoader
+import kotlinx.coroutines.experimental.future.future
 import java.util.concurrent.CompletableFuture
 
 class GgViewersCountLoader(
@@ -12,7 +13,9 @@ class GgViewersCountLoader(
     override val origin = Origin.GOODGAME
 
     override fun loadViewersCount(): CompletableFuture<Int> {
-        return apiClient.requestViewersCount(channelName)
+        return future {
+            apiClient.requestViewersCount(channelName)
+        }
     }
 
 }
