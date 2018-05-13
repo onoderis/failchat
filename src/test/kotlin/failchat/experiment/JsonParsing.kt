@@ -1,13 +1,13 @@
 package failchat.experiment
 
 import com.fasterxml.jackson.core.JsonFactory
-import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import failchat.twitch.TwitchEmoticon
+import failchat.util.nextNonNullToken
+import failchat.util.validate
 import org.junit.Test
-import java.io.IOException
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.nio.file.Files
@@ -104,11 +104,11 @@ class JsonParsing {
 
         val emoticons: MutableList<TwitchEmoticon> = ArrayList()
 
-        parser.nextNonNullToken() // root object
-        parser.nextNonNullToken() // 'emoticons' field
-        parser.nextNonNullToken() // START_ARRAY
+        parser.nextNonNullToken().validate(JsonToken.START_OBJECT) // root object
+        parser.nextNonNullToken().validate(JsonToken.FIELD_NAME) // 'emoticons' field
+        parser.nextNonNullToken().validate(JsonToken.START_ARRAY) // 'emoticons' array
 
-        var token = parser.nextNonNullToken() //START_OBJECT
+        var token = parser.nextNonNullToken().validate(JsonToken.START_OBJECT) // emoticon object
 
         while (token != JsonToken.END_ARRAY) {
             val node: ObjectNode = parser.readValueAsTree()
@@ -119,7 +119,7 @@ class JsonParsing {
                     "some/..."
             ))
 
-            token = parser.nextNonNullToken() //START_OBJECT
+            token = parser.nextNonNullToken()
         }
 
         parser.close()
@@ -142,14 +142,4 @@ class JsonParsing {
             println(parser.nextToken()) //thread will block here
         }
     }
-}
-
-fun JsonParser.nextNonNullToken(): JsonToken {
-    return nextToken()
-            .also { println(it) }
-            ?: throw IOException("Failed to get next token, end of data stream")
-}
-
-fun JsonToken?.validateNotNull(): JsonToken {
-    return this ?: throw IOException("...")
 }

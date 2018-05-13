@@ -5,7 +5,7 @@ import failchat.Origin
 import failchat.emoticon.Emoticon
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
-import failchat.util.thenApplySafe
+import failchat.util.thenUse
 import failchat.util.toFuture
 import failchat.util.withSuffix
 import okhttp3.OkHttpClient
@@ -28,11 +28,11 @@ class BttvApiClient(
 
         return httpClient.newCall(request)
                 .toFuture()
-                .thenApplySafe {
+                .thenUse {
                     if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
                     val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
                     val bodyString = responseBody.string()
-                    return@thenApplySafe parseEmoticons(bodyString, Origin.BTTV_GLOBAL)
+                    return@thenUse parseEmoticons(bodyString, Origin.BTTV_GLOBAL)
                 }
     }
 
@@ -49,7 +49,7 @@ class BttvApiClient(
 
         return httpClient.newCall(request)
                 .toFuture()
-                .thenApplySafe {
+                .thenUse {
                     when (it.code()) {
                         200 -> {}
                         404 -> throw BttvChannelNotFoundException(channel)
@@ -57,7 +57,7 @@ class BttvApiClient(
                     }
                     val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
                     val bodyString = responseBody.string()
-                    return@thenApplySafe parseEmoticons(bodyString, Origin.BTTV_CHANNEL)
+                    return@thenUse parseEmoticons(bodyString, Origin.BTTV_CHANNEL)
                 }
     }
 

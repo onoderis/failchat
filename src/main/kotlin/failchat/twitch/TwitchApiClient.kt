@@ -1,5 +1,7 @@
 package failchat.twitch
 
+import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.JsonNode
 import failchat.Origin
 import failchat.exception.ChannelOfflineException
@@ -7,12 +9,16 @@ import failchat.exception.DataNotFoundException
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.isEmpty
+import failchat.util.nextNonNullToken
 import failchat.util.objectMapper
-import failchat.util.thenApplySafe
+import failchat.util.thenUse
 import failchat.util.toFuture
+import failchat.util.validate
 import failchat.util.withSuffix
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
+import okhttp3.ResponseBody
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
@@ -33,7 +39,8 @@ class TwitchApiClient(
 
     fun requestUserId(userName: String): CompletableFuture<Long> {
         // https://dev.twitch.tv/docs/v5/reference/users/#get-users
-        return request("/users", mapOf("login" to userName))
+        return sendRequest("/users", mapOf("login" to userName))
+                .parseResponse()
                 .thenApply {
                     val usersArray: JsonNode = it.get("users")
                     if (usersArray.isEmpty()) throw DataNotFoundException("Twitch user $userName not found")
@@ -43,7 +50,8 @@ class TwitchApiClient(
 
     fun requestViewersCount(userId: Long): CompletableFuture<Int> {
         // https://dev.twitch.tv/docs/v5/reference/streams/#get-stream-by-user
-        return request("/streams/$userId")
+        return sendRequest("/streams/$userId")
+                .parseResponse()
                 .thenApply {
                     val streamNode = it.get("stream")
                     if (streamNode.isNull) throw ChannelOfflineException(Origin.TWITCH, userId.toString())
@@ -54,19 +62,37 @@ class TwitchApiClient(
     fun requestEmoticons(): CompletableFuture<List<TwitchEmoticon>> {
         // https://dev.twitch.tv/docs/v5/reference/chat/#get-chat-emoticons-by-set !! Формат ответа без setId не по доке
         // https://dev.twitch.tv/docs/v5/guides/irc/#privmsg-twitch-tags формат ссылки на смайл
-        return request("/chat/emoticon_images").thenApply {
-            it.get("emoticons").map {
-                val id = it.get("id").asLong()
-                TwitchEmoticon(
-                        id,
-                        regex = it.get("code").asText(),
-                        url = emoticonUrlFactory.create(id)
-                )
-            }
-        }
+
+        return sendRequest("/chat/emoticon_images")
+                .thenUse {
+                    val body = it.validateAndGetBody()
+                    val emoticons: MutableList<TwitchEmoticon> = ArrayList()
+
+                    val jsonFactory = JsonFactory().apply {
+                        codec = objectMapper
+                    }
+
+                    val bodyInputStream = body.source().inputStream()
+                    jsonFactory.createParser(bodyInputStream).use { parser ->
+                        // okio thread blocks here
+                        parser.nextNonNullToken().validate(JsonToken.START_OBJECT) // root object
+                        parser.nextNonNullToken().validate(JsonToken.FIELD_NAME) // 'emoticons' field
+                        parser.nextNonNullToken().validate(JsonToken.START_ARRAY) // 'emoticons' array
+
+                        var token = parser.nextNonNullToken().validate(JsonToken.START_OBJECT) // emoticon object
+
+                        while (token != JsonToken.END_ARRAY) {
+                            val node: JsonNode = parser.readValueAsTree()
+                            emoticons.add(parseEmoticon(node))
+                            token = parser.nextNonNullToken()
+                        }
+                    }
+
+                    emoticons
+                }
     }
 
-    fun request(path: String, parameters: Map<String, String> = emptyMap()): CompletableFuture<JsonNode> {
+    private fun sendRequest(path: String, parameters: Map<String, String> = emptyMap()): CompletableFuture<Response> {
         val formattedParameters = if (parameters.isEmpty()) {
             ""
         } else {
@@ -83,13 +109,27 @@ class TwitchApiClient(
                 .header("Client-ID", token)
                 .build()
 
-        return httpClient.newCall(request)
-                .toFuture()
-                .thenApplySafe {
-                    if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
-                    val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
-                    return@thenApplySafe objectMapper.readTree(responseBody.string())
-                }
+        return httpClient.newCall(request).toFuture()
+    }
+
+    private fun CompletableFuture<Response>.parseResponse(): CompletableFuture<JsonNode> {
+        return this.thenUse {
+            objectMapper.readTree(it.validateAndGetBody().string())
+        }
+    }
+
+    private fun Response.validateAndGetBody(): ResponseBody {
+        if (this.code() != 200) throw UnexpectedResponseCodeException(this.code())
+        return this.body() ?: throw UnexpectedResponseException("null body")
+    }
+
+    private fun parseEmoticon(node: JsonNode): TwitchEmoticon {
+        val id = node.get("id").asLong()
+        return TwitchEmoticon(
+                twitchId = id,
+                regex = node.get("code").asText(),
+                url = emoticonUrlFactory.create(id)
+        )
     }
 
 }

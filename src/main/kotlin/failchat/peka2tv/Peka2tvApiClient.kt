@@ -6,7 +6,7 @@ import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.emptyBody
 import failchat.util.jsonMediaType
-import failchat.util.thenApplySafe
+import failchat.util.thenUse
 import failchat.util.toFuture
 import failchat.util.withSuffix
 import okhttp3.OkHttpClient
@@ -46,10 +46,10 @@ class Peka2tvApiClient(
 
         return httpClient.newCall(request)
                 .toFuture()
-                .thenApplySafe {
+                .thenUse {
                     if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
                     val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
-                    return@thenApplySafe objectMapper.readTree(responseBody.string())
+                    return@thenUse objectMapper.readTree(responseBody.string())
                 }
     }
 

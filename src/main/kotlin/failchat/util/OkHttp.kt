@@ -27,15 +27,6 @@ fun Call.toFuture(): CompletableFuture<Response> {
     return future
 }
 
-/**
- * Execute operation and close [Response].
- * */
-inline fun <T> CompletableFuture<Response>.thenApplySafe(crossinline operation: (Response) -> T): CompletableFuture<T> {
-    return this.thenApply { response ->
-        response.use(operation)
-    }
-}
-
 suspend fun Call.await(): Response {
     return suspendCoroutine { continuation ->
         this.enqueue(object : Callback {

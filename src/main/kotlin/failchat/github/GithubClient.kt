@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.isEmpty
-import failchat.util.thenApplySafe
+import failchat.util.thenUse
 import failchat.util.toFuture
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -31,7 +31,7 @@ class GithubClient(
 
         return httpClient.newCall(request)
                 .toFuture()
-                .thenApplySafe {
+                .thenUse {
                     if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
                     val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
                     val releasesNode = objectMapper.readTree(responseBody.string())
