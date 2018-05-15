@@ -6,19 +6,18 @@ import com.fasterxml.jackson.databind.JsonNode
 import failchat.Origin
 import failchat.exception.ChannelOfflineException
 import failchat.exception.DataNotFoundException
-import failchat.exception.UnexpectedResponseCodeException
-import failchat.exception.UnexpectedResponseException
+import failchat.util.expect
 import failchat.util.isEmpty
 import failchat.util.nextNonNullToken
+import failchat.util.nonNullBody
 import failchat.util.objectMapper
 import failchat.util.thenUse
 import failchat.util.toFuture
-import failchat.util.validate
+import failchat.util.validateResponseCode
 import failchat.util.withSuffix
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import okhttp3.ResponseBody
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
@@ -65,7 +64,7 @@ class TwitchApiClient(
 
         return sendRequest("/chat/emoticon_images")
                 .thenUse {
-                    val body = it.validateAndGetBody()
+                    val body = it.validateResponseCode(200).nonNullBody
                     val emoticons: MutableList<TwitchEmoticon> = ArrayList()
 
                     val jsonFactory = JsonFactory().apply {
@@ -73,19 +72,19 @@ class TwitchApiClient(
                     }
 
                     val bodyInputStream = body.source().inputStream()
-                    jsonFactory.createParser(bodyInputStream).use { parser ->
-                        // okio thread blocks here
-                        parser.nextNonNullToken().validate(JsonToken.START_OBJECT) // root object
-                        parser.nextNonNullToken().validate(JsonToken.FIELD_NAME) // 'emoticons' field
-                        parser.nextNonNullToken().validate(JsonToken.START_ARRAY) // 'emoticons' array
+                    val parser = jsonFactory.createParser(bodyInputStream)
 
-                        var token = parser.nextNonNullToken().validate(JsonToken.START_OBJECT) // emoticon object
+                    // // parse response. okio thread blocks here
+                    parser.expect(JsonToken.START_OBJECT) // root object
+                    parser.expect(JsonToken.FIELD_NAME) // 'emoticons' field
+                    parser.expect(JsonToken.START_ARRAY) // 'emoticons' array
 
-                        while (token != JsonToken.END_ARRAY) {
-                            val node: JsonNode = parser.readValueAsTree()
-                            emoticons.add(parseEmoticon(node))
-                            token = parser.nextNonNullToken()
-                        }
+                    var token = parser.expect(JsonToken.START_OBJECT) // emoticon object
+
+                    while (token != JsonToken.END_ARRAY) {
+                        val node: JsonNode = parser.readValueAsTree()
+                        emoticons.add(parseEmoticon(node))
+                        token = parser.nextNonNullToken()
                     }
 
                     emoticons
@@ -114,13 +113,9 @@ class TwitchApiClient(
 
     private fun CompletableFuture<Response>.parseResponse(): CompletableFuture<JsonNode> {
         return this.thenUse {
-            objectMapper.readTree(it.validateAndGetBody().string())
+            val bodyText = it.validateResponseCode(200).nonNullBody.string()
+            objectMapper.readTree(bodyText)
         }
-    }
-
-    private fun Response.validateAndGetBody(): ResponseBody {
-        if (this.code() != 200) throw UnexpectedResponseCodeException(this.code())
-        return this.body() ?: throw UnexpectedResponseException("null body")
     }
 
     private fun parseEmoticon(node: JsonNode): TwitchEmoticon {

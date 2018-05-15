@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.await
+import failchat.util.expect
 import failchat.util.nextNonNullToken
 import failchat.util.objectMapper
-import failchat.util.validate
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -55,20 +55,19 @@ class TwitchemotesApiClient(
                     }
 
                     val bodyInputStream = body.source().inputStream()
-                    jsonFactory.createParser(bodyInputStream).use { parser ->
-                        // thread blocks here
-                        var token = parser.nextNonNullToken().validate(JsonToken.START_OBJECT) // root object
-                        parser.nextNonNullToken().validate(JsonToken.FIELD_NAME) // emoteicon id/code field
+                    val parser = jsonFactory.createParser(bodyInputStream)
 
-                        while (token != JsonToken.END_OBJECT) {
-                            parser.nextNonNullToken().validate(JsonToken.START_OBJECT) // emoticon object
+                    // parse response. thread blocks here
+                    var token = parser.expect(JsonToken.START_OBJECT) // root object
+                    parser.expect(JsonToken.FIELD_NAME) // emoticon id/code field
 
-                            val node: JsonNode = parser.readValueAsTree()
-                            emoticons.add(parseEmoticon(node))
-                            token = parser.nextNonNullToken()
-                        }
+                    while (token != JsonToken.END_OBJECT) {
+                        parser.expect(JsonToken.START_OBJECT) // emoticon object
+
+                        val node: JsonNode = parser.readValueAsTree()
+                        emoticons.add(parseEmoticon(node))
+                        token = parser.nextNonNullToken()
                     }
-
                     emoticons
                 }
     }

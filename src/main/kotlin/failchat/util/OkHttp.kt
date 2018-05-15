@@ -1,10 +1,13 @@
 package failchat.util
 
+import failchat.exception.UnexpectedResponseCodeException
+import failchat.exception.UnexpectedResponseException
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okhttp3.Response
+import okhttp3.ResponseBody
 import java.io.IOException
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.experimental.suspendCoroutine
@@ -40,3 +43,11 @@ suspend fun Call.await(): Response {
         })
     }
 }
+
+fun Response.validateResponseCode(expected: Int): Response {
+    if (this.code() != expected) throw UnexpectedResponseCodeException(this.code())
+    return this
+}
+
+val Response.nonNullBody: ResponseBody
+    get() = this.body() ?: throw UnexpectedResponseException("null body")
