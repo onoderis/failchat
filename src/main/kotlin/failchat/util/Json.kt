@@ -6,6 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 
 val objectMapper = ObjectMapper()
 
+/**
+ * Read the next token and assert that it is not null.
+ * @throws [UnexpectedJsonFormatException] if next token is null.
+ * */
 fun JsonParser.nextNonNullToken(): JsonToken {
     return nextToken() ?: throw UnexpectedJsonFormatException("Failed to get next token, end of data stream")
 }
@@ -15,6 +19,14 @@ fun JsonToken.validate(expected: JsonToken): JsonToken {
         throw UnexpectedJsonFormatException("Expected '$expected' json token, got '$this'")
     }
     return this
+}
+
+/**
+ * Read next non-null token and assert that it's value is equal to [expected] token. Blocking operation.
+ * @throws [UnexpectedJsonFormatException] if next token is null or doesn't equal to [expected] token.
+ * */
+fun JsonParser.expect(expected: JsonToken): JsonToken {
+    return nextNonNullToken().validate(expected)
 }
 
 class UnexpectedJsonFormatException : Exception {
