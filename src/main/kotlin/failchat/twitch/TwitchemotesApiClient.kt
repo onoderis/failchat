@@ -3,12 +3,12 @@ package failchat.twitch
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.JsonNode
-import failchat.exception.UnexpectedResponseCodeException
-import failchat.exception.UnexpectedResponseException
 import failchat.util.await
 import failchat.util.expect
 import failchat.util.nextNonNullToken
+import failchat.util.nonNullBody
 import failchat.util.objectMapper
+import failchat.util.validateResponseCode
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -46,14 +46,11 @@ class TwitchemotesApiClient(
         return httpClient.newCall(request)
                 .await()
                 .use {
-                    if (it.code() != 200) throw UnexpectedResponseCodeException(it.code(), request.url().toString())
-                    val body = it.body() ?: throw UnexpectedResponseException("Response have no body. Request: ${request.url()}")
+                    val body = it.validateResponseCode(200).nonNullBody
 
-                    val emoticons: MutableList<TwitchEmoticon> = ArrayList()
                     val jsonFactory = JsonFactory().apply {
                         codec = objectMapper
                     }
-
                     val bodyInputStream = body.source().inputStream()
                     val parser = jsonFactory.createParser(bodyInputStream)
 
@@ -61,6 +58,7 @@ class TwitchemotesApiClient(
                     var token = parser.expect(JsonToken.START_OBJECT) // root object
                     parser.expect(JsonToken.FIELD_NAME) // emoticon id/code field
 
+                    val emoticons: MutableList<TwitchEmoticon> = ArrayList()
                     while (token != JsonToken.END_OBJECT) {
                         parser.expect(JsonToken.START_OBJECT) // emoticon object
 

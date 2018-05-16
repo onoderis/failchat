@@ -45,7 +45,7 @@ suspend fun Call.await(): Response {
 }
 
 fun Response.validateResponseCode(expected: Int): Response {
-    if (this.code() != expected) throw UnexpectedResponseCodeException(this.code())
+    if (this.code() != expected) throw UnexpectedResponseCodeException(this.code(), request().url().toString())
     return this
 }
 

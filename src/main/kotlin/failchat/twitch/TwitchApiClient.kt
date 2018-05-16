@@ -65,22 +65,21 @@ class TwitchApiClient(
         return sendRequest("/chat/emoticon_images")
                 .thenUse {
                     val body = it.validateResponseCode(200).nonNullBody
-                    val emoticons: MutableList<TwitchEmoticon> = ArrayList()
 
                     val jsonFactory = JsonFactory().apply {
                         codec = objectMapper
                     }
-
                     val bodyInputStream = body.source().inputStream()
                     val parser = jsonFactory.createParser(bodyInputStream)
 
-                    // // parse response. okio thread blocks here
+                    // parse response. okio thread blocks here
                     parser.expect(JsonToken.START_OBJECT) // root object
                     parser.expect(JsonToken.FIELD_NAME) // 'emoticons' field
                     parser.expect(JsonToken.START_ARRAY) // 'emoticons' array
 
                     var token = parser.expect(JsonToken.START_OBJECT) // emoticon object
 
+                    val emoticons: MutableList<TwitchEmoticon> = ArrayList()
                     while (token != JsonToken.END_ARRAY) {
                         val node: JsonNode = parser.readValueAsTree()
                         emoticons.add(parseEmoticon(node))
