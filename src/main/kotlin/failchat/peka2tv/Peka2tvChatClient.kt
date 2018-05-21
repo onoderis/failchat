@@ -63,7 +63,7 @@ class Peka2tvChatClient(
             Peka2tvEmoticonHandler(emoticonFinder)
     )
     private val messageFilters: List<MessageFilter<Peka2tvMessage>> = listOf(
-            SourceFilter(),
+            Peka2tvOriginFilter(),
             AnnounceMessageFilter()
     )
 
