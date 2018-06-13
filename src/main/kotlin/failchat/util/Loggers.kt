@@ -4,7 +4,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 
-fun logger(kСlass: KClass<*>): Logger = LoggerFactory.getLogger(kСlass.java)
+fun logger(kClass: KClass<*>): Logger = LoggerFactory.getLogger(kClass.java)
 
 //todo remove copypaste?
 inline fun Logger.error(e: Throwable? = null, logMessageSupplier: () -> String) {
