@@ -1,6 +1,6 @@
 "use strict";
 
-var failchat = {
+const failchat = {
     maxMessages: 50,
     messageCount: 0,
     iconsPath: "../_shared/icons/", //could be overrided in skin.html
@@ -9,25 +9,25 @@ var failchat = {
 };
 
 $(function () {
-    var socket = new ReconnectingWebSocket("ws://localhost:10880");
+    const socket = new ReconnectingWebSocket("ws://localhost:10880");
     socket.maxReconnectInterval = 5000;
     failchat.socket = socket;
 
-    var bodyWrapper = $("#body-wrapper");
-    var messageContainer = $("#message-container");
-    var scroller = $(failchat.baronParams.scroller);
-    var scrollBar = $(failchat.baronParams.bar);
-    var autoScroll = true;
-    var nativeClient = (navigator.userAgent.search("failchat") >= 0);
+    const bodyWrapper = $("#body-wrapper");
+    const messageContainer = $("#message-container");
+    const scroller = $(failchat.baronParams.scroller);
+    const scrollBar = $(failchat.baronParams.bar);
+    let autoScroll = true;
+    const nativeClient = (navigator.userAgent.search("failchat") >= 0);
     // var nativeClient = true; //todo think about debugging
-    var showStatusMessages = true; // show if origin-status message received before client-configuration message
+    let showStatusMessages = true; // show if origin-status message received before client-configuration message
 
     // viewers bar
-    var viewersBar = $(".viewers-bar");
-    var viewersCountItems = {};
+    const viewersBar = $(".viewers-bar");
+    const viewersCountItems = {};
 
     failchat.origins.forEach(function (origin) {
-        var viewersBarHtml = templates.originViewersBar.render({origin: origin, iconsPath: failchat.iconsPath});
+        const viewersBarHtml = templates.originViewersBar.render({origin: origin, iconsPath: failchat.iconsPath});
         $(".viewers-origins").append(viewersBarHtml);
         viewersCountItems[origin] = {
             bar: $("#" + origin + "-origin"),
@@ -50,7 +50,7 @@ $(function () {
 
 
     socket.onopen = function () {
-        var connectedMessage = {"origin": "failchat", "status": "connected", "timestamp": Date.now()};
+        const connectedMessage = {"origin": "failchat", "status": "connected", "timestamp": Date.now()};
         handleStatusMessage(connectedMessage);
         appendToMessageContainer(connectedMessage);
 
@@ -59,15 +59,15 @@ $(function () {
     };
 
     socket.onclose = function () {
-        var disconnectedMessage = {origin: "failchat", status: "disconnected", timestamp: Date.now()};
+        const disconnectedMessage = {origin: "failchat", status: "disconnected", timestamp: Date.now()};
         handleStatusMessage(disconnectedMessage);
         appendToMessageContainer(disconnectedMessage);
     };
 
     socket.onmessage = function (event) {
-        var wsm = JSON.parse(event.data);
-        var type = wsm.type;
-        var content = wsm.content;
+        const wsm = JSON.parse(event.data);
+        const type = wsm.type;
+        const content = wsm.content;
 
         switch (type) {
             case "message":
@@ -99,11 +99,11 @@ $(function () {
     };
 
     function handleChatMessage(content) {
-        var elementsArray = content.elements;
+        const elementsArray = content.elements;
 
-        for (var i = 0; i < elementsArray.length; i++) {
-            var element = elementsArray[i];
-            var elementHtml;
+        for (let i = 0; i < elementsArray.length; i++) {
+            const element = elementsArray[i];
+            let elementHtml;
             switch(element.type) {
                 case "emoticon":
                     if (element.format === "vector") {
@@ -135,7 +135,7 @@ $(function () {
     }
 
     function handleClientConfigurationMessage(content) {
-        var statusMessageMode = content.statusMessageMode;
+        const statusMessageMode = content.statusMessageMode;
         if ((statusMessageMode === "everywhere") ||
             (nativeClient && statusMessageMode === "native_client")) {
             showStatusMessages = true;
@@ -159,7 +159,7 @@ $(function () {
             viewersBar.removeClass("viewers-bar-on");
         }
 
-        var enabledOrigins = content.enabledOrigins;
+        const enabledOrigins = content.enabledOrigins;
         failchat.origins.forEach(function (origin) {
             if (!enabledOrigins.hasOwnProperty(origin)) return;
             if (enabledOrigins[origin] === true) {
@@ -171,10 +171,10 @@ $(function () {
     }
 
     function handleDeleteMessage(content) {
-        var message = $("#message-" + content.messageId);
+        const message = $("#message-" + content.messageId);
         message.addClass("deleted-message");
 
-        var messageText = $("#message-" + content.messageId + " .text");
+        const messageText = $("#message-" + content.messageId + " .text");
         messageText.removeClass("highlighted");
         messageText.text(failchat.deletedTextPlaceholder);
     }
@@ -183,8 +183,8 @@ $(function () {
         failchat.origins.forEach(function (origin) {
             if (!counters.hasOwnProperty(origin)) return;
 
-            var count = counters[origin];
-            var counter = viewersCountItems[origin].counter;
+            const count = counters[origin];
+            const counter = viewersCountItems[origin].counter;
             if (count === null) {
                 counter.text("?");
             } else {
@@ -263,20 +263,20 @@ function deleteMessage(messageNode) {
 }
 
 function hexToRgba(hex) {
-    var int = parseInt(hex, 16);
-    var r = (int >> 24) & 255;
-    var g = (int >> 16) & 255;
-    var b = (int >> 8) & 255;
-    var a = (int & 255) / 255;
+    const int = parseInt(hex, 16);
+    const r = (int >> 24) & 255;
+    const g = (int >> 16) & 255;
+    const b = (int >> 8) & 255;
+    const a = (int & 255) / 255;
 
     return r + "," + g + "," + b + "," + a;
 }
 
 $.views.converters("time", function(val) {
-    var d = new Date(val);
-    var h = d.getHours().toString();
-    var m = d.getMinutes().toString();
-    var s = d.getSeconds().toString();
+    const d = new Date(val);
+    const h = d.getHours().toString();
+    let m = d.getMinutes().toString();
+    let s = d.getSeconds().toString();
     if (m.length === 1) {
         m = "0" + m;
     }
@@ -287,7 +287,7 @@ $.views.converters("time", function(val) {
 });
 
 // noinspection HtmlUnknownAttribute
-var templates = {
+const templates = {
     message: $.templates(
         '<p class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">\n' +
         '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png">\n' +
