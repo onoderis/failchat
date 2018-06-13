@@ -8,7 +8,7 @@ const failchat = {
     deletedTextPlaceholder: "message deleted"
 };
 
-$(function () {
+$(() => {
     const socket = new ReconnectingWebSocket("ws://localhost:10880");
     socket.maxReconnectInterval = 5000;
     failchat.socket = socket;
@@ -26,7 +26,7 @@ $(function () {
     const viewersBar = $(".viewers-bar");
     const viewersCountItems = {};
 
-    failchat.origins.forEach(function (origin) {
+    failchat.origins.forEach(origin => {
         const viewersBarHtml = templates.originViewersBar.render({origin: origin, iconsPath: failchat.iconsPath});
         $(".viewers-origins").append(viewersBarHtml);
         viewersCountItems[origin] = {
@@ -42,14 +42,14 @@ $(function () {
     baron(failchat.baronParams);
 
     // auto scroll
-    new ResizeSensor(messageContainer, function() {
+    new ResizeSensor(messageContainer, () => {
         if (autoScroll) {
             scroller.scrollTop(messageContainer.height());
         }
     });
 
 
-    socket.onopen = function () {
+    socket.onopen = () => {
         const connectedMessage = {"origin": "failchat", "status": "connected", "timestamp": Date.now()};
         handleStatusMessage(connectedMessage);
         appendToMessageContainer(connectedMessage);
@@ -58,13 +58,13 @@ $(function () {
         socket.send(JSON.stringify({type: "viewers-count", content: {}}));
     };
 
-    socket.onclose = function () {
+    socket.onclose = () => {
         const disconnectedMessage = {origin: "failchat", status: "disconnected", timestamp: Date.now()};
         handleStatusMessage(disconnectedMessage);
         appendToMessageContainer(disconnectedMessage);
     };
 
-    socket.onmessage = function (event) {
+    socket.onmessage = () => {
         const wsm = JSON.parse(event.data);
         const type = wsm.type;
         const content = wsm.content;
@@ -143,11 +143,14 @@ $(function () {
             showStatusMessages = false;
         }
 
+        let bgHexColor;
         if (nativeClient) {
-            bodyWrapper.css("background-color", "rgba(" + hexToRgba(content.nativeClientBgColor.substring(1)) + ")");
+            bgHexColor = content.nativeClientBgColor;
         } else {
-            bodyWrapper.css("background-color", "rgba(" + hexToRgba(content.externalClientBgColor.substring(1)) + ")");
+            bgHexColor = content.externalClientBgColor;
         }
+
+        bodyWrapper.css("background-color", "rgba(" + hexToRgba(bgHexColor.substring(1)) + ")");
 
 
         if (!nativeClient) return;
@@ -160,7 +163,7 @@ $(function () {
         }
 
         const enabledOrigins = content.enabledOrigins;
-        failchat.origins.forEach(function (origin) {
+        failchat.origins.forEach(origin => {
             if (!enabledOrigins.hasOwnProperty(origin)) return;
             if (enabledOrigins[origin] === true) {
                 viewersCountItems[origin].bar.addClass("viewers-origin-on");
@@ -180,7 +183,7 @@ $(function () {
     }
 
     function updateViewersValues(counters) {
-        failchat.origins.forEach(function (origin) {
+        failchat.origins.forEach(origin => {
             if (!counters.hasOwnProperty(origin)) return;
 
             const count = counters[origin];
@@ -202,12 +205,6 @@ $(function () {
         messageContainer.append(message.textHtml);
     }
 
-    function scrollIfRequired() {
-        if (autoScroll) {
-            scroller.scrollTop(messageContainer.height());
-        }
-    }
-
     $("body,html").bind("keydown wheel mousewheel", function (e) {
         //checks for disabling autoscroll
         if (autoScroll) {
@@ -226,7 +223,7 @@ $(function () {
         }
     });
 
-    scroller.scroll(function (e) {
+    scroller.scroll(e => {
         //checks for enabling autoscroll
         if (!autoScroll) {
             autoScroll = scroller.scrollTop() + scroller.height() >= messageContainer.height();
@@ -272,7 +269,7 @@ function hexToRgba(hex) {
     return r + "," + g + "," + b + "," + a;
 }
 
-$.views.converters("time", function(val) {
+$.views.converters("time", val => {
     const d = new Date(val);
     const h = d.getHours().toString();
     let m = d.getMinutes().toString();
