@@ -1,1 +1,1 @@
-start javaw -Xmx300m -jar failchat-${project.version}.jar
+start javaw -Xmx350m -jar failchat-${project.version}.jar
