@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.JsonNode
 import failchat.Origin
+import failchat.chat.Badge
 import failchat.exception.ChannelOfflineException
 import failchat.exception.DataNotFoundException
+import failchat.util.await
 import failchat.util.expect
 import failchat.util.isEmpty
 import failchat.util.nextNonNullToken
@@ -24,7 +26,8 @@ import java.util.concurrent.CompletableFuture
 
 class TwitchApiClient(
         private val httpClient: OkHttpClient,
-        apiUrl: String,
+        mainApiUrl: String,
+        badgeApiUrl: String,
         private val token: String,
         private val emoticonUrlFactory: TwitchEmoticonUrlFactory
 ) {
@@ -33,12 +36,13 @@ class TwitchApiClient(
         val log: Logger = LoggerFactory.getLogger(TwitchApiClient::class.java)
     }
 
-    private val apiUrl: String = apiUrl.withSuffix("/")
+    private val mainApiUrl: String = mainApiUrl.withSuffix("/")
+    private val badgeApiUrl: String = badgeApiUrl.withSuffix("/")
 
 
     fun requestUserId(userName: String): CompletableFuture<Long> {
         // https://dev.twitch.tv/docs/v5/reference/users/#get-users
-        return sendRequest("/users", mapOf("login" to userName))
+        return request("/users", mapOf("login" to userName))
                 .parseResponse()
                 .thenApply {
                     val usersArray: JsonNode = it.get("users")
@@ -49,7 +53,7 @@ class TwitchApiClient(
 
     fun requestViewersCount(userId: Long): CompletableFuture<Int> {
         // https://dev.twitch.tv/docs/v5/reference/streams/#get-stream-by-user
-        return sendRequest("/streams/$userId")
+        return request("/streams/$userId")
                 .parseResponse()
                 .thenApply {
                     val streamNode = it.get("stream")
@@ -62,7 +66,7 @@ class TwitchApiClient(
         // https://dev.twitch.tv/docs/v5/reference/chat/#get-chat-emoticons-by-set !! Формат ответа без setId не по доке
         // https://dev.twitch.tv/docs/v5/guides/irc/#privmsg-twitch-tags формат ссылки на смайл
 
-        return sendRequest("/chat/emoticon_images")
+        return request("/chat/emoticon_images")
                 .thenUse {
                     val body = it.validateResponseCode(200).nonNullBody
 
@@ -90,7 +94,17 @@ class TwitchApiClient(
                 }
     }
 
-    private fun sendRequest(path: String, parameters: Map<String, String> = emptyMap()): CompletableFuture<Response> {
+    private fun parseEmoticon(node: JsonNode): TwitchEmoticon {
+        val id = node.get("id").asLong()
+        return TwitchEmoticon(
+                twitchId = id,
+                regex = node.get("code").asText(),
+                url = emoticonUrlFactory.create(id)
+        )
+    }
+
+
+    private fun request(path: String, parameters: Map<String, String> = emptyMap()): CompletableFuture<Response> {
         val formattedParameters = if (parameters.isEmpty()) {
             ""
         } else {
@@ -98,7 +112,7 @@ class TwitchApiClient(
                     .map { (key, value) -> "$key=$value" }
                     .joinToString(separator = "&", prefix = "?")
         }
-        val url = apiUrl + path.removePrefix("/") + formattedParameters
+        val url = mainApiUrl + path.removePrefix("/") + formattedParameters
 
         val request = Request.Builder()
                 .url(url)
@@ -117,13 +131,45 @@ class TwitchApiClient(
         }
     }
 
-    private fun parseEmoticon(node: JsonNode): TwitchEmoticon {
-        val id = node.get("id").asLong()
-        return TwitchEmoticon(
-                twitchId = id,
-                regex = node.get("code").asText(),
-                url = emoticonUrlFactory.create(id)
-        )
+
+    suspend fun requestGlobalBadges(): Map<TwitchBadgeId, Badge> {
+        return requestBadges("/global/display")
+    }
+
+    suspend fun requestChannelBadges(channelId: Long): Map<TwitchBadgeId, Badge> {
+        return requestBadges("/channels/$channelId/display")
+    }
+
+    private suspend fun requestBadges(pathSegment: String): Map<TwitchBadgeId, Badge> {
+        val url = badgeApiUrl + pathSegment.removePrefix("/")
+
+        val request = Request.Builder()
+                .url(url)
+                .get()
+                .build()
+
+        val parsedBody = httpClient.newCall(request).await().use {
+            val bodyText = it.validateResponseCode(200).nonNullBody.string()
+            objectMapper.readTree(bodyText)
+        }
+
+
+        val badges: MutableMap<TwitchBadgeId, Badge> = HashMap()
+
+        val setsNode = parsedBody.get("badge_sets")
+        setsNode.fields().forEach { (setId, setNode) ->
+            setNode.get("versions").fields().forEach { (version, versionNode) ->
+                badges.put(
+                        TwitchBadgeId(setId, version),
+                        Badge(
+                                versionNode.get("image_url_2x").textValue(),
+                                versionNode.get("description").textValue()
+                        )
+                )
+            }
+        }
+
+        return badges
     }
 
 }

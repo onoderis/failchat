@@ -128,6 +128,11 @@ img.icon {
     max-height: 16px;
 }
 
+img.badge {
+    max-width: 16px;
+    max-height: 16px;
+}
+
 img.smile {
     max-height: 30px;
 }

@@ -54,6 +54,14 @@ class ChatMessageSender(
                 put("text", message.text)
                 put("timestamp", message.timestamp.toEpochMilli())
                 put("highlighted", message.highlighted)
+                putArray("badges").apply {
+                    message.badges.forEach { badge ->
+                        addObject().apply {
+                            put("url", badge.url)
+                            put("description", badge.description)
+                        }
+                    }
+                }
             }
         }
 

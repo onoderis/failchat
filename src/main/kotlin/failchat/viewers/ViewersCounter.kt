@@ -23,7 +23,7 @@ import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 
 /**
- * Not reusable.
+ * Class instance is not reusable.
  * */
 class ViewersCounter(
         private val viewersCountLoaders: List<ViewersCountLoader>,

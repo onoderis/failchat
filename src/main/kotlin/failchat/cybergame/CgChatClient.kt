@@ -167,15 +167,19 @@ class CgChatClient(
                 }
                 .fold(MessageContentFolder()) { acc, part -> acc.fold(part) }
 
-        return CgChatMessage(
+        val cgMessage = CgChatMessage(
                 messageIdGenerator.generate(),
                 Author(
                         messageDataNode.get("nickname").asText(),
                         messageDataNode.get("uid").asText()
                 ),
-                messageContentFolder.text,
-                messageContentFolder.elements
+                messageContentFolder.text
         )
+        messageContentFolder.elements.forEach {
+            cgMessage.addElement(it)
+        }
+
+        return cgMessage
     }
 
     private class MessageContentFolder {

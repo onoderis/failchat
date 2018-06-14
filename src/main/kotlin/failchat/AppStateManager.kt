@@ -15,6 +15,7 @@ import failchat.Origin.YOUTUBE
 import failchat.chat.ChatClient
 import failchat.chat.ChatMessageRemover
 import failchat.chat.ChatMessageSender
+import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
@@ -30,7 +31,10 @@ import failchat.peka2tv.Peka2tvChatClient
 import failchat.twitch.BttvApiClient
 import failchat.twitch.BttvChannelNotFoundException
 import failchat.twitch.BttvEmoticonHandler
+import failchat.twitch.TwitchApiClient
+import failchat.twitch.TwitchBadgeMessageHandler
 import failchat.twitch.TwitchChatClient
+import failchat.twitch.TwitchMessage
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.util.completionCause
 import failchat.util.error
@@ -72,6 +76,7 @@ class AppStateManager(private val kodein: Kodein) {
     private val chatMessageSender: ChatMessageSender = kodein.instance()
     private val chatMessageRemover: ChatMessageRemover = kodein.instance()
     private val peka2tvApiClient: Peka2tvApiClient = kodein.instance()
+    private val twitchApiClient: TwitchApiClient = kodein.instance()
     private val goodgameApiClient: GgApiClient = kodein.instance()
     private val cybergameApiClient: CgApiClient = kodein.instance()
     private val configLoader: ConfigLoader = kodein.instance()
@@ -98,6 +103,7 @@ class AppStateManager(private val kodein: Kodein) {
         val viewersCountLoaders: MutableList<ViewersCountLoader> = ArrayList()
         val initializedChatClients: MutableMap<Origin, ChatClient<*>> = HashMap()
 
+
         // Peka2tv chat client initialization
         checkEnabled(PEKA2TV)?.let { channelName ->
             // get channel id by channel name
@@ -116,10 +122,17 @@ class AppStateManager(private val kodein: Kodein) {
             viewersCountLoaders.add(chatClient)
         }
 
+
         // Twitch
         checkEnabled(TWITCH)?.let { channelName ->
-            val chatClient = kodein.factory<String, TwitchChatClient>()
-                    .invoke(channelName)
+            val channelId: Long = twitchApiClient.requestUserId(channelName).join()
+
+            val channelBadges = runBlocking { twitchApiClient.requestChannelBadges(channelId) }
+            log.info("Channel badges was read for channel '{}'. Count: {}", channelName, channelBadges.size)
+            val badgeHandler = TwitchBadgeMessageHandler(emptyMap(), channelBadges)
+
+            val chatClient = kodein.factory<Pair<String, MessageHandler<TwitchMessage>>, TwitchChatClient>()
+                    .invoke(channelName to badgeHandler)
                     .also { it.setCallbacks() }
             initializedChatClients.put(TWITCH, chatClient)
             viewersCountLoaders.add(kodein.factory<String, TwitchViewersCountLoader>().invoke(channelName))

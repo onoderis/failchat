@@ -1,7 +1,8 @@
 # Сообщения от сервера
 
 #### Chat message 
-Сообщение из чата
+Сообщение из чата  
+`content.badges.description: String | null`
 ```json
 {
     "type": "message",
@@ -33,13 +34,19 @@
                 "type": "image",
                 "url": "http://peka2.tv/logo.png"
             }
+        ],
+        "badges": [
+            {
+                "url": "https://example.com/some-image.png",
+                "description": "example badge"
+            }
         ]
     }
 }
 ```
 
 #### Client configuration
-`status-message-mode` может принимать значения: `everywhere`, `native_client`, `nowhere`
+`status-message-mode: "everywhere" | "native_client" | "nowhere"`
 ```json
 {
     "type": "client-configuration",
@@ -60,7 +67,7 @@
 
 #### Origin status
 Сюда входят сообщения об подключение и отключение к источникам  
-`content.status` может принимать значения: `connected`, `disconnected`  
+`content.status: "connected" | "disconnected"`  
 ```json
 {
     "type": "origin-status",
