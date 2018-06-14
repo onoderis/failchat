@@ -49,7 +49,7 @@ $(() => {
     });
 
 
-    socket.onopen = () => {
+    socket.onopen = function() {
         const connectedMessage = {"origin": "failchat", "status": "connected", "timestamp": Date.now()};
         handleStatusMessage(connectedMessage);
         appendToMessageContainer(connectedMessage);
@@ -58,13 +58,13 @@ $(() => {
         socket.send(JSON.stringify({type: "viewers-count", content: {}}));
     };
 
-    socket.onclose = () => {
+    socket.onclose = function() {
         const disconnectedMessage = {origin: "failchat", status: "disconnected", timestamp: Date.now()};
         handleStatusMessage(disconnectedMessage);
         appendToMessageContainer(disconnectedMessage);
     };
 
-    socket.onmessage = () => {
+    socket.onmessage = function() {
         const wsm = JSON.parse(event.data);
         const type = wsm.type;
         const content = wsm.content;
@@ -205,7 +205,7 @@ $(() => {
         messageContainer.append(message.textHtml);
     }
 
-    $("body,html").bind("keydown wheel mousewheel", function (e) {
+    $("body,html").bind("keydown wheel mousewheel", e => {
         //checks for disabling autoscroll
         if (autoScroll) {
             if (e.originalEvent.deltaY < 0 ||
@@ -286,14 +286,17 @@ $.views.converters("time", val => {
 // noinspection HtmlUnknownAttribute
 const templates = {
     message: $.templates(
-        '<p class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">\n' +
-        '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png">\n' +
-        '    <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author.name}}: </span>\n' +
-        '    <span class="mod-icons">\n' +
-        '        <span title="delete" onclick="deleteMessage(this.parentNode.parentNode)">&#10060;</span>\n' +
-        '        <span title="ignore" onclick="ignore(this.parentNode.parentNode)">&#128683;</span>\n' +
-        '    </span>\n' +
-        '    <span class="text{{if highlighted}} highlighted{{/if}}">{{:text}}</span>\n' +
+        '<p class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">' +
+        '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png">' +
+        '    {{for badges}}' +
+        '    <img class="badge" src="{{:url}}" {{if description !== null}}title="{{:description}}"{{/if}}>' +
+        '    {{/for}}' +
+        '    <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author.name}}: </span>' +
+        '    <span class="mod-icons">' +
+        '        <span title="delete" onclick="deleteMessage(this.parentNode.parentNode)">&#10060;</span>' +
+        '        <span title="ignore" onclick="ignore(this.parentNode.parentNode)">&#128683;</span>' +
+        '    </span>' +
+        '    <span class="text {{if highlighted}}highlighted{{/if}}">{{:text}}</span>' +
         '</p>'
     ),
 

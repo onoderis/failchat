@@ -7,6 +7,7 @@ import kotlin.concurrent.withLock
 
 class SynchronizedQueue<E>(private val delegate: Queue<E>) : Queue<E> {
 
+    //todo use synchronized
     private val lock: Lock = ReentrantLock()
 
     override val size: Int

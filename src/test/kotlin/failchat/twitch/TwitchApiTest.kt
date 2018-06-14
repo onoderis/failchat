@@ -5,6 +5,7 @@ import failchat.exception.ChannelOfflineException
 import failchat.okHttpClient
 import failchat.privateConfig
 import failchat.twitchEmoticonUrlFactory
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger
@@ -30,6 +31,7 @@ class TwitchApiTest {
     private val apiClient = TwitchApiClient(
             okHttpClient,
             config.getString("twitch.api-url"),
+            config.getString("twitch.badge-api-url"),
             privateConfig.getString("twitch.api-token"),
             twitchEmoticonUrlFactory
     )
@@ -63,6 +65,19 @@ class TwitchApiTest {
             log.debug("emoticons: {}", size)
         }
         log.debug("emoticons loaded in {} ms. size: {}", time, size)
+    }
+
+    @Test
+    fun globalBadgesTest() = runBlocking {
+        val badges = apiClient.requestGlobalBadges()
+        log.debug("{} global badges was loaded", badges.size)
+    }
+
+    @Test
+    fun channelBadgesTest() = runBlocking {
+        val channelId = userNameToId.values.first()
+        val badges = apiClient.requestChannelBadges(channelId)
+        log.debug("{} channel badges was loaded for channel '{}'", badges.size, channelId)
     }
 
 }

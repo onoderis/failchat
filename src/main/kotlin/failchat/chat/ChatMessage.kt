@@ -21,10 +21,7 @@ open class ChatMessage(
         var text: String,
 
         /** Время получения сообщения. */
-        val timestamp: Instant = Instant.now(),
-
-        /** Initial list of elements. */
-        elements: List<MessageElement> = emptyList()
+        val timestamp: Instant = Instant.now()
 ) {
 
     /**
@@ -33,8 +30,14 @@ open class ChatMessage(
      * - [Link]
      * - [Image]
      * */
-    val elements: List<MessageElement> get() = mutableElements
-    private val mutableElements: MutableList<MessageElement> = elements.toMutableList()
+    val elements: List<MessageElement>
+        get() = mutableElements
+    private val mutableElements: MutableList<MessageElement> = ArrayList(5)
+
+    /** Badges of the message. */
+    val badges: List<Badge>
+        get() = mutableBadges
+    private val mutableBadges: MutableList<Badge> = ArrayList(3)
 
     var highlighted = false
 
@@ -50,9 +53,13 @@ open class ChatMessage(
         return mutableElements.set(index, replacement)
     }
 
+    fun addBadge(badge: Badge) {
+        mutableBadges.add(badge)
+    }
+
     override fun toString(): String {
         return "ChatMessage(id=$id, origin=$origin, author=$author, text='$text', timestamp=$timestamp, " +
-                "highlighted=$highlighted, mutableElements=$mutableElements)"
+                "badges=$badges, mutableElements=$mutableElements, highlighted=$highlighted)"
     }
 
 }

@@ -13,6 +13,7 @@ import failchat.chat.StatusMessage
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.emoticon.EmoticonFinder
+import failchat.util.debug
 import failchat.util.notEmptyOrNull
 import failchat.util.synchronized
 import org.pircbotx.Configuration
@@ -40,7 +41,8 @@ class TwitchChatClient(
         botPassword: String,
         emoticonFinder: EmoticonFinder,
         private val messageIdGenerator: MessageIdGenerator,
-        private val bttvEmoticonHandler: BttvEmoticonHandler
+        private val bttvEmoticonHandler: BttvEmoticonHandler,
+        private val twitchBadgeMessageHandler: MessageHandler<TwitchMessage>
 ) : ChatClient<TwitchMessage> {
 
     private companion object {
@@ -65,7 +67,8 @@ class TwitchChatClient(
             TwitchEmoticonHandler(emoticonFinder),
             bttvEmoticonHandler,
             BraceEscaper(),
-            TwitchHighlightHandler(userName)
+            TwitchHighlightHandler(userName),
+            twitchBadgeMessageHandler
     )
     private val history = EvictingQueue.create<TwitchMessage>(50).synchronized()
 
@@ -129,8 +132,11 @@ class TwitchChatClient(
         }
 
         override fun onMessage(event: MessageEvent) {
-            log.debug("twitch message {}", event.message)
-            val message = parseMessage(event)
+            log.debug {
+                "Message was received from twitch. ${event.user}. Message: '${event.message}'. Tags: '${event.v3Tags}'"
+            }
+
+            val message = parseOrdinaryMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
             history.add(message)
             onChatMessage?.invoke(message)
@@ -144,7 +150,7 @@ class TwitchChatClient(
          * Handle "/me" messages.
          * */
         override fun onAction(event: ActionEvent) {
-            val message = parseMessage(event)
+            val message = parseMeMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
             history.add(message)
             onChatMessage?.invoke(message)
@@ -162,7 +168,7 @@ class TwitchChatClient(
         }
     }
 
-    private fun parseMessage(event: MessageEvent): TwitchMessage {
+    private fun parseOrdinaryMessage(event: MessageEvent): TwitchMessage {
         val displayedName = event.v3Tags.get("display-name") //could return null (e.g. from twitchnotify)
         // Если пользователь не менял ник, то в v3tags пусто, ник capitalized
         val author: String = if (displayedName.isNullOrEmpty()) {
@@ -175,16 +181,18 @@ class TwitchChatClient(
                 id = messageIdGenerator.generate(),
                 author = author,
                 text = event.message,
-                emotesTag = event.v3Tags.get("emotes").notEmptyOrNull() //if message has no emoticons - tag is empty, not null
+                emotesTag = event.v3Tags.get("emotes").notEmptyOrNull(), //if message has no emoticons - tag is empty, not null
+                badgesTag = event.v3Tags.get("badges")
         )
     }
 
-    private fun parseMessage(event: ActionEvent): TwitchMessage {
+    private fun parseMeMessage(event: ActionEvent): TwitchMessage {
         return TwitchMessage(
                 id = messageIdGenerator.generate(),
                 author = event.userHostmask.nick,
                 text = event.message,
-                emotesTag = null
+                emotesTag = null,
+                badgesTag = null
         )
     }
 

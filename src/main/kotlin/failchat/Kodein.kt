@@ -10,6 +10,7 @@ import com.google.api.services.youtube.YouTube
 import either.Either
 import failchat.chat.ChatMessageRemover
 import failchat.chat.ChatMessageSender
+import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
@@ -41,6 +42,7 @@ import failchat.twitch.TwitchApiClient
 import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchEmoticonLoader
 import failchat.twitch.TwitchEmoticonUrlFactory
+import failchat.twitch.TwitchMessage
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.twitch.TwitchemotesApiClient
 import failchat.viewers.ViewersCountLoader
@@ -189,7 +191,8 @@ val kodein = Kodein {
         val config = instance<Configuration>()
         TwitchApiClient(
                 httpClient = instance<OkHttpClient>(),
-                apiUrl = config.getString("twitch.api-url"),
+                mainApiUrl = config.getString("twitch.api-url"),
+                badgeApiUrl = config.getString("twitch.badge-api-url"),
                 token = config.getString("twitch.api-token"),
                 emoticonUrlFactory = instance<TwitchEmoticonUrlFactory>()
         )
@@ -212,17 +215,18 @@ val kodein = Kodein {
     bind<TwitchEmoticonLoader>() with singleton {
         TwitchEmoticonLoader(instance<TwitchApiClient>(), instance<TwitchemotesApiClient>())
     }
-    bind<TwitchChatClient>() with factory { channelName: String ->
+    bind<TwitchChatClient>() with factory { channelNameAndBadgeHandler: Pair<String, MessageHandler<TwitchMessage>> ->
         val config = instance<Configuration>()
         TwitchChatClient(
-                userName = channelName,
+                userName = channelNameAndBadgeHandler.first,
                 ircAddress = config.getString("twitch.irc-address"),
                 ircPort = config.getInt("twitch.irc-port"),
                 botName = config.getString("twitch.bot-name"),
                 botPassword = config.getString("twitch.bot-password"),
                 emoticonFinder = instance<EmoticonFinder>(),
                 messageIdGenerator = instance<MessageIdGenerator>(),
-                bttvEmoticonHandler = instance<BttvEmoticonHandler>()
+                bttvEmoticonHandler = instance<BttvEmoticonHandler>(),
+                twitchBadgeMessageHandler = channelNameAndBadgeHandler.second
         )
     }
     bind<TwitchViewersCountLoader>() with factory { channelName: String ->
