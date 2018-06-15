@@ -108,7 +108,7 @@ class ChatFrame(
                 stage.initStyle(StageStyle.TRANSPARENT)
             }
         }
-        stage.setOnCloseRequest { event ->
+        stage.setOnCloseRequest {
             saveChatPosition(stage)
             guiEventHandler.shutDown()
         }
@@ -123,7 +123,7 @@ class ChatFrame(
         webView.isContextMenuEnabled = false
 
         //webengine transparent hack
-        webEngine.documentProperty().addListener { observable, oldValue, newValue ->
+        webEngine.documentProperty().addListener { _, _, _ ->
             try {
                 val f = webEngine.javaClass.getDeclaredField("page")
                 f.isAccessible = true
@@ -143,7 +143,7 @@ class ChatFrame(
         }
 
         // url opening interceptor
-        webEngine.loadWorker.stateProperty().addListener { observable, oldValue, newValue ->
+        webEngine.loadWorker.stateProperty().addListener { _, _, newValue ->
             // WebEngine.locationProperty не изменяется обратно после LoadWorker.cancel()
             // locationProperty заменяется сразу, как и Worker.State
             if (newValue == Worker.State.SCHEDULED) {
@@ -178,14 +178,14 @@ class ChatFrame(
         }
 
         //menu items
-        switchDecorationsItem.setOnAction { event -> switchDecorations() }
-        onTopItem.setOnAction { event ->
+        switchDecorationsItem.setOnAction { switchDecorations() }
+        onTopItem.setOnAction {
             val newValue = !config.getBoolean("on-top")
             config.setProperty("on-top", newValue)
             currentChatStage.isAlwaysOnTop = newValue
         }
-        toSettingsItem.setOnAction { event -> toSettings() }
-        viewersItem.setOnAction { event ->
+        toSettingsItem.setOnAction { toSettings() }
+        viewersItem.setOnAction {
             val newValue = !config.getBoolean("show-viewers")
             config.setProperty("show-viewers", newValue)
             guiEventHandler.notifyViewersCountToggled()

@@ -44,6 +44,7 @@ class SettingsFrame(
     private val youtubeEnabled = scene.lookup("#youtube_enabled") as CheckBox
     private val cybergameEnabled = scene.lookup("#cybergame_enabled") as CheckBox
 
+    @Suppress("UNCHECKED_CAST")
     private val skin = scene.lookup("#skin") as ChoiceBox<Skin>
     private val frame = scene.lookup("#frame") as CheckBox
     private val onTop = scene.lookup("#top") as CheckBox
@@ -53,6 +54,7 @@ class SettingsFrame(
     //second tab
     private val nativeBgColorPicker = scene.lookup("#bgcolor_native") as ColorPicker
     private val externalBgColorPicker = scene.lookup("#bgcolor_external") as ColorPicker
+    @Suppress("UNCHECKED_CAST")
     private val statusMessagesMode = scene.lookup("#status_messages") as ChoiceBox<StatusMessageMode>
     private val ignoreList = scene.lookup("#ignore_list") as TextArea
 

@@ -200,7 +200,6 @@ class CgChatClient(
                     textBuilder.append(Elements.label(part.elementNumber))
                     mutableElements.add(part.parsedLink)
                 }
-                else -> throw IllegalStateException("Unexpected subtype of MessagePartType: ${part.javaClass.name}")
             }
             return this
         }

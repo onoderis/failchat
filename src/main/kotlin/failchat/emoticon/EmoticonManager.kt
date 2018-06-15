@@ -121,6 +121,7 @@ class EmoticonManager(
     private fun <T> loadFromCache(filePath: Path): T {
         filePath.toFile().inputStream().use { fileInputStream ->
             ObjectInputStream(fileInputStream).use { objectInputStream ->
+                @Suppress("UNCHECKED_CAST")
                 return objectInputStream.readObject() as T
             }
         }
