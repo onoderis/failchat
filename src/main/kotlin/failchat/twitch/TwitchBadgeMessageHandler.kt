@@ -1,24 +1,22 @@
 package failchat.twitch
 
-import failchat.chat.Badge
 import failchat.chat.MessageHandler
+import failchat.chat.badge.BadgeFinder
+import failchat.chat.badge.BadgeOrigin
 
-class TwitchBadgeMessageHandler : MessageHandler<TwitchMessage> {
-
-    var badges: Map<TwitchBadgeId, Badge> = emptyMap()
+class TwitchBadgeMessageHandler(
+        private val badgeFinder: BadgeFinder
+) : MessageHandler<TwitchMessage> {
 
     override fun handleMessage(message: TwitchMessage) {
         val badgesTag = message.badgesTag ?: return
 
-        val localBadges = badges
-        if (localBadges.isEmpty()) return
-
         val messageBadgeIds = parseBadgesTag(badgesTag)
 
         messageBadgeIds.forEach { messageBadgeId ->
-            localBadges.get(messageBadgeId)?.let {
-                message.addBadge(it)
-            }
+            val badge = badgeFinder.findBadge(BadgeOrigin.TWITCH_CHANNEL, messageBadgeId)
+                    ?: badgeFinder.findBadge(BadgeOrigin.TWITCH_GLOBAL, messageBadgeId)
+            badge?.let { message.addBadge(it) }
         }
     }
 

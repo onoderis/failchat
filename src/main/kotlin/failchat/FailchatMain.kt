@@ -3,6 +3,7 @@ package failchat
 import com.github.salomonbrys.kodein.instance
 import failchat.chat.ChatMessageRemover
 import failchat.chat.ChatMessageSender
+import failchat.chat.badge.BadgeManager
 import failchat.chat.handlers.IgnoreFilter
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonLoader
@@ -17,6 +18,7 @@ import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
 import failchat.twitch.BttvGlobalEmoticonLoader
 import failchat.twitch.TwitchEmoticonLoader
+import failchat.util.CoroutineExceptionLogger
 import failchat.util.executeWithCatch
 import failchat.viewers.ViewersCountWsHandler
 import failchat.ws.server.ClientConfigurationWsHandler
@@ -24,6 +26,7 @@ import failchat.ws.server.DeleteWsMessageHandler
 import failchat.ws.server.IgnoreWsMessageHandler
 import failchat.ws.server.WsServer
 import javafx.application.Application
+import kotlinx.coroutines.experimental.CoroutineName
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.asCoroutineDispatcher
 import kotlinx.coroutines.experimental.launch
@@ -52,7 +55,7 @@ fun main(args: Array<String>) {
     handleProgramArguments(args)
 
     // Start GUI
-    // Тред блокируется. Javafx приложение лучше запустить раньше(а не а конце main()) для отзывчивости интерфейса
+    // Тред блокируется. Javafx приложение лучше запустить раньше, а не в конце main для отзывчивости интерфейса
     thread(name = "GuiLauncher") { Application.launch(GuiLauncher::class.java) }
 
 
@@ -75,6 +78,12 @@ fun main(args: Array<String>) {
 
     // Load emoticons in background thread
     backgroundExecutor.executeWithCatch { loadEmoticons() }
+
+    // Load global badges in background thread
+    val badgeManager: BadgeManager = kodein.instance()
+    launch(backgroundExecutor.asCoroutineDispatcher() + CoroutineName("GlobalBadgeLoader") + CoroutineExceptionLogger) {
+        badgeManager.loadGlobalBadges()
+    }
 
     log.info("Application started. Version: {}. Working directory: {}", config.getString("version"),
             kodein.instance<Path>("workingDirectory").toAbsolutePath())

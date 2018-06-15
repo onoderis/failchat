@@ -1,4 +1,4 @@
-package failchat.chat
+package failchat.chat.badge
 
 open class Badge(
         val url: String,
