@@ -1,6 +1,7 @@
 package failchat.chat
 
 import failchat.Origin
+import failchat.chat.badge.Badge
 import failchat.emoticon.Emoticon
 import java.time.Instant
 

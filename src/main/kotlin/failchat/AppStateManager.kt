@@ -15,8 +15,8 @@ import failchat.Origin.YOUTUBE
 import failchat.chat.ChatClient
 import failchat.chat.ChatMessageRemover
 import failchat.chat.ChatMessageSender
-import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
+import failchat.chat.badge.BadgeManager
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
 import failchat.cybergame.CgApiClient
@@ -32,9 +32,7 @@ import failchat.twitch.BttvApiClient
 import failchat.twitch.BttvChannelNotFoundException
 import failchat.twitch.BttvEmoticonHandler
 import failchat.twitch.TwitchApiClient
-import failchat.twitch.TwitchBadgeMessageHandler
 import failchat.twitch.TwitchChatClient
-import failchat.twitch.TwitchMessage
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.util.CoroutineExceptionLogger
 import failchat.util.completionCause
@@ -54,8 +52,7 @@ import failchat.youtube.YoutubeUtils
 import failchat.youtube.YtChatClient
 import javafx.application.Platform
 import kotlinx.coroutines.experimental.CoroutineName
-import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.asCoroutineDispatcher
 import kotlinx.coroutines.experimental.future.await
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
@@ -94,6 +91,8 @@ class AppStateManager(private val kodein: Kodein) {
     private val bttvEmoticonHandler: BttvEmoticonHandler = kodein.instance()
     private val bttvApiClient: BttvApiClient = kodein.instance()
     private val emoticonStorage: EmoticonStorage = kodein.instance()
+    private val badgeManager: BadgeManager = kodein.instance()
+    private val backroundExecutorDispatcher = kodein.instance<ScheduledExecutorService>("background").asCoroutineDispatcher()
 
     private val lock: Lock = ReentrantLock()
     private val config: Configuration = configLoader.get()
@@ -131,29 +130,16 @@ class AppStateManager(private val kodein: Kodein) {
 
         // Twitch
         checkEnabled(TWITCH)?.let { channelName ->
-            val badgeHandler = TwitchBadgeMessageHandler()
-            val chatClient = kodein.factory<Pair<String, MessageHandler<TwitchMessage>>, TwitchChatClient>()
-                    .invoke(channelName to badgeHandler)
+            val chatClient = kodein.factory<String, TwitchChatClient>()
+                    .invoke(channelName)
                     .also { it.setCallbacks() }
             initializedChatClients.put(TWITCH, chatClient)
             viewersCountLoaders.add(kodein.factory<String, TwitchViewersCountLoader>().invoke(channelName))
 
             // load badges in background
-            launch(Unconfined + CoroutineName("TwitchBadgeLoader") + CoroutineExceptionLogger) {
-                val channelBadgesFuture = async(Unconfined) {
-                    val channelId: Long = twitchApiClient.requestUserId(channelName).await()
-                    twitchApiClient.requestChannelBadges(channelId).also {
-                        log.info("Channel badges was received for twitch channel '{}'. Count: {}", channelName, it.size)
-                    }
-                }
-
-                val globalBadgesFuture = async(Unconfined) {
-                    twitchApiClient.requestGlobalBadges().also {
-                        log.info("Global twitch badges was received. Count: {}", it.size)
-                    }
-                }
-
-                badgeHandler.badges = globalBadgesFuture.await() + channelBadgesFuture.await()
+            launch(backroundExecutorDispatcher + CoroutineName("TwitchBadgeLoader") + CoroutineExceptionLogger) {
+                val channelId: Long = twitchApiClient.requestUserId(channelName).await()
+                badgeManager.loadTwitchChannelBadges(channelId)
             }
 
             // load BTTV channel emoticons in background
@@ -317,6 +303,8 @@ class AppStateManager(private val kodein: Kodein) {
         emoticonStorage.putCodeMapping(BTTV_CHANNEL, emptyMap())
         emoticonStorage.putIdMapping(BTTV_CHANNEL, emptyMap())
         bttvEmoticonHandler.resetChannelPattern()
+
+        badgeManager.resetChannelBadges()
 
         // stop chat clients
         chatClients.values.forEach {

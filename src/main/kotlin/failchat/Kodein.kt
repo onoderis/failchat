@@ -10,8 +10,9 @@ import com.google.api.services.youtube.YouTube
 import either.Either
 import failchat.chat.ChatMessageRemover
 import failchat.chat.ChatMessageSender
-import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
+import failchat.chat.badge.BadgeManager
+import failchat.chat.badge.BadgeStorage
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
 import failchat.cybergame.CgApiClient
@@ -39,10 +40,10 @@ import failchat.twitch.BttvApiClient
 import failchat.twitch.BttvEmoticonHandler
 import failchat.twitch.BttvGlobalEmoticonLoader
 import failchat.twitch.TwitchApiClient
+import failchat.twitch.TwitchBadgeMessageHandler
 import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchEmoticonLoader
 import failchat.twitch.TwitchEmoticonUrlFactory
-import failchat.twitch.TwitchMessage
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.twitch.TwitchemotesApiClient
 import failchat.viewers.ViewersCountLoader
@@ -107,6 +108,11 @@ val kodein = Kodein {
         EmoticonManager(instance<Path>("workingDirectory"), instance<Configuration>())
     }
 
+    // Badges
+    bind<BadgeStorage>() with singleton { BadgeStorage() }
+    bind<BadgeManager>() with singleton {
+        BadgeManager(instance<BadgeStorage>(), instance<TwitchApiClient>())
+    }
 
     // General purpose dependencies
     bind<ObjectMapper>() with singleton { ObjectMapper() }
@@ -151,7 +157,7 @@ val kodein = Kodein {
     }
 
 
-    //Background task executor
+    // Background task executor
     bind<ScheduledExecutorService>("background") with singleton {
         val threadNumber = AtomicInteger()
         Executors.newScheduledThreadPool(2) {
@@ -215,10 +221,10 @@ val kodein = Kodein {
     bind<TwitchEmoticonLoader>() with singleton {
         TwitchEmoticonLoader(instance<TwitchApiClient>(), instance<TwitchemotesApiClient>())
     }
-    bind<TwitchChatClient>() with factory { channelNameAndBadgeHandler: Pair<String, MessageHandler<TwitchMessage>> ->
+    bind<TwitchChatClient>() with factory { channelName: String ->
         val config = instance<Configuration>()
         TwitchChatClient(
-                userName = channelNameAndBadgeHandler.first,
+                userName = channelName,
                 ircAddress = config.getString("twitch.irc-address"),
                 ircPort = config.getInt("twitch.irc-port"),
                 botName = config.getString("twitch.bot-name"),
@@ -226,11 +232,14 @@ val kodein = Kodein {
                 emoticonFinder = instance<EmoticonFinder>(),
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 bttvEmoticonHandler = instance<BttvEmoticonHandler>(),
-                twitchBadgeMessageHandler = channelNameAndBadgeHandler.second
+                twitchBadgeMessageHandler = instance<TwitchBadgeMessageHandler>()
         )
     }
     bind<TwitchViewersCountLoader>() with factory { channelName: String ->
         TwitchViewersCountLoader(channelName, instance<TwitchApiClient>())
+    }
+    bind<TwitchBadgeMessageHandler>() with singleton {
+        TwitchBadgeMessageHandler(instance<BadgeStorage>())
     }
 
     // BTTV

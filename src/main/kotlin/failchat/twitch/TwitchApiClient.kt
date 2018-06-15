@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.JsonNode
 import failchat.Origin
-import failchat.chat.Badge
+import failchat.chat.badge.Badge
 import failchat.exception.ChannelOfflineException
 import failchat.exception.DataNotFoundException
 import failchat.util.await
