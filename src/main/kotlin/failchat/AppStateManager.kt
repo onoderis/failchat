@@ -36,6 +36,7 @@ import failchat.twitch.TwitchBadgeMessageHandler
 import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchMessage
 import failchat.twitch.TwitchViewersCountLoader
+import failchat.util.CoroutineExceptionLogger
 import failchat.util.completionCause
 import failchat.util.error
 import failchat.util.formatStackTraces
@@ -52,6 +53,11 @@ import failchat.youtube.VideoId
 import failchat.youtube.YoutubeUtils
 import failchat.youtube.YtChatClient
 import javafx.application.Platform
+import kotlinx.coroutines.experimental.CoroutineName
+import kotlinx.coroutines.experimental.Unconfined
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.future.await
+import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import okhttp3.OkHttpClient
 import org.apache.commons.configuration2.Configuration
@@ -125,17 +131,30 @@ class AppStateManager(private val kodein: Kodein) {
 
         // Twitch
         checkEnabled(TWITCH)?.let { channelName ->
-            val channelId: Long = twitchApiClient.requestUserId(channelName).join()
-
-            val channelBadges = runBlocking { twitchApiClient.requestChannelBadges(channelId) }
-            log.info("Channel badges was read for channel '{}'. Count: {}", channelName, channelBadges.size)
-            val badgeHandler = TwitchBadgeMessageHandler(emptyMap(), channelBadges)
-
+            val badgeHandler = TwitchBadgeMessageHandler()
             val chatClient = kodein.factory<Pair<String, MessageHandler<TwitchMessage>>, TwitchChatClient>()
                     .invoke(channelName to badgeHandler)
                     .also { it.setCallbacks() }
             initializedChatClients.put(TWITCH, chatClient)
             viewersCountLoaders.add(kodein.factory<String, TwitchViewersCountLoader>().invoke(channelName))
+
+            // load badges in background
+            launch(Unconfined + CoroutineName("TwitchBadgeLoader") + CoroutineExceptionLogger) {
+                val channelBadgesFuture = async(Unconfined) {
+                    val channelId: Long = twitchApiClient.requestUserId(channelName).await()
+                    twitchApiClient.requestChannelBadges(channelId).also {
+                        log.info("Channel badges was received for twitch channel '{}'. Count: {}", channelName, it.size)
+                    }
+                }
+
+                val globalBadgesFuture = async(Unconfined) {
+                    twitchApiClient.requestGlobalBadges().also {
+                        log.info("Global twitch badges was received. Count: {}", it.size)
+                    }
+                }
+
+                badgeHandler.badges = globalBadgesFuture.await() + channelBadgesFuture.await()
+            }
 
             // load BTTV channel emoticons in background
             bttvApiClient.loadChannelEmoticons(channelName)

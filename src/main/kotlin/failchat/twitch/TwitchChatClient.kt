@@ -41,8 +41,8 @@ class TwitchChatClient(
         botPassword: String,
         emoticonFinder: EmoticonFinder,
         private val messageIdGenerator: MessageIdGenerator,
-        private val bttvEmoticonHandler: BttvEmoticonHandler,
-        private val twitchBadgeMessageHandler: MessageHandler<TwitchMessage>
+        bttvEmoticonHandler: BttvEmoticonHandler,
+        twitchBadgeMessageHandler: MessageHandler<TwitchMessage>
 ) : ChatClient<TwitchMessage> {
 
     private companion object {

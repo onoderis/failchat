@@ -163,7 +163,7 @@ class TwitchApiClient(
                         TwitchBadgeId(setId, version),
                         Badge(
                                 versionNode.get("image_url_2x").textValue(),
-                                versionNode.get("description").textValue()
+                                versionNode.get("title").textValue()
                         )
                 )
             }
