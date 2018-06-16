@@ -42,7 +42,7 @@ class TwitchChatClient(
         emoticonFinder: EmoticonFinder,
         private val messageIdGenerator: MessageIdGenerator,
         bttvEmoticonHandler: BttvEmoticonHandler,
-        twitchBadgeMessageHandler: MessageHandler<TwitchMessage>
+        twitchBadgeHandler: MessageHandler<TwitchMessage>
 ) : ChatClient<TwitchMessage> {
 
     private companion object {
@@ -68,7 +68,7 @@ class TwitchChatClient(
             bttvEmoticonHandler,
             BraceEscaper(),
             TwitchHighlightHandler(userName),
-            twitchBadgeMessageHandler
+            twitchBadgeHandler
     )
     private val history = EvictingQueue.create<TwitchMessage>(50).synchronized()
 

@@ -4,7 +4,7 @@ import failchat.chat.MessageHandler
 import failchat.chat.badge.BadgeFinder
 import failchat.chat.badge.BadgeOrigin
 
-class TwitchBadgeMessageHandler(
+class TwitchBadgeHandler(
         private val badgeFinder: BadgeFinder
 ) : MessageHandler<TwitchMessage> {
 

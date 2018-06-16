@@ -16,7 +16,6 @@ import failchat.chat.OriginStatus.DISCONNECTED
 import failchat.chat.StatusMessage
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
-import failchat.emoticon.EmoticonFinder
 import failchat.exception.UnexpectedResponseException
 import failchat.util.synchronized
 import failchat.util.warn
@@ -36,9 +35,9 @@ class Peka2tvChatClient(
         private val socketIoUrl: String,
         private val okHttpClient: OkHttpClient,
         private val messageIdGenerator: MessageIdGenerator,
-        private val emoticonFinder: EmoticonFinder
-) : ChatClient<Peka2tvMessage>,
-        ViewersCountLoader {
+        emoticonHandler: Peka2tvEmoticonHandler,
+        badgeHandler: Peka2tvBadgeHandler
+) : ChatClient<Peka2tvMessage>, ViewersCountLoader {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(Peka2tvChatClient::class.java)
@@ -60,7 +59,8 @@ class Peka2tvChatClient(
             ElementLabelEscaper(),
             BraceEscaper(),
             Peka2tvHighlightHandler(channelName),
-            Peka2tvEmoticonHandler(emoticonFinder)
+            emoticonHandler,
+            badgeHandler
     )
     private val messageFilters: List<MessageFilter<Peka2tvMessage>> = listOf(
             Peka2tvOriginFilter(),
@@ -158,7 +158,8 @@ class Peka2tvChatClient(
                             fromUser = messageNode.getJSONObject("from").toUser(),
                             text = messageNode.getString("text"),
                             type = messageNode.getString("type"),
-                            toUser = toNode?.toUser()
+                            toUser = toNode?.toUser(),
+                            badgeId = messageNode.getJSONObject("store").getLong("icon")
                     )
 
                     //filter message

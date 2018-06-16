@@ -11,6 +11,7 @@ import either.Either
 import failchat.chat.ChatMessageRemover
 import failchat.chat.ChatMessageSender
 import failchat.chat.MessageIdGenerator
+import failchat.chat.badge.BadgeFinder
 import failchat.chat.badge.BadgeManager
 import failchat.chat.badge.BadgeStorage
 import failchat.chat.handlers.IgnoreFilter
@@ -28,7 +29,9 @@ import failchat.goodgame.GgChatClient
 import failchat.goodgame.GgEmoticonLoader
 import failchat.gui.GuiEventHandler
 import failchat.peka2tv.Peka2tvApiClient
+import failchat.peka2tv.Peka2tvBadgeHandler
 import failchat.peka2tv.Peka2tvChatClient
+import failchat.peka2tv.Peka2tvEmoticonHandler
 import failchat.peka2tv.Peka2tvEmoticonLoader
 import failchat.reporter.EventReporter
 import failchat.reporter.GAEventReporter
@@ -40,7 +43,7 @@ import failchat.twitch.BttvApiClient
 import failchat.twitch.BttvEmoticonHandler
 import failchat.twitch.BttvGlobalEmoticonLoader
 import failchat.twitch.TwitchApiClient
-import failchat.twitch.TwitchBadgeMessageHandler
+import failchat.twitch.TwitchBadgeHandler
 import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchEmoticonLoader
 import failchat.twitch.TwitchEmoticonUrlFactory
@@ -110,8 +113,13 @@ val kodein = Kodein {
 
     // Badges
     bind<BadgeStorage>() with singleton { BadgeStorage() }
+    bind<BadgeFinder>() with singleton { instance<BadgeStorage>() }
     bind<BadgeManager>() with singleton {
-        BadgeManager(instance<BadgeStorage>(), instance<TwitchApiClient>())
+        BadgeManager(
+                instance<BadgeStorage>(),
+                instance<TwitchApiClient>(),
+                instance<Peka2tvApiClient>()
+        )
     }
 
     // General purpose dependencies
@@ -180,6 +188,8 @@ val kodein = Kodein {
         )
     }
     bind<Peka2tvEmoticonLoader>() with singleton { Peka2tvEmoticonLoader(instance<Peka2tvApiClient>()) }
+    bind<Peka2tvBadgeHandler>() with singleton { Peka2tvBadgeHandler(instance<BadgeFinder>()) }
+    bind<Peka2tvEmoticonHandler>() with singleton { Peka2tvEmoticonHandler(instance<EmoticonFinder>()) }
     bind<Peka2tvChatClient>() with factory { channelNameAndId: Pair<String, Long> ->
         Peka2tvChatClient(
                 channelName = channelNameAndId.first,
@@ -187,7 +197,8 @@ val kodein = Kodein {
                 socketIoUrl = instance<Configuration>().getString("peka2tv.socketio-url"),
                 okHttpClient = instance<OkHttpClient>(),
                 messageIdGenerator = instance<MessageIdGenerator>(),
-                emoticonFinder = instance<EmoticonFinder>()
+                emoticonHandler = instance<Peka2tvEmoticonHandler>(),
+                badgeHandler = instance<Peka2tvBadgeHandler>()
         )
     }
 
@@ -232,14 +243,14 @@ val kodein = Kodein {
                 emoticonFinder = instance<EmoticonFinder>(),
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 bttvEmoticonHandler = instance<BttvEmoticonHandler>(),
-                twitchBadgeMessageHandler = instance<TwitchBadgeMessageHandler>()
+                twitchBadgeHandler = instance<TwitchBadgeHandler>()
         )
     }
     bind<TwitchViewersCountLoader>() with factory { channelName: String ->
         TwitchViewersCountLoader(channelName, instance<TwitchApiClient>())
     }
-    bind<TwitchBadgeMessageHandler>() with singleton {
-        TwitchBadgeMessageHandler(instance<BadgeStorage>())
+    bind<TwitchBadgeHandler>() with singleton {
+        TwitchBadgeHandler(instance<BadgeFinder>())
     }
 
     // BTTV
