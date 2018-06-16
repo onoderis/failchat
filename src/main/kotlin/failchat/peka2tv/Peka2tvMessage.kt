@@ -10,6 +10,7 @@ class Peka2tvMessage(
         val fromUser: Peka2tvUser, //for SourceFilter and HighlightHandler
         text: String,
         val type: String,
-        val toUser: Peka2tvUser? //for HighlightHandler
+        val toUser: Peka2tvUser?, //for HighlightHandler
+        val badgeId: Peka2tvBadgeId
 ) : ChatMessage(id, PEKA2TV, Author(fromUser.name), text)
 
