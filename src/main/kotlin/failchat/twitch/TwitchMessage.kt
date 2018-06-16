@@ -8,6 +8,8 @@ class TwitchMessage(
         id: Long,
         author: String,
         text: String,
+        /** Non-empty string with emotes. */
         val emotesTag: String?,
+        /** Non-empty string with badges. */
         val badgesTag: String?
 ) : ChatMessage(id, Origin.TWITCH, Author(author), text)

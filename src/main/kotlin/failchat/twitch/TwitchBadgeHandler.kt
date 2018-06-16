@@ -1,12 +1,20 @@
 package failchat.twitch
 
 import failchat.chat.MessageHandler
+import failchat.chat.badge.Badge
 import failchat.chat.badge.BadgeFinder
-import failchat.chat.badge.BadgeOrigin
+import failchat.chat.badge.BadgeOrigin.TWITCH_CHANNEL
+import failchat.chat.badge.BadgeOrigin.TWITCH_GLOBAL
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class TwitchBadgeHandler(
         private val badgeFinder: BadgeFinder
 ) : MessageHandler<TwitchMessage> {
+
+    private companion object {
+        val log: Logger = LoggerFactory.getLogger(TwitchBadgeHandler::class.java)
+    }
 
     override fun handleMessage(message: TwitchMessage) {
         val badgesTag = message.badgesTag ?: return
@@ -14,9 +22,15 @@ class TwitchBadgeHandler(
         val messageBadgeIds = parseBadgesTag(badgesTag)
 
         messageBadgeIds.forEach { messageBadgeId ->
-            val badge = badgeFinder.findBadge(BadgeOrigin.TWITCH_CHANNEL, messageBadgeId)
-                    ?: badgeFinder.findBadge(BadgeOrigin.TWITCH_GLOBAL, messageBadgeId)
-            badge?.let { message.addBadge(it) }
+            val badge: Badge? = badgeFinder.findBadge(TWITCH_CHANNEL, messageBadgeId)
+                    ?: badgeFinder.findBadge(TWITCH_GLOBAL, messageBadgeId)
+
+            if (badge == null) {
+                log.debug("Badge not found. Origin: {}, {}; badge id: {}", TWITCH_CHANNEL, TWITCH_GLOBAL, messageBadgeId)
+                return@forEach
+            }
+
+            message.addBadge(badge)
         }
     }
 
