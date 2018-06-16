@@ -18,7 +18,7 @@ class Peka2tvBadgeHandler(private val badgeFinder: BadgeFinder) : MessageHandler
 
         val badge: Badge? = badgeFinder.findBadge(PEKA2TV, message.badgeId)
         if (badge == null) {
-            log.debug("Badge not found. Origin: {}, badge id: {}", PEKA2TV, message.badgeId)
+            log.debug("Badge not found. Origin: {}; badge id: {}", PEKA2TV, message.badgeId)
             return
         }
 

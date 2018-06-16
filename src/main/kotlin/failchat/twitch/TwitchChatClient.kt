@@ -182,7 +182,7 @@ class TwitchChatClient(
                 author = author,
                 text = event.message,
                 emotesTag = event.v3Tags.get("emotes").notEmptyOrNull(), //if message has no emoticons - tag is empty, not null
-                badgesTag = event.v3Tags.get("badges")
+                badgesTag = event.v3Tags.get("badges").notEmptyOrNull()
         )
     }
 

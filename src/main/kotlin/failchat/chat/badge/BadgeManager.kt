@@ -1,6 +1,7 @@
 package failchat.chat.badge
 
 import failchat.chat.badge.BadgeOrigin.PEKA2TV
+import failchat.chat.badge.BadgeOrigin.TWITCH_CHANNEL
 import failchat.chat.badge.BadgeOrigin.TWITCH_GLOBAL
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.twitch.TwitchApiClient
@@ -43,11 +44,11 @@ class BadgeManager(
         val twitchBadges = twitchApiClient.requestChannelBadges(channelId)
         log.info("Channel badges was received for twitch channel '{}'. Count: {}", channelId, twitchBadges.size)
 
-        badgeStorage.putBadges(TWITCH_GLOBAL, twitchBadges)
+        badgeStorage.putBadges(TWITCH_CHANNEL, twitchBadges)
     }
 
     fun resetChannelBadges() {
-        badgeStorage.putBadges(TWITCH_GLOBAL, emptyMap())
+        badgeStorage.putBadges(TWITCH_CHANNEL, emptyMap())
     }
 
 }
