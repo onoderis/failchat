@@ -9,5 +9,7 @@ class GgMessage(
         val ggId: Long,
         author: String,
         text: String,
-        val authorHasPremium: Boolean
+        val authorHasPremium: Boolean,
+        /** Mapping of channel id to subscription duration. */
+        val subscriptionDuration: Map<Long, Int>
 ) : ChatMessage(id, Origin.GOODGAME, Author(author), text)

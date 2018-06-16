@@ -5,8 +5,14 @@ import failchat.exception.ChannelOfflineException
 import failchat.okHttpClient
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class GgApiTest {
+
+    private companion object {
+        val log: Logger = LoggerFactory.getLogger(GgApiTest::class.java)
+    }
 
     private val apiClient = GgApiClient(
             okHttpClient,
@@ -30,6 +36,12 @@ class GgApiTest {
             apiClient.requestViewersCount("Miker")
         } catch (ignored: ChannelOfflineException) {
         }
+    }
+
+    @Test
+    fun requestChannelInfoTest() = runBlocking<Unit> {
+        val c = apiClient.requestChannelInfo("Miker")
+        log.debug("Channel info: {}", c)
     }
 
 }

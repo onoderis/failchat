@@ -1,7 +1,6 @@
 package failchat.goodgame
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.collect.EvictingQueue
 import failchat.Origin
 import failchat.Origin.GOODGAME
@@ -15,8 +14,8 @@ import failchat.chat.OriginStatus.DISCONNECTED
 import failchat.chat.StatusMessage
 import failchat.chat.handlers.CommaHighlightHandler
 import failchat.chat.handlers.ElementLabelEscaper
-import failchat.emoticon.EmoticonFinder
 import failchat.twitch.TwitchChatClient
+import failchat.util.objectMapper
 import failchat.util.synchronized
 import failchat.util.whileNotNull
 import failchat.viewers.ViewersCountLoader
@@ -35,8 +34,8 @@ class GgChatClient(
         private val channelId: Long,
         private val webSocketUri: String,
         private val messageIdGenerator: MessageIdGenerator,
-        private val emoticonFinder: EmoticonFinder,
-        private val objectMapper: ObjectMapper = ObjectMapper()
+        emoticonHandler: MessageHandler<GgMessage>,
+        badgeHandler: GgBadgeHandler
 ) : ChatClient<GgMessage>, ViewersCountLoader {
 
     private companion object {
@@ -57,8 +56,9 @@ class GgChatClient(
     private val messageHandlers: List<MessageHandler<GgMessage>> = listOf(
             ElementLabelEscaper(),
             HtmlUrlCleaner(),
-            GgEmoticonHandler(emoticonFinder),
-            CommaHighlightHandler(channelName)
+            emoticonHandler,
+            CommaHighlightHandler(channelName),
+            badgeHandler
     )
 
     private val history = EvictingQueue.create<GgMessage>(50).synchronized()
@@ -148,13 +148,18 @@ class GgChatClient(
         }
 
         private fun handleUserMessage(dataNode: JsonNode) {
+            val subscriptionDuration = dataNode.get("resubs").fields().asSequence()
+                    .map { (channelId, duration) -> channelId.toLong() to duration.intValue() }
+                    .toMap(HashMap())
             val ggMessage = GgMessage(
                     id = messageIdGenerator.generate(),
                     ggId = dataNode.get("message_id").asText().toLong(),
                     author = dataNode.get("user_name").asText(),
                     text = dataNode.get("text").asText(),
-                    authorHasPremium = dataNode.get("premium").asBoolean()
+                    authorHasPremium = dataNode.get("premium").asBoolean(),
+                    subscriptionDuration = subscriptionDuration
             )
+
             messageHandlers.forEach { it.handleMessage(ggMessage) }
 
             history.add(ggMessage)

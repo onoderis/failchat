@@ -25,6 +25,7 @@ import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.EmoticonStorage
 import failchat.exception.InvalidConfigurationException
 import failchat.goodgame.GgApiClient
+import failchat.goodgame.GgChannel
 import failchat.goodgame.GgChatClient
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvChatClient
@@ -136,7 +137,7 @@ class AppStateManager(private val kodein: Kodein) {
             initializedChatClients.put(TWITCH, chatClient)
             viewersCountLoaders.add(kodein.factory<String, TwitchViewersCountLoader>().invoke(channelName))
 
-            // load badges in background
+            // load channel badges in background
             launch(backroundExecutorDispatcher + CoroutineName("TwitchBadgeLoader") + CoroutineExceptionLogger) {
                 val channelId: Long = twitchApiClient.requestUserId(channelName).await()
                 badgeManager.loadTwitchChannelBadges(channelId)
@@ -164,15 +165,15 @@ class AppStateManager(private val kodein: Kodein) {
         // Goodgame
         checkEnabled(GOODGAME)?.let { channelName ->
             // get channel id by channel name
-            val channelId = try {
-                runBlocking { goodgameApiClient.requestChannelId(channelName) }
+            val channel = try {
+                runBlocking { goodgameApiClient.requestChannelInfo(channelName) }
             } catch (e: Exception) {
-                log.warn("Failed to get goodgame channel id. channel name: {}", channelName, e)
+                log.warn("Failed to get goodgame channel info. channel name: {}", channelName, e)
                 return@let
             }
 
-            val chatClient = kodein.factory<Pair<String, Long>, GgChatClient>()
-                    .invoke(channelName to channelId)
+            val chatClient = kodein.factory<GgChannel, GgChatClient>()
+                    .invoke(channel)
                     .also { it.setCallbacks() }
 
             initializedChatClients.put(GOODGAME, chatClient)
