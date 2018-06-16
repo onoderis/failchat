@@ -175,9 +175,11 @@ $(() => {
 
     function handleDeleteMessage(content) {
         const message = $("#message-" + content.messageId);
-        message.addClass("deleted-message");
-
         const messageText = $("#message-" + content.messageId + " .text");
+
+        if (message === null || messageText === null) return;
+
+        message.addClass("deleted-message");
         messageText.removeClass("highlighted");
         messageText.text(failchat.deletedTextPlaceholder);
     }
