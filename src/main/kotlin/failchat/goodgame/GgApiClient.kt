@@ -50,8 +50,19 @@ class GgApiClient(
         return requestChannelStatus(channelName)
                 .first()
                 .get("stream_id")
-                .asText()
+                .textValue()
                 .toLong()
+    }
+
+    suspend fun requestChannelInfo(channelName: String): GgChannel {
+        // https://github.com/GoodGame/API/blob/master/Streams/stream_api.md
+        val channelNode = requestChannelStatus(channelName).first()
+
+        return GgChannel(
+                channelName,
+                channelNode.get("stream_id").textValue().toLong(),
+                channelNode.get("premium").textValue()!!.toBoolean()
+        )
     }
 
     suspend fun requestViewersCount(channelName: String): Int {

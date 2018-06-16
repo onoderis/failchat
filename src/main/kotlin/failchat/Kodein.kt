@@ -25,7 +25,10 @@ import failchat.emoticon.EmoticonStorage
 import failchat.github.GithubClient
 import failchat.github.ReleaseChecker
 import failchat.goodgame.GgApiClient
+import failchat.goodgame.GgBadgeHandler
+import failchat.goodgame.GgChannel
 import failchat.goodgame.GgChatClient
+import failchat.goodgame.GgEmoticonHandler
 import failchat.goodgame.GgEmoticonLoader
 import failchat.gui.GuiEventHandler
 import failchat.peka2tv.Peka2tvApiClient
@@ -265,14 +268,14 @@ val kodein = Kodein {
     bind<BttvGlobalEmoticonLoader>() with singleton { BttvGlobalEmoticonLoader(instance<BttvApiClient>()) }
 
     // Goodgame
-    bind<GgChatClient>() with factory { channelNameAndId: Pair<String, Long> ->
+    bind<GgChatClient>() with factory { channel: GgChannel ->
         GgChatClient(
-                channelName = channelNameAndId.first,
-                channelId = channelNameAndId.second,
+                channelName = channel.name,
+                channelId = channel.id,
                 webSocketUri = instance<Configuration>().getString("goodgame.ws-url"),
                 messageIdGenerator = instance<MessageIdGenerator>(),
-                emoticonFinder = instance<EmoticonFinder>(),
-                objectMapper = instance<ObjectMapper>()
+                emoticonHandler = instance<GgEmoticonHandler>(),
+                badgeHandler = factory<GgChannel, GgBadgeHandler>().invoke(channel)
         )
     }
     bind<GgApiClient>() with singleton {
@@ -284,6 +287,10 @@ val kodein = Kodein {
         )
     }
     bind<GgEmoticonLoader>() with singleton { GgEmoticonLoader(instance<GgApiClient>()) }
+    bind<GgEmoticonHandler>() with singleton { GgEmoticonHandler(instance<EmoticonFinder>()) }
+    bind<GgBadgeHandler>() with factory { channel: GgChannel ->
+        GgBadgeHandler(channel, instance<Configuration>())
+    }
 
 
     // Youtube
