@@ -291,7 +291,11 @@ const templates = {
         '<p class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">' +
         '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png">' +
         '    {{for badges}}' +
-        '    <img class="badge" src="{{:url}}" {{if description !== null}}title="{{:description}}"{{/if}}>' +
+        '        {{if type === "image"}}' +
+        '           <img class="badge" src="{{:url}}" {{if description !== null}}title="{{:description}}"{{/if}}>' +
+        '        {{else type === "character"}}' +
+        '           <span class="icon-character" style="color: {{:color}}">{{:htmlEntity}}</span>' +
+        '        {{/if}}' +
         '    {{/for}}' +
         '    <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author.name}}: </span>' +
         '    <span class="mod-icons">' +

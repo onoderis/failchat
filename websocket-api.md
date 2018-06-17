@@ -1,7 +1,8 @@
 # Сообщения от сервера
 
 #### Chat message 
-Сообщение из чата  
+Сообщение из чата   
+`content.badges.type: "image" | "character"`  
 `content.badges.description: String | null`
 ```json
 {
@@ -37,8 +38,14 @@
         ],
         "badges": [
             {
+                "type": "image",
                 "url": "https://example.com/some-image.png",
                 "description": "example badge"
+            },
+            {
+                "type": "character",
+                "htmlEntity": "&#59730;",
+                "color": "#eefc08"
             }
         ]
     }
