@@ -3,6 +3,9 @@ src/main/external-resources/skins/_shared/lib/*
 src/main/resources/config/youtube/*
 src/main/resources/config/private.properties
 
+#font downloads on generate-resources phase
+src/main/external-resources/skins/_shared/font/*
+
 #idea
 .idea
 failchat.iml

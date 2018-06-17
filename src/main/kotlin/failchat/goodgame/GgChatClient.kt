@@ -157,7 +157,10 @@ class GgChatClient(
                     author = dataNode.get("user_name").asText(),
                     text = dataNode.get("text").asText(),
                     authorHasPremium = dataNode.get("premium").asBoolean(),
-                    subscriptionDuration = subscriptionDuration
+                    subscriptionDuration = subscriptionDuration,
+                    badgeName = dataNode.get("icon").textValue(),
+                    authorColorName = dataNode.get("color").textValue(),
+                    sponsorLevel = dataNode.get("payments").intValue()
             )
 
             messageHandlers.forEach { it.handleMessage(ggMessage) }

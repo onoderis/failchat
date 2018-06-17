@@ -2,7 +2,7 @@ package failchat.peka2tv
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import failchat.chat.badge.Badge
+import failchat.chat.badge.ImageBadge
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.emptyBody
@@ -36,11 +36,11 @@ class Peka2tvApiClient(
                 .thenApply { Peka2tvUser(name, it.get("id").asLong()) }
     }
 
-    fun requestBadges(): CompletableFuture<Map<Peka2tvBadgeId, Badge>> {
+    fun requestBadges(): CompletableFuture<Map<Peka2tvBadgeId, ImageBadge>> {
         return request("/icon/list")
                 .thenApply {
                     it.map { badgeNode ->
-                        badgeNode.get("id").longValue() to Badge(
+                        badgeNode.get("id").longValue() to ImageBadge(
                                 badgeNode.get("url").textValue(),
                                 badgeNode.get("user").get("name").textValue() + " subscriber"
                         )

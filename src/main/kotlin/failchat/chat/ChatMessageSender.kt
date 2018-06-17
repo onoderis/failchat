@@ -3,6 +3,8 @@ package failchat.chat
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.chat.StatusMessageMode.NOWHERE
+import failchat.chat.badge.CharacterBadge
+import failchat.chat.badge.ImageBadge
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
 import failchat.chat.handlers.LinkHandler
@@ -54,13 +56,8 @@ class ChatMessageSender(
                 put("text", message.text)
                 put("timestamp", message.timestamp.toEpochMilli())
                 put("highlighted", message.highlighted)
-                putArray("badges").apply {
-                    message.badges.forEach { badge ->
-                        addObject().apply {
-                            put("url", badge.url)
-                            put("description", badge.description)
-                        }
-                    }
+                putArray("badges").also {
+                    serializeBadges(message, it)
                 }
             }
         }
@@ -95,6 +92,26 @@ class ChatMessageSender(
         }
 
         wsServer.send(messageNode.toString())
+    }
+
+    private fun serializeBadges(message: ChatMessage, badgesArrayNode: ArrayNode) {
+        message.badges.forEach { badge ->
+            badgesArrayNode.addObject().apply {
+                when (badge) {
+                    is ImageBadge -> {
+                        put("type", "image")
+                        put("url", badge.url)
+                        put("description", badge.description)
+                    }
+                    is CharacterBadge -> {
+                        put("type", "character")
+                        put("htmlEntity", badge.characterEntity)
+                        put("color", badge.color)
+                    }
+                    else -> throw IllegalStateException()
+                }
+            }
+        }
     }
 
     fun send(message: StatusMessage) {

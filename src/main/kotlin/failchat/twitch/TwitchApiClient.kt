@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.JsonNode
 import failchat.Origin
-import failchat.chat.badge.Badge
+import failchat.chat.badge.ImageBadge
 import failchat.exception.ChannelOfflineException
 import failchat.exception.DataNotFoundException
 import failchat.util.await
@@ -132,15 +132,15 @@ class TwitchApiClient(
     }
 
 
-    suspend fun requestGlobalBadges(): Map<TwitchBadgeId, Badge> {
+    suspend fun requestGlobalBadges(): Map<TwitchBadgeId, ImageBadge> {
         return requestBadges("/global/display")
     }
 
-    suspend fun requestChannelBadges(channelId: Long): Map<TwitchBadgeId, Badge> {
+    suspend fun requestChannelBadges(channelId: Long): Map<TwitchBadgeId, ImageBadge> {
         return requestBadges("/channels/$channelId/display")
     }
 
-    private suspend fun requestBadges(pathSegment: String): Map<TwitchBadgeId, Badge> {
+    private suspend fun requestBadges(pathSegment: String): Map<TwitchBadgeId, ImageBadge> {
         val url = badgeApiUrl + pathSegment.removePrefix("/")
 
         val request = Request.Builder()
@@ -154,14 +154,14 @@ class TwitchApiClient(
         }
 
 
-        val badges: MutableMap<TwitchBadgeId, Badge> = HashMap()
+        val badges: MutableMap<TwitchBadgeId, ImageBadge> = HashMap()
 
         val setsNode = parsedBody.get("badge_sets")
         setsNode.fields().forEach { (setId, setNode) ->
             setNode.get("versions").fields().forEach { (version, versionNode) ->
                 badges.put(
                         TwitchBadgeId(setId, version),
-                        Badge(
+                        ImageBadge(
                                 versionNode.get("image_url_2x").textValue(),
                                 versionNode.get("title").textValue()
                         )
