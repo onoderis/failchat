@@ -288,31 +288,34 @@ $.views.converters("time", val => {
 // noinspection HtmlUnknownAttribute
 const templates = {
     message: $.templates(
-        '<p class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">' +
-        '    <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png">' +
-        '    {{for badges}}' +
-        '        {{if type === "image"}}' +
-        '           <img class={{if format === "raster"}} "badge-raster" {{else}} "badge-vector" {{/if}} src="{{:url}}" ' +
-        '               {{if description !== null}}title="{{:description}}"{{/if}}>' +
-        '        {{else type === "character"}}' +
-        '           <span class="badge-character" style="color: {{:color}}">{{:htmlEntity}}</span>' +
-        '        {{/if}}' +
-        '    {{/for}}' +
-        '    <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author.name}}: </span>' +
-        '    <span class="mod-buttons">' +
-        '        <span title="delete" onclick="deleteMessage(this.parentNode.parentNode)">&#10060;</span>' +
-        '        <span title="ignore" onclick="ignore(this.parentNode.parentNode)">&#128683;</span>' +
-        '    </span>' +
-        '    <span class="text {{if highlighted}}highlighted{{/if}}">{{:text}}</span>' +
-        '</p>'
+        '<div class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">\n' +
+        '    <div class="badges">\n' +
+        '        <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png">\n' +
+        '        {{for badges}}\n' +
+        '            {{if type === "image"}}\n' +
+        '                <img class="{{if format === \'raster\'}}badge-raster{{else}}badge-vector{{/if}}" src="{{:url}}" {{if description !== null}}title="{{:description}}"{{/if}}>\n' +
+        '            {{else type === \'character\'}}\n' +
+        '                <span class="badge-character" style="color: {{:color}}">{{:htmlEntity}}</span>\n' +
+        '            {{/if}}\n' +
+        '        {{/for}}\n' +
+        '    </div>\n' +
+        '    <div class="message-content">\n' +
+        '        <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author.name}}</span>\n' +
+        '        <div class="mod-buttons">\n' +
+        '            <span title="delete" onclick="deleteMessage(this.parentNode.parentNode)">&#10060;</span>\n' +
+        '            <span title="ignore" onclick="ignore(this.parentNode.parentNode)">&#128683;</span>\n' +
+        '        </div>\n' +
+        '        <span class="message-text{{if highlighted}} highlighted{{/if}}">{{:text}}</span>\n' +
+        '    </div>\n' +
+        '</div>'
     ),
 
     rasterEmoticon: $.templates('<img class="emoticon-raster" src="{{:url}}">'),
     vectorEmoticon: $.templates('<img class="emoticon-vector" src="{{:url}}">'),
     link: $.templates('<a href="{{:fullUrl}}">{{:domain}}</a>'),
-    image: $.templates('<br><a href="{{:url}}"><img class="image" align="middle" src="{{:url}}"></a><br>'),
+    image: $.templates('<div class="image-wrapper"><a href="{{:url}}"><img class="image" src="{{:url}}"></a></div>'),
 
-    statusMessage: $.templates('' +
+    statusMessage: $.templates(
         '<p class="message status-message">' +
         '    <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png">' +
         '    <span class="origin-name" title="{{time:timestamp}}">{{:origin}} </span>' +
@@ -320,7 +323,7 @@ const templates = {
         '</p>'
     ),
 
-    originViewersBar: $.templates('' +
+    originViewersBar: $.templates(
         '<span id="{{:origin}}-origin" class="viewers-origin">' +
         '    <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png"> <span id="{{:origin}}-viewers"></span>' +
         '</span>'

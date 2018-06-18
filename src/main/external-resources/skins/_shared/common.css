@@ -99,7 +99,15 @@ body {
     color: #CACACA;
 }
 
-.deleted-message .text {
+.badges {
+    display: inline;
+}
+
+.message-content {
+    display: inline;
+}
+
+.deleted-message .message-text {
     font-style: italic;
     color: gray;
 }
@@ -108,6 +116,10 @@ span.nick {
     font-weight: bold;
     color: #7797BE;
     cursor: pointer;
+}
+
+span.nick::after {
+    content: ": ";
 }
 
 span.highlighted {
@@ -155,6 +167,10 @@ img.emoticon-vector {
     height: 30px;
 }
 
+.image-wrapper {
+    display: block;
+}
+
 img.image {
     max-height: 250px;
     max-width: 100%;
@@ -180,6 +196,9 @@ img.image {
 }
 
 .mod-buttons span {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
     width: 16px;
     height: 16px;
     color: red;
