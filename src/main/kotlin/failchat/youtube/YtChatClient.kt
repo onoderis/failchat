@@ -12,11 +12,13 @@ import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.CONNECTING
 import failchat.chat.ChatClientStatus.OFFLINE
 import failchat.chat.ChatClientStatus.READY
+import failchat.chat.ImageFormat.VECTOR
 import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
 import failchat.chat.OriginStatus.DISCONNECTED
 import failchat.chat.StatusMessage
+import failchat.chat.badge.ImageBadge
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.exception.ChannelOfflineException
@@ -50,6 +52,10 @@ class YtChatClient(
         val log: Logger = LoggerFactory.getLogger(YtChatClient::class.java)
         val searchInterval: Duration = Duration.ofSeconds(15)
         val reconnectInterval: Duration = Duration.ofSeconds(5)
+        val verifiedBadge = ImageBadge("../_shared/icons/youtube-verified.svg", VECTOR, "Verified")
+        val streamerBadge = ImageBadge("../_shared/icons/youtube-streamer.svg", VECTOR, "Streamer")
+        val moderatorBadge = ImageBadge("../_shared/icons/youtube-moderator.svg", VECTOR, "Moderator")
+        val sponsorBadge = ImageBadge("../_shared/icons/youtube-sponsor.svg", VECTOR, "Sponsor")
     }
 
     override val origin = Origin.YOUTUBE
@@ -212,12 +218,23 @@ class YtChatClient(
     }
 
     private fun LiveChatMessage.toYtChatMessage(): YtMessage {
-        return YtMessage(
+        val message = YtMessage(
                 messageIdGenerator.generate(),
                 this.id,
                 Author(this.authorDetails.displayName, this.authorDetails.channelId),
                 this.snippet.displayMessage
         )
+
+        if (this.authorDetails.isVerified)
+            message.addBadge(verifiedBadge)
+        if (this.authorDetails.isChatOwner)
+            message.addBadge(streamerBadge)
+        else if (this.authorDetails.isChatModerator)
+            message.addBadge(moderatorBadge)
+        if (this.authorDetails.isChatSponsor)
+            message.addBadge(sponsorBadge)
+
+        return message
     }
 
 }

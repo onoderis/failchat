@@ -292,7 +292,8 @@ const templates = {
         '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png">' +
         '    {{for badges}}' +
         '        {{if type === "image"}}' +
-        '           <img class="badge" src="{{:url}}" {{if description !== null}}title="{{:description}}"{{/if}}>' +
+        '           <img class={{if format === "raster"}} "badge-raster" {{else}} "badge-vector" {{/if}} src="{{:url}}" ' +
+        '               {{if description !== null}}title="{{:description}}"{{/if}}>' +
         '        {{else type === "character"}}' +
         '           <span class="icon-character" style="color: {{:color}}">{{:htmlEntity}}</span>' +
         '        {{/if}}' +

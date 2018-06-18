@@ -3,7 +3,8 @@
 #### Chat message 
 Сообщение из чата   
 `content.badges.type: "image" | "character"`  
-`content.badges.description: String | null`
+`content.badges.format: "raster" | "vector" | undefined`
+`content.badges.description: String | null`  
 ```json
 {
     "type": "message",
@@ -39,6 +40,7 @@
         "badges": [
             {
                 "type": "image",
+                "format": "raster",
                 "url": "https://example.com/some-image.png",
                 "description": "example badge"
             },

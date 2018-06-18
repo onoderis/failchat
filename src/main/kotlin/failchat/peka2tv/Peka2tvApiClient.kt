@@ -2,6 +2,7 @@ package failchat.peka2tv
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import failchat.chat.ImageFormat.RASTER
 import failchat.chat.badge.ImageBadge
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
@@ -42,6 +43,7 @@ class Peka2tvApiClient(
                     it.map { badgeNode ->
                         badgeNode.get("id").longValue() to ImageBadge(
                                 badgeNode.get("url").textValue(),
+                                RASTER,
                                 badgeNode.get("user").get("name").textValue() + " subscriber"
                         )
                     }

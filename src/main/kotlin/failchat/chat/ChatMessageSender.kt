@@ -100,6 +100,7 @@ class ChatMessageSender(
                 when (badge) {
                     is ImageBadge -> {
                         put("type", "image")
+                        put("format", badge.format.jsonValue)
                         put("url", badge.url)
                         put("description", badge.description)
                     }
