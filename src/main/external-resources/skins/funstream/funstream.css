@@ -147,12 +147,18 @@ span.icon-character {
     display: inline-block;
     height: 16px;
     font-size: 16px;
-    font-family: icomoon;
+    font-family: icomoon, sans-serif;
 }
 
-img.badge {
+img.badge-raster {
     max-width: 16px;
     max-height: 16px;
+}
+
+img.badge-vector {
+    width: 16px;
+    height: 16px;
+    align-content: center;
 }
 
 img.smile {

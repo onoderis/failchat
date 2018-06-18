@@ -1,5 +1,6 @@
 package failchat.goodgame
 
+import failchat.chat.ImageFormat.RASTER
 import failchat.chat.MessageHandler
 import failchat.chat.badge.CharacterBadge
 import failchat.chat.badge.ImageBadge
@@ -65,7 +66,7 @@ class GgBadgeHandler(
             "star" -> {
                 // custom badge
                 val duration: Int = message.subscriptionDuration.get(channel.id) ?: return
-                val badge = ImageBadge("$badgeUrl/${channel.id}-$duration-16.png")
+                val badge = ImageBadge("$badgeUrl/${channel.id}-$duration-16.png", RASTER)
                 message.addBadge(badge)
             }
 

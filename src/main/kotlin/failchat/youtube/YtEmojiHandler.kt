@@ -1,9 +1,9 @@
 package failchat.youtube
 
 import failchat.Origin.YOUTUBE
+import failchat.chat.ImageFormat.VECTOR
 import failchat.chat.MessageHandler
 import failchat.emoticon.Emoticon
-import failchat.emoticon.EmoticonFormat.VECTOR
 import failchat.util.toCodePoint
 import failchat.util.toHexString
 import java.util.regex.Pattern

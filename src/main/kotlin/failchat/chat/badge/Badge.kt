@@ -1,11 +1,14 @@
 package failchat.chat.badge
 
+import failchat.chat.ImageFormat
+
 sealed class Badge(
         val description: String?
 )
 
 class ImageBadge(
         val url: String,
+        val format: ImageFormat,
         description: String? = null
 ) : Badge(description)
 

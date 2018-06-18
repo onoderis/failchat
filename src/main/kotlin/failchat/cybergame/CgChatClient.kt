@@ -9,6 +9,8 @@ import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.READY
 import failchat.chat.ChatMessage
 import failchat.chat.Elements
+import failchat.chat.ImageFormat.RASTER
+import failchat.chat.ImageFormat.VECTOR
 import failchat.chat.Link
 import failchat.chat.MessageElement
 import failchat.chat.MessageHandler
@@ -19,8 +21,6 @@ import failchat.chat.StatusMessage
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.CommaHighlightHandler
 import failchat.emoticon.Emoticon
-import failchat.emoticon.EmoticonFormat.RASTER
-import failchat.emoticon.EmoticonFormat.VECTOR
 import failchat.util.objectMapper
 import failchat.util.synchronized
 import failchat.util.urlPattern

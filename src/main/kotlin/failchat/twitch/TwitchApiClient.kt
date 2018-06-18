@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.JsonNode
 import failchat.Origin
+import failchat.chat.ImageFormat.RASTER
 import failchat.chat.badge.ImageBadge
 import failchat.exception.ChannelOfflineException
 import failchat.exception.DataNotFoundException
@@ -163,6 +164,7 @@ class TwitchApiClient(
                         TwitchBadgeId(setId, version),
                         ImageBadge(
                                 versionNode.get("image_url_2x").textValue(),
+                                RASTER,
                                 versionNode.get("title").textValue()
                         )
                 )
