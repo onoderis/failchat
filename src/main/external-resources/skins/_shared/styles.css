@@ -1,0 +1,200 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+body {
+    background-color: transparent;
+    margin: 0;
+}
+
+#body-wrapper {
+    background-color: black;
+    height: 100%;
+    width: 100%;
+}
+
+.chat-wrapper {
+    height: 100%;
+    position: relative;
+}
+
+#message-container {
+    overflow-x: hidden;
+}
+
+/* Scroll bar*/
+
+.scroller {
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.scrollbar {
+    display: none;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.baron .scrollbar {
+    display: block;
+    visibility: hidden;
+    position: absolute;
+    background: #7797BE;
+    z-index: 100;
+    border-radius: 3px;
+    right: 2px;
+    width: 7px;
+    opacity: 0.7;
+    /*color: #7797BE;*/
+}
+
+/* Viewers bar */
+
+.viewers-bar {
+    display: none;
+    background-color: transparent;
+    height: 36px;
+}
+
+.viewers-bar-on {
+    display: block;
+}
+
+.viewers-bar-on + .chat-wrapper {
+    height: calc(100% - 36px);
+}
+
+.viewers-origins {
+    text-align: center;
+    white-space: nowrap;
+    padding: 10px 0 5px;
+}
+
+.viewers-origin {
+    display: none;
+    margin: 0 10px;
+}
+
+.viewers-origin-on {
+    display: inline;
+}
+
+.viewers-origin span {
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    color: #CACACA;
+}
+
+/* todo font */
+
+/* Message */
+
+.message {
+    margin: 0;
+    padding: 6px;
+}
+
+.message span {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    color: #CACACA;
+}
+
+.deleted-message .text {
+    font-style: italic;
+    color: gray;
+}
+
+span.nick {
+    font-weight: bold;
+    color: #7797BE;
+    cursor: pointer;
+}
+
+span.highlighted {
+    color: #f36223;
+}
+
+span.status-origin {
+    font-weight: bold;
+    color: #567197;
+}
+
+span.status-text {
+    color: #567197;
+}
+
+img.icon {
+    max-width: 16px;
+    max-height: 16px;
+}
+
+span.icon-character {
+    display: inline-block;
+    height: 16px;
+    font-size: 16px;
+    font-family: icomoon, sans-serif;
+}
+
+img.badge-raster {
+    max-width: 16px;
+    max-height: 16px;
+}
+
+img.badge-vector {
+    width: 16px;
+    height: 16px;
+    align-content: center;
+}
+
+img.smile {
+    max-height: 30px;
+}
+
+img.smile-vector {
+    width: 30px;
+    height: 30px;
+}
+
+img.image {
+    max-height: 250px;
+    max-width: 100%;
+    margin: 3px 0 3px;
+}
+
+.message a {
+    color: #c57c08;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.mod-icons {
+    display: none;
+}
+
+.mod-icons:hover {
+    display: inline;
+}
+
+.nick:focus + .mod-icons {
+    display: inline;
+}
+
+.mod-icons span {
+    width: 16px;
+    height: 16px;
+    color: red;
+    cursor: pointer;
+}
+
+/* Fonts */
+
+@font-face {
+    font-family: icomoon;
+    src: url("../_shared/font/icomoon.woff");
+}
