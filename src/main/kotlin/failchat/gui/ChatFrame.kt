@@ -16,6 +16,7 @@ import javafx.scene.web.WebEngine
 import javafx.scene.web.WebView
 import javafx.stage.Stage
 import javafx.stage.StageStyle
+import netscape.javascript.JSObject
 import org.apache.commons.configuration2.Configuration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -122,18 +123,33 @@ class ChatFrame(
         webView.style = "-fx-background-color: transparent;"
         webView.isContextMenuEnabled = false
 
-        //webengine transparent hack
+        // logging
+        webEngine.loadWorker.stateProperty().addListener { _, _, _ ->
+            val window = webEngine.executeScript("window") as JSObject
+            window.setMember("javaLogger", WebViewLogger)
+            webEngine.executeScript("""
+                console.log = function (message) {
+                    javaLogger.log(message)
+                };
+                console.error = function (message) {
+                    javaLogger.error(message)
+                };
+            """.trimIndent())
+        }
+
+        // web engine transparency hack
         webEngine.documentProperty().addListener { _, _, _ ->
             try {
                 val f = webEngine.javaClass.getDeclaredField("page")
                 f.isAccessible = true
                 val page = f.get(webEngine) as com.sun.webkit.WebPage
-                page.setBackgroundColor(0) //full transparent
-            } catch (ignored: Exception) {
+                page.setBackgroundColor(0) //fully transparent
+            } catch (e: Exception) {
+                log.debug("Exception during setting of the transparency hack", e)
             }
         }
 
-        //hot keys
+        // hot keys
         chatScene.setOnKeyReleased { key ->
             when (key.code) {
                 KeyCode.ESCAPE -> toSettings()
