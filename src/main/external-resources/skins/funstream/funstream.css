@@ -24,27 +24,16 @@
     border: 2px solid rgba(16, 21, 28, 1);
     border-radius: 12px;
     position: relative;
-    animation: appear-bottom 0.4s
+    animation: appear-bottom 0.4s;
+    color: white;
 }
 
-.message span {
-    color: #FFFFFF;
-}
-
-span.nick {
+span.nick, span.origin-name, span.status-text {
     color: #FFDB5F;
 }
 
 span.highlighted {
     color: #74CD36;
-}
-
-span.status-origin {
-    color: #FFDB5F;
-}
-
-span.status-text {
-    color: #FFFFFF;
 }
 
 .message a {

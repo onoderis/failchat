@@ -49,7 +49,6 @@ body {
     right: 2px;
     width: 7px;
     opacity: 0.7;
-    /*color: #7797BE;*/
 }
 
 /* Viewers bar */
@@ -90,16 +89,11 @@ body {
     color: #CACACA;
 }
 
-/* todo font */
-
 /* Message */
 
 .message {
     margin: 0;
     padding: 6px;
-}
-
-.message span {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
     color: #CACACA;
@@ -120,7 +114,7 @@ span.highlighted {
     color: #f36223;
 }
 
-span.status-origin {
+span.origin-name {
     font-weight: bold;
     color: #567197;
 }
@@ -129,12 +123,12 @@ span.status-text {
     color: #567197;
 }
 
-img.icon {
+img.origin-badge {
     max-width: 16px;
     max-height: 16px;
 }
 
-span.icon-character {
+span.badge-character {
     display: inline-block;
     height: 16px;
     font-size: 16px;
@@ -152,11 +146,11 @@ img.badge-vector {
     align-content: center;
 }
 
-img.smile {
+img.emoticon-raster {
     max-height: 30px;
 }
 
-img.smile-vector {
+img.emoticon-vector {
     width: 30px;
     height: 30px;
 }
@@ -173,19 +167,19 @@ img.image {
     text-decoration: none;
 }
 
-.mod-icons {
+.mod-buttons {
     display: none;
 }
 
-.mod-icons:hover {
+.mod-buttons:hover {
     display: inline;
 }
 
-.nick:focus + .mod-icons {
+.nick:focus + .mod-buttons {
     display: inline;
 }
 
-.mod-icons span {
+.mod-buttons span {
     width: 16px;
     height: 16px;
     color: red;
