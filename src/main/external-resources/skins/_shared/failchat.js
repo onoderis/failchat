@@ -107,9 +107,9 @@ $(() => {
             switch(element.type) {
                 case "emoticon":
                     if (element.format === "vector") {
-                        elementHtml = templates.vectorSmile.render(element);
+                        elementHtml = templates.vectorEmoticon.render(element);
                     } else {
-                        elementHtml = templates.rasterSmile.render(element);
+                        elementHtml = templates.rasterEmoticon.render(element);
                     }
                     break;
                 case "link":
@@ -289,17 +289,17 @@ $.views.converters("time", val => {
 const templates = {
     message: $.templates(
         '<p class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">' +
-        '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png">' +
+        '    <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png">' +
         '    {{for badges}}' +
         '        {{if type === "image"}}' +
         '           <img class={{if format === "raster"}} "badge-raster" {{else}} "badge-vector" {{/if}} src="{{:url}}" ' +
         '               {{if description !== null}}title="{{:description}}"{{/if}}>' +
         '        {{else type === "character"}}' +
-        '           <span class="icon-character" style="color: {{:color}}">{{:htmlEntity}}</span>' +
+        '           <span class="badge-character" style="color: {{:color}}">{{:htmlEntity}}</span>' +
         '        {{/if}}' +
         '    {{/for}}' +
         '    <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author.name}}: </span>' +
-        '    <span class="mod-icons">' +
+        '    <span class="mod-buttons">' +
         '        <span title="delete" onclick="deleteMessage(this.parentNode.parentNode)">&#10060;</span>' +
         '        <span title="ignore" onclick="ignore(this.parentNode.parentNode)">&#128683;</span>' +
         '    </span>' +
@@ -307,22 +307,22 @@ const templates = {
         '</p>'
     ),
 
-    rasterSmile: $.templates('<img class="smile" src="{{:url}}">'),
-    vectorSmile: $.templates('<img class="smile-vector" src="{{:url}}">'),
+    rasterEmoticon: $.templates('<img class="emoticon-raster" src="{{:url}}">'),
+    vectorEmoticon: $.templates('<img class="emoticon-vector" src="{{:url}}">'),
     link: $.templates('<a href="{{:fullUrl}}">{{:domain}}</a>'),
     image: $.templates('<br><a href="{{:url}}"><img class="image" align="middle" src="{{:url}}"></a><br>'),
 
     statusMessage: $.templates('' +
-        '<p class="message status-message">\n' +
-        '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png">\n' +
-        '    <span class="status-origin" title="{{time:timestamp}}">{{:origin}} </span>\n' +
-        '    <span class="status-text">{{:status}}</span>\n' +
+        '<p class="message status-message">' +
+        '    <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png">' +
+        '    <span class="origin-name" title="{{time:timestamp}}">{{:origin}} </span>' +
+        '    <span class="status-text">{{:status}}</span>' +
         '</p>'
     ),
 
     originViewersBar: $.templates('' +
-        '<span id="{{:origin}}-origin" class="viewers-origin">\n' +
-        '    <img class="icon" src="{{:iconsPath}}{{:origin}}.png"> <span id="{{:origin}}-viewers"></span>\n' +
+        '<span id="{{:origin}}-origin" class="viewers-origin">' +
+        '    <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png"> <span id="{{:origin}}-viewers"></span>' +
         '</span>'
     )
 };
