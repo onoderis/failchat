@@ -7,17 +7,32 @@ $(() => {
         "content": {
             "statusMessageMode": "everywhere",
             "showViewersCount": true,
-            "nativeClientBgColor": "#000000ff",
+            // "nativeClientBgColor": "#000000ff",
+            "nativeClientBgColor": "#ffffffff",
             "externalClientBgColor": "#000000ff",
             "enabledOrigins": {
                 "peka2tv": true,
                 "goodgame": true,
                 "twitch": true,
                 "youtube": true,
-                "cybergame": false
+                "cybergame": true
             }
         }
     });
+
+    failchat.handleMessage(
+        {
+            "type": "viewers-count",
+            "content": {
+                "peka2tv": 5,
+                "goodgame": 25,
+                "twitch": 250,
+                "youtube": 2514,
+                "cybergame": null
+            }
+        }
+    );
+
 
     failchat.handleMessage({
         "type": "message",
@@ -247,5 +262,28 @@ $(() => {
             "elements": []
         }
     });
+
+    failchat.handleMessage({
+        "type": "message",
+        "content": {
+            "id": 39317,
+            "origin": "peka2tv",
+            "author": {"name": "fail0001", "id": "fail0001"},
+            "text": "should be deleted!",
+            "timestamp": 1529402475110,
+            "highlighted": true,
+            "badges": [],
+            "elements": []
+        }
+    });
+
+    failchat.handleMessage(
+        {
+            "type": "delete-message",
+            "content": {
+                "messageId": 39317
+            }
+        }
+    );
 
 });

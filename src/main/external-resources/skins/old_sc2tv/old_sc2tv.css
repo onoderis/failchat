@@ -1,0 +1,3 @@
+.message, .viewers-bar {
+    text-shadow: 0 0 0 black; /* there is difference on white background */
+}

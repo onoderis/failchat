@@ -181,7 +181,7 @@ $(() => {
 
     function handleDeleteMessage(content) {
         const message = $("#message-" + content.messageId);
-        const messageText = $("#message-" + content.messageId + " .text");
+        const messageText = $("#message-" + content.messageId + " .message-text");
 
         if (message === null || messageText === null) return;
 
