@@ -57,32 +57,40 @@ body {
     display: none;
     background-color: transparent;
     height: 36px;
+    text-align: center;
+    align-content: center;
+    white-space: nowrap;
 }
 
 .viewers-bar-on {
-    display: block;
+    display: flex;
 }
 
 .viewers-bar-on + .chat-wrapper {
     height: calc(100% - 36px);
 }
 
-.viewers-origins {
-    text-align: center;
-    white-space: nowrap;
-    padding: 10px 0 5px;
+.viewers-counters {
+    margin: auto;
 }
 
-.viewers-origin {
+.viewers-counter {
     display: none;
-    margin: 0 10px;
+    height: 16px;
+    margin: 0 8px;
 }
 
-.viewers-origin-on {
-    display: inline;
+.viewers-counter.on {
+    display: inline-block;
 }
 
-.viewers-origin span {
+.viewers-counter .origin-badge {
+    margin: auto 0;
+}
+
+.viewers-counter span {
+    display: inline-block;
+    margin: auto 2px;
     font-weight: bold;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
@@ -187,20 +195,14 @@ img.image {
     display: none;
 }
 
-.mod-buttons:hover {
-    display: inline;
-}
-
 .nick:focus + .mod-buttons {
     display: inline;
 }
 
 .mod-buttons span {
     display: inline-block;
-    margin: 0;
-    padding: 0;
-    width: 16px;
-    height: 16px;
+    margin: 0 1px;
+    font-size: 14px;
     color: red;
     cursor: pointer;
 }

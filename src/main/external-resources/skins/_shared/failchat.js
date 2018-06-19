@@ -5,7 +5,8 @@ const failchat = {
     messageCount: 0,
     iconsPath: "../_shared/icons/", //could be overrided in skin.html
     origins: ["peka2tv", "twitch", "goodgame", "youtube", "cybergame"],
-    deletedTextPlaceholder: "message deleted"
+    deletedTextPlaceholder: "message deleted",
+    nativeClient: false
 };
 
 $(() => {
@@ -13,13 +14,13 @@ $(() => {
     socket.maxReconnectInterval = 5000;
     failchat.socket = socket;
 
+    failchat.nativeClient = (navigator.userAgent.search("failchat") >= 0);
+
     const bodyWrapper = $("#body-wrapper");
     const messageContainer = $("#message-container");
     const scroller = $(failchat.baronParams.scroller);
     const scrollBar = $(failchat.baronParams.bar);
     let autoScroll = true;
-    const nativeClient = (navigator.userAgent.search("failchat") >= 0);
-    // var nativeClient = true; //todo think about debugging
     let showStatusMessages = true; // show if origin-status message received before client-configuration message
 
     // viewers bar
@@ -28,10 +29,10 @@ $(() => {
 
     failchat.origins.forEach(origin => {
         const viewersBarHtml = templates.originViewersBar.render({origin: origin, iconsPath: failchat.iconsPath});
-        $(".viewers-origins").append(viewersBarHtml);
+        $(".viewers-counters").append(viewersBarHtml);
         viewersCountItems[origin] = {
-            bar: $("#" + origin + "-origin"),
-            counter: $("#" + origin + "-viewers")
+            bar: $("#" + origin + "-viewers-counter"),
+            counter: $("#" + origin + "-viewers-count")
         };
 
         //set default value
@@ -65,9 +66,12 @@ $(() => {
     };
 
     socket.onmessage = function() {
-        const wsm = JSON.parse(event.data);
-        const type = wsm.type;
-        const content = wsm.content;
+        handleMessage(JSON.parse(event.data));
+    };
+
+    function handleMessage(wsMessage) {
+        const type = wsMessage.type;
+        const content = wsMessage.content;
 
         switch (type) {
             case "message":
@@ -85,18 +89,20 @@ $(() => {
         }
 
         if (content.textHtml !== undefined) {
-            appendToMessageContainer(wsm.content);
+            appendToMessageContainer(content.textHtml);
             return
         }
 
-        if (!nativeClient) return;
+        if (!failchat.nativeClient) return;
 
         switch (type) {
             case "viewers-count":
                 updateViewersValues(content);
                 break;
         }
-    };
+    }
+
+    failchat.handleMessage = handleMessage;
 
     function handleChatMessage(content) {
         const elementsArray = content.elements;
@@ -137,14 +143,14 @@ $(() => {
     function handleClientConfigurationMessage(content) {
         const statusMessageMode = content.statusMessageMode;
         if ((statusMessageMode === "everywhere") ||
-            (nativeClient && statusMessageMode === "native_client")) {
+            (failchat.nativeClient && statusMessageMode === "native_client")) {
             showStatusMessages = true;
         } else {
             showStatusMessages = false;
         }
 
         let bgHexColor;
-        if (nativeClient) {
+        if (failchat.nativeClient) {
             bgHexColor = content.nativeClientBgColor;
         } else {
             bgHexColor = content.externalClientBgColor;
@@ -153,7 +159,7 @@ $(() => {
         bodyWrapper.css("background-color", "rgba(" + hexToRgba(bgHexColor.substring(1)) + ")");
 
 
-        if (!nativeClient) return;
+        if (!failchat.nativeClient) return;
         // handle viewers bar configuration
 
         if (content.showViewersCount === true) {
@@ -166,9 +172,9 @@ $(() => {
         failchat.origins.forEach(origin => {
             if (!enabledOrigins.hasOwnProperty(origin)) return;
             if (enabledOrigins[origin] === true) {
-                viewersCountItems[origin].bar.addClass("viewers-origin-on");
+                viewersCountItems[origin].bar.addClass("on");
             } else {
-                viewersCountItems[origin].bar.removeClass("viewers-origin-on");
+                viewersCountItems[origin].bar.removeClass("on");
             }
         });
     }
@@ -198,13 +204,13 @@ $(() => {
         });
     }
 
-    function appendToMessageContainer(message) {
+    function appendToMessageContainer(html) {
         failchat.messageCount++;
         if (failchat.messageCount > failchat.maxMessages && autoScroll) {
             $(failchat.messageSelector + ":lt(" + (failchat.messageCount - failchat.maxMessages) + ")").remove();
             failchat.messageCount = failchat.maxMessages;
         }
-        messageContainer.append(message.textHtml);
+        messageContainer.append(html);
     }
 
     $("body,html").bind("keydown wheel mousewheel", e => {
@@ -290,12 +296,12 @@ const templates = {
     message: $.templates(
         '<div class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">\n' +
         '    <div class="badges">\n' +
-        '        <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png">\n' +
+        '        <img class="badge origin-badge" src="{{:iconsPath}}{{:origin}}.png">\n' +
         '        {{for badges}}\n' +
         '            {{if type === "image"}}\n' +
-        '                <img class="{{if format === \'raster\'}}badge-raster{{else}}badge-vector{{/if}}" src="{{:url}}" {{if description !== null}}title="{{:description}}"{{/if}}>\n' +
+        '                <img class="badge {{if format === \'raster\'}}badge-raster{{else}}badge-vector{{/if}}" src="{{:url}}" {{if description !== null}}title="{{:description}}"{{/if}}>\n' +
         '            {{else type === \'character\'}}\n' +
-        '                <span class="badge-character" style="color: {{:color}}">{{:htmlEntity}}</span>\n' +
+        '                <span class="badge badge-character" style="color: {{:color}}">{{:htmlEntity}}</span>\n' +
         '            {{/if}}\n' +
         '        {{/for}}\n' +
         '    </div>\n' +
@@ -324,8 +330,8 @@ const templates = {
     ),
 
     originViewersBar: $.templates(
-        '<span id="{{:origin}}-origin" class="viewers-origin">' +
-        '    <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png"> <span id="{{:origin}}-viewers"></span>' +
-        '</span>'
+        '<div id="{{:origin}}-viewers-counter" class="viewers-counter">' +
+        '    <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png"><span id="{{:origin}}-viewers-count"></span>' +
+        '</div>'
     )
 };
