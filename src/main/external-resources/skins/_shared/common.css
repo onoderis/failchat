@@ -62,11 +62,11 @@ body {
     white-space: nowrap;
 }
 
-.viewers-bar-on {
+.viewers-bar.on {
     display: flex;
 }
 
-.viewers-bar-on + .chat-wrapper {
+.viewers-bar.on + .chat-wrapper {
     height: calc(100% - 36px);
 }
 
