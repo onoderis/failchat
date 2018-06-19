@@ -1,9 +1,6 @@
 package failchat.youtube
 
-import failchat.Origin.YOUTUBE
-import failchat.chat.ImageFormat.VECTOR
 import failchat.chat.MessageHandler
-import failchat.emoticon.Emoticon
 import failchat.util.toCodePoint
 import failchat.util.toHexString
 import java.util.regex.Pattern
@@ -28,7 +25,7 @@ class YtEmojiHandler : MessageHandler<YtMessage> {
                 else -> throw IllegalStateException("Regex should find 1-4 characters")
             }
             val emoticonUrl = "https://gaming.youtube.com/s/gaming/emoji/72836fb0/emoji_u$emojiHexSequence.svg"
-            val emoticon = Emoticon(YOUTUBE, emoji, emoticonUrl, VECTOR)
+            val emoticon = YtEmoticon(emoji, emoticonUrl)
 
             val elementLabel = message.addElement(emoticon)
 

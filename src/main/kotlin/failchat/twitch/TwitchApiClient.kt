@@ -100,7 +100,7 @@ class TwitchApiClient(
         return TwitchEmoticon(
                 twitchId = id,
                 regex = node.get("code").asText(),
-                url = emoticonUrlFactory.create(id)
+                urlFactory = emoticonUrlFactory
         )
     }
 

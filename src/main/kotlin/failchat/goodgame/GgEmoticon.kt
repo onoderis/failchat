@@ -1,12 +1,13 @@
 package failchat.goodgame
 
 import failchat.Origin
+import failchat.chat.ImageFormat.RASTER
 import failchat.emoticon.Emoticon
 
 class GgEmoticon(
         code: String,
-        url: String
-) : Emoticon(Origin.GOODGAME, code, url) {
+        override val url: String
+) : Emoticon(Origin.GOODGAME, code, RASTER) {
 
     var animatedInstance: GgEmoticon? = null
 

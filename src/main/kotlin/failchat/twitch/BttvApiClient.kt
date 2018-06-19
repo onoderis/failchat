@@ -67,7 +67,7 @@ class BttvApiClient(
         return channelEmoticonsNode
                 .get("emotes")
                 .map {
-                    Emoticon(
+                    BttvEmoticon(
                             origin,
                             it.get("code").asText(),
                             "https://cdn.betterttv.net/emote/${it.get("id").asText()}/2x"

@@ -75,7 +75,7 @@ class TwitchemotesApiClient(
         return TwitchEmoticon(
                 id,
                 node.get("code").textValue(),
-                emoticonUrlFactory.create(id)
+                emoticonUrlFactory
         )
     }
 

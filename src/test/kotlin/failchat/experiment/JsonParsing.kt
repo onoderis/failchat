@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import failchat.twitch.TwitchEmoticon
+import failchat.twitch.TwitchEmoticonUrlFactory
 import failchat.util.nextNonNullToken
 import failchat.util.validate
 import org.junit.Test
@@ -55,7 +56,7 @@ class JsonParsing {
             emoticons.add(TwitchEmoticon(
                     requireNotNull(id) { "'id' not found" },
                     requireNotNull(code) { "'code' not found" },
-                    "some/$code"
+                    TwitchEmoticonUrlFactory("pr", "sf")
             ))
 
             token = parser.nextNonNullToken()
@@ -116,7 +117,7 @@ class JsonParsing {
             emoticons.add(TwitchEmoticon(
                     node.get("id").longValue(),
                     node.get("code").textValue(),
-                    "some/..."
+                    TwitchEmoticonUrlFactory("pr", "sf")
             ))
 
             token = parser.nextNonNullToken()
