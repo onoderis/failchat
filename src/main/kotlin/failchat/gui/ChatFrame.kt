@@ -129,10 +129,10 @@ class ChatFrame(
             window.setMember("javaLogger", WebViewLogger)
             webEngine.executeScript("""
                 console.log = function (message) {
-                    javaLogger.log(message)
+                    javaLogger.log(message.toString())
                 };
                 console.error = function (message) {
-                    javaLogger.error(message)
+                    javaLogger.error(message.toString())
                 };
             """.trimIndent())
         }
