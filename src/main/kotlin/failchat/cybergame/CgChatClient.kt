@@ -20,7 +20,6 @@ import failchat.chat.OriginStatus.DISCONNECTED
 import failchat.chat.StatusMessage
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.CommaHighlightHandler
-import failchat.emoticon.Emoticon
 import failchat.util.objectMapper
 import failchat.util.synchronized
 import failchat.util.urlPattern
@@ -146,7 +145,7 @@ class CgChatClient(
                             val emoticonSuffix = it.get("image").textValue()
                             val format = if (emoticonSuffix.contains(".svg")) VECTOR else RASTER
                             val emoticonUrl = emoticonUrlPrefix + emoticonSuffix
-                            val emoticon = Emoticon(origin, emoticonSuffix, emoticonUrl, format)
+                            val emoticon = CgEmoticon(emoticonSuffix, emoticonUrl, format)
                             MessagePart.Emoticon(elementNumber++, emoticon)
                         }
                         "link" -> {

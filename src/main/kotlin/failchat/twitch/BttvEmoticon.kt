@@ -1,10 +1,11 @@
-package failchat.peka2tv
+package failchat.twitch
 
-import failchat.Origin.PEKA2TV
+import failchat.Origin
 import failchat.chat.ImageFormat.RASTER
 import failchat.emoticon.Emoticon
 
-class Peka2tvEmoticon(
+class BttvEmoticon(
+        origin: Origin,
         code: String,
         override val url: String
-) : Emoticon(PEKA2TV, code, RASTER)
+) : Emoticon(origin, code, RASTER)

@@ -282,8 +282,7 @@ val kodein = Kodein {
         GgApiClient(
                 httpClient = instance<OkHttpClient>(),
                 apiUrl = instance<Configuration>().getString("goodgame.api-url"),
-                emoticonsJsUrl = instance<Configuration>().getString("goodgame.emoticon-js-url"),
-                objectMapper = instance<ObjectMapper>()
+                emoticonsJsUrl = instance<Configuration>().getString("goodgame.emoticon-js-url")
         )
     }
     bind<GgEmoticonLoader>() with singleton { GgEmoticonLoader(instance<GgApiClient>()) }

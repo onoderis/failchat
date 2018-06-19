@@ -1,12 +1,12 @@
 package failchat.goodgame
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.Origin
 import failchat.exception.ChannelOfflineException
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.await
+import failchat.util.objectMapper
 import failchat.util.withSuffix
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -17,8 +17,7 @@ import java.util.regex.Pattern
 class GgApiClient(
         private val httpClient: OkHttpClient,
         apiUrl: String,
-        private val emoticonsJsUrl: String,
-        private val objectMapper: ObjectMapper = ObjectMapper()
+        private val emoticonsJsUrl: String
 ) {
 
     private companion object {

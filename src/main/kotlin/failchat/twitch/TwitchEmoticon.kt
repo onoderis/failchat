@@ -1,10 +1,15 @@
 package failchat.twitch
 
 import failchat.Origin
+import failchat.chat.ImageFormat.RASTER
 import failchat.emoticon.Emoticon
 
 class TwitchEmoticon(
         val twitchId: Long,
         regex: String,
-        url: String
-) : Emoticon(Origin.TWITCH, regex, url)
+        private val urlFactory: TwitchEmoticonUrlFactory
+) : Emoticon(Origin.TWITCH, regex, RASTER) {
+
+    override val url: String
+        get() = urlFactory.create(twitchId)
+}
