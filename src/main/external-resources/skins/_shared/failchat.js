@@ -163,9 +163,9 @@ $(() => {
         // handle viewers bar configuration
 
         if (content.showViewersCount === true) {
-            viewersBar.addClass("viewers-bar-on");
+            viewersBar.addClass("on");
         } else {
-            viewersBar.removeClass("viewers-bar-on");
+            viewersBar.removeClass("on");
         }
 
         const enabledOrigins = content.enabledOrigins;

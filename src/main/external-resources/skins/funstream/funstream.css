@@ -12,7 +12,7 @@
     margin-bottom: 1px;
 }
 
-.viewers-bar-on + .chat-wrapper {
+.viewers-bar.on + .chat-wrapper {
     height: calc(100% - 41px);
 }
 
