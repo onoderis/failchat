@@ -10,6 +10,8 @@ $(() => {
             "nativeClientBgColor": "#000000ff",
             // "nativeClientBgColor": "#ffffffff",
             "externalClientBgColor": "#000000ff",
+            "showOriginBadges": true,
+            "showUserBadges": true,
             "enabledOrigins": {
                 "peka2tv": true,
                 "goodgame": true,
@@ -274,5 +276,35 @@ $(() => {
             }
         }
     );
+
+    failchat.handleMessage({
+        "type": "message",
+        "content": {
+            "id": 393000,
+            "origin": "peka2tv",
+            "author": {"name": "fail0001", "id": "fail0001"},
+            "text": "so many badges!",
+            "timestamp": 1529402475110,
+            "highlighted": false,
+            "badges": [
+                {
+                    "type": "character",
+                    "htmlEntity": "&#59730;",
+                    "color": "#eefc08"
+                },
+                {
+                    "type": "character",
+                    "htmlEntity": "&#59730;",
+                    "color": "#eefc08"
+                },
+                {
+                    "type": "character",
+                    "htmlEntity": "&#59730;",
+                    "color": "#eefc08"
+                }
+            ],
+            "elements": []
+        }
+    });
 
 });

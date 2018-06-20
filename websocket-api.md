@@ -63,6 +63,8 @@
         "showViewersCount": true,
         "nativeClientBgColor": "0x000000ff",
         "externalClientBgColor": "0x00000000",
+        "showOriginBadges": true,
+        "showUserBadges": true,
         "enabledOrigins": {
             "peka2tv": false,
             "twitch": true,

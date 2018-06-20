@@ -6,7 +6,9 @@ const failchat = {
     iconsPath: "../_shared/icons/", //could be overrided in skin.html
     origins: ["peka2tv", "twitch", "goodgame", "youtube", "cybergame"],
     deletedTextPlaceholder: "message deleted",
-    nativeClient: false
+    nativeClient: false,
+    showOriginBadges: true,
+    showUserBadges: true
 };
 
 $(() => {
@@ -130,6 +132,9 @@ $(() => {
         }
 
         content.iconsPath = failchat.iconsPath;
+        content.showOriginBadges = failchat.showOriginBadges;
+        content.showUserBadges = failchat.showUserBadges;
+
         content.textHtml = templates.message.render(content);
     }
 
@@ -141,6 +146,9 @@ $(() => {
     }
 
     function handleClientConfigurationMessage(content) {
+        failchat.showOriginBadges = content.showOriginBadges;
+        failchat.showUserBadges = content.showUserBadges;
+
         const statusMessageMode = content.statusMessageMode;
         if ((statusMessageMode === "everywhere") ||
             (failchat.nativeClient && statusMessageMode === "native_client")) {
@@ -296,14 +304,17 @@ const templates = {
     message: $.templates(
         '<div class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">\n' +
         '    <div class="badges">\n' +
-        '        <img class="badge origin-badge" src="{{:iconsPath}}{{:origin}}.png">\n' +
+        '        <img class="origin-badge{{if !showOriginBadges}} off{{/if}}" src="{{:iconsPath}}{{:origin}}.png">\n' +
+        '        <div class="user-badges{{if !showUserBadges}} off{{/if}}">\n' +
         '        {{for badges}}\n' +
         '            {{if type === "image"}}\n' +
-        '                <img class="badge {{if format === \'raster\'}}badge-raster{{else}}badge-vector{{/if}}" src="{{:url}}" {{if description !== null}}title="{{:description}}"{{/if}}>\n' +
-        '            {{else type === \'character\'}}\n' +
-        '                <span class="badge badge-character" style="color: {{:color}}">{{:htmlEntity}}</span>\n' +
+        '                <img class="{{if format === "raster"}}badge-raster{{else}}badge-vector{{/if}}"\n' +
+        '                     src="{{:url}}" {{if description !== null}}title="{{:description}}"{{/if}}>\n' +
+        '            {{else type === "character"}}\n' +
+        '                <span class="badge-character" style="color: {{:color}}">{{:htmlEntity}}</span>\n' +
         '            {{/if}}\n' +
         '        {{/for}}\n' +
+        '        </div>\n' +
         '    </div>\n' +
         '    <div class="message-content">\n' +
         '        <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author.name}}</span>\n' +
