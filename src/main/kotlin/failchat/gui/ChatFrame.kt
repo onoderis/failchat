@@ -181,7 +181,7 @@ class ChatFrame(
     }
 
     private fun buildContextMenu(scene: Scene): ContextMenu {
-        val toSettingsItem = MenuItem("To settings")
+        val toSettingsItem = MenuItem("Close")
         val contextMenu = ContextMenu(switchDecorationsItem, onTopItem, viewersItem, toSettingsItem)
 
         //context menu
