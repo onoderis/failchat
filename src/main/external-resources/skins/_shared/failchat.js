@@ -316,17 +316,21 @@ const templates = {
         '</div>'
     ),
 
-    rasterEmoticon: $.templates('<img class="emoticon-raster" src="{{:url}}">'),
-    vectorEmoticon: $.templates('<img class="emoticon-vector" src="{{:url}}">'),
+    rasterEmoticon: $.templates('<img class="emoticon-raster" src="{{:url}}" title="{{:code}}">'),
+    vectorEmoticon: $.templates('<img class="emoticon-vector" src="{{:url}}" title="{{:code}}">'),
     link: $.templates('<a href="{{:fullUrl}}">{{:domain}}</a>'),
     image: $.templates('<div class="image-wrapper"><a href="{{:url}}"><img class="image" src="{{:url}}"></a></div>'),
 
     statusMessage: $.templates(
-        '<p class="message status-message">' +
-        '    <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png">' +
-        '    <span class="origin-name" title="{{time:timestamp}}">{{:origin}} </span>' +
-        '    <span class="status-text">{{:status}}</span>' +
-        '</p>'
+        '<div class="message status-message">\n' +
+        '    <div class="badges">\n' +
+        '        <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png">\n' +
+        '    </div>\n' +
+        '    <div class="message-content">\n' +
+        '        <span class="origin-name" title="{{time:timestamp}}">{{:origin}} </span>\n' +
+        '        <span class="status-text">{{:status}}</span>\n' +
+        '    </div>\n' +
+        '</div>'
     ),
 
     originViewersBar: $.templates(
