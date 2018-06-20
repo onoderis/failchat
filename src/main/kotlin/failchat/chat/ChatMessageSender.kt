@@ -142,6 +142,8 @@ class ChatMessageSender(
                 put("showViewersCount", config.getBoolean("show-viewers"))
                 put("nativeClientBgColor", config.getString("background-color.native"))
                 put("externalClientBgColor", config.getString("background-color.external"))
+                put("showOriginBadges", config.getBoolean("show-origin-badges"))
+                put("showUserBadges", config.getBoolean("show-user-badges"))
                 putObject("enabledOrigins").apply {
                     COUNTABLE_ORIGINS.forEach { origin ->
                         put(origin.commonName, config.getBoolean("${origin.commonName}.enabled"))

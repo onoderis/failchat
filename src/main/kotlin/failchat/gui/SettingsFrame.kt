@@ -51,15 +51,18 @@ class SettingsFrame(
     private val showViewers = scene.lookup("#show_viewers") as CheckBox
     private val showImages = scene.lookup("#show_images") as CheckBox
 
-    //second tab
+    // Additional settings tab
     private val nativeBgColorPicker = scene.lookup("#bgcolor_native") as ColorPicker
     private val externalBgColorPicker = scene.lookup("#bgcolor_external") as ColorPicker
     @Suppress("UNCHECKED_CAST")
     private val statusMessagesMode = scene.lookup("#status_messages") as ChoiceBox<StatusMessageMode>
+    private val opacitySlider = scene.lookup("#opacity") as Slider
+    private val showOriginBadges = scene.lookup("#showOriginBadges") as CheckBox
+    private val showUserBadges = scene.lookup("#showUserBadges") as CheckBox
+
+    // Ignore list tab
     private val ignoreList = scene.lookup("#ignore_list") as TextArea
 
-    //opacity
-    private val opacitySlider = scene.lookup("#opacity") as Slider
 
     private val startButton = scene.lookup("#start_button") as Button
 
@@ -151,17 +154,25 @@ class SettingsFrame(
         showViewers.isSelected = config.getBoolean("show-viewers")
         showImages.isSelected = config.getBoolean("show-images")
         onTop.isSelected = config.getBoolean("on-top")
+        showOriginBadges.isSelected = config.getBoolean("show-origin-badges")
+        showUserBadges.isSelected = config.getBoolean("show-user-badges")
 
         nativeBgColorPicker.value = Color.web(config.getString("background-color.native"))
         externalBgColorPicker.value = Color.web(config.getString("background-color.external"))
         opacitySlider.value = config.getDouble("opacity")
         statusMessagesMode.value = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
 
-        ignoreList.text = config.getList("ignore").joinToString(separator = "\n", postfix = "\n")
+
+        val userIds = config.getList("ignore")
+        ignoreList.text = if (userIds.isEmpty()) {
+            ""
+        } else {
+            userIds.joinToString(separator = "\n", postfix = "\n")
+        }
     }
 
-    //todo optimize
     private fun saveSettingsValues() {
+        //todo use loop for origins
         config.setProperty("peka2tv.channel", peka2tvChannel.text)
         config.setProperty("goodgame.channel", goodgameChannel.text)
         config.setProperty("twitch.channel", twitchChannel.text)
@@ -184,6 +195,9 @@ class SettingsFrame(
         config.setProperty("background-color.external", externalBgColorPicker.value.toHexFormat())
         config.setProperty("opacity", opacitySlider.value.toInt())
         config.setProperty("status-message-mode", statusMessagesModeConverter.toString(statusMessagesMode.value))
+        config.setProperty("show-origin-badges", showOriginBadges.isSelected)
+        config.setProperty("show-user-badges", showUserBadges.isSelected)
+
         config.setProperty("ignore", ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
     }
 

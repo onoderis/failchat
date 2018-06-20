@@ -310,28 +310,48 @@
                                         </VBox>
                                         <VBox maxHeight="200.0" maxWidth="160.0" prefHeight="200.0" prefWidth="212.0">
                                             <children>
-                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Ignore list">
+                                                <CheckBox fx:id="showOriginBadges" mnemonicParsing="false" text="Show origin badges">
                                                     <font>
                                                         <Font size="12.0" />
                                                     </font>
                                                     <VBox.margin>
-                                                        <Insets left="2.0" right="2.0" top="6.0" />
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
-                                                </Text>
-                                                <TextArea fx:id="ignore_list" prefHeight="200.0" prefWidth="200.0" promptText="&#10;">
+                                                </CheckBox>
+                                                <CheckBox fx:id="showUserBadges" mnemonicParsing="false" text="Show user badges">
                                                     <font>
                                                         <Font size="12.0" />
                                                     </font>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" />
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
-                                                </TextArea>
+                                                </CheckBox>
                                             </children>
                                             <HBox.margin>
                                                 <Insets left="20.0" right="20.0" />
                                             </HBox.margin>
                                         </VBox>
                                     </children>
+                                </HBox>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab text="Ignore list">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <HBox alignment="CENTER" prefHeight="282.0" prefWidth="450.0">
+                                    <children>
+                                          <TextArea fx:id="ignore_list" prefHeight="100.0" prefWidth="400.0" promptText="&#10;">
+                                              <font>
+                                                  <Font size="12.0" />
+                                              </font>
+                                          </TextArea>
+                                    </children>
+                           <padding>
+                              <Insets bottom="20.0" left="50.0" right="50.0" top="40.0" />
+                           </padding>
                                 </HBox>
                             </children>
                         </AnchorPane>
