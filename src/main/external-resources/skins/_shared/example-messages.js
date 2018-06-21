@@ -12,6 +12,7 @@ $(() => {
             "externalClientBgColor": "#000000ff",
             "showOriginBadges": true,
             "showUserBadges": true,
+            "zoomPercent": 100,
             "enabledOrigins": {
                 "peka2tv": true,
                 "goodgame": true,
