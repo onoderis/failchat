@@ -337,7 +337,7 @@
                                                                 <Insets left="2.0" right="2.0" top="6.0"/>
                                                             </VBox.margin>
                                                         </Text>
-                                                        <TextField fx:id="zoomPercent" maxWidth="38.0" promptText="100">
+                                                        <TextField fx:id="zoom_percent" maxWidth="38.0" promptText="100">
                                                             <font>
                                                                 <Font size="12.0"/>
                                                             </font>
@@ -358,7 +358,7 @@
                                                         <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
                                                     </VBox.margin>
                                                 </HBox>
-                                                <CheckBox fx:id="showOriginBadges" mnemonicParsing="false"
+                                                <CheckBox fx:id="show_origin_badges" mnemonicParsing="false"
                                                           text="Show origin badges">
                                                     <font>
                                                         <Font size="12.0"/>
@@ -367,7 +367,7 @@
                                                         <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
                                                     </VBox.margin>
                                                 </CheckBox>
-                                                <CheckBox fx:id="showUserBadges" mnemonicParsing="false"
+                                                <CheckBox fx:id="show_user_badges" mnemonicParsing="false"
                                                           text="Show user badges">
                                                     <font>
                                                         <Font size="12.0"/>
