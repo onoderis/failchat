@@ -158,7 +158,7 @@ class ChatFrame(
             }
         }
 
-        // url opening interceptor
+        // intercept url opening
         webEngine.loadWorker.stateProperty().addListener { _, _, newValue ->
             // WebEngine.locationProperty не изменяется обратно после LoadWorker.cancel()
             // locationProperty заменяется сразу, как и Worker.State

@@ -3,6 +3,7 @@ package failchat.gui
 import failchat.chat.StatusMessageMode
 import failchat.skin.Skin
 import failchat.util.toHexFormat
+import javafx.application.Application
 import javafx.collections.FXCollections
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
@@ -11,6 +12,7 @@ import javafx.scene.control.Button
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ChoiceBox
 import javafx.scene.control.ColorPicker
+import javafx.scene.control.Hyperlink
 import javafx.scene.control.Slider
 import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
@@ -33,6 +35,7 @@ class SettingsFrame(
     }
 
     lateinit var chat: ChatFrame
+    lateinit var app: Application
 
     private val scene = Scene(FXMLLoader.load<Parent>(javaClass.getResource("/fx/settings.fxml")))
 
@@ -115,6 +118,16 @@ class SettingsFrame(
         }
 
         startButton.setOnAction { toChat() }
+
+        val githubLink = scene.lookup("#github_link") as Hyperlink
+        githubLink.setOnAction {
+            app.hostServices.showDocument(config.getString("about.github-repo"))
+        }
+
+        val discordLink = scene.lookup("#discord_link") as Hyperlink
+        discordLink.setOnAction {
+            app.hostServices.showDocument(config.getString("about.discord-server"))
+        }
     }
 
     fun show() {

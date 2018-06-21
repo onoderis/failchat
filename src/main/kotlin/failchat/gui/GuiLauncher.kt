@@ -32,6 +32,7 @@ class GuiLauncher : Application() {
                 kodein.instance<Path>("workingDirectory"))
 
         settings.chat = chat
+        settings.app = this
         chat.settings = settings
         chat.app = this
 

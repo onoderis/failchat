@@ -5,6 +5,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -17,8 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-<VBox alignment="TOP_CENTER" prefHeight="380.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/8.0.121"
-      xmlns:fx="http://javafx.com/fxml/1">
+<VBox alignment="TOP_CENTER" prefHeight="380.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <TabPane prefHeight="317.0" prefWidth="450.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
@@ -32,196 +32,187 @@
                                             <children>
                                                 <HBox alignment="CENTER_LEFT">
                                                     <children>
-                                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
-                                                                   preserveRatio="true">
+                                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                                             <HBox.margin>
-                                                                <Insets right="5.0"/>
+                                                                <Insets right="5.0" />
                                                             </HBox.margin>
                                                             <image>
-                                                                <Image url="@/icons/twitch.png"/>
+                                                                <Image url="@/icons/twitch.png" />
                                                             </image>
                                                         </ImageView>
                                                         <CheckBox fx:id="twitch_enabled" mnemonicParsing="false">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                         </CheckBox>
                                                         <TextField fx:id="twitch_channel" promptText="channel name">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                         </TextField>
                                                     </children>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT">
                                                     <children>
-                                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
-                                                                   preserveRatio="true">
+                                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                                             <HBox.margin>
-                                                                <Insets right="5.0"/>
+                                                                <Insets right="5.0" />
                                                             </HBox.margin>
                                                             <image>
-                                                                <Image url="@/icons/youtube.png"/>
+                                                                <Image url="@/icons/youtube.png" />
                                                             </image>
                                                         </ImageView>
                                                         <CheckBox fx:id="youtube_enabled" mnemonicParsing="false">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                         </CheckBox>
-                                                        <TextField fx:id="youtube_channel"
-                                                                   promptText="channel id or video id">
+                                                        <TextField fx:id="youtube_channel" promptText="channel id or video id">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                         </TextField>
                                                     </children>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT">
                                                     <children>
-                                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
-                                                                   preserveRatio="true">
+                                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                                             <HBox.margin>
-                                                                <Insets right="5.0"/>
+                                                                <Insets right="5.0" />
                                                             </HBox.margin>
                                                             <image>
-                                                                <Image url="@/icons/goodgame.png"/>
+                                                                <Image url="@/icons/goodgame.png" />
                                                             </image>
                                                         </ImageView>
                                                         <CheckBox fx:id="goodgame_enabled" mnemonicParsing="false">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                         </CheckBox>
                                                         <TextField fx:id="goodgame_channel" promptText="channel name">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                         </TextField>
                                                     </children>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT">
                                                     <children>
-                                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
-                                                                   preserveRatio="true">
+                                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                                             <HBox.margin>
-                                                                <Insets right="5.0"/>
+                                                                <Insets right="5.0" />
                                                             </HBox.margin>
                                                             <image>
-                                                                <Image url="@/icons/peka2tv.png"/>
+                                                                <Image url="@/icons/peka2tv.png" />
                                                             </image>
                                                         </ImageView>
                                                         <CheckBox fx:id="peka2tv_enabled" mnemonicParsing="false">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                         </CheckBox>
                                                         <TextField fx:id="peka2tv_channel" promptText="channel name">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                         </TextField>
                                                     </children>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT">
                                                     <children>
-                                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true"
-                                                                   preserveRatio="true">
+                                                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                                             <HBox.margin>
-                                                                <Insets right="5.0"/>
+                                                                <Insets right="5.0" />
                                                             </HBox.margin>
                                                             <image>
-                                                                <Image url="@/icons/cybergame.png"/>
+                                                                <Image url="@/icons/cybergame.png" />
                                                             </image>
                                                         </ImageView>
                                                         <CheckBox fx:id="cybergame_enabled" mnemonicParsing="false">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                         </CheckBox>
                                                         <TextField fx:id="cybergame_channel" promptText="channel name">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                         </TextField>
                                                     </children>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </HBox>
                                             </children>
                                             <HBox.margin>
-                                                <Insets bottom="6.0" left="20.0" right="20.0" top="6.0"/>
+                                                <Insets bottom="6.0" left="20.0" right="20.0" top="6.0" />
                                             </HBox.margin>
                                             <padding>
-                                                <Insets top="14.0"/>
+                                                <Insets top="14.0" />
                                             </padding>
                                         </VBox>
                                         <VBox maxHeight="200.0" prefWidth="183.0">
                                             <children>
                                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Skin">
                                                     <font>
-                                                        <Font size="12.0"/>
+                                                        <Font size="12.0" />
                                                     </font>
                                                     <VBox.margin>
-                                                        <Insets left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </Text>
                                                 <ChoiceBox fx:id="skin" prefWidth="150.0">
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" />
                                                     </VBox.margin>
                                                 </ChoiceBox>
                                                 <CheckBox fx:id="frame" mnemonicParsing="false" text="Frame">
                                                     <font>
-                                                        <Font size="12.0"/>
+                                                        <Font size="12.0" />
                                                     </font>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </CheckBox>
-                                                <CheckBox fx:id="top" layoutX="12.0" layoutY="65.0"
-                                                          mnemonicParsing="false" text="Always on top">
+                                                <CheckBox fx:id="top" layoutX="12.0" layoutY="65.0" mnemonicParsing="false" text="Always on top">
                                                     <font>
-                                                        <Font size="12.0"/>
+                                                        <Font size="12.0" />
                                                     </font>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </CheckBox>
-                                                <CheckBox fx:id="show_viewers" layoutX="12.0" layoutY="142.0"
-                                                          mnemonicParsing="false" text="Show viewers">
+                                                <CheckBox fx:id="show_viewers" layoutX="12.0" layoutY="142.0" mnemonicParsing="false" text="Show viewers">
                                                     <font>
-                                                        <Font size="12.0"/>
+                                                        <Font size="12.0" />
                                                     </font>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </CheckBox>
-                                                <CheckBox fx:id="show_images" layoutX="12.0" layoutY="170.0"
-                                                          mnemonicParsing="false" text="Show images">
+                                                <CheckBox fx:id="show_images" layoutX="12.0" layoutY="170.0" mnemonicParsing="false" text="Show images">
                                                     <font>
-                                                        <Font size="12.0"/>
+                                                        <Font size="12.0" />
                                                     </font>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </CheckBox>
                                             </children>
                                             <HBox.margin>
-                                                <Insets bottom="6.0" left="20.0" right="20.0" top="6.0"/>
+                                                <Insets bottom="6.0" left="20.0" right="20.0" top="6.0" />
                                             </HBox.margin>
                                         </VBox>
                                     </children>
@@ -238,90 +229,84 @@
                                     <children>
                                         <VBox maxHeight="200.0">
                                             <children>
-                                                <Text strokeType="OUTSIDE" strokeWidth="0.0"
-                                                      text="Background color (native client)">
+                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Background color (native client)">
                                                     <font>
-                                                        <Font size="12.0"/>
+                                                        <Font size="12.0" />
                                                     </font>
                                                     <VBox.margin>
-                                                        <Insets left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </Text>
                                                 <ColorPicker fx:id="bgcolor_native">
                                                     <opaqueInsets>
-                                                        <Insets/>
+                                                        <Insets />
                                                     </opaqueInsets>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" />
                                                     </VBox.margin>
                                                 </ColorPicker>
-                                                <Text strokeType="OUTSIDE" strokeWidth="0.0"
-                                                      text="Background color (external client)">
+                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Background color (external client)">
                                                     <font>
-                                                        <Font size="12.0"/>
+                                                        <Font size="12.0" />
                                                     </font>
                                                     <VBox.margin>
-                                                        <Insets left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </Text>
                                                 <ColorPicker fx:id="bgcolor_external">
                                                     <opaqueInsets>
-                                                        <Insets/>
+                                                        <Insets />
                                                     </opaqueInsets>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" />
                                                     </VBox.margin>
                                                 </ColorPicker>
                                                 <HBox>
                                                     <VBox.margin>
-                                                        <Insets left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                     <children>
-                                                        <Text strokeType="OUTSIDE" strokeWidth="0.0"
-                                                              text="Window opacity: ">
+                                                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Window opacity: ">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                             <HBox.margin>
-                                                                <Insets/>
+                                                                <Insets />
                                                             </HBox.margin>
                                                         </Text>
-                                                        <Text fx:id="opacity_text" strokeType="OUTSIDE"
-                                                              strokeWidth="0.0">
+                                                        <Text fx:id="opacity_text" strokeType="OUTSIDE" strokeWidth="0.0">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                         </Text>
                                                         <Text strokeType="OUTSIDE" strokeWidth="0.0" text="\%">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                         </Text>
                                                     </children>
                                                 </HBox>
-                                                <Slider fx:id="opacity" blockIncrement="1.0" maxWidth="150.0"
-                                                        prefHeight="20.0">
+                                                <Slider fx:id="opacity" blockIncrement="1.0" maxWidth="150.0" prefHeight="20.0">
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" />
                                                     </VBox.margin>
                                                 </Slider>
-                                                <Text strokeType="OUTSIDE" strokeWidth="0.0"
-                                                      text="Show status messages">
+                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Show status messages">
                                                     <font>
-                                                        <Font size="12.0"/>
+                                                        <Font size="12.0" />
                                                     </font>
                                                     <VBox.margin>
-                                                        <Insets left="2.0" right="2.0"/>
+                                                        <Insets left="2.0" right="2.0" />
                                                     </VBox.margin>
                                                 </Text>
                                                 <ChoiceBox fx:id="status_messages" prefWidth="150.0">
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" />
                                                     </VBox.margin>
                                                 </ChoiceBox>
                                             </children>
                                             <HBox.margin>
-                                                <Insets right="20.0"/>
+                                                <Insets right="20.0" />
                                             </HBox.margin>
                                         </VBox>
                                         <VBox maxHeight="200.0" maxWidth="160.0" prefHeight="200.0" prefWidth="212.0">
@@ -331,54 +316,52 @@
                                                     <children>
                                                         <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Zoom: ">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                             <VBox.margin>
-                                                                <Insets left="2.0" right="2.0" top="6.0"/>
+                                                                <Insets left="2.0" right="2.0" top="6.0" />
                                                             </VBox.margin>
                                                         </Text>
                                                         <TextField fx:id="zoom_percent" maxWidth="38.0" promptText="100">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                         </TextField>
                                                         <Text strokeType="OUTSIDE" strokeWidth="0.0" text="\%">
                                                             <font>
-                                                                <Font size="12.0"/>
+                                                                <Font size="12.0" />
                                                             </font>
                                                             <VBox.margin>
-                                                                <Insets left="2.0" right="2.0" top="6.0"/>
+                                                                <Insets left="2.0" right="2.0" top="6.0" />
                                                             </VBox.margin>
                                                             <HBox.margin>
-                                                                <Insets left="3.0"/>
+                                                                <Insets left="3.0" />
                                                             </HBox.margin>
                                                         </Text>
                                                     </children>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </HBox>
-                                                <CheckBox fx:id="show_origin_badges" mnemonicParsing="false"
-                                                          text="Show origin badges">
+                                                <CheckBox fx:id="show_origin_badges" mnemonicParsing="false" text="Show origin badges">
                                                     <font>
-                                                        <Font size="12.0"/>
+                                                        <Font size="12.0" />
                                                     </font>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </CheckBox>
-                                                <CheckBox fx:id="show_user_badges" mnemonicParsing="false"
-                                                          text="Show user badges">
+                                                <CheckBox fx:id="show_user_badges" mnemonicParsing="false" text="Show user badges">
                                                     <font>
-                                                        <Font size="12.0"/>
+                                                        <Font size="12.0" />
                                                     </font>
                                                     <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0"/>
+                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </CheckBox>
                                             </children>
                                             <HBox.margin>
-                                                <Insets left="20.0" right="20.0"/>
+                                                <Insets left="20.0" right="20.0" />
                                             </HBox.margin>
                                         </VBox>
                                     </children>
@@ -393,17 +376,51 @@
                             <children>
                                 <HBox alignment="CENTER" prefHeight="282.0" prefWidth="450.0">
                                     <children>
-                                        <TextArea fx:id="ignore_list" prefHeight="100.0" prefWidth="400.0"
-                                                  promptText="&#10;">
+                                        <TextArea fx:id="ignore_list" prefHeight="100.0" prefWidth="400.0" promptText="&#10;">
                                             <font>
-                                                <Font size="12.0"/>
+                                                <Font size="12.0" />
                                             </font>
                                         </TextArea>
                                     </children>
                                     <padding>
-                                        <Insets bottom="20.0" left="50.0" right="50.0" top="40.0"/>
+                                        <Insets bottom="20.0" left="50.0" right="50.0" top="40.0" />
                                     </padding>
                                 </HBox>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab text="About">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <VBox prefHeight="282.0" prefWidth="450.0">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" prefWidth="200.0" VBox.vgrow="NEVER">
+                                            <children>
+                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Github repository: ">
+                                                    <font>
+                                                        <Font size="12.0" />
+                                                    </font>
+                                                </Text>
+                                                <Hyperlink fx:id="github_link" text="github.com/onoderis/failchat" underline="true" />
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" prefWidth="200.0" VBox.vgrow="NEVER">
+                                            <children>
+                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Discord server: ">
+                                                    <font>
+                                                        <Font size="12.0" />
+                                                    </font>
+                                                </Text>
+                                                <Hyperlink fx:id="discord_link" text="discord.gg/4Qs3Y8h" underline="true" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="20.0" left="50.0" right="50.0" top="40.0" />
+                                    </padding>
+                                </VBox>
                             </children>
                         </AnchorPane>
                     </content>
@@ -414,7 +431,7 @@
             <children>
                 <Button fx:id="start_button" mnemonicParsing="false" text="Start chat" textAlignment="CENTER">
                     <font>
-                        <Font size="14.0"/>
+                        <Font size="14.0" />
                     </font>
                 </Button>
             </children>
