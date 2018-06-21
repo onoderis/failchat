@@ -24,10 +24,6 @@ body {
     overflow-x: hidden;
 }
 
-.off {
-    display: none !important;
-}
-
 /* Scroll bar*/
 
 .scroller {

@@ -6,15 +6,10 @@ const failchat = {
     iconsPath: "../_shared/icons/", //could be overrided in skin.html
     origins: ["peka2tv", "twitch", "goodgame", "youtube", "cybergame"],
     deletedTextPlaceholder: "message deleted",
-    nativeClient: false,
-    showOriginBadges: true,
-    showUserBadges: true
+    nativeClient: false
 };
 
 $(() => {
-    const socket = new ReconnectingWebSocket("ws://localhost:10880");
-    socket.maxReconnectInterval = 5000;
-    failchat.socket = socket;
 
     failchat.nativeClient = (navigator.userAgent.search("failchat") >= 0);
 
@@ -51,6 +46,18 @@ $(() => {
         }
     });
 
+
+    // Dynamic styles
+    const dynamicStyles = document.createElement("style");
+    dynamicStyles.type = "text/css";
+    // dynamicStyles.innerHTML = '.cssClass { color: #F00; }';
+    document.head.appendChild(dynamicStyles);
+
+
+    // Web socket
+    const socket = new ReconnectingWebSocket("ws://localhost:10880");
+    socket.maxReconnectInterval = 5000;
+    failchat.socket = socket;
 
     socket.onopen = function() {
         const connectedMessage = {"origin": "failchat", "status": "connected", "timestamp": Date.now()};
@@ -132,8 +139,6 @@ $(() => {
         }
 
         content.iconsPath = failchat.iconsPath;
-        content.showOriginBadges = failchat.showOriginBadges;
-        content.showUserBadges = failchat.showUserBadges;
 
         content.textHtml = templates.message.render(content);
     }
@@ -146,8 +151,18 @@ $(() => {
     }
 
     function handleClientConfigurationMessage(content) {
-        failchat.showOriginBadges = content.showOriginBadges;
-        failchat.showUserBadges = content.showUserBadges;
+        let originBadgesStyle = "";
+        if (content.showOriginBadges === false) {
+            originBadgesStyle = ".message .origin-badge { display: none }"
+        }
+
+        let userBadgesStyle = "";
+        if (content.showUserBadges === false) {
+            userBadgesStyle = ".message .user-badges { display: none }"
+        }
+
+        dynamicStyles.innerHTML = originBadgesStyle + userBadgesStyle;
+
 
         const statusMessageMode = content.statusMessageMode;
         if ((statusMessageMode === "everywhere") ||
@@ -304,8 +319,8 @@ const templates = {
     message: $.templates(
         '<div class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">\n' +
         '    <div class="badges">\n' +
-        '        <img class="origin-badge{{if !showOriginBadges}} off{{/if}}" src="{{:iconsPath}}{{:origin}}.png">\n' +
-        '        <div class="user-badges{{if !showUserBadges}} off{{/if}}">\n' +
+        '        <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png">\n' +
+        '        <div class="user-badges">\n' +
         '        {{for badges}}\n' +
         '            {{if type === "image"}}\n' +
         '                <img class="{{if format === "raster"}}badge-raster{{else}}badge-vector{{/if}}"\n' +
