@@ -54,7 +54,8 @@
 ```
 
 #### Client configuration
-`status-message-mode: "everywhere" | "native_client" | "nowhere"`
+`content.status-message-mode: "everywhere" | "native_client" | "nowhere"`
+`content.zoomPercent: [1..500]`
 ```json
 {
     "type": "client-configuration",
@@ -65,6 +66,7 @@
         "externalClientBgColor": "0x00000000",
         "showOriginBadges": true,
         "showUserBadges": true,
+        "zoomPercent": 100,
         "enabledOrigins": {
             "peka2tv": false,
             "twitch": true,

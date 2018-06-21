@@ -62,7 +62,6 @@ $(() => {
     socket.onopen = function() {
         const connectedMessage = {"origin": "failchat", "status": "connected", "timestamp": Date.now()};
         handleStatusMessage(connectedMessage);
-        appendToMessageContainer(connectedMessage);
 
         socket.send(JSON.stringify({type: "client-configuration", content: {}}));
         socket.send(JSON.stringify({type: "viewers-count", content: {}}));
@@ -71,7 +70,6 @@ $(() => {
     socket.onclose = function() {
         const disconnectedMessage = {origin: "failchat", status: "disconnected", timestamp: Date.now()};
         handleStatusMessage(disconnectedMessage);
-        appendToMessageContainer(disconnectedMessage);
     };
 
     socket.onmessage = function() {
@@ -147,21 +145,24 @@ $(() => {
         if (!showStatusMessages) return;
 
         content.iconsPath = failchat.iconsPath;
-        content.textHtml = templates.statusMessage.render(content);
+        const html = templates.statusMessage.render(content);
+        appendToMessageContainer(html);
     }
 
     function handleClientConfigurationMessage(content) {
+        const bodyZoomStyle = "body { zoom: " + content.zoomPercent + "%; }";
+
         let originBadgesStyle = "";
         if (content.showOriginBadges === false) {
-            originBadgesStyle = ".message .origin-badge { display: none }"
+            originBadgesStyle = ".message .origin-badge { display: none; }"
         }
 
         let userBadgesStyle = "";
         if (content.showUserBadges === false) {
-            userBadgesStyle = ".message .user-badges { display: none }"
+            userBadgesStyle = ".message .user-badges { display: none; }"
         }
 
-        dynamicStyles.innerHTML = originBadgesStyle + userBadgesStyle;
+        dynamicStyles.innerHTML = bodyZoomStyle + originBadgesStyle + userBadgesStyle ;
 
 
         const statusMessageMode = content.statusMessageMode;

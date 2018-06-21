@@ -18,6 +18,8 @@ import javafx.scene.paint.Color
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import org.apache.commons.configuration2.Configuration
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class SettingsFrame(
         private val stage: Stage,
@@ -25,6 +27,10 @@ class SettingsFrame(
         private val config: Configuration,
         private val skinList: List<Skin>
 ) {
+
+    private companion object {
+        val log: Logger = LoggerFactory.getLogger(SettingsFrame::class.java)
+    }
 
     lateinit var chat: ChatFrame
 
@@ -59,6 +65,7 @@ class SettingsFrame(
     private val opacitySlider = scene.lookup("#opacity") as Slider
     private val showOriginBadges = scene.lookup("#showOriginBadges") as CheckBox
     private val showUserBadges = scene.lookup("#showUserBadges") as CheckBox
+    private val zoomPercent = scene.lookup("#zoomPercent") as TextField
 
     // Ignore list tab
     private val ignoreList = scene.lookup("#ignore_list") as TextArea
@@ -156,6 +163,7 @@ class SettingsFrame(
         onTop.isSelected = config.getBoolean("on-top")
         showOriginBadges.isSelected = config.getBoolean("show-origin-badges")
         showUserBadges.isSelected = config.getBoolean("show-user-badges")
+        zoomPercent.text = config.getInt("zoom-percent").toString()
 
         nativeBgColorPicker.value = Color.web(config.getString("background-color.native"))
         externalBgColorPicker.value = Color.web(config.getString("background-color.external"))
@@ -197,8 +205,25 @@ class SettingsFrame(
         config.setProperty("status-message-mode", statusMessagesModeConverter.toString(statusMessagesMode.value))
         config.setProperty("show-origin-badges", showOriginBadges.isSelected)
         config.setProperty("show-user-badges", showUserBadges.isSelected)
+        config.setProperty("zoom-percent", parseZoomPercent(zoomPercent.text))
 
         config.setProperty("ignore", ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
+    }
+
+    private fun parseZoomPercent(zoomPercent: String): Int {
+        val percent = try {
+            zoomPercent.toInt()
+        } catch (e: Exception) {
+            log.warn("Failed to parse zoom percent as Int", e)
+            return 100
+        }
+
+        if (percent !in 1..500) {
+            log.warn("Zoom percent '{}' not in range [1..500]", percent)
+            return 100
+        }
+
+        return percent
     }
 
 }
