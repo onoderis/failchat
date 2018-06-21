@@ -1,0 +1,145 @@
+span.nick::after {
+    content: "";
+}
+
+.baron .scrollbar {
+    background: #DCF6FF;
+}
+
+.viewers-bar.on {
+    background: linear-gradient(90deg, #141b2399 50%, #0000 98%);
+}
+
+.viewers-bar.on::before {
+    height: 3px;
+    background-image: linear-gradient(90deg, #3b6a77 35%, #61faff00 80%);
+    z-index: 10;
+}
+
+.viewers-bar.on + .chat-wrapper {
+    mask-image: none;
+}
+
+.chat-wrapper {
+    mask-image: linear-gradient(0deg, #000 90%, #0000 100%);
+}
+
+.viewers-bar.on + .chat-wrapper {
+    height: calc(100% - 41px);
+}
+
+.viewers-counter span {
+    font-weight: bold;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 16px;
+    color: #FFF;
+}
+
+.message {
+    display: flex;
+    flex-direction: row;
+    font-size: 14px;
+    color: #FFFFFF;
+    background: linear-gradient(
+            135deg,
+            #2c303fe6 0%,
+            #272b3880 30%,
+            #36484e80 calc(30% + 100px),
+            #21232999 calc(30% + 200px),
+            #20243380 80%,
+            #272a3233 100%
+    );
+    margin: 3px 0 3px 0;
+    padding: 6px;
+    position: relative;
+    animation: appear-bottom 0.4s;
+    font-family: Verdana, Geneva, sans-serif;
+}
+
+.message::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    background-image: linear-gradient(90deg, #3b6a77 70%, #61faff1a 100%);
+    z-index: 10;
+}
+
+.message-content {
+    display: block;
+    margin-left: 12px;
+}
+
+.badges {
+    display: block;
+}
+
+.badges .user-badges {
+    display: block;
+}
+
+.message .origin-badge,
+.message .badge-raster:not(:last-child),
+.message .badge-character:not(:last-child) {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.message-text {
+    display: block;
+}
+
+span.mod-buttons {
+    font-family: Segoe UI Symbol, sans-serif;
+}
+
+.deleted-message .message-text {
+    font-style: italic;
+    color: gray;
+}
+
+span.nick, span.origin-name {
+    display: inline-block;
+    margin-bottom: 5px;
+    color: #DCF6FF;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+span.highlighted {
+    color: #74CD36;
+}
+
+span.origin-name {
+    font-weight: bold;
+    color: #DCF6FF;
+}
+
+.status-message .origin-name {
+    margin: 0;
+}
+
+span.status-text {
+    color: #DCF6FF;
+}
+
+.message a {
+    color: #7fcdff;
+}
+
+.mod-buttons span {
+    color: #c02b2b;
+    font-size: 13px;
+}
+
+@keyframes appear-bottom {
+    from {
+        bottom: -100px;
+        opacity: 0
+    }
+    to {
+        bottom: 0;
+        opacity: 1
+    }
+}
