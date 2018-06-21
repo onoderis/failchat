@@ -63,9 +63,9 @@ class SettingsFrame(
     @Suppress("UNCHECKED_CAST")
     private val statusMessagesMode = scene.lookup("#status_messages") as ChoiceBox<StatusMessageMode>
     private val opacitySlider = scene.lookup("#opacity") as Slider
-    private val showOriginBadges = scene.lookup("#showOriginBadges") as CheckBox
-    private val showUserBadges = scene.lookup("#showUserBadges") as CheckBox
-    private val zoomPercent = scene.lookup("#zoomPercent") as TextField
+    private val showOriginBadges = scene.lookup("#show_origin_badges") as CheckBox
+    private val showUserBadges = scene.lookup("#show_user_badges") as CheckBox
+    private val zoomPercent = scene.lookup("#zoom_percent") as TextField
 
     // Ignore list tab
     private val ignoreList = scene.lookup("#ignore_list") as TextArea
