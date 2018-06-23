@@ -4,14 +4,20 @@ import failchat.util.urlPattern
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.concurrent.Worker
+import javafx.geometry.Insets
+import javafx.geometry.Pos
 import javafx.scene.Scene
+import javafx.scene.control.Button
 import javafx.scene.control.CheckMenuItem
 import javafx.scene.control.ContextMenu
+import javafx.scene.control.CustomMenuItem
 import javafx.scene.control.MenuItem
 import javafx.scene.input.KeyCode
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
+import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
+import javafx.scene.text.Text
 import javafx.scene.web.WebEngine
 import javafx.scene.web.WebView
 import javafx.stage.Stage
@@ -50,12 +56,77 @@ class ChatFrame(
     private val switchDecorationsItem: CheckMenuItem = CheckMenuItem("Show frame")
     private val onTopItem: CheckMenuItem = CheckMenuItem("On top")
     private val viewersItem: CheckMenuItem = CheckMenuItem("Show viewers")
+    private val zoomValueText = Text("???")
+    private val zoomValues = listOf(25, 33, 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500) //chrome-alike
 
     private var currentChatStage: Stage = decoratedChatStage
 
 
     init {
-        buildContextMenu(chatScene)
+        // Build context menu
+        fun Button.configureZoomButton(): Button = this.apply {
+            minHeight = 20.0
+            maxHeight = 20.0
+            minWidth = 20.0
+            maxWidth = 20.0
+            padding = Insets.EMPTY
+        }
+
+        val minusButton = Button("-").configureZoomButton()
+        val plusButton = Button("+").configureZoomButton()
+        val zoomBox = HBox(Text("Zoom"), minusButton, zoomValueText, Text("%"), plusButton).apply {
+            alignment = Pos.CENTER_LEFT
+            padding = Insets(0.0, 0.0, 0.0, 15.0)
+        }
+        val zoomItem = CustomMenuItem(zoomBox, false)
+
+        val closeChatItem = MenuItem("Close chat")
+        val contextMenu = ContextMenu(switchDecorationsItem, onTopItem, viewersItem, zoomItem, closeChatItem)
+
+        // Show/hide context menu
+        chatScene.setOnMouseClicked { mouseEvent ->
+            if (mouseEvent.button == MouseButton.SECONDARY) {
+                contextMenu.show(chatScene.root, mouseEvent.screenX, mouseEvent.screenY)
+            } else if (contextMenu.isShowing && mouseEvent.eventType == MouseEvent.MOUSE_CLICKED) {
+                contextMenu.hide()
+            }
+        }
+
+        // Menu items callbacks
+        switchDecorationsItem.setOnAction { switchDecorations() }
+        onTopItem.setOnAction {
+            val newValue = !config.getBoolean("on-top")
+            config.setProperty("on-top", newValue)
+            currentChatStage.isAlwaysOnTop = newValue
+        }
+        closeChatItem.setOnAction { toSettings() }
+        viewersItem.setOnAction {
+            val newValue = !config.getBoolean("show-viewers")
+            config.setProperty("show-viewers", newValue)
+            guiEventHandler.notifyConfigurationChanged()
+        }
+
+        // zoom item callbacks
+        fun Button.configureZoomButtonCallback(elementNumber: Int, filter: (Int, List<Int>) -> Boolean) = this.setOnAction {
+            val oldValue = config.getInt("zoom-percent")
+            val newValue = zoomValues.asSequence().windowed(2, 1)
+                    .find { filter.invoke(oldValue, it) }
+                    ?.get(elementNumber)
+                    ?: kotlin.run {
+                        if (oldValue <= zoomValues.first()) zoomValues.first()
+                        else zoomValues.last()
+                    }
+            config.setProperty("zoom-percent", newValue)
+            guiEventHandler.notifyConfigurationChanged()
+            zoomValueText.text = newValue.toString()
+        }
+
+        minusButton.configureZoomButtonCallback(0) { oldValue, range ->
+            oldValue in (range[0] + 1)..range[1]
+        }
+        plusButton.configureZoomButtonCallback(1) { oldValue, range ->
+            oldValue in range[0]..(range[1] - 1)
+        }
     }
 
     fun show() {
@@ -154,7 +225,8 @@ class ChatFrame(
             when (key.code) {
                 KeyCode.ESCAPE -> toSettings()
                 KeyCode.SPACE -> switchDecorations()
-                else -> {}
+                else -> {
+                }
             }
         }
 
@@ -178,36 +250,6 @@ class ChatFrame(
             }
         }
         return chatScene
-    }
-
-    private fun buildContextMenu(scene: Scene): ContextMenu {
-        val toSettingsItem = MenuItem("Close")
-        val contextMenu = ContextMenu(switchDecorationsItem, onTopItem, viewersItem, toSettingsItem)
-
-        //context menu
-        scene.setOnMouseClicked { mouseEvent ->
-            if (mouseEvent.button == MouseButton.SECONDARY) {
-                contextMenu.show(scene.root, mouseEvent.screenX, mouseEvent.screenY)
-            } else if (contextMenu.isShowing && mouseEvent.eventType == MouseEvent.MOUSE_CLICKED) {
-                contextMenu.hide()
-            }
-        }
-
-        //menu items
-        switchDecorationsItem.setOnAction { switchDecorations() }
-        onTopItem.setOnAction {
-            val newValue = !config.getBoolean("on-top")
-            config.setProperty("on-top", newValue)
-            currentChatStage.isAlwaysOnTop = newValue
-        }
-        toSettingsItem.setOnAction { toSettings() }
-        viewersItem.setOnAction {
-            val newValue = !config.getBoolean("show-viewers")
-            config.setProperty("show-viewers", newValue)
-            guiEventHandler.notifyViewersCountToggled()
-        }
-
-        return contextMenu
     }
 
     private fun toSettings() {
@@ -275,6 +317,7 @@ class ChatFrame(
         switchDecorationsItem.isSelected = config.getBoolean("frame")
         onTopItem.isSelected = config.getBoolean("on-top")
         viewersItem.isSelected = config.getBoolean("show-viewers")
+        zoomValueText.text = config.getString("zoom-percent")
     }
 
 }

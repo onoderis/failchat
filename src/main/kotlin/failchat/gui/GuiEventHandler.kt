@@ -41,7 +41,7 @@ class GuiEventHandler(
         executor.shutdown()
     }
 
-    fun notifyViewersCountToggled() {
+    fun notifyConfigurationChanged() {
         executor.executeWithCatch {
             messageSender.sendClientConfiguration()
         }
