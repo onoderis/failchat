@@ -20,6 +20,8 @@ import failchat.twitch.BttvGlobalEmoticonLoader
 import failchat.twitch.TwitchEmoticonLoader
 import failchat.util.CoroutineExceptionLogger
 import failchat.util.executeWithCatch
+import failchat.util.info
+import failchat.util.sp
 import failchat.viewers.ViewersCountWsHandler
 import failchat.ws.server.ClientConfigurationWsHandler
 import failchat.ws.server.DeleteWsMessageHandler
@@ -51,6 +53,8 @@ fun main(args: Array<String>) {
     checkForAnotherInstance()
 
     configureLogging(args)
+
+    logSystemInfo()
 
     handleProgramArguments(args)
 
@@ -96,6 +100,13 @@ private fun checkForAnotherInstance() {
     } catch (e: Exception) {
         System.err.println("Another instance is running at $wsServerAddress. Exception: $e")
         System.exit(0)
+    }
+}
+
+private fun logSystemInfo() {
+    val failchatVersion = kodein.instance<Configuration>().getString("version")
+    log.info {
+        "Failchat started. Version: $failchatVersion, OS: ${sp("os.name")} ${sp("os.version")}"
     }
 }
 
