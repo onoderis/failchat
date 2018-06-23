@@ -63,7 +63,69 @@ class ChatFrame(
 
 
     init {
-        // Build context menu
+        buildContextMenu()
+    }
+
+    fun show() {
+        val nativeBgColor = Color.web(config.getString("background-color.native"))
+
+        if (config.getBoolean("frame")) {
+            currentChatStage = decoratedChatStage
+            chatScene.fill = Color.BLACK
+        } else {
+            if (nativeBgColor.isOpaque) {
+                currentChatStage = undecoratedChatStage
+                chatScene.fill = Color.BLACK
+            } else {
+                currentChatStage = transparentChatStage
+                chatScene.fill = Color.TRANSPARENT
+            }
+        }
+
+        currentChatStage.scene = chatScene
+        configureChatStage(currentChatStage)
+        updateContextMenu()
+
+        val skin = config.getString("skin")
+        try {
+            webEngine.load(skinsDirectory.resolve(skin).resolve(skin + ".html").toUri().toURL().toString())
+        } catch (e: MalformedURLException) {
+            log.error("Failed to load skin {}", skin, e)
+        }
+
+        currentChatStage.show()
+
+        guiEventHandler.startChat()
+    }
+
+    fun clearWebContent() {
+        webEngine.loadContent("")
+    }
+
+    private fun buildChatStage(type: StageType): Stage {
+        val stage = Stage()
+        when (type) {
+            StageType.DECORATED -> {
+                stage.title = "failchat"
+            }
+            StageType.UNDECORATED -> {
+                stage.title = "failchat u"
+                stage.initStyle(StageStyle.UNDECORATED)
+            }
+            StageType.TRANSPARENT -> {
+                stage.title = "failchat t"
+                stage.initStyle(StageStyle.TRANSPARENT)
+            }
+        }
+        stage.setOnCloseRequest {
+            saveChatPosition(stage)
+            guiEventHandler.shutDown()
+        }
+        stage.icons.setAll(GuiLauncher.appIcon)
+        return stage
+    }
+
+    private fun buildContextMenu() {
         fun Button.configureZoomButton(): Button = this.apply {
             minHeight = 20.0
             maxHeight = 20.0
@@ -127,65 +189,6 @@ class ChatFrame(
         plusButton.configureZoomButtonCallback(1) { oldValue, range ->
             oldValue in range[0]..(range[1] - 1)
         }
-    }
-
-    fun show() {
-        val nativeBgColor = Color.web(config.getString("background-color.native"))
-
-        if (config.getBoolean("frame")) {
-            currentChatStage = decoratedChatStage
-            chatScene.fill = Color.BLACK
-        } else {
-            if (nativeBgColor.isOpaque) {
-                currentChatStage = undecoratedChatStage
-                chatScene.fill = Color.BLACK
-            } else {
-                currentChatStage = transparentChatStage
-                chatScene.fill = Color.TRANSPARENT
-            }
-        }
-
-        currentChatStage.scene = chatScene
-        configureChatStage(currentChatStage)
-        updateContextMenu()
-
-        val skin = config.getString("skin")
-        try {
-            webEngine.load(skinsDirectory.resolve(skin).resolve(skin + ".html").toUri().toURL().toString())
-        } catch (e: MalformedURLException) {
-            log.error("Failed to load skin {}", skin, e)
-        }
-
-        currentChatStage.show()
-
-        guiEventHandler.startChat()
-    }
-
-    fun clearWebContent() {
-        webEngine.loadContent("")
-    }
-
-    private fun buildChatStage(type: StageType): Stage {
-        val stage = Stage()
-        when (type) {
-            StageType.DECORATED -> {
-                stage.title = "failchat"
-            }
-            StageType.UNDECORATED -> {
-                stage.title = "failchat u"
-                stage.initStyle(StageStyle.UNDECORATED)
-            }
-            StageType.TRANSPARENT -> {
-                stage.title = "failchat t"
-                stage.initStyle(StageStyle.TRANSPARENT)
-            }
-        }
-        stage.setOnCloseRequest {
-            saveChatPosition(stage)
-            guiEventHandler.shutDown()
-        }
-        stage.icons.setAll(GuiLauncher.appIcon)
-        return stage
     }
 
     private fun buildChatScene(): Scene {
