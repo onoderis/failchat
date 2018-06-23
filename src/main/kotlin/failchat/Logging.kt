@@ -7,6 +7,7 @@ import ch.qos.logback.classic.jul.LevelChangePropagator
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.FileAppender
+import failchat.util.error
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.bridge.SLF4JBridgeHandler
@@ -52,6 +53,10 @@ fun configureLogging(args: Array<String>) {
 
     Thread.setDefaultUncaughtExceptionHandler { _, e ->
         rootLogger.error("Uncaught exception", e)
+
+        if (e !is OutOfMemoryError) return@setDefaultUncaughtExceptionHandler
+        val r = Runtime.getRuntime()
+        rootLogger.error { "Memory info. max: ${r.maxMemory()}, total: ${r.totalMemory()}, free: ${r.freeMemory()}" }
     }
 
 
