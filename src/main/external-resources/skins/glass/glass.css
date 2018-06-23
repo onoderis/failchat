@@ -49,7 +49,7 @@ span.nick::after {
             #20243380 80%,
             #272a3233 100%
     );
-    padding: 6px;
+    padding: 6px 6px 10px;
     position: relative;
     animation: appear-bottom 0.4s;
     font-family: Verdana, Geneva, sans-serif;
