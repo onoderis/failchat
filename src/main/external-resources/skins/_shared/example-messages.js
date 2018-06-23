@@ -308,4 +308,62 @@ $(() => {
         }
     });
 
+    // GG badges
+    failchat.handleMessage({
+        "type": "message",
+        "content": {
+            "id": 393000,
+            "origin": "goodgame",
+            "author": {"name": "fail0001", "id": "fail0001"},
+            "text": "badges test",
+            "timestamp": 1529402475110,
+            "highlighted": false,
+            "badges": [
+                {
+                    "type": "character",
+                    "htmlEntity": "&#59730;",
+                    "color": "#eefc08"
+                },
+                {
+                    "type": "character",
+                    "htmlEntity": "&#59729;",
+                    "color": "#eefc08"
+                }, {
+                    "type": "character",
+                    "htmlEntity": "&#59728;",
+                    "color": "#eefc08"
+                }, {
+                    "type": "character",
+                    "htmlEntity": "&#59727;",
+                    "color": "#eefc08"
+                }, {
+                    "type": "character",
+                    "htmlEntity": "&#59726;",
+                    "color": "#eefc08"
+                },
+                {
+                    "type": "character",
+                    "htmlEntity": "&#59725;",
+                    "color": "#eefc08"
+                },
+                {
+                    "type": "character",
+                    "htmlEntity": "&#58931;",
+                    "color": "#eefc08"
+                },
+                {
+                    "type": "character",
+                    "htmlEntity": "&#58923;",
+                    "color": "#eefc08"
+                },
+                {
+                    "type": "character",
+                    "htmlEntity": "&#59710;",
+                    "color": "#eefc08"
+                }
+            ],
+            "elements": []
+        }
+    });
+
 });
