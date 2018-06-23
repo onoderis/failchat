@@ -14,5 +14,6 @@ class GgMessage(
         val subscriptionDuration: Map<Long, Int>,
         val badgeName: String,
         val authorColorName: String,
-        val sponsorLevel: Int
+        val sponsorLevel: Int,
+        val authorRights: Int
 ) : ChatMessage(id, Origin.GOODGAME, Author(author), text)

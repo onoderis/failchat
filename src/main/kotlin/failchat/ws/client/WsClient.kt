@@ -107,7 +107,7 @@ open class WsClient(private val serverUri: URI) {
         }
 
         override fun onMessage(message: String) {
-            log.debug("Message received. uri: '{}', message: '{}'", serverUri, message)
+            log.debug("Message received. uri: '{}', message: {}", serverUri, message)
             this@WsClient.onMessage(message)
         }
 
