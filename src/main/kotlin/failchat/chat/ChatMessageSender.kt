@@ -96,6 +96,7 @@ class ChatMessageSender(
     private fun serializeBadges(message: ChatMessage, badgesArrayNode: ArrayNode) {
         message.badges.forEach { badge ->
             badgesArrayNode.addObject().apply {
+                @Suppress("REDUNDANT_ELSE_IN_WHEN")
                 when (badge) {
                     is ImageBadge -> {
                         put("type", "image")
