@@ -231,8 +231,8 @@ class SettingsFrame(
             return 100
         }
 
-        if (percent !in 1..500) {
-            log.warn("Zoom percent '{}' not in range [1..500]", percent)
+        if (percent !in 25..500) {
+            log.warn("Zoom percent '{}' not in range [25..500]", percent)
             return 100
         }
 
