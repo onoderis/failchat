@@ -258,7 +258,7 @@ $(() => {
     scroller.scroll(e => {
         //checks for enabling autoscroll
         if (!autoScroll) {
-            autoScroll = scroller.scrollTop() + scroller.height() >= messageContainer.height();
+            autoScroll = scroller.scrollTop() + scroller.height() >= Math.floor(messageContainer.height());
             if (autoScroll) {
                 scrollBar.css("visibility", "hidden");
             }
