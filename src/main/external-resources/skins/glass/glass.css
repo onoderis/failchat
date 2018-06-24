@@ -50,6 +50,7 @@ span.nick::after {
             #272a3233 100%
     );
     padding: 6px 6px 10px;
+    margin-top: 5px;
     position: relative;
     animation: appear-bottom 0.4s;
     font-family: Verdana, Geneva, sans-serif;
@@ -107,7 +108,7 @@ span.nick, span.origin-name {
 }
 
 span.highlighted {
-    color: #74CD36;
+    color: #91e0ff;
 }
 
 span.origin-name {
