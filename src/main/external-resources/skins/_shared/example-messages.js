@@ -366,4 +366,18 @@ $(() => {
         }
     });
 
+    failchat.handleMessage({
+        "type": "message",
+        "content": {
+            "id": 393111,
+            "origin": "peka2tv",
+            "author": {"name": "fail0001", "id": "fail0001"},
+            "text": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+            "timestamp": 1529402475110,
+            "highlighted": false,
+            "badges": [],
+            "elements": []
+        }
+    });
+
 });
