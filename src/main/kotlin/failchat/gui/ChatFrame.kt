@@ -88,6 +88,7 @@ class ChatFrame(
 
         val skin = config.getString("skin")
         try {
+            //todo refactor
             webEngine.load(skinsDirectory.resolve(skin).resolve(skin + ".html").toUri().toURL().toString())
         } catch (e: MalformedURLException) {
             log.error("Failed to load skin {}", skin, e)
