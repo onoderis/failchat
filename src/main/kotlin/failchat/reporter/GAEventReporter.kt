@@ -3,11 +3,10 @@ package failchat.reporter
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.util.await
 import failchat.util.sp
+import mu.KLogging
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.Locale
 
 class GAEventReporter(
@@ -17,9 +16,7 @@ class GAEventReporter(
         private val trackingId: String
 ) : EventReporter {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(GAEventReporter::class.java)
-    }
+    private companion object : KLogging()
 
     private val languageTag = Locale.getDefault().toLanguageTag()
 
@@ -58,7 +55,7 @@ class GAEventReporter(
                 .use { response ->
                     val code = response.code()
                     if (code !in 200..299) throw UnexpectedResponseCodeException(code)
-                    log.info("Event successfully reported: {}.{}", category, action)
+                    logger.info("Event successfully reported: {}.{}", category, action)
                 }
     }
 

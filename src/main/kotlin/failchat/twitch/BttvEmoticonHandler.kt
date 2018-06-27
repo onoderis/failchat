@@ -4,15 +4,12 @@ import failchat.Origin
 import failchat.chat.MessageHandler
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonFinder
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KLogging
 import java.util.regex.Pattern
 
 class BttvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHandler<TwitchMessage> {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(BttvEmoticonHandler::class.java)
-    }
+    private companion object : KLogging()
 
     @Volatile private var globalEmoticonsPattern: Pattern? = null
     @Volatile private var channelEmoticonsPattern: Pattern? = null
@@ -41,7 +38,7 @@ class BttvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageH
             val code = matcher.group(0)
             val emoticon = emoticonFinder.findByCode(origin, code.toLowerCase())
             if (emoticon == null) {
-                log.warn("Emoticon code '{}' found in message, but emoticon is not. Message: '{}', emoticon origin: '{}'",
+                logger.warn("Emoticon code '{}' found in message, but emoticon is not. Message: '{}', emoticon origin: '{}'",
                         code, message.text, origin)
                 return
             }

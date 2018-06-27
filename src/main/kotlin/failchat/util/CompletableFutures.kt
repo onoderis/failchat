@@ -1,12 +1,12 @@
 package failchat.util
 
+import mu.KotlinLogging
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import java.util.concurrent.TimeUnit
 
-private object CompletableFutures
-private val log = logger(CompletableFutures::class)
+private val logger = KotlinLogging.logger {}
 
 fun Collection<CompletableFuture<*>>.compose(): CompletableFuture<Void?> {
     return CompletableFuture.allOf(*this.toTypedArray()) // excessive array copying here because of spread operator
@@ -37,7 +37,7 @@ private class NullCompletionCauseException(e: CompletionException) : Exception(e
 
 fun <T> CompletableFuture<T>.logException() {
     whenComplete { _, t ->
-        if (t !== null) log.error("Unhandled exception from CompletableFuture", t)
+        if (t !== null) logger.error("Unhandled exception from CompletableFuture", t)
     }
 }
 

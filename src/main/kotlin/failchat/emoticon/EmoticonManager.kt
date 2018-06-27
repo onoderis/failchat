@@ -2,9 +2,8 @@ package failchat.emoticon
 
 import failchat.Origin
 import failchat.emoticon.EmoticonManager.LoadSource.CACHE
+import mu.KLogging
 import org.apache.commons.configuration2.Configuration
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.nio.file.Files
@@ -17,9 +16,7 @@ class EmoticonManager(
         private val config: Configuration
 ) {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(EmoticonManager::class.java)
-    }
+    private companion object : KLogging()
 
     private val updateInterval = Duration.ofMillis(config.getLong("emoticons.updating-delay"))
     private val emoticonDirectory: Path = workingDirectory.resolve("emoticons")
@@ -42,9 +39,9 @@ class EmoticonManager(
             try {
                 saveToCache(emoticons, cacheFile)
                 config.setProperty("${origin.commonName}.emoticons.last-updated", now.toEpochMilli())
-                log.info("Updated emoticon list saved to cache file for origin {}", origin)
+                logger.info("Updated emoticon list saved to cache file for origin {}", origin)
             } catch (e: Exception) {
-                log.warn("Failed to save updated emoticon list to cache file. origin {}", origin, e)
+                logger.warn("Failed to save updated emoticon list to cache file. origin {}", origin, e)
             }
         }
 
@@ -78,10 +75,10 @@ class EmoticonManager(
         if (!isCacheOutdated(origin, now) && fileExists) {
             try {
                 val emoticons = loadFromCache<List<T>>(cacheFile)
-                log.info("Actual version of emoticon list loaded from cache file. origin: {}, count: {}", origin, emoticons.size)
+                logger.info("Actual version of emoticon list loaded from cache file. origin: {}, count: {}", origin, emoticons.size)
                 return emoticons to CACHE
             } catch (e: Exception) {
-                log.warn("Failed to load actual emoticon list from cache file. origin: {}", origin, e)
+                logger.warn("Failed to load actual emoticon list from cache file. origin: {}", origin, e)
             }
         }
         // else: outdated emoticons in cache file or cache file not exists
@@ -89,16 +86,16 @@ class EmoticonManager(
         // Load emoticon list via EmoticonLoader
         try {
             val emoticons = loader.loadEmoticons().join()
-            log.info("Emoticon list loaded from origin {}. count: {}", origin, emoticons.size)
+            logger.info("Emoticon list loaded from origin {}. count: {}", origin, emoticons.size)
             return emoticons to LoadSource.LOADER
         } catch (e: Exception) {
-            log.warn("Failed to load emoticon list for {}", origin, e)
+            logger.warn("Failed to load emoticon list for {}", origin, e)
         }
 
         // Load outdated list from cache file if load via EmoticonLoader failed
         if (fileExists) {
             val emoticons = loadFromCache<List<T>>(cacheFile)
-            log.info("Outdated version of emoticon list loaded from cache file. origin: {}, count: {}", origin, emoticons.size)
+            logger.info("Outdated version of emoticon list loaded from cache file. origin: {}, count: {}", origin, emoticons.size)
             return emoticons to CACHE
         }
 

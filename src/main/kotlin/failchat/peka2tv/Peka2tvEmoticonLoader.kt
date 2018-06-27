@@ -2,17 +2,11 @@ package failchat.peka2tv
 
 import failchat.Origin.PEKA2TV
 import failchat.emoticon.EmoticonLoader
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
 
 class Peka2tvEmoticonLoader(
         private val apiClient: Peka2tvApiClient
 ) : EmoticonLoader<Peka2tvEmoticon> {
-
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(Peka2tvEmoticonLoader::class.java)
-    }
 
     override val origin = PEKA2TV
 

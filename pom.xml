@@ -29,6 +29,7 @@
         <youtube.version>v3-rev183-1.22.0</youtube.version>
         <kotlin-either.version>2.0.1</kotlin-either.version>
         <guava.version>23.0</guava.version>
+        <kotlin-logging.version>1.5.4</kotlin-logging.version>
     </properties>
 
 
@@ -171,6 +172,12 @@
                     <artifactId>guava-jdk5</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.microutils</groupId>
+            <artifactId>kotlin-logging</artifactId>
+            <version>${kotlin-logging.version}</version>
         </dependency>
 
         <!--Test-->

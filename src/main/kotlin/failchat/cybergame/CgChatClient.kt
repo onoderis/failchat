@@ -26,9 +26,8 @@ import failchat.util.urlPattern
 import failchat.util.value
 import failchat.util.withSuffix
 import failchat.ws.client.WsClient
+import mu.KLogging
 import org.java_websocket.handshake.ServerHandshake
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.net.URI
 import java.util.concurrent.atomic.AtomicReference
 
@@ -40,8 +39,7 @@ class CgChatClient(
         private val messageIdGenerator: MessageIdGenerator
 ) : ChatClient<ChatMessage> {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(CgChatClient::class.java)
+    private companion object : KLogging() {
         val acceptedMessageTypes: Set<String> = CgWsMessageType.values().mapTo(HashSet()) { it.jsonValue }
     }
 
@@ -82,7 +80,7 @@ class CgChatClient(
 
             val type: String = messageNode.get("type").textValue()
             if (!acceptedMessageTypes.contains(type)) {
-                log.debug("Message with type '{}' ignored", type)
+                logger.debug("Message with type '{}' ignored", type)
                 return
             }
 
@@ -119,16 +117,16 @@ class CgChatClient(
         }
 
         override fun onClose(code: Int, reason: String, remote: Boolean) {
-            log.info("Cybergame chat client disconnected. channel: '{}', channel id: {}", channelName, channelId)
+            logger.info("Cybergame chat client disconnected. channel: '{}', channel id: {}", channelName, channelId)
         }
 
         override fun onReconnect() {
-            log.info("Cybergame chat client disconnected, trying to reconnect. channel: '{}', channel id: {}", channelName, channelId)
+            logger.info("Cybergame chat client disconnected, trying to reconnect. channel: '{}', channel id: {}", channelName, channelId)
             onStatusMessage?.invoke(StatusMessage(origin, DISCONNECTED))
         }
 
         override fun onError(e: Exception) {
-            log.error("Cybergame chat client error. channel: '{}', channel id: {}", channelName, channelId, e)
+            logger.error("Cybergame chat client error. channel: '{}', channel id: {}", channelName, channelId, e)
         }
     }
 
@@ -159,7 +157,7 @@ class CgChatClient(
                             }
                         }
                         else -> {
-                            log.warn("Unexpected message part ignored. type: '{}', message: {}", type, it)
+                            logger.warn("Unexpected message part ignored. type: '{}', message: {}", type, it)
                             null
                         }
                     }

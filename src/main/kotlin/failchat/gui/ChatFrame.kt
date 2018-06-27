@@ -22,10 +22,9 @@ import javafx.scene.web.WebEngine
 import javafx.scene.web.WebView
 import javafx.stage.Stage
 import javafx.stage.StageStyle
+import mu.KLogging
 import netscape.javascript.JSObject
 import org.apache.commons.configuration2.Configuration
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.net.MalformedURLException
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -36,9 +35,7 @@ class ChatFrame(
         private val workingDirectory: Path
 ) {
 
-    companion object {
-        private val log: Logger = LoggerFactory.getLogger(ChatFrame::class.java)
-    }
+    private companion object : KLogging()
 
     lateinit var settings: SettingsFrame
     lateinit var app: Application
@@ -91,7 +88,7 @@ class ChatFrame(
             //todo refactor
             webEngine.load(skinsDirectory.resolve(skin).resolve(skin + ".html").toUri().toURL().toString())
         } catch (e: MalformedURLException) {
-            log.error("Failed to load skin {}", skin, e)
+            logger.error("Failed to load skin {}", skin, e)
         }
 
         currentChatStage.show()
@@ -220,7 +217,7 @@ class ChatFrame(
                 val page = f.get(webEngine) as com.sun.webkit.WebPage
                 page.setBackgroundColor(0) //fully transparent
             } catch (e: Exception) {
-                log.debug("Exception during setting of the transparency hack", e)
+                logger.debug("Exception during setting of the transparency hack", e)
             }
         }
 
@@ -244,11 +241,11 @@ class ChatFrame(
                 if (matcher.find()) {
                     Platform.runLater { webEngine.loadWorker.cancel() }
                     app.hostServices.showDocument(webEngine.location)
-                    log.debug("Opening url: {}", webEngine.location)
+                    logger.debug("Opening url: {}", webEngine.location)
                 } else if (newLocation.contains("file:///")) {
                     val newLocationPath = Paths.get(newLocation.split("file:///").get(1))
                     if (newLocationPath.startsWith(skinsDirectory)) {
-                        log.debug("Opening skin: {}", webEngine.location)
+                        logger.debug("Opening skin: {}", webEngine.location)
                     }
                 }
             }
@@ -290,7 +287,7 @@ class ChatFrame(
         toChatStage.scene = chatScene
         toChatStage.show()
         currentChatStage = toChatStage
-        log.debug("Chat stage switched. Decorated: {}", toDecorated)
+        logger.debug("Chat stage switched. Decorated: {}", toDecorated)
     }
 
     private fun configureChatStage(stage: Stage) {

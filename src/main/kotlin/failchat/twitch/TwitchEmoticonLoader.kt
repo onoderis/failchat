@@ -5,8 +5,7 @@ import failchat.emoticon.EmoticonLoader
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.future.await
 import kotlinx.coroutines.experimental.future.future
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KLogging
 import java.util.concurrent.CompletableFuture
 
 class TwitchEmoticonLoader(
@@ -14,9 +13,7 @@ class TwitchEmoticonLoader(
         private val twitchemotesApiClient: TwitchemotesApiClient
 ) : EmoticonLoader<TwitchEmoticon> {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(TwitchEmoticonLoader::class.java)
-    }
+    private companion object : KLogging()
 
     override val origin = Origin.TWITCH
 
@@ -25,7 +22,7 @@ class TwitchEmoticonLoader(
             try {
                 return@future twitchClient.requestEmoticons().await()
             } catch (e: Exception) {
-                log.warn("Failed to load twitch emoticons via official twitch API. Will retry via twitchemotes.com API", e)
+                logger.warn("Failed to load twitch emoticons via official twitch API. Will retry via twitchemotes.com API", e)
             }
 
             return@future twitchemotesApiClient.requestGlobalEmoticons() + twitchemotesApiClient.requestAllEmoticons()

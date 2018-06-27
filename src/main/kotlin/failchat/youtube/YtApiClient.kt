@@ -4,15 +4,11 @@ import com.google.api.client.json.GenericJson
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.YouTubeRequest
 import com.google.api.services.youtube.model.LiveChatMessageListResponse
-import failchat.util.debug
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KLogging
 
 class YtApiClient(private val youTube: YouTube) {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(YtApiClient::class.java)
-    }
+    private companion object : KLogging()
 
     fun getChannelTitle(channelId: String): String? {
         // https://developers.google.com/youtube/v3/docs/channels/list
@@ -105,7 +101,7 @@ class YtApiClient(private val youTube: YouTube) {
         return response.items.firstOrNull()?.id?.videoId
     }
 
-    private fun YouTubeRequest<*>.log() = log.debug { "Sending request: $this" }
-    private fun GenericJson.log() = log.debug { "Got response: $this" }
+    private fun YouTubeRequest<*>.log() = logger.debug { "Sending request: $this" }
+    private fun GenericJson.log() = logger.debug { "Got response: $this" }
 
 }

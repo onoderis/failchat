@@ -12,9 +12,8 @@ import failchat.emoticon.Emoticon
 import failchat.gui.StatusMessageModeConverter
 import failchat.viewers.COUNTABLE_ORIGINS
 import failchat.ws.server.WsServer
+import mu.KLogging
 import org.apache.commons.configuration2.Configuration
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class ChatMessageSender(
         private val wsServer: WsServer,
@@ -23,9 +22,7 @@ class ChatMessageSender(
         imageLinkHandler: ImageLinkHandler
 ) {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(ChatMessageSender::class.java)
-    }
+    private companion object : KLogging()
 
     private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
     private val handlers: List<MessageHandler<ChatMessage>> = listOf(
@@ -85,7 +82,7 @@ class ChatMessageSender(
                         .put("url", element.link.fullUrl)
 
                 else -> {
-                    log.error("Unknown element type: {}", element.javaClass.name)
+                    logger.error("Unknown element type: {}", element.javaClass.name)
                 }
             }
         }

@@ -37,7 +37,6 @@ import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.util.CoroutineExceptionLogger
 import failchat.util.completionCause
-import failchat.util.error
 import failchat.util.formatStackTraces
 import failchat.util.hotspotThreads
 import failchat.util.logException
@@ -57,10 +56,9 @@ import kotlinx.coroutines.experimental.asCoroutineDispatcher
 import kotlinx.coroutines.experimental.future.await
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
+import mu.KLogging
 import okhttp3.OkHttpClient
 import org.apache.commons.configuration2.Configuration
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.locks.Lock
@@ -70,8 +68,7 @@ import kotlin.concurrent.withLock
 
 class AppStateManager(private val kodein: Kodein) {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(AppStateManager::class.java)
+    private companion object : KLogging() {
         val shutdownTimeout: Duration = Duration.ofMillis(3500)
     }
 
@@ -116,7 +113,7 @@ class AppStateManager(private val kodein: Kodein) {
             val channelId = try {
                 peka2tvApiClient.findUser(channelName).join().id
             } catch (e: Exception) {
-                log.warn("Failed to get peka2tv channel id. channel name: {}", channelName, e)
+                logger.warn("Failed to get peka2tv channel id. channel name: {}", channelName, e)
                 return@let
             }
 
@@ -148,14 +145,14 @@ class AppStateManager(private val kodein: Kodein) {
                     .thenApply<Unit> { emoticons ->
                         emoticonStorage.putCodeMapping(BTTV_CHANNEL, emoticons.map { it.code.toLowerCase() to it }.toMap())
                         emoticonStorage.putList(BTTV_CHANNEL, emoticons)
-                        log.info("BTTV emoticons loaded for channel '{}', count: {}", channelName, emoticons.size)
+                        logger.info("BTTV emoticons loaded for channel '{}', count: {}", channelName, emoticons.size)
                     }
                     .exceptionally { t ->
                         val completionCause = t.completionCause()
                         if (completionCause is BttvChannelNotFoundException) {
-                            log.info("BTTV emoticons not found for channel '{}'", completionCause.channel)
+                            logger.info("BTTV emoticons not found for channel '{}'", completionCause.channel)
                         } else {
-                            log.error("Failed to load BTTV emoticons for channel '{}'", channelName, completionCause)
+                            logger.error("Failed to load BTTV emoticons for channel '{}'", channelName, completionCause)
                         }
                     }
                     .logException()
@@ -168,7 +165,7 @@ class AppStateManager(private val kodein: Kodein) {
             val channel = try {
                 runBlocking { goodgameApiClient.requestChannelInfo(channelName) }
             } catch (e: Exception) {
-                log.warn("Failed to get goodgame channel info. channel name: {}", channelName, e)
+                logger.warn("Failed to get goodgame channel info. channel name: {}", channelName, e)
                 return@let
             }
 
@@ -198,7 +195,7 @@ class AppStateManager(private val kodein: Kodein) {
             val channelId = try {
                 runBlocking { cybergameApiClient.requestChannelId(channelName) }
             } catch (e: Exception) {
-                log.warn("Failed to get cybergame channel id. channel name: {}", channelName, e)
+                logger.warn("Failed to get cybergame channel id. channel name: {}", channelName, e)
                 return@let
             }
 
@@ -220,7 +217,7 @@ class AppStateManager(private val kodein: Kodein) {
             try {
                 it.start()
             } catch (t: Throwable) {
-                log.error("Failed to start ${it.origin} chat client", t)
+                logger.error("Failed to start ${it.origin} chat client", t)
             }
         }
 
@@ -231,7 +228,7 @@ class AppStateManager(private val kodein: Kodein) {
                     .invoke(viewersCountLoaders)
                     .also { it.start() }
         } catch (t: Throwable) {
-            log.error("Failed to start viewers counter", t)
+            logger.error("Failed to start viewers counter", t)
             null
         }
 
@@ -250,12 +247,12 @@ class AppStateManager(private val kodein: Kodein) {
     }
 
     fun shutDown() = lock.withLock {
-        log.info("Shutting down")
+        logger.info("Shutting down")
 
         try {
             reset()
         } catch (t: Throwable) {
-            log.error("Failed to reset {} during shutdown", this.javaClass.simpleName, t)
+            logger.error("Failed to reset {} during shutdown", this.javaClass.simpleName, t)
         }
 
         // Запуск в отдельном треде чтобы javafx thread мог завершиться и GUI закрывался сразу
@@ -264,14 +261,14 @@ class AppStateManager(private val kodein: Kodein) {
             configLoader.save()
 
             wsServer.stop()
-            log.info("Websocket server stopped")
+            logger.info("Websocket server stopped")
 
             youtubeExecutor.shutdownNow()
 
             okHttpClient.dispatcher().executorService().shutdown()
-            log.info("OkHttpClient thread pool shutdown completed")
+            logger.info("OkHttpClient thread pool shutdown completed")
             okHttpClient.connectionPool().evictAll()
-            log.info("OkHttpClient connections evicted")
+            logger.info("OkHttpClient connections evicted")
         }
 
         thread(start = true, name = "TerminationThread", isDaemon = true) {
@@ -280,7 +277,7 @@ class AppStateManager(private val kodein: Kodein) {
             val threadsToPrint = Thread.getAllStackTraces()
                     .filterNot { (thread, _) -> thread.isDaemon || hotspotThreads.contains(thread.name) }
 
-            log.error {
+            logger.error {
                 "Process terminated after ${shutdownTimeout.toMillis()} ms of shutDown() call. Verbose information:$ls" +
                         formatStackTraces(threadsToPrint)
             }
@@ -312,7 +309,7 @@ class AppStateManager(private val kodein: Kodein) {
             try {
                 it.stop()
             } catch (t: Throwable) {
-                log.error("Failed to stop ${it.origin} chat client", t)
+                logger.error("Failed to stop ${it.origin} chat client", t)
             }
         }
 

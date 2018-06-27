@@ -14,15 +14,13 @@ import failchat.chat.OriginStatus.DISCONNECTED
 import failchat.chat.StatusMessage
 import failchat.chat.handlers.CommaHighlightHandler
 import failchat.chat.handlers.ElementLabelEscaper
-import failchat.twitch.TwitchChatClient
 import failchat.util.objectMapper
 import failchat.util.synchronized
 import failchat.util.whileNotNull
 import failchat.viewers.ViewersCountLoader
 import failchat.ws.client.WsClient
+import mu.KLogging
 import org.java_websocket.handshake.ServerHandshake
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.net.URI
 import java.util.Queue
 import java.util.concurrent.CompletableFuture
@@ -38,9 +36,7 @@ class GgChatClient(
         badgeHandler: GgBadgeHandler
 ) : ChatClient<GgMessage>, ViewersCountLoader {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(TwitchChatClient::class.java)
-    }
+    private companion object : KLogging()
 
     override val origin = Origin.GOODGAME
     override val status: ChatClientStatus get() = atomicStatus.get()
@@ -115,14 +111,14 @@ class GgChatClient(
                 }
             }
             atomicStatus.set(ChatClientStatus.CONNECTED)
-            log.info("Goodgame chat client connected to channel {}", channelId)
+            logger.info("Goodgame chat client connected to channel {}", channelId)
 
             wsClient.send(joinMessage.toString())
             onStatusMessage?.invoke(StatusMessage(GOODGAME, CONNECTED))
         }
 
         override fun onClose(code: Int, reason: String, remote: Boolean) {
-            log.info("Goodgame chat client disconnected from channel {}", channelId)
+            logger.info("Goodgame chat client disconnected from channel {}", channelId)
         }
 
         override fun onMessage(message: String) {
@@ -139,11 +135,11 @@ class GgChatClient(
         }
 
         override fun onError(e: Exception) {
-            log.error("Goodgame chat client error", e)
+            logger.error("Goodgame chat client error", e)
         }
 
         override fun onReconnect() {
-            log.info("Goodgame chat client disconnected, trying to reconnect")
+            logger.info("Goodgame chat client disconnected, trying to reconnect")
             onStatusMessage?.invoke(StatusMessage(GOODGAME, DISCONNECTED))
         }
 

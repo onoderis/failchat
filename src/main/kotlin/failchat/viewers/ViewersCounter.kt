@@ -5,13 +5,11 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.Origin
 import failchat.exception.ChannelOfflineException
 import failchat.util.await
-import failchat.util.info
 import failchat.viewers.ViewersCounter.State.READY
 import failchat.viewers.ViewersCounter.State.SHUTDOWN
 import failchat.viewers.ViewersCounter.State.WORKING
 import failchat.ws.server.WsServer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KLogging
 import java.time.Duration
 import java.util.concurrent.CompletionException
 import java.util.concurrent.ConcurrentHashMap
@@ -29,8 +27,7 @@ class ViewersCounter(
         private val viewersCountLoaders: List<ViewersCountLoader>,
         private val wsServer: WsServer
 ) {
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(ViewersCounter::class.java)
+    private companion object : KLogging() {
         val updateInterval: Duration = Duration.ofSeconds(15)
     }
 
@@ -51,7 +48,7 @@ class ViewersCounter(
         thread(start = true, name = "ViewersCounterThread") {
             updateAndSendLoop()
         }
-        log.info { "ViewersCounter started. Enabled origins: " + viewersCountLoaders.map { it.origin }.joinToString(separator = ", ") }
+        logger.info { "ViewersCounter started. Enabled origins: " + viewersCountLoaders.map { it.origin }.joinToString(separator = ", ") }
     }
 
     fun stop() {
@@ -74,7 +71,7 @@ class ViewersCounter(
             lock.withLock { shutdownCondition.await(updateInterval) }
         }
         viewersCount.clear()
-        log.info("ViewersManager stopped")
+        logger.info("ViewersManager stopped")
     }
 
     private fun updateViewersCount() {
@@ -84,13 +81,13 @@ class ViewersCounter(
             } catch (e: CompletionException) {
                 val cause = e.cause
                 if (cause is ChannelOfflineException) {
-                    log.info("Couldn't update viewers count, channel {}#{} is offline", cause.channel, cause.origin)
+                    logger.info("Couldn't update viewers count, channel {}#{} is offline", cause.channel, cause.origin)
                 } else {
-                    log.warn("Failed to get viewers count for origin {}", accessor.origin, e)
+                    logger.warn("Failed to get viewers count for origin {}", accessor.origin, e)
                 }
                 null
             } catch (e: Exception) {
-                log.warn("Unexpected exception during loading viewers count. origin: '{}'", accessor.origin, e)
+                logger.warn("Unexpected exception during loading viewers count. origin: '{}'", accessor.origin, e)
                 null
             }
 

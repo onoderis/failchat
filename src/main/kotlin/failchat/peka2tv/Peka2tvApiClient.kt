@@ -14,8 +14,6 @@ import failchat.util.withSuffix
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
 
 class Peka2tvApiClient(
@@ -23,10 +21,6 @@ class Peka2tvApiClient(
         apiUrl: String,
         private val objectMapper: ObjectMapper = ObjectMapper()
 ) {
-
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(Peka2tvApiClient::class.java)
-    }
 
     private val apiUrl = apiUrl.withSuffix("/")
 

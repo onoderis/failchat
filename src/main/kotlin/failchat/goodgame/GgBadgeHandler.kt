@@ -5,18 +5,15 @@ import failchat.chat.MessageHandler
 import failchat.chat.badge.Badge
 import failchat.chat.badge.CharacterBadge
 import failchat.chat.badge.ImageBadge
+import mu.KLogging
 import org.apache.commons.configuration2.Configuration
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class GgBadgeHandler(
         private val channel: GgChannel,
         config: Configuration
 ) : MessageHandler<GgMessage> {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(GgBadgeHandler::class.java)
-
+    private companion object : KLogging() {
         const val defaultColor = "#73adff"
         val colorMap: Map<String, String> = mapOf(
                 "bronze" to "#e7820a",
@@ -86,7 +83,7 @@ class GgBadgeHandler(
                     message.subscriptionDuration.containsKey(channel.id) -> Premium.CHANNEL
                     message.subscriptionDuration.containsKey(0) -> Premium.GLOBAL
                     else -> {
-                        log.warn("GG user '{}' have 'star' icon, but he is not channel subscriber or global subscriber",
+                        logger.warn("GG user '{}' have 'star' icon, but he is not channel subscriber or global subscriber",
                                 message.author.name)
                         return
                     }
@@ -100,7 +97,7 @@ class GgBadgeHandler(
                     Premium.CHANNEL -> ImageBadge("$badgeUrl/${channel.id}-$duration-16.png", RASTER)
                     Premium.GLOBAL -> {
                         val badgeEntity = subDurationToStarBadge.get(duration) ?: run {
-                            log.warn("Unknown global premium badge. user: '{}', duration: {}", message.author.name, duration)
+                            logger.warn("Unknown global premium badge. user: '{}', duration: {}", message.author.name, duration)
                             return
                         }
 

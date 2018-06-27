@@ -5,16 +5,13 @@ import failchat.chat.badge.Badge
 import failchat.chat.badge.BadgeFinder
 import failchat.chat.badge.BadgeOrigin.TWITCH_CHANNEL
 import failchat.chat.badge.BadgeOrigin.TWITCH_GLOBAL
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KLogging
 
 class TwitchBadgeHandler(
         private val badgeFinder: BadgeFinder
 ) : MessageHandler<TwitchMessage> {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(TwitchBadgeHandler::class.java)
-    }
+    private companion object : KLogging()
 
     override fun handleMessage(message: TwitchMessage) {
         val badgesTag = message.badgesTag ?: return
@@ -26,7 +23,7 @@ class TwitchBadgeHandler(
                     ?: badgeFinder.findBadge(TWITCH_GLOBAL, messageBadgeId)
 
             if (badge == null) {
-                log.debug("Badge not found. Origin: {}, {}; badge id: {}", TWITCH_CHANNEL, TWITCH_GLOBAL, messageBadgeId)
+                logger.debug("Badge not found. Origin: {}, {}; badge id: {}", TWITCH_CHANNEL, TWITCH_GLOBAL, messageBadgeId)
                 return@forEach
             }
 

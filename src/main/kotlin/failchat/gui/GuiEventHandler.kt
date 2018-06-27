@@ -3,8 +3,6 @@ package failchat.gui
 import failchat.AppStateManager
 import failchat.chat.ChatMessageSender
 import failchat.util.executeWithCatch
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 
 /**
@@ -15,10 +13,6 @@ class GuiEventHandler(
         private val appStateManager: AppStateManager,
         private val messageSender: ChatMessageSender
 ) {
-
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(GuiEventHandler::class.java)
-    }
 
     private val executor = Executors.newSingleThreadExecutor()
 

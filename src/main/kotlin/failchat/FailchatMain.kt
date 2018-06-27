@@ -20,7 +20,6 @@ import failchat.twitch.BttvGlobalEmoticonLoader
 import failchat.twitch.TwitchEmoticonLoader
 import failchat.util.CoroutineExceptionLogger
 import failchat.util.executeWithCatch
-import failchat.util.info
 import failchat.util.sp
 import failchat.viewers.ViewersCountWsHandler
 import failchat.ws.server.ClientConfigurationWsHandler
@@ -32,9 +31,8 @@ import kotlinx.coroutines.experimental.CoroutineName
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.asCoroutineDispatcher
 import kotlinx.coroutines.experimental.launch
+import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.ServerSocket
@@ -43,11 +41,9 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
-object FailchatMain
-
 val wsServerAddress = InetSocketAddress(InetAddress.getLoopbackAddress(), 10880)
 
-private val log: Logger = LoggerFactory.getLogger(FailchatMain::class.java)
+private val logger = KotlinLogging.logger {}
 
 fun main(args: Array<String>) {
     checkForAnotherInstance()
@@ -89,7 +85,7 @@ fun main(args: Array<String>) {
         badgeManager.loadGlobalBadges()
     }
 
-    log.info("Application started. Version: {}. Working directory: {}", config.getString("version"),
+    logger.info("Application started. Version: {}. Working directory: {}", config.getString("version"),
             kodein.instance<Path>("workingDirectory").toAbsolutePath())
 }
 
@@ -105,7 +101,7 @@ private fun checkForAnotherInstance() {
 
 private fun logSystemInfo() {
     val failchatVersion = kodein.instance<Configuration>().getString("version")
-    log.info {
+    logger.info {
         "Failchat started. Version: $failchatVersion, OS: ${sp("os.name")} ${sp("os.version")}"
     }
 }
@@ -135,7 +131,7 @@ private fun loadEmoticons() {
         try {
             manager.loadInStorage(storage, it.first, it.second)
         } catch (e: Exception) {
-            log.warn("Exception during loading emoticons for origin {}", it.first.origin, e)
+            logger.warn("Exception during loading emoticons for origin {}", it.first.origin, e)
         }
     }
 }
@@ -151,7 +147,7 @@ private fun scheduleReportTasks(executor: ScheduledExecutorService) {
         try {
             reporter.report(EventCategory.GENERAL, EventAction.APP_LAUNCH)
         } catch (t: Throwable) {
-            log.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.APP_LAUNCH, t)
+            logger.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.APP_LAUNCH, t)
         }
     }
 
@@ -160,7 +156,7 @@ private fun scheduleReportTasks(executor: ScheduledExecutorService) {
             try {
                 reporter.report(EventCategory.GENERAL, EventAction.HEARTBEAT)
             } catch (t: Throwable) {
-                log.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.HEARTBEAT, t)
+                logger.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.HEARTBEAT, t)
             }
         }
     }, 5, 5, TimeUnit.MINUTES)

@@ -1,7 +1,6 @@
 package failchat.util
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import java.time.Duration
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ScheduledExecutorService
@@ -11,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.Condition
 
-private val log: Logger = LoggerFactory.getLogger("failchat.util.ConcurrentKt")
+private val logger = KotlinLogging.logger {}
 
 fun sleep(duration: Duration) = Thread.sleep(duration.toMillis())
 
@@ -26,7 +25,7 @@ fun ScheduledExecutorService.scheduleWithCatch(delay: Duration, command: () -> U
         try {
             command.invoke()
         } catch (t: Throwable) {
-            log.error("Uncaught exception during executing scheduled task $command", t)
+            logger.error("Uncaught exception during executing scheduled task $command", t)
         }
     }
 }
@@ -40,7 +39,7 @@ fun ExecutorService.executeWithCatch(task: () -> Unit) {
         try {
             task.invoke()
         } catch (t: Throwable) {
-            log.error("Uncaught exception", t)
+            logger.error("Uncaught exception", t)
         }
     }
 }
