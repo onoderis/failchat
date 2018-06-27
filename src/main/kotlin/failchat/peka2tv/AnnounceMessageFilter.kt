@@ -1,13 +1,11 @@
 package failchat.peka2tv
 
 import failchat.chat.MessageFilter
-import org.slf4j.LoggerFactory
+import mu.KLogging
 
 class AnnounceMessageFilter : MessageFilter<Peka2tvMessage> {
 
-    companion object {
-        val logger: org.slf4j.Logger = LoggerFactory.getLogger(AnnounceMessageFilter::class.java)
-    }
+    private companion object : KLogging()
 
     override fun filterMessage(message: Peka2tvMessage): Boolean {
         if (message.type == "announce") {

@@ -3,11 +3,9 @@ package failchat.chat.handlers
 import failchat.Origin
 import failchat.chat.ChatMessage
 import failchat.chat.MessageFilter
-import failchat.util.debug
 import failchat.util.value
+import mu.KLogging
 import org.apache.commons.configuration2.Configuration
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicReference
 import java.util.regex.Pattern
 
@@ -17,9 +15,7 @@ import java.util.regex.Pattern
  */
 class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessage> {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(IgnoreFilter::class.java)
-    }
+    private companion object : KLogging()
 
     private val banFormat: Pattern
 
@@ -37,7 +33,7 @@ class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessag
 
     override fun filterMessage(message: ChatMessage): Boolean {
         val ignoreMessage = atomicIgnoreSet.value.contains(message.author.id + "#" + message.origin.commonName)
-        if (ignoreMessage) log.debug { "Message filtered by ignore filter: $message" }
+        if (ignoreMessage) logger.debug { "Message filtered by ignore filter: $message" }
         return ignoreMessage
     }
 
@@ -46,7 +42,7 @@ class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessag
                 .map { it as String }
                 .filter { banFormat.matcher(it).find() }
                 .toSet()
-        log.debug("IgnoreFilter reloaded a config")
+        logger.debug("IgnoreFilter reloaded a config")
     }
 
 }

@@ -18,14 +18,12 @@ import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.exception.UnexpectedResponseException
 import failchat.util.synchronized
-import failchat.util.warn
 import failchat.viewers.ViewersCountLoader
 import io.socket.client.IO
 import io.socket.client.Socket
+import mu.KLogging
 import okhttp3.OkHttpClient
 import org.json.JSONObject
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 
@@ -39,9 +37,7 @@ class Peka2tvChatClient(
         badgeHandler: Peka2tvBadgeHandler
 ) : ChatClient<Peka2tvMessage>, ViewersCountLoader {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(Peka2tvChatClient::class.java)
-    }
+    private companion object : KLogging()
 
     override val status: ChatClientStatus get() = atomicStatus.get()
     override val origin = PEKA2TV
@@ -97,7 +93,7 @@ class Peka2tvChatClient(
 
                 viewersCountFuture.complete(response.getJSONObject("result").getInt("amount"))
             } catch (e: Exception) {
-                log.warn(e) {
+                logger.warn(e) {
                     "Unexpected exception during updating peka2tv viewers count. response message: ${responseObjects.contentToString()}"
                 }
                 viewersCountFuture.completeExceptionally(e)
@@ -129,7 +125,7 @@ class Peka2tvChatClient(
                         put("channel", "stream/$channelId")
                     }
                     socket.emit("/chat/join", arrayOf(message)) {
-                        log.info("Connected to ${Origin.PEKA2TV}")
+                        logger.info("Connected to ${Origin.PEKA2TV}")
                         atomicStatus.set(ChatClientStatus.CONNECTED)
                         onStatusMessage?.invoke(StatusMessage(PEKA2TV, CONNECTED))
                     }
@@ -138,7 +134,7 @@ class Peka2tvChatClient(
                 // Disconnect
                 .on(Socket.EVENT_DISCONNECT) {
                     atomicStatus.set(CONNECTING)
-                    log.info("Received disconnected event from peka2tv ")
+                    logger.info("Received disconnected event from peka2tv ")
                     onStatusMessage?.invoke(StatusMessage(PEKA2TV, DISCONNECTED))
                 }
 

@@ -21,8 +21,6 @@ import failchat.util.withSuffix
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
 
 class TwitchApiClient(
@@ -32,10 +30,6 @@ class TwitchApiClient(
         private val token: String,
         private val emoticonUrlFactory: TwitchEmoticonUrlFactory
 ) {
-
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(TwitchApiClient::class.java)
-    }
 
     private val mainApiUrl: String = mainApiUrl.withSuffix("/")
     private val badgeApiUrl: String = badgeApiUrl.withSuffix("/")

@@ -2,11 +2,10 @@ package failchat.ws.server
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import mu.KLogging
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.net.InetSocketAddress
 
 /**
@@ -17,21 +16,19 @@ class TtnWsServer(
         private val om: ObjectMapper = ObjectMapper()
 ) : WsServer {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(TtnWsServer::class.java)
-    }
+    private companion object : KLogging()
 
     private val wsServerImpl = WsServerImpl(address)
     private val messageConsumers: MutableMap<String, WsMessageHandler> = HashMap()
 
     override fun start() {
         wsServerImpl.start()
-        log.info("Websocket server started at {}", address)
+        logger.info("Websocket server started at {}", address)
     }
 
     override fun stop() {
         wsServerImpl.stop()
-        log.info("Websocket server stopped at {}", address)
+        logger.info("Websocket server stopped at {}", address)
     }
 
     override fun send(message: String) {
@@ -45,7 +42,7 @@ class TtnWsServer(
             connections.forEach { it.send(message) }
         }
 
-        log.debug("Sent to all web socket clients: {}", message)
+        logger.debug("Sent to all web socket clients: {}", message)
     }
 
     override fun setOnMessage(type: String, consumer: WsMessageHandler) {
@@ -63,26 +60,26 @@ class TtnWsServer(
         }
 
         override fun onOpen(webSocket: WebSocket, clientHandshake: ClientHandshake) {
-            log.info("Web socket connection opened. client address: '{}'", webSocket.remoteSocketAddress)
+            logger.info("Web socket connection opened. client address: '{}'", webSocket.remoteSocketAddress)
         }
 
         override fun onClose(webSocket: WebSocket, i: Int, s: String, b: Boolean) {
-            log.info("Web socket connection closed. client address: '{}'", webSocket.remoteSocketAddress)
+            logger.info("Web socket connection closed. client address: '{}'", webSocket.remoteSocketAddress)
         }
 
         override fun onMessage(webSocket: WebSocket, inboundMessage: String) {
-            log.debug("Received message from web socket client. address: {}, message: {}", webSocket.remoteSocketAddress, inboundMessage)
+            logger.debug("Received message from web socket client. address: {}, message: {}", webSocket.remoteSocketAddress, inboundMessage)
 
             val parsedMessage: JsonNode = om.readTree(inboundMessage)
             val type: String = parsedMessage.get("type").asText()
 
             messageConsumers[type]
                     ?.handle(InboundWsMessage(webSocket, parsedMessage.get("content")))
-                    ?: log.warn("Message consumer not found for message with type '{}'. Message: '{}'", type, inboundMessage)
+                    ?: logger.warn("Message consumer not found for message with type '{}'. Message: '{}'", type, inboundMessage)
         }
 
         override fun onError(webSocket: WebSocket, e: Exception) {
-            log.warn("Web socket error. client address: '{}'", webSocket.remoteSocketAddress, e)
+            logger.warn("Web socket error. client address: '{}'", webSocket.remoteSocketAddress, e)
         }
 
     }

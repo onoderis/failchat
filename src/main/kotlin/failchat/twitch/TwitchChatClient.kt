@@ -13,9 +13,9 @@ import failchat.chat.StatusMessage
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.emoticon.EmoticonFinder
-import failchat.util.debug
 import failchat.util.notEmptyOrNull
 import failchat.util.synchronized
+import mu.KLogging
 import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
 import org.pircbotx.hooks.ListenerAdapter
@@ -25,8 +25,6 @@ import org.pircbotx.hooks.events.DisconnectEvent
 import org.pircbotx.hooks.events.ListenerExceptionEvent
 import org.pircbotx.hooks.events.MessageEvent
 import org.pircbotx.hooks.events.UnknownEvent
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.nio.charset.Charset
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicReference
@@ -45,8 +43,7 @@ class TwitchChatClient(
         twitchBadgeHandler: MessageHandler<TwitchMessage>
 ) : ChatClient<TwitchMessage> {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(TwitchChatClient::class.java)
+    private companion object : KLogging() {
         val reconnectTimeout: Duration = Duration.ofSeconds(10)
         val banMessagePattern: Pattern = Pattern.compile("""^:tmi\.twitch\.tv CLEARCHAT #.+ :(.+)""")
     }
@@ -99,7 +96,7 @@ class TwitchChatClient(
             try {
                 twitchIrcClient.startBot()
             } catch (e: Exception) {
-                log.warn("Failed to start twitch irc client", e)
+                logger.warn("Failed to start twitch irc client", e)
             }
         }
     }
@@ -112,7 +109,7 @@ class TwitchChatClient(
     private inner class TwitchIrcListener : ListenerAdapter() {
 
         override fun onConnect(event: ConnectEvent) {
-            log.info("Connected to irc channel: {}", userName)
+            logger.info("Connected to irc channel: {}", userName)
             atomicStatus.set(ChatClientStatus.CONNECTED)
             twitchIrcClient.sendCAP().request("twitch.tv/tags")
             twitchIrcClient.sendCAP().request("twitch.tv/commands")
@@ -125,14 +122,14 @@ class TwitchChatClient(
                 ChatClientStatus.ERROR -> return
                 else -> {
                     atomicStatus.set(ChatClientStatus.CONNECTING)
-                    log.info("Twitch irc client disconnected")
+                    logger.info("Twitch irc client disconnected")
                     onStatusMessage?.invoke(StatusMessage(TWITCH, DISCONNECTED))
                 }
             }
         }
 
         override fun onMessage(event: MessageEvent) {
-            log.debug {
+            logger.debug {
                 "Message was received from twitch. ${event.user}. Message: '${event.message}'. Tags: '${event.v3Tags}'"
             }
 
@@ -143,7 +140,7 @@ class TwitchChatClient(
         }
 
         override fun onListenerException(event: ListenerExceptionEvent) {
-            log.warn("Listener exception", event.exception)
+            logger.warn("Listener exception", event.exception)
         }
 
         /**
@@ -157,7 +154,7 @@ class TwitchChatClient(
         }
 
         override fun onUnknown(event: UnknownEvent) {
-            log.debug("Unknown event: {}", event.line)
+            logger.debug("Unknown event: {}", event.line)
             val matcher = banMessagePattern.matcher(event.line)
             if (!matcher.find()) return
 

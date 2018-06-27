@@ -3,14 +3,11 @@ package failchat.twitch
 import failchat.Origin
 import failchat.chat.MessageHandler
 import failchat.emoticon.EmoticonFinder
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KLogging
 
 class TwitchEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHandler<TwitchMessage> {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(TwitchEmoticonLoader::class.java)
-    }
+    private companion object : KLogging()
 
     override fun handleMessage(message: TwitchMessage) {
         /*
@@ -23,7 +20,7 @@ class TwitchEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messag
         try {
             replaceEmoteCodes(emotesTag, message)
         } catch (e: Exception) {
-            log.warn("Failed to replace emoticon codes with element labels. emotes tag: '{}', message text: '{}'",
+            logger.warn("Failed to replace emoticon codes with element labels. emotes tag: '{}', message text: '{}'",
                     emotesTag, message.text, e)
         }
     }

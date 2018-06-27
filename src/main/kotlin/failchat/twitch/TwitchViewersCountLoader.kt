@@ -2,8 +2,6 @@ package failchat.twitch
 
 import failchat.Origin
 import failchat.viewers.ViewersCountLoader
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 
@@ -11,10 +9,6 @@ class TwitchViewersCountLoader(
         private val userName: String,
         private val twitchClient: TwitchApiClient
 ) : ViewersCountLoader {
-
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(TwitchViewersCountLoader::class.java)
-    }
 
     private val lazyUserId: AtomicReference<Long?> = AtomicReference(null)
 

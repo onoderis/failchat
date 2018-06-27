@@ -1,13 +1,12 @@
 package failchat
 
+import mu.KLogging
 import org.apache.commons.configuration2.CompositeConfiguration
 import org.apache.commons.configuration2.Configuration
 import org.apache.commons.configuration2.PropertiesConfiguration
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder
 import org.apache.commons.configuration2.builder.fluent.Parameters
 import org.apache.commons.configuration2.sync.ReadWriteSynchronizer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -17,9 +16,7 @@ import java.nio.file.Path
  * */
 class ConfigLoader(private val configDirectory: Path) {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(ConfigLoader::class.java)
-    }
+    private companion object : KLogging()
 
     private val userConfigPath = configDirectory.resolve("user.properties")
     private val userConfigBuilder = createOptionalConfig(userConfigPath)
@@ -44,7 +41,7 @@ class ConfigLoader(private val configDirectory: Path) {
     fun save() {
         Files.createDirectories(configDirectory)
         userConfigBuilder.save()
-        log.info("User config saved to '{}'", userConfigPath)
+        logger.info("User config saved to '{}'", userConfigPath)
     }
 
     private fun createOptionalConfig(path: Path): FileBasedConfigurationBuilder<PropertiesConfiguration> {

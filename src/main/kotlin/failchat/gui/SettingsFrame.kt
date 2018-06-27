@@ -19,9 +19,8 @@ import javafx.scene.control.TextField
 import javafx.scene.paint.Color
 import javafx.scene.text.Text
 import javafx.stage.Stage
+import mu.KLogging
 import org.apache.commons.configuration2.Configuration
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class SettingsFrame(
         private val stage: Stage,
@@ -30,9 +29,7 @@ class SettingsFrame(
         private val skinList: List<Skin>
 ) {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(SettingsFrame::class.java)
-    }
+    private companion object : KLogging()
 
     lateinit var chat: ChatFrame
     lateinit var app: Application
@@ -227,12 +224,12 @@ class SettingsFrame(
         val percent = try {
             zoomPercent.toInt()
         } catch (e: Exception) {
-            log.warn("Failed to parse zoom percent as Int", e)
+            logger.warn("Failed to parse zoom percent as Int", e)
             return 100
         }
 
         if (percent !in 25..500) {
-            log.warn("Zoom percent '{}' not in range [25..500]", percent)
+            logger.warn("Zoom percent '{}' not in range [25..500]", percent)
             return 100
         }
 

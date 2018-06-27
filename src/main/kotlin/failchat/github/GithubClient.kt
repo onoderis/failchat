@@ -7,10 +7,9 @@ import failchat.exception.UnexpectedResponseException
 import failchat.util.isEmpty
 import failchat.util.thenUse
 import failchat.util.toFuture
+import mu.KLogging
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
 
 class GithubClient(
@@ -19,9 +18,7 @@ class GithubClient(
         private val objectMapper: ObjectMapper
 ) {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(GithubClient::class.java)
-    }
+    private companion object : KLogging()
 
     fun requestLatestRelease(userName: String, repository: String): CompletableFuture<Release> {
         val request = Request.Builder()
@@ -57,7 +54,7 @@ class GithubClient(
                     releaseNode.get("assets").get(0).get("browser_download_url").asText()
             )
         } catch (e: Exception) {
-            log.warn("Failed to parse release node, skip it", e)
+            logger.warn("Failed to parse release node, skip it", e)
             null
         }
     }

@@ -1,22 +1,19 @@
 package failchat.reporter
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KLogging
 
 class ToggleEventReporter(
         private val delegate: EventReporter,
         private val enabled: Boolean
 ) : EventReporter {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(ToggleEventReporter::class.java)
-    }
+    private companion object : KLogging()
 
     override suspend fun report(category: EventCategory, action: EventAction) {
         if (enabled) {
             delegate.report(category, action)
         } else {
-            log.debug("Event reporter disabled, event {}.{} ignored", category, action)
+            logger.debug("Event reporter disabled, event {}.{} ignored", category, action)
         }
     }
 }

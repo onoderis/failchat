@@ -14,15 +14,14 @@ import javafx.scene.control.ButtonBar.ButtonData.OK_DONE
 import javafx.scene.control.ButtonType
 import javafx.scene.image.Image
 import javafx.stage.Stage
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import java.nio.file.Path
 
 class GuiLauncher : Application() {
 
     companion object {
+        private val logger = KotlinLogging.logger {}
         val appIcon = Image(GuiLauncher::class.java.getResourceAsStream("/icons/failchat.png"))
-        private val log: Logger = LoggerFactory.getLogger(GuiLauncher::class.java)
     }
 
     override fun start(primaryStage: Stage) {
@@ -37,7 +36,7 @@ class GuiLauncher : Application() {
         chat.app = this
 
         settings.show()
-        log.info("GUI loaded")
+        logger.info("GUI loaded")
 
         chat.clearWebContent() // init web engine (fix for flickering)
 
