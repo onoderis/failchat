@@ -15,7 +15,7 @@
             "name": "theauthor",
             "id": "abc123"
         },
-        "text": "@someuser emoticon ${!0} / link ${!1} / image ${!2}",
+        "text": "@someuser emoticon {!0} / link {!1} / image {!2}",
         "origin": "twitch",
         "highlighted": true,
         "elements": [
