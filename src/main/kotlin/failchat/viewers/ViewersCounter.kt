@@ -5,13 +5,15 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.Origin
 import failchat.exception.ChannelOfflineException
 import failchat.util.await
+import failchat.util.doUnwrappingExecutionException
+import failchat.util.get
+import failchat.util.value
 import failchat.viewers.ViewersCounter.State.READY
 import failchat.viewers.ViewersCounter.State.SHUTDOWN
 import failchat.viewers.ViewersCounter.State.WORKING
 import failchat.ws.server.WsServer
 import mu.KLogging
 import java.time.Duration
-import java.util.concurrent.CompletionException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.Condition
@@ -29,6 +31,7 @@ class ViewersCounter(
 ) {
     private companion object : KLogging() {
         val updateInterval: Duration = Duration.ofSeconds(15)
+        val countAwaitDuration: Duration = Duration.ofSeconds(3)
     }
 
     private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
@@ -37,7 +40,7 @@ class ViewersCounter(
     private val enabledOrigins: List<Origin> = viewersCountLoaders.map { it.origin }
     private val viewersCount: MutableMap<Origin, Int> = ConcurrentHashMap()
 
-    private var state: AtomicReference<State> = AtomicReference(State.READY)
+    private val state: AtomicReference<State> = AtomicReference(State.READY)
 
 
     fun start() {
@@ -45,16 +48,17 @@ class ViewersCounter(
         if (!changed) throw IllegalStateException("Expected state: $READY, actual: ${state.get()}." +
                 "(Actual state could change after unsuccessful CAS operation)")
 
-        thread(start = true, name = "ViewersCounterThread") {
+        thread(name = "ViewersCounterThread") {
             updateAndSendLoop()
         }
-        logger.info { "ViewersCounter started. Enabled origins: " + viewersCountLoaders.map { it.origin }.joinToString(separator = ", ") }
+        logger.info {
+            "ViewersCounter started. Enabled origins: " +
+                    viewersCountLoaders.map { it.origin }.joinToString(separator = ", ")
+        }
     }
 
     fun stop() {
-        val changed = state.compareAndSet(WORKING, SHUTDOWN)
-        if (!changed) return
-
+        state.set(SHUTDOWN)
         lock.withLock { shutdownCondition.signal() }
         viewersCount.clear()
     }
@@ -68,34 +72,37 @@ class ViewersCounter(
         while (state.get() != SHUTDOWN) {
             updateViewersCount()
             sendViewersCountWsMessage()
-            lock.withLock { shutdownCondition.await(updateInterval) }
+            lock.withLock {
+                if (state.value == WORKING) {
+                    shutdownCondition.await(updateInterval)
+                }
+            }
         }
         viewersCount.clear()
         logger.info("ViewersManager stopped")
     }
 
     private fun updateViewersCount() {
-        viewersCountLoaders.forEach { accessor ->
-            val count: Int? = try {
-                accessor.loadViewersCount().join() //todo get(timeout)
-            } catch (e: CompletionException) {
-                val cause = e.cause
-                if (cause is ChannelOfflineException) {
-                    logger.info("Couldn't update viewers count, channel {}#{} is offline", cause.channel, cause.origin)
-                } else {
-                    logger.warn("Failed to get viewers count for origin {}", accessor.origin, e)
+        viewersCountLoaders
+                .map { it.origin to it.loadViewersCount() }
+                .map { (origin, countFuture) ->
+                    try {
+                        doUnwrappingExecutionException {
+                            origin to countFuture.get(countAwaitDuration)
+                        }
+                    } catch (e: ChannelOfflineException) {
+                        logger.info("Couldn't update viewers count, channel {}#{} is offline", e.channel, e.origin)
+                        origin to null
+                    } catch (e: Exception) {
+                        logger.warn("Failed to get viewers count for origin {}", origin, e)
+                        origin to null
+                    }
                 }
-                null
-            } catch (e: Exception) {
-                logger.warn("Unexpected exception during loading viewers count. origin: '{}'", accessor.origin, e)
-                null
-            }
-
-            if (count != null) viewersCount.put(accessor.origin, count)
-            else viewersCount.remove(accessor.origin)
-        }
+                .forEach { (origin, count) ->
+                    if (count != null) viewersCount.put(origin, count)
+                    else viewersCount.remove(origin)
+                }
     }
-
 
     private fun formViewersWsMessage(originsToInclude: List<Origin>): JsonNode {
         val messageNode = nodeFactory.objectNode()

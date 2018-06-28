@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
 private val logger = KotlinLogging.logger {}
@@ -47,5 +48,16 @@ fun <T> CompletableFuture<T>.logException() {
 inline fun <T : AutoCloseable, R> CompletableFuture<T>.thenUse(crossinline operation: (T) -> R): CompletableFuture<R> {
     return this.thenApply { response ->
         response.use(operation)
+    }
+}
+
+/**
+ * Perform [action], if it throws [ExecutionException] cause will be thrown instead.
+ * */
+inline fun <T> doUnwrappingExecutionException(action: () -> T): T {
+    try {
+        return action.invoke()
+    } catch (e: ExecutionException) {
+        throw e.cause ?: e
     }
 }
