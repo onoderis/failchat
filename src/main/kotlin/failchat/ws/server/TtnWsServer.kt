@@ -23,12 +23,12 @@ class TtnWsServer(
 
     override fun start() {
         wsServerImpl.start()
-        logger.info("Websocket server started at {}", address)
+        logger.info("Websocket server started at '{}'", address)
     }
 
     override fun stop() {
         wsServerImpl.stop()
-        logger.info("Websocket server stopped at {}", address)
+        logger.info("Websocket server stopped at '{}'", address)
     }
 
     override fun send(message: String) {
@@ -62,7 +62,7 @@ class TtnWsServer(
         }
 
         override fun onMessage(webSocket: WebSocket, inboundMessage: String) {
-            logger.debug("Received message from web socket client. address: {}, message: {}", webSocket.remoteSocketAddress, inboundMessage)
+            logger.debug("Received message from web socket client. address: '{}', message: {}", webSocket.remoteSocketAddress, inboundMessage)
 
             val parsedMessage: JsonNode = om.readTree(inboundMessage)
             val type: String = parsedMessage.get("type").asText()

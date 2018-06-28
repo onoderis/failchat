@@ -1,5 +1,6 @@
 package failchat.gui
 
+import failchat.skin.Skin
 import failchat.util.urlPattern
 import javafx.application.Application
 import javafx.application.Platform
@@ -26,21 +27,17 @@ import mu.KLogging
 import netscape.javascript.JSObject
 import org.apache.commons.configuration2.Configuration
 import java.net.MalformedURLException
-import java.nio.file.Path
-import java.nio.file.Paths
 
 class ChatFrame(
         private val config: Configuration,
         private val guiEventHandler: GuiEventHandler,
-        private val workingDirectory: Path
+        private val skins: List<Skin>
 ) {
 
     private companion object : KLogging()
 
     lateinit var settings: SettingsFrame
     lateinit var app: Application
-
-    private val skinsDirectory: Path = workingDirectory.resolve("skins") //todo load skin in another way
 
     private val decoratedChatStage: Stage = buildChatStage(StageType.DECORATED)
     private val undecoratedChatStage: Stage = buildChatStage(StageType.UNDECORATED) //for opaque background color
@@ -60,6 +57,7 @@ class ChatFrame(
 
 
     init {
+        if (skins.isEmpty()) throw IllegalArgumentException("Empty skins")
         buildContextMenu()
     }
 
@@ -83,12 +81,12 @@ class ChatFrame(
         configureChatStage(currentChatStage)
         updateContextMenu()
 
-        val skin = config.getString("skin")
+        val skinName = config.getString("skin")
         try {
-            //todo refactor
-            webEngine.load(skinsDirectory.resolve(skin).resolve(skin + ".html").toUri().toURL().toString())
+            val skin = skins.find { it.name == skinName } ?: skins.first()
+            webEngine.load(skin.htmlPath.toUri().toString())
         } catch (e: MalformedURLException) {
-            logger.error("Failed to load skin {}", skin, e)
+            logger.error("Failed to load skin '{}'", skinName, e)
         }
 
         currentChatStage.show()
@@ -167,11 +165,11 @@ class ChatFrame(
         }
 
         // zoom item callbacks
-        fun Button.configureZoomButtonCallback(elementNumber: Int, filter: (Int, List<Int>) -> Boolean) = this.setOnAction {
+        fun Button.configureZoomButtonCallback(elementNumberToGet: Int, filter: (Int, List<Int>) -> Boolean) = this.setOnAction {
             val oldValue = config.getInt("zoom-percent")
             val newValue = zoomValues.asSequence().windowed(2, 1)
                     .find { filter.invoke(oldValue, it) }
-                    ?.get(elementNumber)
+                    ?.get(elementNumberToGet)
                     ?: kotlin.run {
                         if (oldValue <= zoomValues.first()) zoomValues.first()
                         else zoomValues.last()
@@ -236,17 +234,14 @@ class ChatFrame(
             // WebEngine.locationProperty не изменяется обратно после LoadWorker.cancel()
             // locationProperty заменяется сразу, как и Worker.State
             if (newValue == Worker.State.SCHEDULED) {
-                val newLocation = webEngine.location
-                val matcher = urlPattern.matcher(newLocation)
+                val location = webEngine.location
+                val matcher = urlPattern.matcher(location)
                 if (matcher.find()) {
                     Platform.runLater { webEngine.loadWorker.cancel() }
-                    app.hostServices.showDocument(webEngine.location)
-                    logger.debug("Opening url: {}", webEngine.location)
-                } else if (newLocation.contains("file:///")) {
-                    val newLocationPath = Paths.get(newLocation.split("file:///").get(1))
-                    if (newLocationPath.startsWith(skinsDirectory)) {
-                        logger.debug("Opening skin: {}", webEngine.location)
-                    }
+                    logger.debug("Opening url in default browser: '{}'", location)
+                    app.hostServices.showDocument(location)
+                } else {
+                    logger.debug("Opening url in web engine: '{}'", location)
                 }
             }
         }

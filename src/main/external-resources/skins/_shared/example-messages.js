@@ -394,4 +394,28 @@ $(() => {
         }
     });
 
+    failchat.handleMessage({
+        "type": "message",
+        "content": {
+            "id": 53332,
+            "timestamp": 1499789037199,
+            "author": {
+                "name": "theauthor",
+                "id": "abc123"
+            },
+            "text": "link test {!0} 1223",
+            "origin": "twitch",
+            "highlighted": false,
+            "elements": [
+                {
+                    "type": "link",
+                    "domain": "google.com",
+                    "fullUrl": "https://google.com",
+                    "shortUrl": "google.com"
+                }
+            ],
+            "badges": []
+        }
+    });
+
 });
