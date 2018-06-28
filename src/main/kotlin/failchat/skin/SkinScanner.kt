@@ -8,13 +8,20 @@ class SkinScanner(workDirectory: Path) {
     private val skinsDirectory: Path = workDirectory.resolve("skins")
 
     fun scan(): List<Skin> {
-        // TODO: добавить фильтр для папок где есть <dirname>.html
         Files.newDirectoryStream(skinsDirectory).use { stream ->
             return stream
                     .filterNotNull()
                     .filterNot { it.fileName.toString().startsWith("_") } //ignore _shared directory
-                    .map { Skin(it.fileName.toString(), it) }
+                    .map {
+                        val skinName = it.fileName.toString()
+                        Skin(skinName, resolveSkinPath(skinName))
+                    }
+                    .filter { Files.exists(it.htmlPath) }
         }
+    }
+
+    private fun resolveSkinPath(skinName: String): Path {
+        return skinsDirectory.resolve(skinName).resolve("$skinName.html")
     }
 
 }
