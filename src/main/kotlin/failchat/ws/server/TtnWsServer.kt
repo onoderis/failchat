@@ -32,17 +32,11 @@ class TtnWsServer(
     }
 
     override fun send(message: String) {
-        val connections = wsServerImpl.connections()
+        logger.debug("Sending to all web socket clients: {}", message)
 
-        /*
-        * Нужна синхронизация по коллекции с WebSocket'ами т.к. библеотека отдаёт не копию, и объект с которым она работает.
-        * Сама библиотека использует synchronized.
-        * */
-        synchronized(connections) {
-            connections.forEach { it.send(message) }
+        wsServerImpl.connections.forEach {
+            it.send(message)
         }
-
-        logger.debug("Sent to all web socket clients: {}", message)
     }
 
     override fun setOnMessage(type: String, consumer: WsMessageHandler) {
