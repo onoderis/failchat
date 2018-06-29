@@ -48,7 +48,6 @@ class TwitchApiTest {
     fun requestViewersCountTest() {
         userNameToId.forEach { (_, id) ->
             try {
-                // todo investigate why coroutines doesn't unwrap CompletionException
                 apiClient.requestViewersCount(id).join()
             } catch (e: CompletionException) {
                 if (e.cause !is ChannelOfflineException) throw e

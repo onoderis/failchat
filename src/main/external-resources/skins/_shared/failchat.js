@@ -3,7 +3,7 @@
 const failchat = {
     maxMessages: 50,
     messageCount: 0,
-    iconsPath: "../_shared/icons/", //could be overrided in skin.html
+    iconsPath: "../_shared/icons/",
     origins: ["peka2tv", "twitch", "goodgame", "youtube", "cybergame"],
     deletedTextPlaceholder: "message deleted",
     nativeClient: false
@@ -50,7 +50,6 @@ $(() => {
     // Dynamic styles
     const dynamicStyles = document.createElement("style");
     dynamicStyles.type = "text/css";
-    // dynamicStyles.innerHTML = '.cssClass { color: #F00; }';
     document.head.appendChild(dynamicStyles);
 
 
@@ -247,7 +246,7 @@ $(() => {
                 scrollBar.css("visibility", "visible");
             }
             if (e.type === "mousewheel") { // for old browsers
-                autoScroll = scroller.scrollTop() + scroller.height() >= messageContainer.height();
+                autoScroll = scroller.scrollTop() + scroller.height() >= Math.floor(messageContainer.height());
                 if (!autoScroll) {
                     scrollBar.css("visibility", "visible");
                 }
