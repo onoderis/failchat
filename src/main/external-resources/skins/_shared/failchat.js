@@ -290,6 +290,15 @@ function deleteMessage(messageNode) {
     ));
 }
 
+function toggleModButtonsDisplay(messageId) {
+    const modButtons = $("#message-" + messageId + " .mod-buttons")[0];
+    if (modButtons.style.display === "") { //default is display: none
+        modButtons.style.display = "inline"
+    } else {
+        modButtons.style.display = ""
+    }
+}
+
 function hexToRgba(hex) {
     const int = parseInt(hex, 16);
     const r = (int >> 24) & 255;
@@ -332,10 +341,10 @@ const templates = {
         '        </div>\n' +
         '    </div>\n' +
         '    <div class="message-content">\n' +
-        '        <span class="nick" title="{{time:timestamp}}" tabindex="0">{{:author.name}}</span>\n' +
+        '        <span class="nick" title="{{time:timestamp}}" onclick="toggleModButtonsDisplay({{:id}})">{{:author.name}}</span>\n' +
         '        <div class="mod-buttons">\n' +
-        '            <span title="delete" onclick="deleteMessage(this.parentNode.parentNode)">&#10060;</span>\n' +
-        '            <span title="ignore" onclick="ignore(this.parentNode.parentNode)">&#128683;</span>\n' +
+        '            <span title="delete" onclick="deleteMessage(this.parentNode.parentNode.parentNode);toggleModButtonsDisplay({{:id}})">&#10060;</span>\n' +
+        '            <span title="ignore" onclick="ignore(this.parentNode.parentNode.parentNode);toggleModButtonsDisplay({{:id}})">&#128683;</span>\n' +
         '        </div>\n' +
         '        <span class="message-text{{if highlighted}} highlighted{{/if}}">{{:text}}</span>\n' +
         '    </div>\n' +
