@@ -266,7 +266,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/failchat</outputDirectory>
+                            <outputDirectory>${basedir}/target/failchat-v${project.version}</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${basedir}/src/main/external-resources</directory>
@@ -425,7 +425,7 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <outputDirectory>${basedir}/target/failchat</outputDirectory>
+                    <outputDirectory>${basedir}/target/failchat-v${project.version}</outputDirectory>
                 </configuration>
             </plugin>
 
