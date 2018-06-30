@@ -91,10 +91,6 @@ span.nick::after {
     display: block;
 }
 
-span.mod-buttons {
-    font-family: Segoe UI Symbol, sans-serif;
-}
-
 .deleted-message .message-text {
     font-style: italic;
     color: gray;

@@ -189,10 +189,6 @@ img.image {
     display: none;
 }
 
-.nick:focus + .mod-buttons {
-    display: inline;
-}
-
 .mod-buttons span {
     display: inline;
     font-size: 14px;
