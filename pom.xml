@@ -269,10 +269,10 @@
                             <outputDirectory>${basedir}/target/failchat</outputDirectory>
                             <resources>
                                 <resource>
-                                    <!-- external-resources directory (w/o failchat.bat) -->
                                     <directory>${basedir}/src/main/external-resources</directory>
                                     <excludes>
                                         <exclude>failchat.bat</exclude>
+                                        <exclude>skins/_shared/example-messages.js</exclude>
                                     </excludes>
                                 </resource>
                                 <resource>
