@@ -7,15 +7,20 @@ import ch.qos.logback.classic.jul.LevelChangePropagator
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.FileAppender
+import org.apache.commons.cli.CommandLine
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.bridge.SLF4JBridgeHandler
 import ch.qos.logback.classic.Logger as LogbackLogger
 
-fun configureLogging(args: Array<String>) {
-    val rootLevel = if (args.contains("--root-debug")) Level.DEBUG else Level.WARN
-    val failchatLevel = if (args.contains("--failchat-debug")) Level.DEBUG else Level.WARN
-    val consoleEnabled = args.contains("--console")
+fun configureLogging(cmd: CommandLine) {
+    val rootLevelStr = cmd.getOptionValue("logger-root-level", "WARN")
+    val rootLevel = Level.toLevel(rootLevelStr, Level.WARN)
+
+    val failchatLevelStr = cmd.getOptionValue("logger-failchat-level", "INFO")
+    val failchatLevel = Level.toLevel(failchatLevelStr, Level.INFO)
+
+    val consoleEnabled = cmd.hasOption("enable-console-logging")
 
 
     SLF4JBridgeHandler.removeHandlersForRootLogger()
