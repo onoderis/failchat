@@ -32,6 +32,10 @@ import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.asCoroutineDispatcher
 import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
+import org.apache.commons.cli.CommandLine
+import org.apache.commons.cli.DefaultParser
+import org.apache.commons.cli.Option
+import org.apache.commons.cli.Options
 import org.apache.commons.configuration2.Configuration
 import java.net.InetAddress
 import java.net.InetSocketAddress
@@ -46,16 +50,19 @@ val wsServerAddress = InetSocketAddress(InetAddress.getLoopbackAddress(), 10880)
 private val logger = KotlinLogging.logger {}
 
 fun main(args: Array<String>) {
+
     checkForAnotherInstance()
 
-    configureLogging(args)
+    val cmd = parseArguments(args)
+
+    configureLogging(cmd)
 
     logSystemInfo()
 
-    handleProgramArguments(args)
+    handleProgramArguments(cmd)
 
-    // Start GUI
-    // Тред блокируется. Javafx приложение лучше запустить раньше, а не в конце main для отзывчивости интерфейса
+    // GUI
+    // Javafx starts earlier for responsiveness. The thread will be blocked
     thread(name = "GuiLauncher") { Application.launch(GuiLauncher::class.java) }
 
 
@@ -99,6 +106,18 @@ private fun checkForAnotherInstance() {
     }
 }
 
+private fun parseArguments(args: Array<String>): CommandLine {
+    val options = Options().apply {
+        addOption(Option("c", "skip-release-check", false, "Skip the check for a new release"))
+        addOption(Option("r", "disable-reporter", false, "Disable reporter"))
+        addOption(Option("l", "logger-root-level", true, "Logging level for root logger"))
+        addOption(Option("f", "logger-failchat-level", true, "Logging level for failchat package"))
+        addOption(Option("o", "enable-console-logging", false, "Enable logging into the console"))
+    }
+
+    return DefaultParser().parse(options, args)
+}
+
 private fun logSystemInfo() {
     val failchatVersion = kodein.instance<Configuration>().getString("version")
     logger.info {
@@ -106,13 +125,13 @@ private fun logSystemInfo() {
     }
 }
 
-private fun handleProgramArguments(args: Array<String>) {
-    //todo make it in a good way
+private fun handleProgramArguments(cmd: CommandLine) {
     val config: Configuration = kodein.instance()
-    if (args.contains("--disable-release-checker")) {
-        config.setProperty("update-checker.enabled", false)
+
+    if (cmd.hasOption("skip-release-check")) {
+        config.setProperty("release-checker.enabled", false)
     }
-    if (args.contains("--disable-reporter")) {
+    if (cmd.hasOption("disable-reporter")) {
         config.setProperty("reporter.enabled", false)
     }
 }

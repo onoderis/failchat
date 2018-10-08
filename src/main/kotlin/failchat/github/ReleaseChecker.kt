@@ -9,14 +9,14 @@ class ReleaseChecker(
 ) {
 
     private companion object : KLogging() {
-        const val lastNotifiedKey = "update-checker.latest-notified-version"
+        const val lastNotifiedKey = "release-checker.latest-notified-version"
     }
 
-    val userName = config.getString("github.user-name")
-    val repository = config.getString("github.repository")
+    private val userName: String = config.getString("github.user-name")
+    private val repository: String = config.getString("github.repository")
 
     fun checkNewRelease(onNewRelease: (Release) -> Unit) {
-        if (!config.getBoolean("update-checker.enabled")) {
+        if (!config.getBoolean("release-checker.enabled")) {
             logger.debug("Release check skipped")
             return
         }
