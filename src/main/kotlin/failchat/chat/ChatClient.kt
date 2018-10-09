@@ -2,9 +2,7 @@ package failchat.chat
 
 import failchat.Origin
 
-/**
-* Not reusable.
-* */
+/** Base interface for a chat client. Implementation should not be reusable. */
 interface ChatClient<T : ChatMessage> {
 
     val origin: Origin

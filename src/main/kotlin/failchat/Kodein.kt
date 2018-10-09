@@ -62,6 +62,7 @@ import failchat.youtube.VideoId
 import failchat.youtube.YouTubeFactory
 import failchat.youtube.YtApiClient
 import failchat.youtube.YtChatClient
+import io.ktor.server.engine.ApplicationEngine
 import okhttp3.OkHttpClient
 import org.apache.commons.configuration2.Configuration
 import java.nio.file.Path
@@ -72,6 +73,9 @@ import java.util.concurrent.atomic.AtomicInteger
 
 @Suppress("RemoveExplicitTypeArguments")
 val kodein = Kodein {
+
+    // Http server
+    bind<ApplicationEngine>() with singleton { createHttpServer() }
 
     // Websocket server
     bind<WsServer>() with singleton { TtnWsServer(wsServerAddress, instance<ObjectMapper>()) }

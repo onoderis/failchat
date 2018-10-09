@@ -26,7 +26,15 @@ import failchat.ws.server.ClientConfigurationWsHandler
 import failchat.ws.server.DeleteWsMessageHandler
 import failchat.ws.server.IgnoreWsMessageHandler
 import failchat.ws.server.WsServer
-import javafx.application.Application
+import io.ktor.application.call
+import io.ktor.http.content.files
+import io.ktor.http.content.static
+import io.ktor.response.respondRedirect
+import io.ktor.routing.get
+import io.ktor.routing.routing
+import io.ktor.server.engine.ApplicationEngine
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import kotlinx.coroutines.experimental.CoroutineName
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.asCoroutineDispatcher
@@ -44,8 +52,12 @@ import java.nio.file.Path
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
+import io.ktor.application.Application as KtorApplication
+import javafx.application.Application as JfxApplication
 
 val wsServerAddress = InetSocketAddress(InetAddress.getLoopbackAddress(), 10880)
+const val httpServerHost = "127.0.0.1"
+const val httpServerPort = 10870
 
 private val logger = KotlinLogging.logger {}
 
@@ -63,8 +75,15 @@ fun main(args: Array<String>) {
 
     // GUI
     // Javafx starts earlier for responsiveness. The thread will be blocked
-    thread(name = "GuiLauncher") { Application.launch(GuiLauncher::class.java) }
+    thread(name = "GuiLauncher") {
+        logger.info("Launching javafx application")
+        JfxApplication.launch(GuiLauncher::class.java)
+    }
 
+    // Http server
+    val httpServer: ApplicationEngine = kodein.instance()
+    httpServer.start()
+    logger.info("Http server started at {}:{}", httpServerHost, httpServerPort)
 
     // Websocket server
     val wsServer: WsServer = kodein.instance()
@@ -108,10 +127,10 @@ private fun checkForAnotherInstance() {
 
 private fun parseArguments(args: Array<String>): CommandLine {
     val options = Options().apply {
-        addOption(Option("c", "skip-release-check", false, "Skip the check for a new release"))
-        addOption(Option("r", "disable-reporter", false, "Disable reporter"))
-        addOption(Option("l", "logger-root-level", true, "Logging level for root logger"))
-        addOption(Option("f", "logger-failchat-level", true, "Logging level for failchat package"))
+        addOption(Option("c", "skip-release-check",     false, "Skip the check for a new release"))
+        addOption(Option("r", "disable-reporter",       false, "Disable reporter"))
+        addOption(Option("l", "logger-root-level",      true,  "Logging level for root logger"))
+        addOption(Option("f", "logger-failchat-level",  true,  "Logging level for failchat package"))
         addOption(Option("o", "enable-console-logging", false, "Enable logging into the console"))
     }
 
@@ -133,6 +152,26 @@ private fun handleProgramArguments(cmd: CommandLine) {
     }
     if (cmd.hasOption("disable-reporter")) {
         config.setProperty("reporter.enabled", false)
+    }
+}
+
+fun createHttpServer(): ApplicationEngine {
+    return embeddedServer(
+            Netty,
+            host = httpServerHost,
+            port = httpServerPort,
+            module = KtorApplication::failchat
+    )
+}
+
+fun KtorApplication.failchat() {
+    routing {
+        static("resources") {
+            files("skins")
+        }
+        get("websocket") {
+            call.respondRedirect("http://${wsServerAddress.hostString}:${wsServerAddress.port}/", permanent = true)
+        }
     }
 }
 
