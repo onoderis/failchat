@@ -50,6 +50,7 @@ import failchat.youtube.ChannelId
 import failchat.youtube.VideoId
 import failchat.youtube.YoutubeUtils
 import failchat.youtube.YtChatClient
+import io.ktor.server.engine.ApplicationEngine
 import javafx.application.Platform
 import kotlinx.coroutines.experimental.CoroutineName
 import kotlinx.coroutines.experimental.asCoroutineDispatcher
@@ -61,6 +62,7 @@ import okhttp3.OkHttpClient
 import org.apache.commons.configuration2.Configuration
 import java.time.Duration
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
@@ -252,7 +254,7 @@ class AppStateManager(private val kodein: Kodein) {
         try {
             reset()
         } catch (t: Throwable) {
-            logger.error("Failed to reset {} during shutdown", this.javaClass.simpleName, t)
+            logger.error("Failed to reset {} during a shutdown", this.javaClass.simpleName, t)
         }
 
         // Запуск в отдельном треде чтобы javafx thread мог завершиться и GUI закрывался сразу
@@ -260,15 +262,18 @@ class AppStateManager(private val kodein: Kodein) {
             config.setProperty("lastMessageId", messageIdGenerator.lastId)
             configLoader.save()
 
+            kodein.instance<ApplicationEngine>().stop(0, 0, TimeUnit.SECONDS)
+            logger.info("Http server was stopped")
+
             wsServer.stop()
-            logger.info("Websocket server stopped")
+            logger.info("Websocket server was stopped")
 
             youtubeExecutor.shutdownNow()
 
             okHttpClient.dispatcher().executorService().shutdown()
-            logger.info("OkHttpClient thread pool shutdown completed")
+            logger.info("OkHttpClient thread pool shutdown was completed")
             okHttpClient.connectionPool().evictAll()
-            logger.info("OkHttpClient connections evicted")
+            logger.info("OkHttpClient connections was evicted")
         }
 
         thread(start = true, name = "TerminationThread", isDaemon = true) {

@@ -1,5 +1,7 @@
 package failchat.gui
 
+import failchat.httpServerHost
+import failchat.httpServerPort
 import failchat.skin.Skin
 import failchat.util.urlPattern
 import javafx.application.Application
@@ -54,7 +56,7 @@ class ChatFrame(
     private val zoomValues = listOf(25, 33, 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500) //chrome-alike
 
     private var currentChatStage: Stage = decoratedChatStage
-
+    private var lastOpenedSkinUrl: String? = null
 
     init {
         if (skins.isEmpty()) throw IllegalArgumentException("Empty skins")
@@ -84,7 +86,9 @@ class ChatFrame(
         val skinName = config.getString("skin")
         try {
             val skin = skins.find { it.name == skinName } ?: skins.first()
-            webEngine.load(skin.htmlPath.toUri().toString())
+            val url = "http://$httpServerHost:$httpServerPort/resources/${skin.name}/${skin.name}.html"
+            lastOpenedSkinUrl = url
+            webEngine.load(url)
         } catch (e: MalformedURLException) {
             logger.error("Failed to load skin '{}'", skinName, e)
         }
@@ -236,7 +240,7 @@ class ChatFrame(
             if (newValue == Worker.State.SCHEDULED) {
                 val location = webEngine.location
                 val matcher = urlPattern.matcher(location)
-                if (matcher.find()) {
+                if (matcher.find() && location != lastOpenedSkinUrl) {
                     Platform.runLater { webEngine.loadWorker.cancel() }
                     logger.debug("Opening url in default browser: '{}'", location)
                     app.hostServices.showDocument(location)
