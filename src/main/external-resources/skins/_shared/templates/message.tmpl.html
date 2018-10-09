@@ -1,0 +1,22 @@
+<div class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">
+    <div class="badges">
+        <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png">
+        <div class="user-badges">
+            {{for badges}}
+                {{if type === "image"}}
+                    <img class="{{if format === "raster"}}badge-raster{{else}}badge-vector{{/if}}" src="{{:url}}" {{if description !== null}}title="{{:description}}"{{/if}}>
+                {{else type === "character"}}
+                    <span class="badge-character" style="color: {{:color}}">{{:htmlEntity}}</span>
+                {{/if}}
+            {{/for}}
+        </div>
+    </div>
+    <div class="message-content">
+        <span class="nick" title="{{time:timestamp}}" onclick="toggleModButtonsDisplay({{:id}})">{{:author.name}}</span>
+        <div class="mod-buttons">
+            <span title="delete" onclick="deleteMessage(this.parentNode.parentNode.parentNode);toggleModButtonsDisplay({{:id}})">&#10060;</span>
+            <span title="ignore" onclick="ignore(this.parentNode.parentNode.parentNode);toggleModButtonsDisplay({{:id}})">&#128683;</span>
+        </div>
+        <span class="message-text{{if highlighted}} highlighted{{/if}}">{{:text}}</span>
+    </div>
+</div>

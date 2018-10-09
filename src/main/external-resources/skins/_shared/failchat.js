@@ -323,54 +323,38 @@ $.views.converters("time", val => {
     return h + ":" + m + ":" +  s;
 });
 
-// noinspection HtmlUnknownAttribute
 const templates = {
-    message: $.templates(
-        '<div class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">\n' +
-        '    <div class="badges">\n' +
-        '        <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png">\n' +
-        '        <div class="user-badges">\n' +
-        '        {{for badges}}\n' +
-        '            {{if type === "image"}}\n' +
-        '                <img class="{{if format === "raster"}}badge-raster{{else}}badge-vector{{/if}}"\n' +
-        '                     src="{{:url}}" {{if description !== null}}title="{{:description}}"{{/if}}>\n' +
-        '            {{else type === "character"}}\n' +
-        '                <span class="badge-character" style="color: {{:color}}">{{:htmlEntity}}</span>\n' +
-        '            {{/if}}\n' +
-        '        {{/for}}\n' +
-        '        </div>\n' +
-        '    </div>\n' +
-        '    <div class="message-content">\n' +
-        '        <span class="nick" title="{{time:timestamp}}" onclick="toggleModButtonsDisplay({{:id}})">{{:author.name}}</span>\n' +
-        '        <div class="mod-buttons">\n' +
-        '            <span title="delete" onclick="deleteMessage(this.parentNode.parentNode.parentNode);toggleModButtonsDisplay({{:id}})">&#10060;</span>\n' +
-        '            <span title="ignore" onclick="ignore(this.parentNode.parentNode.parentNode);toggleModButtonsDisplay({{:id}})">&#128683;</span>\n' +
-        '        </div>\n' +
-        '        <span class="message-text{{if highlighted}} highlighted{{/if}}">{{:text}}</span>\n' +
-        '    </div>\n' +
-        '</div>'
-    ),
-
-    rasterEmoticon: $.templates('<img class="emoticon-raster" src="{{:url}}" title="{{:code}}">'),
-    vectorEmoticon: $.templates('<img class="emoticon-vector" src="{{:url}}" title="{{:code}}">'),
-    link: $.templates('<a href="{{:fullUrl}}">{{:domain}}</a>'),
-    image: $.templates('<div class="image-wrapper"><a href="{{:url}}"><img class="image" src="{{:url}}"></a></div>'),
-
-    statusMessage: $.templates(
-        '<div class="message status-message">\n' +
-        '    <div class="badges">\n' +
-        '        <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png">\n' +
-        '    </div>\n' +
-        '    <div class="message-content">\n' +
-        '        <span class="origin-name" title="{{time:timestamp}}">{{:origin}} </span>\n' +
-        '        <span class="status-text">{{:status}}</span>\n' +
-        '    </div>\n' +
-        '</div>'
-    ),
-
-    originViewersBar: $.templates(
-        '<div id="{{:origin}}-viewers-counter" class="viewers-counter">' +
-        '    <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png"><span id="{{:origin}}-viewers-count"></span>' +
-        '</div>'
-    )
+    message: new Template("message"),
+    statusMessage: new Template("status-message"),
+    rasterEmoticon: new Template("emoticon-raster"),
+    vectorEmoticon: new Template("emoticon-vector"),
+    link: new Template("link"),
+    image: new Template("image"),
+    originViewersBar: new Template("origin-viewers-bar")
 };
+
+/** Asynchronously initialized template. */
+function Template(name) {
+    this.jsrTemplate = null;
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "../_shared/templates/" + name + ".tmpl.html");
+    xhr.onload = () => {
+        if (xhr.readyState !== 4) return;
+        if (xhr.status === 200) {
+            this.jsrTemplate = $.templates(xhr.responseText);
+        } else {
+            console.error("Failed to load template '" + name + "'. " + JSON.stringify(xhr));
+        }
+    };
+    xhr.onerror = () => console.error("Error during '" + name + "'template request. " + JSON.stringify(xhr));
+    xhr.send();
+
+    this.render = function(parameters) {
+        if (this.jsrTemplate === null) {
+            console.error("Can't render template '" + name + "', cause: not initialized");
+            return null;
+        }
+        return this.jsrTemplate.render(parameters)
+    }
+}
