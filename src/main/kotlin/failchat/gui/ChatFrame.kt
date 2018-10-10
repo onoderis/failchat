@@ -228,8 +228,7 @@ class ChatFrame(
             when (key.code) {
                 KeyCode.ESCAPE -> toSettings()
                 KeyCode.SPACE -> switchDecorations()
-                else -> {
-                }
+                else -> {}
             }
         }
 

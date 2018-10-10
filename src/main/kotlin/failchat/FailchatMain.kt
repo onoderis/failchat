@@ -1,10 +1,7 @@
 package failchat
 
 import com.github.salomonbrys.kodein.instance
-import failchat.chat.ChatMessageRemover
-import failchat.chat.ChatMessageSender
 import failchat.chat.badge.BadgeManager
-import failchat.chat.handlers.IgnoreFilter
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonLoader
 import failchat.emoticon.EmoticonManager
@@ -21,21 +18,24 @@ import failchat.twitch.TwitchEmoticonLoader
 import failchat.util.CoroutineExceptionLogger
 import failchat.util.executeWithCatch
 import failchat.util.sp
-import failchat.viewers.ViewersCountWsHandler
-import failchat.ws.server.ClientConfigurationWsHandler
-import failchat.ws.server.DeleteWsMessageHandler
-import failchat.ws.server.IgnoreWsMessageHandler
-import failchat.ws.server.WsServer
+import failchat.ws.server.WsFrameSender
+import failchat.ws.server.WsMessageDispatcher
+import io.ktor.application.ApplicationCall
 import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.files
 import io.ktor.http.content.static
-import io.ktor.response.respondRedirect
-import io.ktor.routing.get
+import io.ktor.pipeline.PipelineContext
+import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.websocket.WebSockets
+import io.ktor.websocket.webSocket
 import kotlinx.coroutines.experimental.CoroutineName
+import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.asCoroutineDispatcher
 import kotlinx.coroutines.experimental.launch
@@ -57,7 +57,7 @@ import javafx.application.Application as JfxApplication
 
 val wsServerAddress = InetSocketAddress(InetAddress.getLoopbackAddress(), 10880)
 const val httpServerHost = "127.0.0.1"
-const val httpServerPort = 10870
+const val httpServerPort = 10880
 
 private val logger = KotlinLogging.logger {}
 
@@ -80,21 +80,13 @@ fun main(args: Array<String>) {
         JfxApplication.launch(GuiLauncher::class.java)
     }
 
-    // Http server
+    // Http/websocket server
+    val wsFrameSender: WsFrameSender = kodein.instance()
+    wsFrameSender.start()
+
     val httpServer: ApplicationEngine = kodein.instance()
     httpServer.start()
-    logger.info("Http server started at {}:{}", httpServerHost, httpServerPort)
-
-    // Websocket server
-    val wsServer: WsServer = kodein.instance()
-    val config: Configuration = kodein.instance()
-    wsServer.apply {
-        setOnMessage("client-configuration", ClientConfigurationWsHandler(kodein.instance<ChatMessageSender>()))
-        setOnMessage("viewers-count", kodein.instance<ViewersCountWsHandler>())
-        setOnMessage("delete-message", DeleteWsMessageHandler(kodein.instance<ChatMessageRemover>()))
-        setOnMessage("ignore-author", IgnoreWsMessageHandler(kodein.instance<IgnoreFilter>(), config))
-    }
-    wsServer.start()
+    logger.info("Http/websocket server started at {}:{}", httpServerHost, httpServerPort)
 
 
     // Reporter
@@ -107,12 +99,14 @@ fun main(args: Array<String>) {
 
     // Load global badges in background thread
     val badgeManager: BadgeManager = kodein.instance()
-    launch(backgroundExecutor.asCoroutineDispatcher() + CoroutineName("GlobalBadgeLoader") + CoroutineExceptionLogger) {
+    val badgeLoaderCtx = backgroundExecutor.asCoroutineDispatcher() + CoroutineName("GlobalBadgeLoader") + CoroutineExceptionLogger
+    CoroutineScope(badgeLoaderCtx).launch {
         badgeManager.loadGlobalBadges()
     }
 
-    logger.info("Application started. Version: {}. Working directory: {}", config.getString("version"),
-            kodein.instance<Path>("workingDirectory").toAbsolutePath())
+    val config: Configuration = kodein.instance()
+    val workingDirectory = kodein.instance<Path>("workingDirectory").toAbsolutePath()
+    logger.info("Application started. Version: {}. Working directory: {}", config.getString("version"), workingDirectory)
 }
 
 private fun checkForAnotherInstance() {
@@ -165,13 +159,30 @@ fun createHttpServer(): ApplicationEngine {
 }
 
 fun KtorApplication.failchat() {
+    val wsMessageDispatcher: WsMessageDispatcher = kodein.instance()
+    val wsFrameSender: WsFrameSender = kodein.instance()
+
+    install(WebSockets)
+
     routing {
         static("resources") {
             files("skins")
         }
-        get("websocket") {
-            call.respondRedirect("http://${wsServerAddress.hostString}:${wsServerAddress.port}/", permanent = true)
+
+        webSocket("/chat") {
+            wsFrameSender.notifyNewSession(this)
+            wsMessageDispatcher.handleWebSocket(this)
         }
+
+//        get("websocket") {
+//            call.respondRedirect("http://${wsServerAddress.hostString}:${wsServerAddress.port}/", permanent = true)
+//        }
+    }
+}
+
+class MyHandler {
+    suspend fun PipelineContext<Unit, ApplicationCall>.handle(unit: Unit) {
+        call.respond(HttpStatusCode.OK, "ok")
     }
 }
 

@@ -8,6 +8,8 @@ class IgnoreWsMessageHandler(
         private val config: Configuration
 ) : WsMessageHandler {
 
+    override val expectedType = InboundWsMessage.Type.IGNORE_AUTHOR
+
     override fun handle(message: InboundWsMessage) {
         val authorId = message.content.get("authorId").asText()
         val updatedIgnoreSet = config.getStringArray("ignore")

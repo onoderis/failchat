@@ -3,6 +3,7 @@ package failchat.viewers
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.Origin
+import failchat.chat.ChatMessageSender
 import failchat.exception.ChannelOfflineException
 import failchat.util.await
 import failchat.util.doUnwrappingExecutionException
@@ -11,7 +12,6 @@ import failchat.util.value
 import failchat.viewers.ViewersCounter.State.READY
 import failchat.viewers.ViewersCounter.State.SHUTDOWN
 import failchat.viewers.ViewersCounter.State.WORKING
-import failchat.ws.server.WsServer
 import mu.KLogging
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
@@ -27,7 +27,7 @@ import kotlin.concurrent.withLock
  * */
 class ViewersCounter(
         private val viewersCountLoaders: List<ViewersCountLoader>,
-        private val wsServer: WsServer
+        private val chatMessageSender: ChatMessageSender
 ) {
     private companion object : KLogging() {
         val updateInterval: Duration = Duration.ofSeconds(15)
@@ -65,7 +65,7 @@ class ViewersCounter(
 
     fun sendViewersCountWsMessage() {
         val message = formViewersWsMessage(enabledOrigins)
-        wsServer.send(message.toString())
+        chatMessageSender.send(message)
     }
 
     private fun updateAndSendLoop() {

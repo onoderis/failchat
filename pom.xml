@@ -152,6 +152,11 @@
             <artifactId>ktor-server-netty</artifactId>
             <version>${ktor.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-websockets</artifactId>
+            <version>${ktor.version}</version>
+        </dependency>
 
         <!-- Logging -->
         <dependency>

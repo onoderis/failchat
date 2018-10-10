@@ -55,8 +55,11 @@ import failchat.twitch.TwitchemotesApiClient
 import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
-import failchat.ws.server.TtnWsServer
-import failchat.ws.server.WsServer
+import failchat.ws.server.ClientConfigurationWsHandler
+import failchat.ws.server.DeleteWsMessageHandler
+import failchat.ws.server.IgnoreWsMessageHandler
+import failchat.ws.server.WsFrameSender
+import failchat.ws.server.WsMessageDispatcher
 import failchat.youtube.ChannelId
 import failchat.youtube.VideoId
 import failchat.youtube.YouTubeFactory
@@ -74,11 +77,18 @@ import java.util.concurrent.atomic.AtomicInteger
 @Suppress("RemoveExplicitTypeArguments")
 val kodein = Kodein {
 
-    // Http server
+    // Http/websocket server
     bind<ApplicationEngine>() with singleton { createHttpServer() }
+    bind<WsMessageDispatcher>() with singleton {
+        WsMessageDispatcher(listOf(
+                ClientConfigurationWsHandler(instance<ChatMessageSender>()),
+                instance<ViewersCountWsHandler>(),
+                DeleteWsMessageHandler(instance<ChatMessageRemover>()),
+                IgnoreWsMessageHandler(instance<IgnoreFilter>(), instance<Configuration>())
+        ))
+    }
+    bind<WsFrameSender>() with singleton { WsFrameSender() }
 
-    // Websocket server
-    bind<WsServer>() with singleton { TtnWsServer(wsServerAddress, instance<ObjectMapper>()) }
     bind<ViewersCountWsHandler>() with singleton {
         ViewersCountWsHandler(instance<Configuration>())
     }
@@ -89,19 +99,19 @@ val kodein = Kodein {
     bind<Configuration>() with singleton { instance<ConfigLoader>().get() }
     bind<ChatMessageSender>() with singleton {
         ChatMessageSender(
-                instance<WsServer>(),
+                instance<WsFrameSender>(),
                 instance<Configuration>(),
                 instance<IgnoreFilter>(),
                 instance<ImageLinkHandler>()
         )
     }
     bind<ChatMessageRemover>() with singleton {
-        ChatMessageRemover(instance<WsServer>())
+        ChatMessageRemover(instance<ChatMessageSender>())
     }
     bind<ViewersCounter>() with factory { vcLoaders: List<ViewersCountLoader> ->
         ViewersCounter(
                 vcLoaders,
-                instance<WsServer>()
+                instance<ChatMessageSender>()
         )
     }
     bind<GuiEventHandler>() with singleton {
@@ -134,7 +144,7 @@ val kodein = Kodein {
     bind<OkHttpClient>() with singleton { OkHttpClient() }
 
 
-    // Handlers and filters
+    // Message handlers and filters
     bind<IgnoreFilter>() with singleton { IgnoreFilter(instance<Configuration>()) }
     bind<ImageLinkHandler>() with singleton { ImageLinkHandler(instance<Configuration>()) }
 

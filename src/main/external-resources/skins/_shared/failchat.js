@@ -54,7 +54,7 @@ $(() => {
 
 
     // Web socket
-    const socket = new ReconnectingWebSocket("ws://localhost:10880");
+    const socket = new ReconnectingWebSocket("ws://localhost:10880/chat");
     socket.maxReconnectInterval = 5000;
     failchat.socket = socket;
 

@@ -3,6 +3,7 @@ package failchat.viewers
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.ws.server.InboundWsMessage
 import failchat.ws.server.WsMessageHandler
+import io.ktor.http.cio.websocket.Frame
 import org.apache.commons.configuration2.Configuration
 import java.util.concurrent.atomic.AtomicReference
 
@@ -11,8 +12,10 @@ class ViewersCountWsHandler(
         private val config: Configuration
 ) : WsMessageHandler {
 
+    override val expectedType = InboundWsMessage.Type.VIEWERS_COUNT
+
     val viewersCounter: AtomicReference<ViewersCounter?> = AtomicReference(null)
-    
+
     private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
 
     
@@ -35,7 +38,7 @@ class ViewersCountWsHandler(
             }
         }
 
-        message.clientSocket.send(messageNode.toString())
+        message.session.outgoing.offer(Frame.Text(messageNode.toString()))
     }
 
 }
