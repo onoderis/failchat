@@ -1,10 +1,9 @@
 package failchat.chat
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
-import failchat.ws.server.WsServer
 
 class ChatMessageRemover(
-        private val wsServer: WsServer
+        private val chatMessageSender: ChatMessageSender
 ) {
 
     private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
@@ -16,7 +15,7 @@ class ChatMessageRemover(
                 put("messageId", messageId)
             }
         }
-        wsServer.send(removeMessage.toString())
+        chatMessageSender.send(removeMessage)
     }
 
     fun remove(message: ChatMessage) = remove(message.id)

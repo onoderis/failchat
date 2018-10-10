@@ -85,7 +85,6 @@ open class WsClient(private val serverUri: URI) {
             //prepare to reconnect
             wsClient = Wsc()
         }
-        logger.info("WsClient stopped")
     }
 
 

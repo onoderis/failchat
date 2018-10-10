@@ -45,7 +45,6 @@ import failchat.util.sleep
 import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
-import failchat.ws.server.WsServer
 import failchat.youtube.ChannelId
 import failchat.youtube.VideoId
 import failchat.youtube.YoutubeUtils
@@ -74,7 +73,6 @@ class AppStateManager(private val kodein: Kodein) {
         val shutdownTimeout: Duration = Duration.ofMillis(3500)
     }
 
-    private val wsServer: WsServer = kodein.instance()
     private val messageIdGenerator: MessageIdGenerator = kodein.instance()
     private val chatMessageSender: ChatMessageSender = kodein.instance()
     private val chatMessageRemover: ChatMessageRemover = kodein.instance()
@@ -263,12 +261,10 @@ class AppStateManager(private val kodein: Kodein) {
             configLoader.save()
 
             kodein.instance<ApplicationEngine>().stop(0, 0, TimeUnit.SECONDS)
-            logger.info("Http server was stopped")
-
-            wsServer.stop()
-            logger.info("Websocket server was stopped")
+            logger.info("Http/websocket server was stopped")
 
             youtubeExecutor.shutdownNow()
+            logger.info("Youtube executor was stopped")
 
             okHttpClient.dispatcher().executorService().shutdown()
             logger.info("OkHttpClient thread pool shutdown was completed")

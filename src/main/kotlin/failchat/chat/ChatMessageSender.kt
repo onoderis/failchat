@@ -1,5 +1,6 @@
 package failchat.chat
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.chat.StatusMessageMode.NOWHERE
@@ -11,12 +12,13 @@ import failchat.chat.handlers.LinkHandler
 import failchat.emoticon.Emoticon
 import failchat.gui.StatusMessageModeConverter
 import failchat.viewers.COUNTABLE_ORIGINS
-import failchat.ws.server.WsServer
+import failchat.ws.server.WsFrameSender
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
 
+//todo rename
 class ChatMessageSender(
-        private val wsServer: WsServer,
+        private val wsFrameSender: WsFrameSender,
         private val config: Configuration,
         ignoreFilter: IgnoreFilter,
         imageLinkHandler: ImageLinkHandler
@@ -87,7 +89,7 @@ class ChatMessageSender(
             }
         }
 
-        wsServer.send(messageNode.toString())
+        wsFrameSender.sendToAll(messageNode.toString())
     }
 
     private fun serializeBadges(message: ChatMessage, badgesArrayNode: ArrayNode) {
@@ -126,7 +128,7 @@ class ChatMessageSender(
             }
         }
 
-        wsServer.send(messageNode.toString())
+        wsFrameSender.sendToAll(messageNode.toString())
     }
 
     /** Send client configuration to all clients. */
@@ -151,7 +153,11 @@ class ChatMessageSender(
             }
         }
 
-        wsServer.send(messageNode.toString())
+        wsFrameSender.sendToAll(messageNode.toString())
+    }
+
+    fun send(jsonMessage: JsonNode) {
+        wsFrameSender.sendToAll(jsonMessage.toString())
     }
 
 }
