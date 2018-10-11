@@ -9,8 +9,32 @@ const failchat = {
     nativeClient: false
 };
 
-$(() => {
+const templates = {
+    message: new Template("message"),
+    statusMessage: new Template("status-message"),
+    rasterEmoticon: new Template("emoticon-raster"),
+    vectorEmoticon: new Template("emoticon-vector"),
+    link: new Template("link"),
+    image: new Template("image"),
+    originViewersBar: new Template("origin-viewers-bar")
+};
 
+
+$(() => {
+    awaitForTemplates().then(() => {
+        initializeFailchat()
+    });
+});
+
+async function awaitForTemplates() {
+    for (const templateProperty in templates) {
+        if (templates.hasOwnProperty(templateProperty)) {
+            await templates[templateProperty].loaded;
+        }
+    }
+}
+
+function initializeFailchat() {
     failchat.nativeClient = (navigator.userAgent.search("failchat") >= 0);
 
     const bodyWrapper = $("#body-wrapper");
@@ -263,7 +287,7 @@ $(() => {
             }
         }
     });
-});
+}
 
 // Add user to ignore list and delete message
 function ignore(messageNode) {
@@ -323,15 +347,6 @@ $.views.converters("time", val => {
     return h + ":" + m + ":" +  s;
 });
 
-const templates = {
-    message: new Template("message"),
-    statusMessage: new Template("status-message"),
-    rasterEmoticon: new Template("emoticon-raster"),
-    vectorEmoticon: new Template("emoticon-vector"),
-    link: new Template("link"),
-    image: new Template("image"),
-    originViewersBar: new Template("origin-viewers-bar")
-};
 
 /** Asynchronously initialized template. */
 function Template(name) {
@@ -339,18 +354,26 @@ function Template(name) {
 
     const xhr = new XMLHttpRequest();
     xhr.open("GET", "../_shared/templates/" + name + ".tmpl.html");
-    xhr.onload = () => {
-        if (xhr.readyState !== 4) return;
-        if (xhr.status === 200) {
-            this.jsrTemplate = $.templates(xhr.responseText);
-        } else {
-            console.error("Failed to load template '" + name + "'. " + JSON.stringify(xhr));
+
+    this.loaded = new Promise((resolve, reject) => {
+        xhr.onload = () => {
+            if (xhr.readyState !== 4) return;
+            if (xhr.status === 200) {
+                this.jsrTemplate = $.templates(xhr.responseText);
+            } else {
+                console.error("Failed to load template '" + name + "'. " + JSON.stringify(xhr));
+            }
+            resolve();
+        };
+        xhr.onerror = () => {
+            console.error("Error during '" + name + "'template request. " + JSON.stringify(xhr));
+            resolve();
         }
-    };
-    xhr.onerror = () => console.error("Error during '" + name + "'template request. " + JSON.stringify(xhr));
+    });
+
     xhr.send();
 
-    this.render = function(parameters) {
+    this.render = function (parameters) {
         if (this.jsrTemplate === null) {
             console.error("Can't render template '" + name + "', cause: not initialized");
             return null;
