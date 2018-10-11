@@ -78,7 +78,11 @@ function initializeFailchat() {
 
 
     // Web socket
-    const socket = new ReconnectingWebSocket("ws://localhost:10880/chat");
+    const wsUrl = new URL("/chat", window.location.href);
+    wsUrl.protocol = wsUrl.protocol.replace('http', 'ws');
+    wsUrl.port = "10880"; // for debugging via idea
+
+    const socket = new ReconnectingWebSocket(wsUrl);
     socket.maxReconnectInterval = 5000;
     failchat.socket = socket;
 
