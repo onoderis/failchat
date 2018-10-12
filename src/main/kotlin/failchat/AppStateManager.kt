@@ -37,11 +37,7 @@ import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.util.CoroutineExceptionLogger
 import failchat.util.completionCause
-import failchat.util.formatStackTraces
-import failchat.util.hotspotThreads
 import failchat.util.logException
-import failchat.util.ls
-import failchat.util.sleep
 import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
@@ -49,7 +45,6 @@ import failchat.youtube.ChannelId
 import failchat.youtube.VideoId
 import failchat.youtube.YoutubeUtils
 import failchat.youtube.YtChatClient
-import io.ktor.server.engine.ApplicationEngine
 import javafx.application.Platform
 import kotlinx.coroutines.experimental.CoroutineName
 import kotlinx.coroutines.experimental.asCoroutineDispatcher
@@ -57,21 +52,15 @@ import kotlinx.coroutines.experimental.future.await
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KLogging
-import okhttp3.OkHttpClient
 import org.apache.commons.configuration2.Configuration
-import java.time.Duration
 import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 
 class AppStateManager(private val kodein: Kodein) {
 
-    private companion object : KLogging() {
-        val shutdownTimeout: Duration = Duration.ofMillis(3500)
-    }
+    private companion object : KLogging()
 
     private val messageIdGenerator: MessageIdGenerator = kodein.instance()
     private val chatMessageSender: ChatMessageSender = kodein.instance()
@@ -83,9 +72,7 @@ class AppStateManager(private val kodein: Kodein) {
     private val configLoader: ConfigLoader = kodein.instance()
     private val ignoreFilter: IgnoreFilter = kodein.instance()
     private val imageLinkHandler: ImageLinkHandler = kodein.instance()
-    private val okHttpClient: OkHttpClient = kodein.instance()
     private val viewersCountWsHandler: ViewersCountWsHandler = kodein.instance()
-    private val youtubeExecutor: ScheduledExecutorService = kodein.instance("youtube")
     private val bttvEmoticonHandler: BttvEmoticonHandler = kodein.instance()
     private val bttvApiClient: BttvApiClient = kodein.instance()
     private val emoticonStorage: EmoticonStorage = kodein.instance()
@@ -100,7 +87,7 @@ class AppStateManager(private val kodein: Kodein) {
     
     private var state: AppState = SETTINGS
 
-    fun startChat() = lock.withLock {
+    fun startChat(): Unit = lock.withLock {
         if (state != SETTINGS) IllegalStateException("Expected: $SETTINGS, actual: $state")
 
         val viewersCountLoaders: MutableList<ViewersCountLoader> = ArrayList()
@@ -238,7 +225,7 @@ class AppStateManager(private val kodein: Kodein) {
         configLoader.save()
     }
 
-    fun stopChat() = lock.withLock {
+    fun stopChat(): Unit = lock.withLock {
         if (state != CHAT) IllegalStateException("Expected: $CHAT, actual: $state")
         reset()
 
@@ -246,7 +233,7 @@ class AppStateManager(private val kodein: Kodein) {
         configLoader.save()
     }
 
-    fun shutDown() = lock.withLock {
+    fun shutDown(): Unit = lock.withLock {
         logger.info("Shutting down")
 
         try {
@@ -255,37 +242,11 @@ class AppStateManager(private val kodein: Kodein) {
             logger.error("Failed to reset {} during a shutdown", this.javaClass.simpleName, t)
         }
 
-        // Запуск в отдельном треде чтобы javafx thread мог завершиться и GUI закрывался сразу
-        thread(start = true, name = "ShutdownThread") {
-            config.setProperty("lastMessageId", messageIdGenerator.lastId)
-            configLoader.save()
-
-            kodein.instance<ApplicationEngine>().stop(0, 0, TimeUnit.SECONDS)
-            logger.info("Http/websocket server was stopped")
-
-            youtubeExecutor.shutdownNow()
-            logger.info("Youtube executor was stopped")
-
-            okHttpClient.dispatcher().executorService().shutdown()
-            logger.info("OkHttpClient thread pool shutdown was completed")
-            okHttpClient.connectionPool().evictAll()
-            logger.info("OkHttpClient connections was evicted")
-        }
-
-        thread(start = true, name = "TerminationThread", isDaemon = true) {
-            sleep(shutdownTimeout)
-
-            val threadsToPrint = Thread.getAllStackTraces()
-                    .filterNot { (thread, _) -> thread.isDaemon || hotspotThreads.contains(thread.name) }
-
-            logger.error {
-                "Process terminated after ${shutdownTimeout.toMillis()} ms of shutDown() call. Verbose information:$ls" +
-                        formatStackTraces(threadsToPrint)
-            }
-            System.exit(5)
-        }
+        config.setProperty("lastMessageId", messageIdGenerator.lastId)
+        configLoader.save()
 
         Platform.exit()
+        System.exit(0)
     }
 
     private fun ChatClient<*>.setCallbacks() {
