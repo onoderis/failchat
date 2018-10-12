@@ -12,7 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <kotlin.version>1.2.71</kotlin.version>
-        <kotlinx-coroutines.version>0.30.1</kotlinx-coroutines.version>
+        <kotlinx-coroutines.version>0.30.2</kotlinx-coroutines.version>
 
         <kodein.version>4.0.0</kodein.version>
         <jackson.version>2.5.2</jackson.version>
