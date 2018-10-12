@@ -3,6 +3,10 @@
     background: #FFDB5F;
 }
 
+body {
+    color: white;
+}
+
 /* Viewers bar */
 
 .viewers-bar {
@@ -37,7 +41,7 @@ span.highlighted {
 }
 
 .message a {
-    color: #7fcdff;
+    color: #7FCDFF;
 }
 
 /* Animations */
