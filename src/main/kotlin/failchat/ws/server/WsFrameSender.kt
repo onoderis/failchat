@@ -9,7 +9,6 @@ import io.ktor.websocket.DefaultWebSocketServerSession
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.launch
 import mu.KLogging
 
@@ -23,7 +22,7 @@ class WsFrameSender {
 
     fun start() {
         CoroutineScope(job).launch {
-            channel.consumeEach { message ->
+            for (message in channel) {
                 when (message) {
                     is SessionOpened -> {
                         val session = message.session
