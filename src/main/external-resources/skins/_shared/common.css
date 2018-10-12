@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Roboto");
+@import url("https://fonts.googleapis.com/css?family=Roboto:400,700&amp;subset=cyrillic");
 
 @font-face {
     font-family: icomoon;
@@ -16,6 +16,7 @@ body {
     margin: 0;
     font-family: Roboto, Arial, sans-serif;
     font-size: 18px;
+    font-weight: normal;
     color: #CACACA;
 }
 
@@ -134,7 +135,7 @@ span.highlighted {
 }
 
 span.origin-name {
-    font-weight: bold;
+    font-weight: bolder;
     color: #567197;
 }
 
