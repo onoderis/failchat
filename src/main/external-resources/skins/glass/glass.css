@@ -29,16 +29,12 @@ span.nick::after {
 }
 
 .viewers-counter span {
-    font-weight: normal;
-    font-family: Verdana, Geneva, sans-serif;
-    font-size: 16px;
-    color: #FFF;
+    color: #FFFFFF;
 }
 
 .message {
     display: flex;
     flex-direction: row;
-    font-size: 14px;
     color: #FFFFFF;
     background: linear-gradient(
             135deg,
@@ -53,7 +49,6 @@ span.nick::after {
     margin-top: 5px;
     position: relative;
     animation: appear-bottom 0.4s;
-    font-family: Verdana, Geneva, sans-serif;
 }
 
 .message::before {
@@ -126,7 +121,6 @@ span.status-text {
 
 .mod-buttons span {
     color: #c02b2b;
-    font-size: 13px;
 }
 
 @keyframes appear-bottom {
