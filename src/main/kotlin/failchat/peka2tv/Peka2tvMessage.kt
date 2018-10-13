@@ -1,5 +1,6 @@
 package failchat.peka2tv
 
+import failchat.Origin
 import failchat.Origin.PEKA2TV
 import failchat.chat.Author
 import failchat.chat.ChatMessage
@@ -12,5 +13,5 @@ class Peka2tvMessage(
         val type: String,
         val toUser: Peka2tvUser?, //for HighlightHandler
         val badgeId: Peka2tvBadgeId
-) : ChatMessage(id, PEKA2TV, Author(fromUser.name), text)
+) : ChatMessage(id, PEKA2TV, Author(fromUser.name, Origin.PEKA2TV), text)
 

@@ -1,5 +1,6 @@
 package failchat.youtube
 
+import failchat.Origin
 import failchat.chat.Author
 import failchat.emoticon.Emoticon
 import failchat.okHttpClient
@@ -24,7 +25,7 @@ class YtEmojiHandlerTest {
     fun fourCharacterEmojiTest()  = testYtEmojiHandler("👦\uD83C\uDFFD")
 
     private fun testYtEmojiHandler(text: String) {
-        val message = YtMessage(0, "mid", Author("author", "aid"), text)
+        val message = YtMessage(0, "mid", Author("author", Origin.YOUTUBE, "aid"), text)
 
         emojiHandler.handleMessage(message)
 

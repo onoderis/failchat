@@ -218,7 +218,7 @@ class YtChatClient(
         val message = YtMessage(
                 messageIdGenerator.generate(),
                 this.id,
-                Author(this.authorDetails.displayName, this.authorDetails.channelId),
+                Author(this.authorDetails.displayName, Origin.YOUTUBE, this.authorDetails.channelId),
                 this.snippet.displayMessage
         )
 

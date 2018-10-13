@@ -16,4 +16,4 @@ class GgMessage(
         val authorColorName: String,
         val sponsorLevel: Int,
         val authorRights: Int
-) : ChatMessage(id, Origin.GOODGAME, Author(author), text)
+) : ChatMessage(id, Origin.GOODGAME, Author(author, Origin.GOODGAME), text)

@@ -12,4 +12,4 @@ class TwitchMessage(
         val emotesTag: String?,
         /** Non-empty string with badges. */
         val badgesTag: String?
-) : ChatMessage(id, Origin.TWITCH, Author(author), text)
+) : ChatMessage(id, Origin.TWITCH, Author(author, Origin.TWITCH), text)
