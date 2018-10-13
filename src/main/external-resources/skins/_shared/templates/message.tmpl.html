@@ -1,4 +1,4 @@
-<div class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}">
+<div class="message" id="message-{{:id}}" message-id="{{:id}}" author-id="{{:author.id}}#{{:origin}}{{if author.id !== author.name}} ({{:author.name}}){{/if}}">
     <div class="badges">
         <img class="origin-badge" src="{{:iconsPath}}{{:origin}}.png">
         <div class="user-badges">

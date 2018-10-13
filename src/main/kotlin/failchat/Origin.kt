@@ -11,5 +11,21 @@ enum class Origin(val commonName: String) { //todo rename to MessageOrigin, remo
     BTTV_CHANNEL("bttvChannel"),
     YOUTUBE("youtube"),
     CYBERGAME("cybergame"),
-    FAILCHAT("failchat")
+    FAILCHAT("failchat");
+
+    companion object {
+        private val map: Map<String, Origin> = values().map { it.commonName to it }.toMap()
+
+        fun byCommonName(name: String): Origin {
+            return map[name] ?: throw IllegalArgumentException("No origin found with name '$name'")
+        }
+    }
 }
+
+val chatOrigins = listOf(
+        Origin.PEKA2TV,
+        Origin.GOODGAME,
+        Origin.TWITCH,
+        Origin.YOUTUBE,
+        Origin.CYBERGAME
+)

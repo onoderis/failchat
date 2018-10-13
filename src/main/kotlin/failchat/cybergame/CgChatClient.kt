@@ -168,6 +168,7 @@ class CgChatClient(
                 messageIdGenerator.generate(),
                 Author(
                         messageDataNode.get("nickname").asText(),
+                        Origin.CYBERGAME,
                         messageDataNode.get("uid").asText()
                 ),
                 messageContentFolder.text
