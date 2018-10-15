@@ -2,39 +2,22 @@ package failchat.peka2tv
 
 import failchat.Origin
 import failchat.chat.MessageHandler
+import failchat.chat.handlers.SemicolonCodeProcessor
+import failchat.chat.handlers.SemicolonCodeProcessor.Decision
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonFinder
 import failchat.goodgame.GgEmoticon
-import java.util.regex.Pattern
 
 class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHandler<Peka2tvMessage> {
 
-    private companion object {
-        val emoticonCodePattern: Pattern = Pattern.compile("""((?<=:)([\w-]+)(?=:))""")
-    }
-
     override fun handleMessage(message: Peka2tvMessage) {
-        //todo refactor
-        var matcher = emoticonCodePattern.matcher(message.text)
-        var position = 0 // чтобы не начинать искать сначала, если :something: найдено, но это не смайл
-        while (matcher.find(position)) {
-            val code = matcher.group().toLowerCase() //ignore case
-
-            val emoticon = findByMultiOriginCode(code)
+        message.text = SemicolonCodeProcessor.process(message.text) { code ->
+            val emoticon = findByMultiOriginCode(code.toLowerCase()) //ignore case
             if (emoticon != null) {
-                val num = message.addElement(emoticon)
-
-                //replace emoticon text for object
-                val start = matcher.start()
-                val end = matcher.end()
-                val sb = StringBuilder(message.text)
-                sb.delete(start - 1, end + 1) // for ':'
-                sb.insert(start - 1, num)
-                message.text = sb.toString()
-                matcher = emoticonCodePattern.matcher(message.text)
-                position = start
+                val elementLabel = message.addElement(emoticon)
+                Decision.Replace(elementLabel)
             } else {
-                position = matcher.end()
+                Decision.Skip
             }
         }
     }

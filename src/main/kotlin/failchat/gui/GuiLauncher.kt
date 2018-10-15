@@ -15,6 +15,7 @@ import javafx.scene.control.ButtonType
 import javafx.scene.image.Image
 import javafx.stage.Stage
 import mu.KotlinLogging
+import java.nio.file.Path
 
 class GuiLauncher : Application() {
 
@@ -24,8 +25,13 @@ class GuiLauncher : Application() {
     }
 
     override fun start(primaryStage: Stage) {
-        val settings = SettingsFrame(primaryStage, kodein.instance<GuiEventHandler>(),
-                kodein.instance<ConfigLoader>().get(), kodein.instance<List<Skin>>())
+        val settings = SettingsFrame(
+                primaryStage,
+                kodein.instance<GuiEventHandler>(),
+                kodein.instance<ConfigLoader>().get(),
+                kodein.instance<List<Skin>>(),
+                kodein.instance<Path>("customEmoticonsDirectory")
+        )
         val chat = ChatFrame(
                 kodein.instance<ConfigLoader>().get(),
                 kodein.instance<GuiEventHandler>(),
@@ -40,7 +46,7 @@ class GuiLauncher : Application() {
         settings.show()
         logger.info("GUI loaded")
 
-        chat.clearWebContent() // init web engine (fix for flickering)
+        chat.clearWebContent() // init web engine (fix flickering)
 
         showUpdateNotificationOnNewRelease()
 

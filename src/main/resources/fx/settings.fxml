@@ -359,6 +359,11 @@
                                                         <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </CheckBox>
+                                    <Button fx:id="custom_emoticons" mnemonicParsing="false" text="Custom emoticons">
+                                       <VBox.margin>
+                                          <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                       </VBox.margin>
+                                    </Button>
                                             </children>
                                             <HBox.margin>
                                                 <Insets left="20.0" right="20.0" />

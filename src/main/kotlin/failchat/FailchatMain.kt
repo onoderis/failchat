@@ -48,6 +48,7 @@ import org.apache.commons.configuration2.Configuration
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.ServerSocket
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -104,7 +105,12 @@ fun main(args: Array<String>) {
         badgeManager.loadGlobalBadges()
     }
 
+
     val config: Configuration = kodein.instance()
+
+    // Create directory for custom emoticons if required
+    Files.createDirectories(kodein.instance<Path>("customEmoticonsDirectory"))
+
     val workingDirectory = kodein.instance<Path>("workingDirectory").toAbsolutePath()
     logger.info("Application started. Version: {}. Working directory: {}", config.getString("version"), workingDirectory)
 }
@@ -161,12 +167,16 @@ fun createHttpServer(): ApplicationEngine {
 fun KtorApplication.failchat() {
     val wsMessageDispatcher: WsMessageDispatcher = kodein.instance()
     val wsFrameSender: WsFrameSender = kodein.instance()
+    val customEmoticonsPath: Path = kodein.instance("customEmoticonsDirectory")
 
     install(WebSockets)
 
     routing {
         static("resources") {
             files("skins")
+        }
+        static("emoticons") {
+            files(customEmoticonsPath.toFile())
         }
 
         webSocket("/chat") {

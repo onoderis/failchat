@@ -17,6 +17,7 @@ import failchat.chat.ChatMessageRemover
 import failchat.chat.ChatMessageSender
 import failchat.chat.MessageIdGenerator
 import failchat.chat.badge.BadgeManager
+import failchat.chat.handlers.CustomEmoticonHandler
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
 import failchat.cybergame.CgApiClient
@@ -77,7 +78,8 @@ class AppStateManager(private val kodein: Kodein) {
     private val bttvApiClient: BttvApiClient = kodein.instance()
     private val emoticonStorage: EmoticonStorage = kodein.instance()
     private val badgeManager: BadgeManager = kodein.instance()
-    private val backroundExecutorDispatcher = kodein.instance<ScheduledExecutorService>("background").asCoroutineDispatcher()
+    private val backgroundExecutorDispatcher = kodein.instance<ScheduledExecutorService>("background").asCoroutineDispatcher()
+    private val customEmoticonHandler: CustomEmoticonHandler = kodein.instance()
 
     private val lock: Lock = ReentrantLock()
     private val config: Configuration = configLoader.get()
@@ -122,7 +124,7 @@ class AppStateManager(private val kodein: Kodein) {
             viewersCountLoaders.add(kodein.factory<String, TwitchViewersCountLoader>().invoke(channelName))
 
             // load channel badges in background
-            launch(backroundExecutorDispatcher + CoroutineName("TwitchBadgeLoader") + CoroutineExceptionLogger) {
+            launch(backgroundExecutorDispatcher + CoroutineName("TwitchBadgeLoader") + CoroutineExceptionLogger) {
                 val channelId: Long = twitchApiClient.requestUserId(channelName).await()
                 badgeManager.loadTwitchChannelBadges(channelId)
             }
@@ -223,6 +225,8 @@ class AppStateManager(private val kodein: Kodein) {
 
         // Save config
         configLoader.save()
+
+        customEmoticonHandler.scanEmoticonsDirectory()
     }
 
     fun stopChat(): Unit = lock.withLock {

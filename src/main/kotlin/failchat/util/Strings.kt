@@ -15,6 +15,12 @@ fun String?.notEmptyOrNull(): String? {
     return this
 }
 
+fun String.endsWithAny(suffixes: Iterable<String>): Boolean {
+    return suffixes.any { suffix ->
+        this.endsWith(suffix)
+    }
+}
+
 fun Int.toHexString(): String = java.lang.Integer.toHexString(this)
 
 fun toCodePoint(high: Char, low: Char): Int = java.lang.Character.toCodePoint(high, low)
