@@ -14,11 +14,14 @@ import failchat.chat.MessageIdGenerator
 import failchat.chat.badge.BadgeFinder
 import failchat.chat.badge.BadgeManager
 import failchat.chat.badge.BadgeStorage
+import failchat.chat.handlers.CustomEmoticonHandler
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
+import failchat.chat.handlers.LinkHandler
 import failchat.cybergame.CgApiClient
 import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
+import failchat.emoticon.CustomEmoticonScanner
 import failchat.emoticon.EmoticonFinder
 import failchat.emoticon.EmoticonManager
 import failchat.emoticon.EmoticonStorage
@@ -101,8 +104,8 @@ val kodein = Kodein {
         ChatMessageSender(
                 instance<WsFrameSender>(),
                 instance<Configuration>(),
-                instance<IgnoreFilter>(),
-                instance<ImageLinkHandler>()
+                listOf(instance<IgnoreFilter>()),
+                listOf(LinkHandler(), instance<ImageLinkHandler>(), instance<CustomEmoticonHandler>())
         )
     }
     bind<ChatMessageRemover>() with singleton {
@@ -147,11 +150,20 @@ val kodein = Kodein {
     // Message handlers and filters
     bind<IgnoreFilter>() with singleton { IgnoreFilter(instance<Configuration>()) }
     bind<ImageLinkHandler>() with singleton { ImageLinkHandler(instance<Configuration>()) }
+    bind<CustomEmoticonHandler>() with singleton {
+        val scanner = CustomEmoticonScanner(
+                instance<Path>("customEmoticonsDirectory"),
+                instance<String>("customEmoticonsUrl")
+        )
+        CustomEmoticonHandler(scanner)
+    }
 
 
     // Etc
     bind<Path>("workingDirectory") with singleton { Paths.get("") }
     bind<Path>("homeDirectory") with singleton { Paths.get(System.getProperty("user.home")).resolve(".failchat") }
+    bind<Path>("customEmoticonsDirectory") with singleton { instance<Path>("homeDirectory").resolve("custom-emoticons") }
+    bind<String>("customEmoticonsUrl") with singleton { "http://$httpServerHost:$httpServerPort/emoticons/" }
     bind<String>("userId") with singleton { instance<UserIdManager>().getUserId() }
 
     bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastMessageId")) }

@@ -6,9 +6,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.chat.StatusMessageMode.NOWHERE
 import failchat.chat.badge.CharacterBadge
 import failchat.chat.badge.ImageBadge
-import failchat.chat.handlers.IgnoreFilter
-import failchat.chat.handlers.ImageLinkHandler
-import failchat.chat.handlers.LinkHandler
 import failchat.emoticon.Emoticon
 import failchat.gui.StatusMessageModeConverter
 import failchat.viewers.COUNTABLE_ORIGINS
@@ -20,23 +17,18 @@ import org.apache.commons.configuration2.Configuration
 class ChatMessageSender(
         private val wsFrameSender: WsFrameSender,
         private val config: Configuration,
-        ignoreFilter: IgnoreFilter,
-        imageLinkHandler: ImageLinkHandler
+        private val filters: List<MessageFilter<ChatMessage>>,
+        private val handlers: List<MessageHandler<ChatMessage>>
 ) {
 
     private companion object : KLogging()
 
     private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
-    private val handlers: List<MessageHandler<ChatMessage>> = listOf(
-            LinkHandler(),
-            imageLinkHandler
-    )
-    private val filters: List<MessageFilter<ChatMessage>> = listOf(ignoreFilter)
     private val statusMessagesModeConverter = StatusMessageModeConverter()
 
 
     fun send(message: ChatMessage) {
-        // Apply filters and handlers
+        // apply filters and handlers
         filters.forEach {
             if (it.filterMessage(message)) return
         }

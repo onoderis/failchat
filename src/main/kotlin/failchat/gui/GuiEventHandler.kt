@@ -6,8 +6,7 @@ import failchat.util.executeWithCatch
 import java.util.concurrent.Executors
 
 /**
- * Перехватывает задачи от JavaFX треда и выполняет их в отдельном пуле. Позволяет снизить время отклика
- * графического интерфейса.
+ * Перехватывает задачи от JavaFX треда и выполняет их в отдельном пуле.
  * */
 class GuiEventHandler(
         private val appStateManager: AppStateManager,

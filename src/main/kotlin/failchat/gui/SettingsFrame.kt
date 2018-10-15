@@ -21,12 +21,14 @@ import javafx.scene.text.Text
 import javafx.stage.Stage
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
+import java.nio.file.Path
 
 class SettingsFrame(
         private val stage: Stage,
         private val guiEventHandler: GuiEventHandler,
         private val config: Configuration,
-        private val skinList: List<Skin>
+        private val skinList: List<Skin>,
+        private val customEmoticonsDirectory: Path
 ) {
 
     private companion object : KLogging()
@@ -66,6 +68,7 @@ class SettingsFrame(
     private val showOriginBadges = scene.lookup("#show_origin_badges") as CheckBox
     private val showUserBadges = scene.lookup("#show_user_badges") as CheckBox
     private val zoomPercent = scene.lookup("#zoom_percent") as TextField
+    private val customEmoticonsButton = scene.lookup("#custom_emoticons") as Button
 
     // Ignore list tab
     private val ignoreList = scene.lookup("#ignore_list") as TextArea
@@ -109,12 +112,16 @@ class SettingsFrame(
             guiEventHandler.shutDown()
         }
 
+
         val opacityText = scene.lookup("#opacity_text") as Text
         opacitySlider.valueProperty().addListener { _, _, newValue ->
             opacityText.text = Integer.toString(newValue.toInt())
         }
 
-        startButton.setOnAction { toChat() }
+        customEmoticonsButton.setOnAction {
+            app.hostServices.showDocument(customEmoticonsDirectory.toUri().toString())
+        }
+
 
         val githubLink = scene.lookup("#github_link") as Hyperlink
         githubLink.setOnAction {
@@ -125,6 +132,9 @@ class SettingsFrame(
         discordLink.setOnAction {
             app.hostServices.showDocument(config.getString("about.discord-server"))
         }
+
+
+        startButton.setOnAction { toChat() }
     }
 
     fun show() {
