@@ -31,15 +31,15 @@ class GAEventReporter(
                 .host("www.google-analytics.com")
 //                .addPathSegment("debug")
                 .addPathSegment("collect")
-                .addQueryParameter("v", "1") //Protocol Version
-                .addQueryParameter("tid", trackingId) //Tracking ID
-                .addQueryParameter("cid", userId) //Client ID
-                .addQueryParameter("t", "event") //Hit Type
-                .addQueryParameter("ec", category.queryParamValue) //Event Category
-                .addQueryParameter("ea", action.queryParamValue) //Event Action
-                .addQueryParameter("ul", languageTag) //User Language
-                .addQueryParameter("an", "failchat") //Application Name
-                .addQueryParameter("av", failchatVersion) //Application Version
+                .addQueryParameter("v", "1")                       // Protocol Version
+                .addQueryParameter("tid", trackingId)              // Tracking ID
+                .addQueryParameter("cid", userId)                  // Client ID
+                .addQueryParameter("t", "event")                   // Hit Type
+                .addQueryParameter("ec", category.queryParamValue) // Event Category
+                .addQueryParameter("ea", action.queryParamValue)   // Event Action
+                .addQueryParameter("ul", languageTag)              // User Language
+                .addQueryParameter("an", "failchat")               // Application Name
+                .addQueryParameter("av", failchatVersion)          // Application Version
 //                .addQueryParameter("ni", if (action == Heartbeat) "1" else "0") // Non-Interaction Hit
                 .build()
 
