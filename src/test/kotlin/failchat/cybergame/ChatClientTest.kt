@@ -1,5 +1,6 @@
 package failchat.cybergame
 
+import failchat.chat.ChatMessageHistory
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus
 import failchat.config
@@ -15,20 +16,26 @@ import kotlin.test.assertTrue
 
 class ChatClientTest {
 
+    private val history = ChatMessageHistory(10)
     private lateinit var chatClient: CgChatClient
 
     private fun initChatClient(name: String, channelId: Long) {
+        history.start()
         chatClient = CgChatClient(
                 name,
                 channelId,
                 config.getString("cybergame.ws-url"),
                 config.getString("cybergame.emoticon-url-prefix"),
-                MessageIdGenerator(0)
+                MessageIdGenerator(0),
+                history
         )
     }
 
     @After
-    fun stopChatClient() = chatClient.stop()
+    fun stopChatClient() {
+        chatClient.stop()
+        history.stop()
+    }
 
     @Test
     fun connectionTest() {

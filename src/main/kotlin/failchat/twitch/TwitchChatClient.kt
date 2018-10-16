@@ -1,20 +1,21 @@
 package failchat.twitch
 
-import com.google.common.collect.EvictingQueue
 import failchat.Origin
 import failchat.Origin.TWITCH
 import failchat.chat.ChatClient
 import failchat.chat.ChatClientStatus
+import failchat.chat.ChatMessageHistory
 import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
 import failchat.chat.OriginStatus.DISCONNECTED
 import failchat.chat.StatusMessage
+import failchat.chat.findTyped
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.emoticon.EmoticonFinder
 import failchat.util.notEmptyOrNull
-import failchat.util.synchronized
+import kotlinx.coroutines.experimental.runBlocking
 import mu.KLogging
 import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
@@ -40,7 +41,8 @@ class TwitchChatClient(
         emoticonFinder: EmoticonFinder,
         private val messageIdGenerator: MessageIdGenerator,
         bttvEmoticonHandler: BttvEmoticonHandler,
-        twitchBadgeHandler: MessageHandler<TwitchMessage>
+        twitchBadgeHandler: MessageHandler<TwitchMessage>,
+        private val history: ChatMessageHistory
 ) : ChatClient<TwitchMessage> {
 
     private companion object : KLogging() {
@@ -67,7 +69,6 @@ class TwitchChatClient(
             TwitchHighlightHandler(userName),
             twitchBadgeHandler
     )
-    private val history = EvictingQueue.create<TwitchMessage>(50).synchronized()
 
 
     init {
@@ -159,7 +160,11 @@ class TwitchChatClient(
             if (!matcher.find()) return
 
             val author = matcher.group(1)
-            val messagesToDelete = history.filter { it.author.id.equals(author, ignoreCase = true) }
+            val messagesToDelete = runBlocking {
+                history
+                        .findTyped<TwitchMessage> { it.author.id.equals(author, ignoreCase = true) }
+                        .await()
+            }
 
             onChatMessageDeleted?.let { messagesToDelete.forEach(it) }
         }

@@ -1,13 +1,13 @@
 package failchat.cybergame
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.google.common.collect.EvictingQueue
 import failchat.Origin
 import failchat.chat.Author
 import failchat.chat.ChatClient
 import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.READY
 import failchat.chat.ChatMessage
+import failchat.chat.ChatMessageHistory
 import failchat.chat.Elements
 import failchat.chat.ImageFormat.RASTER
 import failchat.chat.ImageFormat.VECTOR
@@ -18,14 +18,15 @@ import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
 import failchat.chat.OriginStatus.DISCONNECTED
 import failchat.chat.StatusMessage
+import failchat.chat.findTyped
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.CommaHighlightHandler
 import failchat.util.objectMapper
-import failchat.util.synchronized
 import failchat.util.urlPattern
 import failchat.util.value
 import failchat.util.withSuffix
 import failchat.ws.client.WsClient
+import kotlinx.coroutines.experimental.runBlocking
 import mu.KLogging
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
@@ -36,7 +37,8 @@ class CgChatClient(
         private val channelId: Long,
         wsUrl: String,
         private val emoticonUrlPrefix: String,
-        private val messageIdGenerator: MessageIdGenerator
+        private val messageIdGenerator: MessageIdGenerator,
+        private val history: ChatMessageHistory
 ) : ChatClient<ChatMessage> {
 
     private companion object : KLogging() {
@@ -45,7 +47,6 @@ class CgChatClient(
 
     private val wsClient = CgWsClient(URI(wsUrl.withSuffix("/")))
     private val aStatus: AtomicReference<ChatClientStatus> = AtomicReference(READY)
-    private val history = EvictingQueue.create<CgChatMessage>(50).synchronized()
     private val handlers: List<MessageHandler<CgChatMessage>> = listOf(
             //todo ElementLabelEscaper(),
             BraceEscaper(),
@@ -107,8 +108,11 @@ class CgChatClient(
 
                 CgWsMessageType.CLEAR.jsonValue -> {
                     val userId: String = data.get("message").get("uid").asText()
-                    history
-                            .filter { it.author.id == userId }
+                    runBlocking {
+                        history
+                                .findTyped<CgChatMessage> {it.author.id == userId }
+                                .await()
+                    }
                             .forEach { onChatMessageDeleted?.invoke(it) }
                 }
 

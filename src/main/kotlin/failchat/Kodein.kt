@@ -8,6 +8,7 @@ import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.singleton
 import com.google.api.services.youtube.YouTube
 import either.Either
+import failchat.chat.ChatMessageHistory
 import failchat.chat.ChatMessageRemover
 import failchat.chat.ChatMessageSender
 import failchat.chat.MessageIdGenerator
@@ -105,7 +106,8 @@ val kodein = Kodein {
                 instance<WsFrameSender>(),
                 instance<Configuration>(),
                 listOf(instance<IgnoreFilter>()),
-                listOf(LinkHandler(), instance<ImageLinkHandler>(), instance<CustomEmoticonHandler>())
+                listOf(LinkHandler(), instance<ImageLinkHandler>(), instance<CustomEmoticonHandler>()),
+                instance<ChatMessageHistory>()
         )
     }
     bind<ChatMessageRemover>() with singleton {
@@ -123,6 +125,7 @@ val kodein = Kodein {
                 instance<ChatMessageSender>()
         )
     }
+    bind<ChatMessageHistory>() with singleton { ChatMessageHistory(50) }
 
     // Emoticons
     bind<EmoticonStorage>() with singleton { EmoticonStorage() }
@@ -227,7 +230,8 @@ val kodein = Kodein {
                 okHttpClient = instance<OkHttpClient>(),
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 emoticonHandler = instance<Peka2tvEmoticonHandler>(),
-                badgeHandler = instance<Peka2tvBadgeHandler>()
+                badgeHandler = instance<Peka2tvBadgeHandler>(),
+                history = instance<ChatMessageHistory>()
         )
     }
 
@@ -272,7 +276,8 @@ val kodein = Kodein {
                 emoticonFinder = instance<EmoticonFinder>(),
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 bttvEmoticonHandler = instance<BttvEmoticonHandler>(),
-                twitchBadgeHandler = instance<TwitchBadgeHandler>()
+                twitchBadgeHandler = instance<TwitchBadgeHandler>(),
+                history = instance<ChatMessageHistory>()
         )
     }
     bind<TwitchViewersCountLoader>() with factory { channelName: String ->
@@ -301,7 +306,8 @@ val kodein = Kodein {
                 webSocketUri = instance<Configuration>().getString("goodgame.ws-url"),
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 emoticonHandler = instance<GgEmoticonHandler>(),
-                badgeHandler = factory<GgChannel, GgBadgeHandler>().invoke(channel)
+                badgeHandler = factory<GgChannel, GgBadgeHandler>().invoke(channel),
+                history = instance<ChatMessageHistory>()
         )
     }
     bind<GgApiClient>() with singleton {
@@ -329,7 +335,8 @@ val kodein = Kodein {
                 channelIdOrVideoId,
                 instance<YtApiClient>(),
                 instance<ScheduledExecutorService>("youtube"),
-                instance<MessageIdGenerator>()
+                instance<MessageIdGenerator>(),
+                instance<ChatMessageHistory>()
         )
     }
 
@@ -346,7 +353,8 @@ val kodein = Kodein {
                 channelId = channelNameAndId.second,
                 wsUrl = instance<Configuration>().getString("cybergame.ws-url"),
                 emoticonUrlPrefix = instance<Configuration>().getString("cybergame.emoticon-url-prefix"),
-                messageIdGenerator = instance<MessageIdGenerator>()
+                messageIdGenerator = instance<MessageIdGenerator>(),
+                history = instance<ChatMessageHistory>()
         )
     }
     bind<CgViewersCountLoader>() with factory { channelName: String ->

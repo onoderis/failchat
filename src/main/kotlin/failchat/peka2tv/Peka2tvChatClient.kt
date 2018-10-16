@@ -1,6 +1,5 @@
 package failchat.peka2tv
 
-import com.google.common.collect.EvictingQueue
 import failchat.Origin
 import failchat.Origin.PEKA2TV
 import failchat.chat.ChatClient
@@ -8,19 +7,21 @@ import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.CONNECTING
 import failchat.chat.ChatClientStatus.OFFLINE
 import failchat.chat.ChatClientStatus.READY
+import failchat.chat.ChatMessageHistory
 import failchat.chat.MessageFilter
 import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
 import failchat.chat.OriginStatus.DISCONNECTED
 import failchat.chat.StatusMessage
+import failchat.chat.findFirstTyped
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.exception.UnexpectedResponseException
-import failchat.util.synchronized
 import failchat.viewers.ViewersCountLoader
 import io.socket.client.IO
 import io.socket.client.Socket
+import kotlinx.coroutines.experimental.runBlocking
 import mu.KLogging
 import okhttp3.OkHttpClient
 import org.json.JSONObject
@@ -34,7 +35,8 @@ class Peka2tvChatClient(
         private val okHttpClient: OkHttpClient,
         private val messageIdGenerator: MessageIdGenerator,
         emoticonHandler: Peka2tvEmoticonHandler,
-        badgeHandler: Peka2tvBadgeHandler
+        badgeHandler: Peka2tvBadgeHandler,
+        private val history: ChatMessageHistory
 ) : ChatClient<Peka2tvMessage>, ViewersCountLoader {
 
     private companion object : KLogging()
@@ -49,7 +51,6 @@ class Peka2tvChatClient(
 
     private val socket = buildSocket()
     private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(READY)
-    private val history = EvictingQueue.create<Peka2tvMessage>(50).synchronized()
 
     private val messageHandlers: List<MessageHandler<Peka2tvMessage>> = listOf(
             ElementLabelEscaper(),
@@ -174,7 +175,12 @@ class Peka2tvChatClient(
                     val removeMessage = objects[0] as JSONObject
                     val idToRemove = removeMessage.getLong("id")
 
-                    val foundMessage = history.find { it.peka2tvId == idToRemove }
+                    val foundMessage = runBlocking {
+                        history
+                                .findFirstTyped<Peka2tvMessage> { it.peka2tvId == idToRemove }
+                                .await()
+                    }
+
                     foundMessage?.let { onChatMessageDeleted?.invoke(it) }
                 }
 
