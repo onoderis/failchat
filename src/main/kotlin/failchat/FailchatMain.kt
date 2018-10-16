@@ -1,6 +1,7 @@
 package failchat
 
 import com.github.salomonbrys.kodein.instance
+import failchat.chat.ChatMessageHistory
 import failchat.chat.badge.BadgeManager
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonLoader
@@ -105,6 +106,7 @@ fun main(args: Array<String>) {
         badgeManager.loadGlobalBadges()
     }
 
+    kodein.instance<ChatMessageHistory>().start()
 
     val config: Configuration = kodein.instance()
 

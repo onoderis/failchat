@@ -10,6 +10,7 @@ import failchat.emoticon.Emoticon
 import failchat.gui.StatusMessageModeConverter
 import failchat.viewers.COUNTABLE_ORIGINS
 import failchat.ws.server.WsFrameSender
+import kotlinx.coroutines.experimental.runBlocking
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
 
@@ -18,7 +19,8 @@ class ChatMessageSender(
         private val wsFrameSender: WsFrameSender,
         private val config: Configuration,
         private val filters: List<MessageFilter<ChatMessage>>,
-        private val handlers: List<MessageHandler<ChatMessage>>
+        private val handlers: List<MessageHandler<ChatMessage>>,
+        private val history: ChatMessageHistory
 ) {
 
     private companion object : KLogging()
@@ -34,6 +36,9 @@ class ChatMessageSender(
         }
         handlers.forEach { it.handleMessage(message) }
 
+        runBlocking {
+            history.add(message)
+        }
 
         val messageNode = nodeFactory.objectNode().apply {
             put("type", "message")

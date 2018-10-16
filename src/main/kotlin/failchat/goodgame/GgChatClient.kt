@@ -1,24 +1,25 @@
 package failchat.goodgame
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.google.common.collect.EvictingQueue
 import failchat.Origin
 import failchat.Origin.GOODGAME
 import failchat.chat.ChatClient
 import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.OFFLINE
+import failchat.chat.ChatMessageHistory
 import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
 import failchat.chat.OriginStatus.DISCONNECTED
 import failchat.chat.StatusMessage
+import failchat.chat.findFirstTyped
 import failchat.chat.handlers.CommaHighlightHandler
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.util.objectMapper
-import failchat.util.synchronized
 import failchat.util.whileNotNull
 import failchat.viewers.ViewersCountLoader
 import failchat.ws.client.WsClient
+import kotlinx.coroutines.experimental.runBlocking
 import mu.KLogging
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
@@ -33,7 +34,8 @@ class GgChatClient(
         private val webSocketUri: String,
         private val messageIdGenerator: MessageIdGenerator,
         emoticonHandler: MessageHandler<GgMessage>,
-        badgeHandler: GgBadgeHandler
+        badgeHandler: GgBadgeHandler,
+        private val history: ChatMessageHistory
 ) : ChatClient<GgMessage>, ViewersCountLoader {
 
     private companion object : KLogging()
@@ -57,7 +59,6 @@ class GgChatClient(
             badgeHandler
     )
 
-    private val history = EvictingQueue.create<GgMessage>(50).synchronized()
     private val viewersCountFutures: Queue<CompletableFuture<Int>> = ConcurrentLinkedQueue()
 
 
@@ -169,7 +170,11 @@ class GgChatClient(
         private fun handleModMessage(dataNode: JsonNode) {
             val idToRemove = dataNode.get("message_id").asText().toLong()
 
-            val foundMessage = history.find { it.ggId == idToRemove }
+            val foundMessage = runBlocking {
+                history
+                        .findFirstTyped<GgMessage> { it.ggId == idToRemove }
+                        .await()
+            }
             foundMessage?.let { onChatMessageDeleted?.invoke(it) }
         }
 

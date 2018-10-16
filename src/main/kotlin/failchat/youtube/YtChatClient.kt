@@ -1,7 +1,6 @@
 package failchat.youtube
 
 import com.google.api.services.youtube.model.LiveChatMessage
-import com.google.common.collect.EvictingQueue
 import either.Either
 import either.fold
 import failchat.Origin
@@ -12,6 +11,7 @@ import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.CONNECTING
 import failchat.chat.ChatClientStatus.OFFLINE
 import failchat.chat.ChatClientStatus.READY
+import failchat.chat.ChatMessageHistory
 import failchat.chat.ImageFormat.VECTOR
 import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
@@ -19,15 +19,16 @@ import failchat.chat.OriginStatus.CONNECTED
 import failchat.chat.OriginStatus.DISCONNECTED
 import failchat.chat.StatusMessage
 import failchat.chat.badge.ImageBadge
+import failchat.chat.findFirstTyped
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.exception.ChannelOfflineException
 import failchat.util.any
 import failchat.util.executeWithCatch
 import failchat.util.scheduleWithCatch
-import failchat.util.synchronized
 import failchat.util.value
 import failchat.viewers.ViewersCountLoader
+import kotlinx.coroutines.experimental.runBlocking
 import mu.KLogging
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
@@ -42,7 +43,8 @@ class YtChatClient(
         private val channelIdOrBroadcastId: Either<ChannelId, VideoId>,
         private val ytApiClient: YtApiClient,
         private val youtubeExecutor: ScheduledExecutorService,
-        private val messageIdGenerator: MessageIdGenerator
+        private val messageIdGenerator: MessageIdGenerator,
+        private val history: ChatMessageHistory
 ) : ChatClient<YtMessage>,
     ViewersCountLoader {
 
@@ -74,7 +76,6 @@ class YtChatClient(
     private val channelId = AtomicReference<String?>()
     private val liveBroadcastId = AtomicReference<String?>()
     private val liveChatId = AtomicReference<String?>()
-    private val history = EvictingQueue.create<YtMessage>(50).synchronized()
 
     override fun start() {
         val statusChanged = atomicStatus.compareAndSet(READY, CONNECTING)
@@ -209,7 +210,13 @@ class YtChatClient(
         // Code is not tested because youtube doesn't send delete message events
         response.items.asSequence()
                 .filter { it.snippet.type == "messageDeletedEvent" }
-                .map { ytMessage -> history.find { it.ytId == ytMessage.snippet.messageDeletedDetails.deletedMessageId } }
+                .map { ytMessage ->
+                    runBlocking {
+                        history
+                                .findFirstTyped<YtMessage> { it.ytId == ytMessage.snippet.messageDeletedDetails.deletedMessageId }
+                                .await()
+                    }
+                }
                 .filterNotNull()
                 .forEach { onChatMessageDeleted?.invoke(it) }
     }
