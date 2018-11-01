@@ -109,15 +109,19 @@ class GgApiClient(
 
     private fun parseEmoticonNode(node: JsonNode): GgEmoticon {
         val code = node.get("name").asText()
+        val id = node.get("id").longValue()
+
         val emoticon = GgEmoticon(
                 code = code,
-                url = node.get("img_big").asText()
+                url = node.get("img_big").asText(),
+                ggId = id
         )
 
         if (node.get("animated").asBoolean()) {
             emoticon.animatedInstance = GgEmoticon(
                     code = code,
-                    url = node.get("img_gif").asText()
+                    url = node.get("img_gif").asText(),
+                    ggId = id
             )
         }
 

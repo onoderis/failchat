@@ -31,6 +31,7 @@
         <mockito-kotlin.version>2.0.0-RC1</mockito-kotlin.version>
         <commons-cli.version>1.4</commons-cli.version>
         <ktor.version>0.9.5</ktor.version>
+        <mapdb.version>3.0.7</mapdb.version>
     </properties>
 
 
@@ -156,6 +157,18 @@
             <groupId>io.ktor</groupId>
             <artifactId>ktor-websockets</artifactId>
             <version>${ktor.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapdb</groupId>
+            <artifactId>mapdb</artifactId>
+            <version>${mapdb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>3.6.1</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- Logging -->

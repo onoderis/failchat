@@ -57,17 +57,17 @@ class CustomEmoticonScannerTest {
 
     @Test
     fun acceptUnderscoreInName() {
-        assertNotNull(scanResult["_"])
+        assertNotNull(scanResult["underscore_"])
     }
 
     @Test
     fun acceptMinusInName() {
-        assertNotNull(scanResult["-"])
+        assertNotNull(scanResult["minus-"])
     }
 
     @Test
     fun ignoreCase() {
-        assertNotNull(scanResult["upper_case"])
+        assertNotNull(scanResult["uppercase"])
     }
 
 }

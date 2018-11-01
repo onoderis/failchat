@@ -4,31 +4,25 @@ import com.github.salomonbrys.kodein.instance
 import failchat.chat.ChatMessageHistory
 import failchat.chat.badge.BadgeManager
 import failchat.emoticon.Emoticon
-import failchat.emoticon.EmoticonLoader
+import failchat.emoticon.EmoticonLoadConfiguration
 import failchat.emoticon.EmoticonManager
-import failchat.emoticon.EmoticonStorage
-import failchat.emoticon.EmoticonStoreOptions
-import failchat.goodgame.GgEmoticonLoader
+import failchat.goodgame.GgEmoticonLoadConfiguration
 import failchat.gui.GuiLauncher
-import failchat.peka2tv.Peka2tvEmoticonLoader
+import failchat.peka2tv.Peka2tvEmoticonLoadConfiguration
 import failchat.reporter.EventAction
 import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
-import failchat.twitch.BttvGlobalEmoticonLoader
-import failchat.twitch.TwitchEmoticonLoader
+import failchat.twitch.BttvEmoticonHandler
+import failchat.twitch.BttvGlobalEmoticonLoadConfiguration
+import failchat.twitch.TwitchEmoticonLoadConfiguration
 import failchat.util.CoroutineExceptionLogger
 import failchat.util.executeWithCatch
 import failchat.util.sp
 import failchat.ws.server.WsFrameSender
 import failchat.ws.server.WsMessageDispatcher
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
 import io.ktor.application.install
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.files
 import io.ktor.http.content.static
-import io.ktor.pipeline.PipelineContext
-import io.ktor.response.respond
 import io.ktor.routing.routing
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
@@ -97,7 +91,10 @@ fun main(args: Array<String>) {
 
 
     // Load emoticons in background thread
-    backgroundExecutor.executeWithCatch { loadEmoticons() }
+    backgroundExecutor.executeWithCatch {
+        loadEmoticons()
+        kodein.instance<BttvEmoticonHandler>().compileGlobalEmoticonsPattern()
+    }
 
     // Load global badges in background thread
     val badgeManager: BadgeManager = kodein.instance()
@@ -192,33 +189,26 @@ fun KtorApplication.failchat() {
     }
 }
 
-class MyHandler {
-    suspend fun PipelineContext<Unit, ApplicationCall>.handle(unit: Unit) {
-        call.respond(HttpStatusCode.OK, "ok")
-    }
-}
-
 private fun loadEmoticons() {
     val manager: EmoticonManager = kodein.instance()
-    val storage: EmoticonStorage = kodein.instance()
-    val loadersAndOptions: List<Pair<EmoticonLoader<out Emoticon>, EmoticonStoreOptions>> = listOf(
-            kodein.instance<Peka2tvEmoticonLoader>() to EmoticonStoreOptions(true, false),
-            kodein.instance<GgEmoticonLoader>() to EmoticonStoreOptions(true, false),
-            kodein.instance<BttvGlobalEmoticonLoader>() to EmoticonStoreOptions(true, false),
-            kodein.instance<TwitchEmoticonLoader>() to EmoticonStoreOptions(true, true)
+    val loadersAndOptions: List<EmoticonLoadConfiguration<out Emoticon>> = listOf(
+            kodein.instance<Peka2tvEmoticonLoadConfiguration>(),
+            kodein.instance<GgEmoticonLoadConfiguration>(),
+            kodein.instance<BttvGlobalEmoticonLoadConfiguration>(),
+            kodein.instance<TwitchEmoticonLoadConfiguration>()
     )
 
     loadersAndOptions.forEach {
         try {
-            manager.loadInStorage(storage, it.first, it.second)
+            manager.actualizeEmoticons(it)
         } catch (e: Exception) {
-            logger.warn("Exception during loading emoticons for origin {}", it.first.origin, e)
+            logger.warn("Exception during loading emoticons for {}", it.origin, e)
         }
     }
 }
 
 /**
- * Посылает репорт General.AppLaunch и репортит по расписанию General.Heartbeat.
+ * Send General.AppLaunch event and schedule General.Heartbeat events.
  * */
 private fun scheduleReportTasks(executor: ScheduledExecutorService) {
     val reporter = kodein.instance<EventReporter>()

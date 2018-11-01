@@ -2,7 +2,6 @@ package failchat.twitch
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.Origin
-import failchat.emoticon.Emoticon
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.thenUse
@@ -18,7 +17,7 @@ class BttvApiClient(
         private val objectMapper: ObjectMapper = ObjectMapper()
 ) {
 
-    fun loadGlobalEmoticons(): CompletableFuture<List<Emoticon>> {
+    fun loadGlobalEmoticons(): CompletableFuture<List<BttvEmoticon>> {
         val globalEmoticonsUrl = apiUrl.withSuffix("/") + "2/emotes"
 
         val request = Request.Builder()
@@ -39,7 +38,7 @@ class BttvApiClient(
     /**
      * @param channel is case insensitive.
      * */
-    fun loadChannelEmoticons(channel: String): CompletableFuture<List<Emoticon>> {
+    fun loadChannelEmoticons(channel: String): CompletableFuture<List<BttvEmoticon>> {
         val globalEmoticonsUrl = apiUrl.withSuffix("/") + "2/channels/" + channel
 
         val request = Request.Builder()
@@ -61,7 +60,7 @@ class BttvApiClient(
                 }
     }
 
-    private fun parseEmoticons(responseBody: String, origin: Origin): List<Emoticon> {
+    private fun parseEmoticons(responseBody: String, origin: Origin): List<BttvEmoticon> {
         val channelEmoticonsNode = objectMapper.readTree(responseBody)
 
         return channelEmoticonsNode
@@ -70,7 +69,8 @@ class BttvApiClient(
                     BttvEmoticon(
                             origin,
                             it.get("code").asText(),
-                            "https://cdn.betterttv.net/emote/${it.get("id").asText()}/2x"
+                            "https://cdn.betterttv.net/emote/${it.get("id").asText()}/2x",
+                            it.get("id").asText()
                     )
                 }
     }

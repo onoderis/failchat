@@ -1,21 +1,18 @@
 package failchat.goodgame
 
 import failchat.Origin
-import failchat.emoticon.EmoticonLoader
+import failchat.emoticon.EmoticonBulkLoader
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.future.future
 import java.util.concurrent.CompletableFuture
 
-class GgEmoticonLoader(private val ggApiClient: GgApiClient) : EmoticonLoader<GgEmoticon> {
+class GgEmoticonBulkLoader(private val ggApiClient: GgApiClient) : EmoticonBulkLoader<GgEmoticon> {
 
     override val origin = Origin.GOODGAME
 
     override fun loadEmoticons(): CompletableFuture<List<GgEmoticon>> {
-        return future {
+        return GlobalScope.future {
             ggApiClient.requestEmoticonList()
         }
-    }
-
-    override fun getId(emoticon: GgEmoticon): Long {
-        throw UnsupportedOperationException()
     }
 }

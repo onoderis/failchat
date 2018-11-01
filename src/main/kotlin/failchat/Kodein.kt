@@ -23,23 +23,27 @@ import failchat.cybergame.CgApiClient
 import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.CustomEmoticonScanner
+import failchat.emoticon.EmoticonDbFactory
 import failchat.emoticon.EmoticonFinder
 import failchat.emoticon.EmoticonManager
 import failchat.emoticon.EmoticonStorage
+import failchat.emoticon.OriginEmoticonStorageFactory
 import failchat.github.GithubClient
 import failchat.github.ReleaseChecker
 import failchat.goodgame.GgApiClient
 import failchat.goodgame.GgBadgeHandler
 import failchat.goodgame.GgChannel
 import failchat.goodgame.GgChatClient
+import failchat.goodgame.GgEmoticonBulkLoader
 import failchat.goodgame.GgEmoticonHandler
-import failchat.goodgame.GgEmoticonLoader
+import failchat.goodgame.GgEmoticonLoadConfiguration
 import failchat.gui.GuiEventHandler
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvBadgeHandler
 import failchat.peka2tv.Peka2tvChatClient
+import failchat.peka2tv.Peka2tvEmoticonBulkLoader
 import failchat.peka2tv.Peka2tvEmoticonHandler
-import failchat.peka2tv.Peka2tvEmoticonLoader
+import failchat.peka2tv.Peka2tvEmoticonLoadConfiguration
 import failchat.reporter.EventReporter
 import failchat.reporter.GAEventReporter
 import failchat.reporter.ToggleEventReporter
@@ -48,14 +52,17 @@ import failchat.skin.Skin
 import failchat.skin.SkinScanner
 import failchat.twitch.BttvApiClient
 import failchat.twitch.BttvEmoticonHandler
-import failchat.twitch.BttvGlobalEmoticonLoader
+import failchat.twitch.BttvGlobalEmoticonBulkLoader
+import failchat.twitch.BttvGlobalEmoticonLoadConfiguration
 import failchat.twitch.TwitchApiClient
 import failchat.twitch.TwitchBadgeHandler
 import failchat.twitch.TwitchChatClient
-import failchat.twitch.TwitchEmoticonLoader
+import failchat.twitch.TwitchEmoticonLoadConfiguration
+import failchat.twitch.TwitchEmoticonStreamLoader
 import failchat.twitch.TwitchEmoticonUrlFactory
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.twitch.TwitchemotesApiClient
+import failchat.twitch.TwitchemotesStreamLoader
 import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
@@ -72,6 +79,7 @@ import failchat.youtube.YtChatClient
 import io.ktor.server.engine.ApplicationEngine
 import okhttp3.OkHttpClient
 import org.apache.commons.configuration2.Configuration
+import org.mapdb.DB
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.Executors
@@ -128,10 +136,17 @@ val kodein = Kodein {
     bind<ChatMessageHistory>() with singleton { ChatMessageHistory(50) }
 
     // Emoticons
-    bind<EmoticonStorage>() with singleton { EmoticonStorage() }
+    bind<DB>("emoticons") with singleton { EmoticonDbFactory.create(instance<Path>("emoticonDbFile")) }
+    bind<EmoticonStorage>() with singleton {
+        val originStorages = OriginEmoticonStorageFactory.create(
+                instance<DB>("emoticons"),
+                instance<TwitchEmoticonUrlFactory>()
+        )
+        EmoticonStorage(originStorages)
+    }
     bind<EmoticonFinder>() with singleton { instance<EmoticonStorage>() }
     bind<EmoticonManager>() with singleton {
-        EmoticonManager(instance<Path>("workingDirectory"), instance<Configuration>())
+        EmoticonManager(instance<Configuration>(), instance<EmoticonStorage>())
     }
 
     // Badges
@@ -166,6 +181,8 @@ val kodein = Kodein {
     bind<Path>("workingDirectory") with singleton { Paths.get("") }
     bind<Path>("homeDirectory") with singleton { Paths.get(System.getProperty("user.home")).resolve(".failchat") }
     bind<Path>("customEmoticonsDirectory") with singleton { instance<Path>("homeDirectory").resolve("custom-emoticons") }
+    bind<Path>("emoticonCacheDirectory") with singleton { instance<Path>("workingDirectory").resolve("emoticons") }
+    bind<Path>("emoticonDbFile") with singleton { instance<Path>("emoticonCacheDirectory").resolve("emoticons.db") }
     bind<String>("customEmoticonsUrl") with singleton { "http://$httpServerHost:$httpServerPort/emoticons/" }
     bind<String>("userId") with singleton { instance<UserIdManager>().getUserId() }
 
@@ -215,11 +232,13 @@ val kodein = Kodein {
     bind<Peka2tvApiClient>() with singleton {
         Peka2tvApiClient(
                 instance<OkHttpClient>(),
-                instance<Configuration>().getString("peka2tv.api-url"),
-                instance<ObjectMapper>()
+                instance<Configuration>().getString("peka2tv.api-url")
         )
     }
-    bind<Peka2tvEmoticonLoader>() with singleton { Peka2tvEmoticonLoader(instance<Peka2tvApiClient>()) }
+    bind<Peka2tvEmoticonBulkLoader>() with singleton { Peka2tvEmoticonBulkLoader(instance<Peka2tvApiClient>()) }
+    bind<Peka2tvEmoticonLoadConfiguration>() with singleton {
+        Peka2tvEmoticonLoadConfiguration(instance<Peka2tvEmoticonBulkLoader>())
+    }
     bind<Peka2tvBadgeHandler>() with singleton { Peka2tvBadgeHandler(instance<BadgeFinder>()) }
     bind<Peka2tvEmoticonHandler>() with singleton { Peka2tvEmoticonHandler(instance<EmoticonFinder>()) }
     bind<Peka2tvChatClient>() with factory { channelNameAndId: Pair<String, Long> ->
@@ -262,8 +281,13 @@ val kodein = Kodein {
                 instance<TwitchEmoticonUrlFactory>()
         )
     }
-    bind<TwitchEmoticonLoader>() with singleton {
-        TwitchEmoticonLoader(instance<TwitchApiClient>(), instance<TwitchemotesApiClient>())
+    bind<TwitchEmoticonStreamLoader>() with singleton { TwitchEmoticonStreamLoader(instance<TwitchApiClient>()) }
+    bind<TwitchemotesStreamLoader>() with singleton { TwitchemotesStreamLoader(instance<TwitchemotesApiClient>()) }
+    bind<TwitchEmoticonLoadConfiguration>() with singleton {
+        TwitchEmoticonLoadConfiguration(
+                instance<TwitchEmoticonStreamLoader>(),
+                instance<TwitchemotesStreamLoader>()
+        )
     }
     bind<TwitchChatClient>() with factory { channelName: String ->
         val config = instance<Configuration>()
@@ -296,7 +320,10 @@ val kodein = Kodein {
         )
     }
     bind<BttvEmoticonHandler>() with singleton { BttvEmoticonHandler(instance<EmoticonFinder>()) }
-    bind<BttvGlobalEmoticonLoader>() with singleton { BttvGlobalEmoticonLoader(instance<BttvApiClient>()) }
+    bind<BttvGlobalEmoticonBulkLoader>() with singleton { BttvGlobalEmoticonBulkLoader(instance<BttvApiClient>()) }
+    bind<BttvGlobalEmoticonLoadConfiguration>() with singleton {
+        BttvGlobalEmoticonLoadConfiguration(instance<BttvGlobalEmoticonBulkLoader>())
+    }
 
     // Goodgame
     bind<GgChatClient>() with factory { channel: GgChannel ->
@@ -317,7 +344,8 @@ val kodein = Kodein {
                 emoticonsJsUrl = instance<Configuration>().getString("goodgame.emoticon-js-url")
         )
     }
-    bind<GgEmoticonLoader>() with singleton { GgEmoticonLoader(instance<GgApiClient>()) }
+    bind<GgEmoticonBulkLoader>() with singleton { GgEmoticonBulkLoader(instance<GgApiClient>()) }
+    bind<GgEmoticonLoadConfiguration>() with singleton { GgEmoticonLoadConfiguration(instance<GgEmoticonBulkLoader>()) }
     bind<GgEmoticonHandler>() with singleton { GgEmoticonHandler(instance<EmoticonFinder>()) }
     bind<GgBadgeHandler>() with factory { channel: GgChannel ->
         GgBadgeHandler(channel, instance<Configuration>())

@@ -5,7 +5,6 @@ import failchat.okHttpClient
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import kotlin.test.assertTrue
 
 class Peka2tvApiTest {
 
@@ -18,13 +17,7 @@ class Peka2tvApiTest {
     @Test
     fun emoticonApiTest() {
         apiClient
-                .request("/smile")
-                .thenAccept {
-                    it.forEach { emoticonNode ->
-                        assertTrue { emoticonNode.get("code").isTextual }
-                        assertTrue { emoticonNode.get("url").isTextual }
-                    }
-                }
+                .requestEmoticons()
                 .join()
     }
 

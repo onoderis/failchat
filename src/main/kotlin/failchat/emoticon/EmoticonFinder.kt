@@ -10,8 +10,9 @@ interface EmoticonFinder {
      * */
     fun findByCode(origin: Origin, code: String): Emoticon?
 
-    fun findById(origin: Origin, id: Long): Emoticon?
+    //todo make id Any?
+    fun findById(origin: Origin, id: String): Emoticon?
 
-    fun getList(origin: Origin): List<Emoticon>
+    fun getAll(origin: Origin): Collection<Emoticon>
 
 }

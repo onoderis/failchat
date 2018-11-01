@@ -7,5 +7,6 @@ import failchat.emoticon.Emoticon
 class BttvEmoticon(
         origin: Origin,
         code: String,
-        override val url: String
+        override val url: String,
+        val bttvId: String
 ) : Emoticon(origin, code, RASTER)

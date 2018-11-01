@@ -9,6 +9,7 @@ import failchat.chat.badge.ImageBadge
 import failchat.exception.ChannelOfflineException
 import failchat.exception.DataNotFoundException
 import failchat.util.await
+import failchat.util.completionCause
 import failchat.util.expect
 import failchat.util.isEmpty
 import failchat.util.nextNonNullToken
@@ -18,6 +19,11 @@ import failchat.util.thenUse
 import failchat.util.toFuture
 import failchat.util.validateResponseCode
 import failchat.util.withSuffix
+import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.experimental.channels.toList
+import kotlinx.coroutines.experimental.future.future
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -61,7 +67,18 @@ class TwitchApiClient(
         // https://dev.twitch.tv/docs/v5/reference/chat/#get-chat-emoticons-by-set !! Формат ответа без setId не по доке
         // https://dev.twitch.tv/docs/v5/guides/irc/#privmsg-twitch-tags формат ссылки на смайл
 
-        return request("/chat/emoticon_images")
+        return GlobalScope.future {
+            requestEmoticonsToChannel().toList()
+        }
+    }
+
+    fun requestEmoticonsToChannel(): ReceiveChannel<TwitchEmoticon> {
+        // https://dev.twitch.tv/docs/v5/reference/chat/#get-chat-emoticons-by-set !! Формат ответа без setId не по доке
+        // https://dev.twitch.tv/docs/v5/guides/irc/#privmsg-twitch-tags формат ссылки на смайл
+
+        val channel = Channel<TwitchEmoticon>(Channel.UNLIMITED)
+
+        request("/chat/emoticon_images")
                 .thenUse {
                     val body = it.validateResponseCode(200).nonNullBody
 
@@ -78,15 +95,19 @@ class TwitchApiClient(
 
                     var token = parser.expect(JsonToken.START_OBJECT) // emoticon object
 
-                    val emoticons: MutableList<TwitchEmoticon> = ArrayList()
                     while (token != JsonToken.END_ARRAY) {
                         val node: JsonNode = parser.readValueAsTree()
-                        emoticons.add(parseEmoticon(node))
+                        channel.offer(parseEmoticon(node))
                         token = parser.nextNonNullToken()
                     }
 
-                    emoticons
+                    channel.close()
                 }
+                .exceptionally { e ->
+                    channel.close(e.completionCause())
+                }
+
+        return channel
     }
 
     private fun parseEmoticon(node: JsonNode): TwitchEmoticon {

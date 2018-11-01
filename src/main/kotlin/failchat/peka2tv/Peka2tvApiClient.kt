@@ -1,13 +1,13 @@
 package failchat.peka2tv
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.chat.ImageFormat.RASTER
 import failchat.chat.badge.ImageBadge
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.emptyBody
 import failchat.util.jsonMediaType
+import failchat.util.objectMapper
 import failchat.util.thenUse
 import failchat.util.toFuture
 import failchat.util.withSuffix
@@ -18,8 +18,7 @@ import java.util.concurrent.CompletableFuture
 
 class Peka2tvApiClient(
         private val httpClient: OkHttpClient,
-        apiUrl: String,
-        private val objectMapper: ObjectMapper = ObjectMapper()
+        apiUrl: String
 ) {
 
     private val apiUrl = apiUrl.withSuffix("/")
@@ -32,6 +31,7 @@ class Peka2tvApiClient(
     }
 
     fun requestBadges(): CompletableFuture<Map<Peka2tvBadgeId, ImageBadge>> {
+        // https@ //github.com/peka2tv/api/blob/master/smile.md#%D0%98%D0%BA%D0%BE%D0%BD%D0%BA%D0%B8
         return request("/icon/list")
                 .thenApply {
                     it.map { badgeNode ->
@@ -42,6 +42,20 @@ class Peka2tvApiClient(
                         )
                     }
                             .toMap()
+                }
+    }
+
+    fun requestEmoticons(): CompletableFuture<List<Peka2tvEmoticon>> {
+        // https://github.com/peka2tv/api/blob/master/smile.md#Смайлы
+        return request("/smile")
+                .thenApply {
+                    it.map { node ->
+                        Peka2tvEmoticon(
+                                node.get("code").asText(),
+                                node.get("url").asText(),
+                                node.get("id").longValue()
+                        )
+                    }
                 }
     }
 

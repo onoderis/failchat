@@ -1,29 +1,60 @@
 package failchat.emoticon
 
 import failchat.Origin
-import java.util.concurrent.ConcurrentHashMap
+import failchat.util.enumMap
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import mu.KLogging
 
-class EmoticonStorage : EmoticonFinder {
+/** Thread safe emoticon storage. */
+class EmoticonStorage(
+        storages: List<OriginEmoticonStorage>
+) : EmoticonFinder {
 
-    private val emoticonLists: MutableMap<Origin, List<Emoticon>> = ConcurrentHashMap()
-    private val codeToEmoticon: MutableMap<Origin, Map<String, Emoticon>> = ConcurrentHashMap()
-    private val idToEmoticon: MutableMap<Origin, Map<Long, Emoticon>> = ConcurrentHashMap()
+    private companion object : KLogging()
 
-    override fun findByCode(origin: Origin, code: String): Emoticon? = codeToEmoticon.get(origin)?.get(code)
+    private val originStorages: Map<Origin, OriginEmoticonStorage>
 
-    override fun findById(origin: Origin, id: Long): Emoticon? = idToEmoticon.get(origin)?.get(id)
-
-    override fun getList(origin: Origin): List<Emoticon> = emoticonLists.get(origin) ?: emptyList()
-
-    fun putCodeMapping(origin: Origin, emoticons: Map<String, Emoticon>) {
-        codeToEmoticon[origin] = emoticons
+    init {
+        originStorages = Origin.values.minus(storages.map { it.origin })
+                .map { EmptyEmoticonStorage(it) }
+                .plus(storages)
+                .map { it.origin to it }
+                .toMap(enumMap<Origin, OriginEmoticonStorage>())
     }
 
-    fun putIdMapping(origin: Origin, emoticons: Map<Long, Emoticon>) {
-        idToEmoticon[origin] = emoticons
+    override fun findByCode(origin: Origin, code: String): Emoticon? {
+        return originStorages
+                .get(origin)!!
+                .findByCode(code)
     }
 
-    fun putList(origin: Origin, emoticons: List<Emoticon>) {
-        emoticonLists[origin] = emoticons
+    override fun findById(origin: Origin, id: String): Emoticon? {
+        return originStorages
+                .get(origin)!!
+                .findById(id)
     }
+
+    override fun getAll(origin: Origin): Collection<Emoticon> {
+        return originStorages
+                .get(origin)!!
+                .getAll()
+    }
+
+    fun getCount(origin: Origin): Int {
+        return originStorages.get(origin)!!.count()
+    }
+
+    fun putMapping(origin: Origin, emoticons: List<EmoticonAndId>) {
+        originStorages.get(origin)!!
+                .putAll(emoticons)
+    }
+
+    fun putChannel(origin: Origin, emoticons: ReceiveChannel<EmoticonAndId>) {
+        originStorages.get(origin)!!.putAll(emoticons)
+    }
+
+    fun clear(origin: Origin) {
+        originStorages.get(origin)!!.clear()
+    }
+
 }
