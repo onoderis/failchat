@@ -23,8 +23,8 @@ class TwitchEmoticonHandlerTest {
     fun longEmoticonCodeTest() {
         whenever(message.text) doReturn("Kappa 123 Kappa Keepo he")
         whenever(message.emotesTag) doReturn("25:0-4,10-14/1902:16-20")
-        whenever(emoticonFinder.findById(any(), eq(25L))) doReturn firstEmoticon
-        whenever(emoticonFinder.findById(any(), eq(1902L))) doReturn secondEmoticon
+        whenever(emoticonFinder.findById(any(), eq("25"))) doReturn firstEmoticon
+        whenever(emoticonFinder.findById(any(), eq("1902"))) doReturn secondEmoticon
         whenever(message.addElement(any())).thenReturn(Elements.label(0), Elements.label(1), Elements.label(2))
 
         handler.handleMessage(message)
@@ -36,8 +36,8 @@ class TwitchEmoticonHandlerTest {
     fun shortEmoticonCodeTest() {
         whenever(message.text) doReturn("123 :) :-( 321")
         whenever(message.emotesTag) doReturn("1:4-5/2:7-9")
-        whenever(emoticonFinder.findById(any(), eq(1L))) doReturn firstEmoticon
-        whenever(emoticonFinder.findById(any(), eq(2L))) doReturn secondEmoticon
+        whenever(emoticonFinder.findById(any(), eq("1"))) doReturn firstEmoticon
+        whenever(emoticonFinder.findById(any(), eq("2"))) doReturn secondEmoticon
         whenever(message.addElement(any())).thenReturn(Elements.label(0), Elements.label(1))
 
         handler.handleMessage(message)

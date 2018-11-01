@@ -6,5 +6,6 @@ import failchat.emoticon.Emoticon
 
 class Peka2tvEmoticon(
         code: String,
-        override val url: String
+        override val url: String,
+        val peka2tvId: Long
 ) : Emoticon(PEKA2TV, code, RASTER)

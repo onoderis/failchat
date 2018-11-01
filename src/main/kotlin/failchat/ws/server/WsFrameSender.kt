@@ -33,6 +33,7 @@ class WsFrameSender {
                     is SessionClosed -> activeSessions.remove(message.session)
 
                     is Broadcast -> {
+                        logger.debug("Sending message to all websocket clients: {}", message.payload)
                         activeSessions.forEach { session ->
                             try {
                                 session.send(Frame.Text(message.payload))

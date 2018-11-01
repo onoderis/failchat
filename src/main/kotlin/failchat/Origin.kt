@@ -13,7 +13,10 @@ enum class Origin(val commonName: String) { //todo rename to MessageOrigin, remo
     CYBERGAME("cybergame"),
     FAILCHAT("failchat");
 
+
     companion object {
+        val values: List<Origin> = Origin.values().toList()
+
         private val map: Map<String, Origin> = values().map { it.commonName to it }.toMap()
 
         fun byCommonName(name: String): Origin {

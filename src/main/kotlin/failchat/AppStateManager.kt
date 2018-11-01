@@ -23,6 +23,7 @@ import failchat.chat.handlers.ImageLinkHandler
 import failchat.cybergame.CgApiClient
 import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
+import failchat.emoticon.EmoticonAndId
 import failchat.emoticon.EmoticonStorage
 import failchat.exception.InvalidConfigurationException
 import failchat.goodgame.GgApiClient
@@ -54,6 +55,7 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
+import org.mapdb.DB
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
@@ -77,6 +79,7 @@ class AppStateManager(private val kodein: Kodein) {
     private val bttvEmoticonHandler: BttvEmoticonHandler = kodein.instance()
     private val bttvApiClient: BttvApiClient = kodein.instance()
     private val emoticonStorage: EmoticonStorage = kodein.instance()
+    private val emoticonsDb: DB = kodein.instance("emoticons")
     private val badgeManager: BadgeManager = kodein.instance()
     private val backgroundExecutorDispatcher = kodein.instance<ScheduledExecutorService>("background").asCoroutineDispatcher()
     private val customEmoticonHandler: CustomEmoticonHandler = kodein.instance()
@@ -132,9 +135,11 @@ class AppStateManager(private val kodein: Kodein) {
             // load BTTV channel emoticons in background
             bttvApiClient.loadChannelEmoticons(channelName)
                     .thenApply<Unit> { emoticons ->
-                        emoticonStorage.putCodeMapping(BTTV_CHANNEL, emoticons.map { it.code.toLowerCase() to it }.toMap())
-                        emoticonStorage.putList(BTTV_CHANNEL, emoticons)
-                        logger.info("BTTV emoticons loaded for channel '{}', count: {}", channelName, emoticons.size)
+                        val emoticonAndIdMapping = emoticons
+                                .map { EmoticonAndId(it, it.bttvId) }
+                        emoticonStorage.putMapping(BTTV_CHANNEL, emoticonAndIdMapping)
+                        logger.info("BTTV emoticons loaded for channel '{}', count: {}", channelName, emoticonAndIdMapping.size)
+                        bttvEmoticonHandler.compileChannelEmoticonsPattern()
                     }
                     .exceptionally { t ->
                         val completionCause = t.completionCause()
@@ -246,8 +251,19 @@ class AppStateManager(private val kodein: Kodein) {
             logger.error("Failed to reset {} during a shutdown", this.javaClass.simpleName, t)
         }
 
-        config.setProperty("lastMessageId", messageIdGenerator.lastId)
-        configLoader.save()
+        try {
+            config.setProperty("lastMessageId", messageIdGenerator.lastId)
+            configLoader.save()
+        } catch (t: Throwable) {
+            logger.error("Failed to save config during a shutdown", t)
+        }
+
+        try {
+            emoticonsDb.close()
+            logger.info("Emoticons db was closed")
+        } catch (t: Throwable) {
+            logger.error("Failed to close emoticons db during a shutdown", t)
+        }
 
         Platform.exit()
         System.exit(0)
@@ -263,10 +279,8 @@ class AppStateManager(private val kodein: Kodein) {
         viewersCountWsHandler.viewersCounter.set(null)
 
         // reset BTTV channel emoticons
-        emoticonStorage.putList(BTTV_CHANNEL, emptyList())
-        emoticonStorage.putCodeMapping(BTTV_CHANNEL, emptyMap())
-        emoticonStorage.putIdMapping(BTTV_CHANNEL, emptyMap())
-        bttvEmoticonHandler.resetChannelPattern()
+        emoticonStorage.clear(BTTV_CHANNEL)
+        bttvEmoticonHandler.resetChannelEmoticonsPattern()
 
         badgeManager.resetChannelBadges()
 

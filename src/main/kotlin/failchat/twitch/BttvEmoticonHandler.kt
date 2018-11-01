@@ -15,28 +15,29 @@ class BttvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageH
     @Volatile private var channelEmoticonsPattern: Pattern? = null
 
     override fun handleMessage(message: TwitchMessage) {
-        //todo optimize
-        if (globalEmoticonsPattern == null && emoticonFinder.getList(Origin.BTTV_GLOBAL).isNotEmpty()) {
-            globalEmoticonsPattern = compileEmoticonPattern(emoticonFinder.getList(Origin.BTTV_GLOBAL))
-        }
-
-        if (channelEmoticonsPattern == null && emoticonFinder.getList(Origin.BTTV_CHANNEL).isNotEmpty()) {
-            channelEmoticonsPattern = compileEmoticonPattern(emoticonFinder.getList(Origin.BTTV_CHANNEL))
-        }
-
         handleEmoticons(message, globalEmoticonsPattern, Origin.BTTV_GLOBAL)
         handleEmoticons(message, channelEmoticonsPattern, Origin.BTTV_CHANNEL)
     }
 
-    fun resetChannelPattern() {
+    fun compileGlobalEmoticonsPattern() {
+        globalEmoticonsPattern = compileEmoticonPattern(emoticonFinder.getAll(Origin.BTTV_GLOBAL))
+    }
+
+    fun compileChannelEmoticonsPattern() {
+        channelEmoticonsPattern = compileEmoticonPattern(emoticonFinder.getAll(Origin.BTTV_CHANNEL))
+    }
+
+    fun resetChannelEmoticonsPattern() {
         channelEmoticonsPattern = null
     }
 
     private fun handleEmoticons(message: TwitchMessage, pattern: Pattern?, origin: Origin) {
-        val matcher = pattern?.matcher(message.text) ?: return
+        if (pattern == null) return
+
+        val matcher = pattern.matcher(message.text)
         while (matcher.find()) {
             val code = matcher.group(0)
-            val emoticon = emoticonFinder.findByCode(origin, code.toLowerCase())
+            val emoticon = emoticonFinder.findByCode(origin, code)
             if (emoticon == null) {
                 logger.warn("Emoticon code '{}' found in message, but emoticon is not. Message: '{}', emoticon origin: '{}'",
                         code, message.text, origin)
@@ -50,7 +51,7 @@ class BttvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageH
         }
     }
 
-    private fun compileEmoticonPattern(emoticons: List<Emoticon>): Pattern {
+    private fun compileEmoticonPattern(emoticons: Collection<Emoticon>): Pattern {
         return if (emoticons.isEmpty()) throw IllegalArgumentException("List is empty")
         else emoticons
                 .map { it.code.replace("""\""", """\\""") }
