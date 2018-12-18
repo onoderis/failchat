@@ -6,6 +6,8 @@ import failchat.chat.badge.BadgeManager
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonLoadConfiguration
 import failchat.emoticon.EmoticonManager
+import failchat.emoticon.EmoticonStorage
+import failchat.emoticon.OriginEmoticonStorageFactory
 import failchat.goodgame.GgEmoticonLoadConfiguration
 import failchat.gui.GuiLauncher
 import failchat.peka2tv.Peka2tvEmoticonLoadConfiguration
@@ -90,6 +92,22 @@ fun main(args: Array<String>) {
     scheduleReportTasks(backgroundExecutor)
 
 
+    val config: Configuration = kodein.instance()
+
+    // Initialize emoticon storages
+    val dbPath = kodein.instance<Path>("emoticonDbFile")
+    val dbFileExists = Files.exists(dbPath)
+    if (!dbFileExists) {
+        logger.info("DB file '{}' not exists, resetting 'emoticons.last-updated' config parameters to 0", dbPath)
+        OriginEmoticonStorageFactory.mapdbOrigins.forEach {
+            config.setProperty(ConfigKeys.lastUpdatedEmoticons(it), 0)
+        }
+    }
+
+    kodein.instance<EmoticonStorage>()
+    logger.debug("Emoticon storage initialized")
+
+
     // Load emoticons in background thread
     backgroundExecutor.executeWithCatch {
         loadEmoticons()
@@ -105,7 +123,6 @@ fun main(args: Array<String>) {
 
     kodein.instance<ChatMessageHistory>().start()
 
-    val config: Configuration = kodein.instance()
 
     // Create directory for custom emoticons if required
     Files.createDirectories(kodein.instance<Path>("customEmoticonsDirectory"))

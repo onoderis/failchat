@@ -1,5 +1,6 @@
 package failchat.emoticon
 
+import failchat.ConfigKeys
 import failchat.Origin
 import failchat.emoticon.EmoticonLoadConfiguration.LoadType.BULK
 import failchat.emoticon.EmoticonLoadConfiguration.LoadType.STREAM
@@ -49,7 +50,7 @@ class EmoticonManager(
                 logger.warn("Failed to load emoticon list for {}. Outdated list will be used, count: {}", origin, emoticonsInStorage)
             }
             is Success -> {
-                config.setProperty("${origin.commonName}.emoticons.last-updated", now.toEpochMilli())
+                config.setProperty(ConfigKeys.lastUpdatedEmoticons(origin), now.toEpochMilli())
                 logger.info("Emoticon list loaded for {}, count: {}", origin, loadResult.emoticonsLoaded)
             }
         }
@@ -111,7 +112,7 @@ class EmoticonManager(
     }
 
     private fun isCacheOutdated(origin: Origin, now: Instant): Boolean {
-        val lastUpdatedDate = Instant.ofEpochMilli(config.getLong("${origin.commonName}.emoticons.last-updated"))
+        val lastUpdatedDate = Instant.ofEpochMilli(config.getLong(ConfigKeys.lastUpdatedEmoticons(origin)))
         return lastUpdatedDate.plus(updateInterval).isBefore(now)
     }
 
