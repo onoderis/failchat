@@ -7,6 +7,7 @@ import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlin.system.measureTimeMillis
 
 class GgApiTest {
 
@@ -27,7 +28,11 @@ class GgApiTest {
 
     @Test
     fun emoticonsRequestTest() = runBlocking<Unit> {
-        apiClient.requestEmoticonList()
+        val t = measureTimeMillis {
+            val emoticons = apiClient.requestEmoticonList()
+            log.debug("gg emoticons size: {}", emoticons.size)
+        }
+        log.debug("gg emoticons load time: {} ms", t)
     }
 
     @Test

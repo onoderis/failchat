@@ -13,25 +13,10 @@ object EmoticonDbFactory {
     fun create(dbPath: Path): DB {
         Files.createDirectories(dbPath.parent)
 
-        val exception = try {
-            return makeDb(dbPath)
-        } catch (e: Exception) {
-            e
-        }
-
-        val deleted = Files.deleteIfExists(dbPath)
-        if (!deleted)
-            throw exception
-
-        logger.info("File '{}' deleted because of failure during initialization of the map DB. Trying to initialize " +
-                "map DB again", dbPath)
-        return makeDb(dbPath)
-    }
-
-    private fun makeDb(dbPath: Path): DB {
         return DBMaker
                 .fileDB(dbPath.toFile())
                 .closeOnJvmShutdown()
+                .checksumHeaderBypass()
                 .fileMmapEnable()
                 .make()
                 .also {

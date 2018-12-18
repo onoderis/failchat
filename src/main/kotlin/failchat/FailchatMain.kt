@@ -71,6 +71,19 @@ fun main(args: Array<String>) {
 
     handleProgramArguments(cmd)
 
+
+    val config: Configuration = kodein.instance()
+
+    // If emoticon db file not exists, reset 'last-updated' config values
+    val dbPath = kodein.instance<Path>("emoticonDbFile")
+    val dbFileExists = Files.exists(dbPath)
+    if (!dbFileExists) {
+        logger.info("DB file '{}' not exists, resetting 'emoticons.last-updated' config parameters to 0", dbPath)
+        OriginEmoticonStorageFactory.mapdbOrigins.forEach {
+            config.setProperty(ConfigKeys.lastUpdatedEmoticons(it), 0)
+        }
+    }
+
     // GUI
     // Javafx starts earlier for responsiveness. The thread will be blocked
     thread(name = "GuiLauncher") {
@@ -92,18 +105,7 @@ fun main(args: Array<String>) {
     scheduleReportTasks(backgroundExecutor)
 
 
-    val config: Configuration = kodein.instance()
-
     // Initialize emoticon storages
-    val dbPath = kodein.instance<Path>("emoticonDbFile")
-    val dbFileExists = Files.exists(dbPath)
-    if (!dbFileExists) {
-        logger.info("DB file '{}' not exists, resetting 'emoticons.last-updated' config parameters to 0", dbPath)
-        OriginEmoticonStorageFactory.mapdbOrigins.forEach {
-            config.setProperty(ConfigKeys.lastUpdatedEmoticons(it), 0)
-        }
-    }
-
     kodein.instance<EmoticonStorage>()
     logger.debug("Emoticon storage initialized")
 
@@ -208,14 +210,14 @@ fun KtorApplication.failchat() {
 
 private fun loadEmoticons() {
     val manager: EmoticonManager = kodein.instance()
-    val loadersAndOptions: List<EmoticonLoadConfiguration<out Emoticon>> = listOf(
+    val loadersConfigurations: List<EmoticonLoadConfiguration<out Emoticon>> = listOf(
             kodein.instance<Peka2tvEmoticonLoadConfiguration>(),
             kodein.instance<GgEmoticonLoadConfiguration>(),
             kodein.instance<BttvGlobalEmoticonLoadConfiguration>(),
             kodein.instance<TwitchEmoticonLoadConfiguration>()
     )
 
-    loadersAndOptions.forEach {
+    loadersConfigurations.forEach {
         try {
             manager.actualizeEmoticons(it)
         } catch (e: Exception) {
