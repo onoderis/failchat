@@ -60,6 +60,18 @@ const val httpServerPort = 10880
 private val logger = KotlinLogging.logger {}
 
 fun main(args: Array<String>) {
+    try {
+        main0(args)
+    } catch (t: Throwable) {
+        logger.error("Exception in main method", t)
+        System.err.println("Exception in main method")
+        t.printStackTrace()
+
+        System.exit(-1)
+    }
+}
+
+fun main0(args: Array<String>) {
 
     checkForAnotherInstance()
 
