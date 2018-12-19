@@ -168,7 +168,7 @@ class ChatFrame(
         viewersItem.setOnAction {
             val newValue = !config.getBoolean(ConfigKeys.showViewers)
             config.setProperty(ConfigKeys.showViewers, newValue)
-            guiEventHandler.notifyConfigurationChanged()
+            guiEventHandler.handleConfigurationChange()
         }
 
         // zoom item callbacks
@@ -182,7 +182,7 @@ class ChatFrame(
                         else zoomValues.last()
                     }
             config.setProperty(ConfigKeys.zoomPercent, newValue)
-            guiEventHandler.notifyConfigurationChanged()
+            guiEventHandler.handleConfigurationChange()
             zoomValueText.text = newValue.toString()
         }
 
