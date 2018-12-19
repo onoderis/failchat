@@ -21,7 +21,7 @@ fun configureLogging(cmd: CommandLine) {
     val rootLevelStr = cmd.getOptionValue("logger-root-level", "WARN")
     val rootLevel = Level.toLevel(rootLevelStr, Level.WARN)
 
-    val failchatLevelStr = cmd.getOptionValue("logger-failchat-level", "WARN")
+    val failchatLevelStr = cmd.getOptionValue("logger-failchat-level", "INFO")
     val failchatLevel = Level.toLevel(failchatLevelStr, Level.WARN)
 
     val consoleEnabled = cmd.hasOption("enable-console-logging")
