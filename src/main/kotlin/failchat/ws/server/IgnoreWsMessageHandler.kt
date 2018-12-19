@@ -1,5 +1,6 @@
 package failchat.ws.server
 
+import failchat.ConfigKeys
 import failchat.chat.handlers.IgnoreFilter
 import org.apache.commons.configuration2.Configuration
 
@@ -12,10 +13,10 @@ class IgnoreWsMessageHandler(
 
     override fun handle(message: InboundWsMessage) {
         val authorId = message.content.get("authorId").asText()
-        val updatedIgnoreSet = config.getStringArray("ignore")
+        val updatedIgnoreSet = config.getStringArray(ConfigKeys.ignore)
                 .toMutableSet()
                 .apply { add(authorId) }
-        config.setProperty("ignore", updatedIgnoreSet)
+        config.setProperty(ConfigKeys.ignore, updatedIgnoreSet)
 
         ignoreFilter.reloadConfig()
     }

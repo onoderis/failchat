@@ -47,6 +47,7 @@ class ConfigLoader(private val configDirectory: Path) {
         ConfigKeys.configurableByUserProperties.forEach {
             userConfig.clearProperty(it)
         }
+        logger.info("User configuration was reset")
     }
 
     private fun createOptionalConfig(path: Path): FileBasedConfigurationBuilder<PropertiesConfiguration> {

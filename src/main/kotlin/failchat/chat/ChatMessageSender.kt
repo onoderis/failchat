@@ -3,6 +3,7 @@ package failchat.chat
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import failchat.ConfigKeys
 import failchat.chat.StatusMessageMode.NOWHERE
 import failchat.chat.badge.CharacterBadge
 import failchat.chat.badge.ImageBadge
@@ -113,7 +114,7 @@ class ChatMessageSender(
 
     fun send(message: StatusMessage) {
         //todo optimize
-        val mode = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
+        val mode = statusMessagesModeConverter.fromString(config.getString(ConfigKeys.statusMessageMode))
         if (mode == NOWHERE) return
 
         val messageNode = nodeFactory.objectNode().apply {
@@ -130,18 +131,18 @@ class ChatMessageSender(
 
     /** Send client configuration to all clients. */
     fun sendClientConfiguration() {
-        val mode = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
+        val mode = statusMessagesModeConverter.fromString(config.getString(ConfigKeys.statusMessageMode))
 
         val messageNode = nodeFactory.objectNode().apply {
             put("type", "client-configuration")
             putObject("content").apply {
                 put("statusMessageMode", mode.jsonValue)
-                put("showViewersCount", config.getBoolean("show-viewers"))
-                put("nativeClientBgColor", config.getString("background-color.native"))
-                put("externalClientBgColor", config.getString("background-color.external"))
-                put("showOriginBadges", config.getBoolean("show-origin-badges"))
-                put("showUserBadges", config.getBoolean("show-user-badges"))
-                put("zoomPercent", config.getInt("zoom-percent"))
+                put("showViewersCount", config.getBoolean(ConfigKeys.showViewers))
+                put("nativeClientBgColor", config.getString(ConfigKeys.backgroundColor.native))
+                put("externalClientBgColor", config.getString(ConfigKeys.backgroundColor.external))
+                put("showOriginBadges", config.getBoolean(ConfigKeys.showOriginBadges))
+                put("showUserBadges", config.getBoolean(ConfigKeys.showUserBadges))
+                put("zoomPercent", config.getInt(ConfigKeys.zoomPercent))
                 putObject("enabledOrigins").apply {
                     COUNTABLE_ORIGINS.forEach { origin ->
                         put(origin.commonName, config.getBoolean("${origin.commonName}.enabled"))

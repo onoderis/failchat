@@ -1,5 +1,6 @@
 package failchat.gui
 
+import failchat.ConfigKeys
 import failchat.chat.StatusMessageMode
 import failchat.emoticon.EmoticonUpdater
 import failchat.skin.Skin
@@ -174,49 +175,49 @@ class SettingsFrame(
     }
 
     fun updateSettingsValues() {
-        peka2tvChannel.text = config.getString("peka2tv.channel")
-        goodgameChannel.text = config.getString("goodgame.channel")
-        twitchChannel.text = config.getString("twitch.channel")
-        youtubeChannel.text = config.getString("youtube.channel")
-        cybergameChannel.text = config.getString("cybergame.channel")
+        peka2tvChannel.text = config.getString(ConfigKeys.peka2tv.channel)
+        goodgameChannel.text = config.getString(ConfigKeys.goodgame.channel)
+        twitchChannel.text = config.getString(ConfigKeys.twitch.channel)
+        youtubeChannel.text = config.getString(ConfigKeys.youtube.channel)
+        cybergameChannel.text = config.getString(ConfigKeys.cybergame.channel)
 
-        config.getBoolean("peka2tv.enabled").let {
+        config.getBoolean(ConfigKeys.peka2tv.enabled).let {
             peka2tvEnabled.isSelected = it
             peka2tvChannel.configureChannelField(it)
         }
-        config.getBoolean("goodgame.enabled").let {
+        config.getBoolean(ConfigKeys.goodgame.enabled).let {
             goodgameEnabled.isSelected = it
             goodgameChannel.configureChannelField(it)
         }
-        config.getBoolean("twitch.enabled").let {
+        config.getBoolean(ConfigKeys.twitch.enabled).let {
             twitchEnabled.isSelected = it
             twitchChannel.configureChannelField(it)
         }
-        config.getBoolean("youtube.enabled").let {
+        config.getBoolean(ConfigKeys.youtube.enabled).let {
             youtubeEnabled.isSelected = it
             youtubeChannel.configureChannelField(it)
         }
-        config.getBoolean("cybergame.enabled").let {
+        config.getBoolean(ConfigKeys.cybergame.enabled).let {
             cybergameEnabled.isSelected = it
             cybergameChannel.configureChannelField(it)
         }
 
-        skin.value = skin.converter.fromString(config.getString("skin"))
-        frame.isSelected = config.getBoolean("frame")
-        showViewers.isSelected = config.getBoolean("show-viewers")
-        showImages.isSelected = config.getBoolean("show-images")
-        onTop.isSelected = config.getBoolean("on-top")
-        showOriginBadges.isSelected = config.getBoolean("show-origin-badges")
-        showUserBadges.isSelected = config.getBoolean("show-user-badges")
-        zoomPercent.text = config.getInt("zoom-percent").toString()
+        skin.value = skin.converter.fromString(config.getString(ConfigKeys.skin))
+        frame.isSelected = config.getBoolean(ConfigKeys.frame)
+        showViewers.isSelected = config.getBoolean(ConfigKeys.showViewers)
+        showImages.isSelected = config.getBoolean(ConfigKeys.showImages)
+        onTop.isSelected = config.getBoolean(ConfigKeys.onTop)
+        showOriginBadges.isSelected = config.getBoolean(ConfigKeys.showOriginBadges)
+        showUserBadges.isSelected = config.getBoolean(ConfigKeys.showUserBadges)
+        zoomPercent.text = config.getInt(ConfigKeys.zoomPercent).toString()
 
-        nativeBgColorPicker.value = Color.web(config.getString("background-color.native"))
-        externalBgColorPicker.value = Color.web(config.getString("background-color.external"))
-        opacitySlider.value = config.getDouble("opacity")
-        statusMessagesMode.value = statusMessagesModeConverter.fromString(config.getString("status-message-mode"))
+        nativeBgColorPicker.value = Color.web(config.getString(ConfigKeys.backgroundColor.native))
+        externalBgColorPicker.value = Color.web(config.getString(ConfigKeys.backgroundColor.external))
+        opacitySlider.value = config.getDouble(ConfigKeys.opacity)
+        statusMessagesMode.value = statusMessagesModeConverter.fromString(config.getString(ConfigKeys.statusMessageMode))
 
 
-        val userIds = config.getList("ignore")
+        val userIds = config.getStringArray(ConfigKeys.ignore)
         ignoreList.text = if (userIds.isEmpty()) {
             ""
         } else {
@@ -226,33 +227,33 @@ class SettingsFrame(
 
     private fun saveSettingsValues() {
         //todo use loop for origins
-        config.setProperty("peka2tv.channel", peka2tvChannel.text)
-        config.setProperty("goodgame.channel", goodgameChannel.text)
-        config.setProperty("twitch.channel", twitchChannel.text)
-        config.setProperty("youtube.channel", youtubeChannel.text)
-        config.setProperty("cybergame.channel", cybergameChannel.text)
+        config.setProperty(ConfigKeys.peka2tv.channel, peka2tvChannel.text)
+        config.setProperty(ConfigKeys.goodgame.channel, goodgameChannel.text)
+        config.setProperty(ConfigKeys.twitch.channel, twitchChannel.text)
+        config.setProperty(ConfigKeys.youtube.channel, youtubeChannel.text)
+        config.setProperty(ConfigKeys.cybergame.channel, cybergameChannel.text)
 
-        config.setProperty("peka2tv.enabled", peka2tvEnabled.isSelected)
-        config.setProperty("goodgame.enabled", goodgameEnabled.isSelected)
-        config.setProperty("twitch.enabled", twitchEnabled.isSelected)
-        config.setProperty("youtube.enabled", youtubeEnabled.isSelected)
-        config.setProperty("cybergame.enabled", cybergameEnabled.isSelected)
+        config.setProperty(ConfigKeys.peka2tv.enabled, peka2tvEnabled.isSelected)
+        config.setProperty(ConfigKeys.goodgame.enabled, goodgameEnabled.isSelected)
+        config.setProperty(ConfigKeys.twitch.enabled, twitchEnabled.isSelected)
+        config.setProperty(ConfigKeys.youtube.enabled, youtubeEnabled.isSelected)
+        config.setProperty(ConfigKeys.cybergame.enabled, cybergameEnabled.isSelected)
 
-        config.setProperty("skin", skin.value.name)
-        config.setProperty("frame", frame.isSelected)
-        config.setProperty("on-top", onTop.isSelected)
-        config.setProperty("show-viewers", showViewers.isSelected)
-        config.setProperty("show-images", showImages.isSelected)
+        config.setProperty(ConfigKeys.skin, skin.value.name)
+        config.setProperty(ConfigKeys.frame, frame.isSelected)
+        config.setProperty(ConfigKeys.onTop, onTop.isSelected)
+        config.setProperty(ConfigKeys.showViewers, showViewers.isSelected)
+        config.setProperty(ConfigKeys.showImages, showImages.isSelected)
 
-        config.setProperty("background-color.native", nativeBgColorPicker.value.toHexFormat())
-        config.setProperty("background-color.external", externalBgColorPicker.value.toHexFormat())
-        config.setProperty("opacity", opacitySlider.value.toInt())
-        config.setProperty("status-message-mode", statusMessagesModeConverter.toString(statusMessagesMode.value))
-        config.setProperty("show-origin-badges", showOriginBadges.isSelected)
-        config.setProperty("show-user-badges", showUserBadges.isSelected)
-        config.setProperty("zoom-percent", parseZoomPercent(zoomPercent.text))
+        config.setProperty(ConfigKeys.backgroundColor.native, nativeBgColorPicker.value.toHexFormat())
+        config.setProperty(ConfigKeys.backgroundColor.external, externalBgColorPicker.value.toHexFormat())
+        config.setProperty(ConfigKeys.opacity, opacitySlider.value.toInt())
+        config.setProperty(ConfigKeys.statusMessageMode, statusMessagesModeConverter.toString(statusMessagesMode.value))
+        config.setProperty(ConfigKeys.showOriginBadges, showOriginBadges.isSelected)
+        config.setProperty(ConfigKeys.showUserBadges, showUserBadges.isSelected)
+        config.setProperty(ConfigKeys.zoomPercent, parseZoomPercent(zoomPercent.text))
 
-        config.setProperty("ignore", ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
+        config.setProperty(ConfigKeys.ignore, ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
     }
 
     private fun parseZoomPercent(zoomPercent: String): Int {

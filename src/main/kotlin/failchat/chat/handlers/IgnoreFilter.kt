@@ -1,5 +1,6 @@
 package failchat.chat.handlers
 
+import failchat.ConfigKeys
 import failchat.Origin
 import failchat.chat.Author
 import failchat.chat.ChatMessage
@@ -37,17 +38,17 @@ class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessag
     }
 
     fun reloadConfig() {
-        ignoreSet.value = config.getList("ignore").asSequence()
-                .map { ignoreStringPattern.matcher(it as String) }
-                .filter {
-                    it.find().also { found ->
-                        if (!found) logger.debug("Ignore entry skipped: '{}'", it)
+        ignoreSet.value = config.getStringArray(ConfigKeys.ignore).asSequence()
+                .map { it to ignoreStringPattern.matcher(it) }
+                .filter { (ignoreEntry, matcher) ->
+                    matcher.find().also { found ->
+                        if (!found) logger.warn("Ignore entry skipped: '{}'", ignoreEntry)
                     }
                 }
-                .map {
-                    val id = it.group("id")
-                    val name = it.group("name") ?: id
-                    Author(name, Origin.byCommonName(it.group("origin")), id)
+                .map { (_, matcher) ->
+                    val id = matcher.group("id")
+                    val name = matcher.group("name") ?: id
+                    Author(name, Origin.byCommonName(matcher.group("origin")), id)
                 }
                 .toSet()
         logger.debug("IgnoreFilter reloaded a config")

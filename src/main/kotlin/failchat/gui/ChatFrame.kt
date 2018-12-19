@@ -1,5 +1,6 @@
 package failchat.gui
 
+import failchat.ConfigKeys
 import failchat.httpServerHost
 import failchat.httpServerPort
 import failchat.skin.Skin
@@ -62,9 +63,9 @@ class ChatFrame(
     }
 
     fun show() {
-        val nativeBgColor = Color.web(config.getString("background-color.native"))
+        val nativeBgColor = Color.web(config.getString(ConfigKeys.backgroundColor.native))
 
-        if (config.getBoolean("frame")) {
+        if (config.getBoolean(ConfigKeys.frame)) {
             currentChatStage = decoratedChatStage
             chatScene.fill = Color.BLACK
         } else {
@@ -81,7 +82,7 @@ class ChatFrame(
         configureChatStage(currentChatStage)
         updateContextMenu()
 
-        val skinName = config.getString("skin")
+        val skinName = config.getString(ConfigKeys.skin)
         try {
             val skin = skins.find { it.name == skinName } ?: skins.first()
             val url = "http://$httpServerHost:$httpServerPort/resources/${skin.name}/${skin.name}.html"
@@ -159,20 +160,20 @@ class ChatFrame(
         // Menu items callbacks
         switchDecorationsItem.setOnAction { switchDecorations() }
         onTopItem.setOnAction {
-            val newValue = !config.getBoolean("on-top")
-            config.setProperty("on-top", newValue)
+            val newValue = !config.getBoolean(ConfigKeys.onTop)
+            config.setProperty(ConfigKeys.onTop, newValue)
             currentChatStage.isAlwaysOnTop = newValue
         }
         closeChatItem.setOnAction { guiEventHandler.handleStopChat() }
         viewersItem.setOnAction {
-            val newValue = !config.getBoolean("show-viewers")
-            config.setProperty("show-viewers", newValue)
+            val newValue = !config.getBoolean(ConfigKeys.showViewers)
+            config.setProperty(ConfigKeys.showViewers, newValue)
             guiEventHandler.notifyConfigurationChanged()
         }
 
         // zoom item callbacks
         fun Button.configureZoomButtonCallback(elementNumberToGet: Int, filter: (Int, List<Int>) -> Boolean) = this.setOnAction {
-            val oldValue = config.getInt("zoom-percent")
+            val oldValue = config.getInt(ConfigKeys.zoomPercent)
             val newValue = zoomValues.asSequence().windowed(2, 1)
                     .find { filter.invoke(oldValue, it) }
                     ?.get(elementNumberToGet)
@@ -180,7 +181,7 @@ class ChatFrame(
                         if (oldValue <= zoomValues.first()) zoomValues.first()
                         else zoomValues.last()
                     }
-            config.setProperty("zoom-percent", newValue)
+            config.setProperty(ConfigKeys.zoomPercent, newValue)
             guiEventHandler.notifyConfigurationChanged()
             zoomValueText.text = newValue.toString()
         }
@@ -257,13 +258,13 @@ class ChatFrame(
         val toDecorated = currentChatStage === undecoratedChatStage || currentChatStage === transparentChatStage
         val fromChatStage = currentChatStage
 
-        val bgColor = Color.web(config.getString("background-color.native"))
+        val bgColor = Color.web(config.getString(ConfigKeys.backgroundColor.native))
         val toChatStage = if (toDecorated) {
-            config.setProperty("frame", true)
+            config.setProperty(ConfigKeys.frame, true)
             chatScene.fill = Color.BLACK
             decoratedChatStage
         } else {
-            config.setProperty("frame", false)
+            config.setProperty(ConfigKeys.frame, false)
             if (bgColor.isOpaque) {
                 chatScene.fill = Color.BLACK
                 undecoratedChatStage
@@ -283,8 +284,8 @@ class ChatFrame(
     }
 
     private fun configureChatStage(stage: Stage) {
-        stage.opacity = config.getDouble("opacity") / 100
-        stage.isAlwaysOnTop = config.getBoolean("on-top")
+        stage.opacity = config.getDouble(ConfigKeys.opacity) / 100
+        stage.isAlwaysOnTop = config.getBoolean(ConfigKeys.onTop)
         stage.width = config.getDouble("chat.width")
         stage.height = config.getDouble("chat.height")
         val x = config.getDouble("chat.x")
@@ -307,10 +308,10 @@ class ChatFrame(
     }
 
     private fun updateContextMenu() {
-        switchDecorationsItem.isSelected = config.getBoolean("frame")
-        onTopItem.isSelected = config.getBoolean("on-top")
-        viewersItem.isSelected = config.getBoolean("show-viewers")
-        zoomValueText.text = config.getString("zoom-percent")
+        switchDecorationsItem.isSelected = config.getBoolean(ConfigKeys.frame)
+        onTopItem.isSelected = config.getBoolean(ConfigKeys.onTop)
+        viewersItem.isSelected = config.getBoolean(ConfigKeys.showViewers)
+        zoomValueText.text = config.getString(ConfigKeys.zoomPercent)
     }
 
 }
