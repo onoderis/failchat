@@ -10,6 +10,7 @@ import failchat.reporter.EventAction
 import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
 import failchat.util.CoroutineExceptionLogger
+import failchat.util.bytesToMegabytes
 import failchat.util.sp
 import failchat.ws.server.WsFrameSender
 import failchat.ws.server.WsMessageDispatcher
@@ -156,8 +157,12 @@ private fun parseArguments(args: Array<String>): CommandLine {
 
 private fun logSystemInfo() {
     val failchatVersion = kodein.instance<Configuration>().getString("version")
+    val rt = Runtime.getRuntime()
     logger.info {
-        "Failchat started. Version: $failchatVersion, OS: ${sp("os.name")} ${sp("os.version")}"
+        "Failchat started. Version: $failchatVersion, OS: ${sp("os.name")} (${sp("os.version")}). " +
+                "Processors: ${rt.availableProcessors()}. " +
+                "Memory: max ${rt.maxMemory().bytesToMegabytes()}mb; total ${rt.totalMemory().bytesToMegabytes()}mb, " +
+                "free ${rt.freeMemory().bytesToMegabytes()}mb"
     }
 }
 
