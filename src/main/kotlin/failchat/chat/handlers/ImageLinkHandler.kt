@@ -1,5 +1,6 @@
 package failchat.chat.handlers
 
+import failchat.ConfigKeys
 import failchat.chat.ChatMessage
 import failchat.chat.Image
 import failchat.chat.Link
@@ -39,7 +40,7 @@ class ImageLinkHandler(private val config: Configuration) : MessageHandler<ChatM
     }
 
     fun reloadConfig() {
-        replaceImageLinks.set(config.getBoolean("show-images"))
+        replaceImageLinks.set(config.getBoolean(ConfigKeys.showImages))
     }
 
 }

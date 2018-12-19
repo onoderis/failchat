@@ -46,6 +46,7 @@ object ConfigKeys {
     const val showOriginBadges = "show-origin-badges"
     const val showUserBadges = "show-user-badges"
     const val zoomPercent = "zoom-percent"
+    const val ignore = "ignore"
 
 
     val configurableByUserProperties: List<String> = listOf(
@@ -64,7 +65,8 @@ object ConfigKeys {
             statusMessageMode,
             showOriginBadges,
             showUserBadges,
-            zoomPercent
+            zoomPercent,
+            ignore
     )
 
     fun lastUpdatedEmoticons(origin: Origin): String = "${origin.commonName}.emoticons.last-updated"
