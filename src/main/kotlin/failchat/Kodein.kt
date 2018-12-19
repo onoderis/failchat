@@ -133,7 +133,8 @@ val kodein = Kodein {
     bind<GuiEventHandler>() with singleton {
         GuiEventHandler(
                 instance<AppStateManager>(),
-                instance<ChatMessageSender>()
+                instance<ChatMessageSender>(),
+                instance<ConfigLoader>()
         )
     }
     bind<ChatMessageHistory>() with singleton { ChatMessageHistory(50) }

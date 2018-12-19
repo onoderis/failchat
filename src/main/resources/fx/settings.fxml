@@ -360,23 +360,6 @@
                                                         <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </CheckBox>
-                                                <Button fx:id="custom_emoticons" mnemonicParsing="false" text="Custom emoticons">
-                                                    <VBox.margin>
-                                                        <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
-                                                    </VBox.margin>
-                                                </Button>
-                                                <HBox>
-                                                    <children>
-                                                        <Button fx:id="reload_emoticons_button" mnemonicParsing="false" text="Reload emoticons">
-                                             <HBox.margin>
-                                                <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
-                                             </HBox.margin></Button>
-                                                        <ProgressIndicator fx:id="reload_emoticons_indicator" prefHeight="25.0" prefWidth="25.0">
-                                             <HBox.margin>
-                                                <Insets left="5.0" />
-                                             </HBox.margin></ProgressIndicator>
-                                                    </children>
-                                                </HBox>
                                             </children>
                                             <HBox.margin>
                                                 <Insets left="20.0" right="20.0" />
@@ -408,6 +391,45 @@
                         </AnchorPane>
                     </content>
                 </Tab>
+            <Tab text="Actions">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <VBox>
+                           <children>
+                                          <Button fx:id="custom_emoticons" mnemonicParsing="false" text="Open directory with custom emoticons">
+                                              <VBox.margin>
+                                                  <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                              </VBox.margin>
+                                          </Button>
+                                          <HBox>
+                                              <children>
+                                                  <Button fx:id="reload_emoticons_button" mnemonicParsing="false" text="Reload emoticons">
+                                       <HBox.margin>
+                                          <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                       </HBox.margin>
+                                    </Button>
+                                                  <ProgressIndicator fx:id="reload_emoticons_indicator" prefHeight="25.0" prefWidth="25.0">
+                                       <HBox.margin>
+                                          <Insets left="5.0" />
+                                       </HBox.margin>
+                                    </ProgressIndicator>
+                                              </children>
+                                          </HBox>
+                              <Button fx:id="reset_configuration" mnemonicParsing="false" text="Reset configuration" textFill="RED">
+                                 <VBox.margin>
+                                    <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                 </VBox.margin>
+                              </Button>
+                           </children>
+                           <padding>
+                              <Insets bottom="14.0" left="14.0" right="14.0" top="14.0" />
+                           </padding>
+                        </VBox>
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
                 <Tab text="About">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">

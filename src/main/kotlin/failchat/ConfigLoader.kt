@@ -20,18 +20,17 @@ class ConfigLoader(private val configDirectory: Path) {
 
     private val userConfigPath = configDirectory.resolve("user.properties")
     private val userConfigBuilder = createOptionalConfig(userConfigPath)
-    private val defaultConfigBuilder = createMandatoryConfig("/config/default.properties")
-    private val privateConfigBuilder = createMandatoryConfig("/config/private.properties")
+    private val userConfig = userConfigBuilder.configuration
+    private val defaultConfig = createMandatoryConfig("/config/default.properties")
+    private val privateConfig = createMandatoryConfig("/config/private.properties")
     private val compositeConfig = CompositeConfiguration()
 
     init {
-        val userConfig = userConfigBuilder.configuration
-
         // Если передавать в конструктор CompositeConfiguration как inMemoryConfig,
         // он будет последний в списке на чтение
         compositeConfig.addConfiguration(userConfig, true)
-        compositeConfig.addConfiguration(defaultConfigBuilder)
-        compositeConfig.addConfiguration(privateConfigBuilder)
+        compositeConfig.addConfiguration(defaultConfig)
+        compositeConfig.addConfiguration(privateConfig)
         compositeConfig.synchronizer = ReadWriteSynchronizer()
         compositeConfig.isThrowExceptionOnMissing = true
     }
@@ -42,6 +41,12 @@ class ConfigLoader(private val configDirectory: Path) {
         Files.createDirectories(configDirectory)
         userConfigBuilder.save()
         logger.info("User config saved to '{}'", userConfigPath)
+    }
+
+    fun resetConfigurableByUserProperties() {
+        ConfigKeys.configurableByUserProperties.forEach {
+            userConfig.clearProperty(it)
+        }
     }
 
     private fun createOptionalConfig(path: Path): FileBasedConfigurationBuilder<PropertiesConfiguration> {
