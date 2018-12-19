@@ -69,9 +69,12 @@ class SettingsFrame(
     private val showOriginBadges = scene.lookup("#show_origin_badges") as CheckBox
     private val showUserBadges = scene.lookup("#show_user_badges") as CheckBox
     private val zoomPercent = scene.lookup("#zoom_percent") as TextField
+
+    // Actions tab
     private val customEmoticonsButton = scene.lookup("#custom_emoticons") as Button
     private val reloadEmoticonsButton = scene.lookup("#reload_emoticons_button") as Button
     private val reloadEmoticonsIndicator = scene.lookup("#reload_emoticons_indicator") as ProgressIndicator
+    private val resetConfigurationButton = scene.lookup("#reset_configuration") as Button
 
     // Ignore list tab
     private val ignoreList = scene.lookup("#ignore_list") as TextArea
@@ -130,6 +133,10 @@ class SettingsFrame(
             emoticonUpdater.reloadEmoticonsAsync()
         }
 
+        resetConfigurationButton.setOnAction {
+            guiEventHandler.handleResetUserConfiguration()
+        }
+
         val githubLink = scene.lookup("#github_link") as Hyperlink
         githubLink.setOnAction {
             app.hostServices.showDocument(config.getString("about.github-repo"))
@@ -166,7 +173,7 @@ class SettingsFrame(
         reloadEmoticonsButton.text = "Loading emoticons"
     }
 
-    private fun updateSettingsValues() {
+    fun updateSettingsValues() {
         peka2tvChannel.text = config.getString("peka2tv.channel")
         goodgameChannel.text = config.getString("goodgame.channel")
         twitchChannel.text = config.getString("twitch.channel")
