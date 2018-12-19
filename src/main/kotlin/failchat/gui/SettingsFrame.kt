@@ -1,6 +1,7 @@
 package failchat.gui
 
 import failchat.chat.StatusMessageMode
+import failchat.emoticon.EmoticonUpdater
 import failchat.skin.Skin
 import failchat.util.toHexFormat
 import javafx.application.Application
@@ -13,6 +14,7 @@ import javafx.scene.control.CheckBox
 import javafx.scene.control.ChoiceBox
 import javafx.scene.control.ColorPicker
 import javafx.scene.control.Hyperlink
+import javafx.scene.control.ProgressIndicator
 import javafx.scene.control.Slider
 import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
@@ -24,17 +26,16 @@ import org.apache.commons.configuration2.Configuration
 import java.nio.file.Path
 
 class SettingsFrame(
+        private val app: Application,
         private val stage: Stage,
         private val guiEventHandler: GuiEventHandler,
         private val config: Configuration,
         private val skinList: List<Skin>,
-        private val customEmoticonsDirectory: Path
+        private val customEmoticonsDirectory: Path,
+        private val emoticonUpdater: EmoticonUpdater
 ) {
 
     private companion object : KLogging()
-
-    lateinit var chat: ChatFrame
-    lateinit var app: Application
 
     private val scene = Scene(FXMLLoader.load<Parent>(javaClass.getResource("/fx/settings.fxml")))
 
@@ -69,6 +70,8 @@ class SettingsFrame(
     private val showUserBadges = scene.lookup("#show_user_badges") as CheckBox
     private val zoomPercent = scene.lookup("#zoom_percent") as TextField
     private val customEmoticonsButton = scene.lookup("#custom_emoticons") as Button
+    private val reloadEmoticonsButton = scene.lookup("#reload_emoticons_button") as Button
+    private val reloadEmoticonsIndicator = scene.lookup("#reload_emoticons_indicator") as ProgressIndicator
 
     // Ignore list tab
     private val ignoreList = scene.lookup("#ignore_list") as TextArea
@@ -109,7 +112,7 @@ class SettingsFrame(
 
         stage.setOnCloseRequest {
             saveSettingsValues()
-            guiEventHandler.shutDown()
+            guiEventHandler.handleShutDown()
         }
 
 
@@ -122,6 +125,10 @@ class SettingsFrame(
             app.hostServices.showDocument(customEmoticonsDirectory.toUri().toString())
         }
 
+        disableRefreshEmoticonsButton()
+        reloadEmoticonsButton.setOnAction {
+            emoticonUpdater.reloadEmoticonsAsync()
+        }
 
         val githubLink = scene.lookup("#github_link") as Hyperlink
         githubLink.setOnAction {
@@ -134,7 +141,7 @@ class SettingsFrame(
         }
 
 
-        startButton.setOnAction { toChat() }
+        startButton.setOnAction { guiEventHandler.handleStartChat() }
     }
 
     fun show() {
@@ -142,10 +149,21 @@ class SettingsFrame(
         stage.show()
     }
 
-    private fun toChat() {
+    fun hide() {
         saveSettingsValues()
         stage.hide()
-        chat.show()
+    }
+
+    fun enableRefreshEmoticonsButton() {
+        reloadEmoticonsIndicator.isVisible = false
+        reloadEmoticonsButton.isDisable = false
+        reloadEmoticonsButton.text = "Reload emoticons"
+    }
+
+    fun disableRefreshEmoticonsButton() {
+        reloadEmoticonsIndicator.isVisible = true
+        reloadEmoticonsButton.isDisable = true
+        reloadEmoticonsButton.text = "Loading emoticons"
     }
 
     private fun updateSettingsValues() {

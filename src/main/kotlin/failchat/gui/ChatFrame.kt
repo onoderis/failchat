@@ -31,15 +31,13 @@ import org.apache.commons.configuration2.Configuration
 import java.net.MalformedURLException
 
 class ChatFrame(
+        private val app: Application,
         private val config: Configuration,
         private val guiEventHandler: GuiEventHandler,
         private val skins: List<Skin>
 ) {
 
     private companion object : KLogging()
-
-    lateinit var settings: SettingsFrame
-    lateinit var app: Application
 
     private val decoratedChatStage: Stage = buildChatStage(StageType.DECORATED)
     private val undecoratedChatStage: Stage = buildChatStage(StageType.UNDECORATED) //for opaque background color
@@ -94,8 +92,12 @@ class ChatFrame(
         }
 
         currentChatStage.show()
+    }
 
-        guiEventHandler.startChat()
+    fun hide() {
+        saveChatPosition(currentChatStage)
+        currentChatStage.hide()
+        clearWebContent()
     }
 
     fun clearWebContent() {
@@ -119,7 +121,7 @@ class ChatFrame(
         }
         stage.setOnCloseRequest {
             saveChatPosition(stage)
-            guiEventHandler.shutDown()
+            guiEventHandler.handleShutDown()
         }
         stage.icons.setAll(GuiLauncher.appIcon)
         return stage
@@ -161,7 +163,7 @@ class ChatFrame(
             config.setProperty("on-top", newValue)
             currentChatStage.isAlwaysOnTop = newValue
         }
-        closeChatItem.setOnAction { toSettings() }
+        closeChatItem.setOnAction { guiEventHandler.handleStopChat() }
         viewersItem.setOnAction {
             val newValue = !config.getBoolean("show-viewers")
             config.setProperty("show-viewers", newValue)
@@ -226,7 +228,7 @@ class ChatFrame(
         // hot keys
         chatScene.setOnKeyReleased { key ->
             when (key.code) {
-                KeyCode.ESCAPE -> toSettings()
+                KeyCode.ESCAPE -> guiEventHandler.handleStopChat()
                 KeyCode.SPACE -> switchDecorations()
                 else -> {}
             }
@@ -249,14 +251,6 @@ class ChatFrame(
             }
         }
         return chatScene
-    }
-
-    private fun toSettings() {
-        saveChatPosition(currentChatStage)
-        currentChatStage.hide()
-        clearWebContent()
-        settings.show()
-        guiEventHandler.stopChat()
     }
 
     private fun switchDecorations() {
