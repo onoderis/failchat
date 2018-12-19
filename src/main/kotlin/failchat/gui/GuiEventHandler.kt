@@ -18,21 +18,21 @@ class GuiEventHandler(
 
     private val executor = Executors.newSingleThreadExecutor()
 
+    /** Should be invoked in javafx thread. */
     fun handleStartChat() {
-        Platform.runLater {
-            settingsFrame.hide()
-            chatFrame.show()
-        }
+        settingsFrame.hide()
+        chatFrame.show()
+
         executor.executeWithCatch {
             appStateManager.startChat()
         }
     }
 
+    /** Should be invoked in javafx thread. */
     fun handleStopChat() {
-        Platform.runLater {
-            chatFrame.hide()
-            settingsFrame.show()
-        }
+        chatFrame.hide()
+        settingsFrame.show()
+
         executor.executeWithCatch {
             appStateManager.stopChat()
         }
@@ -45,6 +45,7 @@ class GuiEventHandler(
         executor.shutdown()
     }
 
+    /** Should be invoked in javafx thread. */
     fun handleResetUserConfiguration() {
         configLoader.resetConfigurableByUserProperties()
         Platform.runLater {
@@ -52,7 +53,8 @@ class GuiEventHandler(
         }
     }
 
-    fun notifyConfigurationChanged() {
+    /** Should be invoked in javafx thread. */
+    fun handleConfigurationChange() {
         executor.executeWithCatch {
             messageSender.sendClientConfiguration()
         }
