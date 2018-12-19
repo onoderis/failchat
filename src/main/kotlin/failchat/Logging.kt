@@ -7,6 +7,10 @@ import ch.qos.logback.classic.jul.LevelChangePropagator
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.FileAppender
+import ch.qos.logback.core.rolling.FixedWindowRollingPolicy
+import ch.qos.logback.core.rolling.RollingFileAppender
+import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy
+import ch.qos.logback.core.util.FileSize
 import org.apache.commons.cli.CommandLine
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -57,10 +61,10 @@ fun configureLogging(cmd: CommandLine) {
 
     Thread.setDefaultUncaughtExceptionHandler { _, e ->
         rootLogger.error("Uncaught exception", e)
-
-        if (e !is OutOfMemoryError) return@setDefaultUncaughtExceptionHandler
-        val r = Runtime.getRuntime()
-        rootLogger.error("Memory info. max: {}, total: {}, free: {}", r.maxMemory(), r.totalMemory(), r.freeMemory())
+        if (e is OutOfMemoryError) {
+            val r = Runtime.getRuntime()
+            rootLogger.error("Memory info. max: {}, total: {}, free: {}", r.maxMemory(), r.totalMemory(), r.freeMemory())
+        }
     }
 
 
@@ -88,13 +92,35 @@ private fun configureFileAppender(logbackContext: LoggerContext): FileAppender<I
     val fileEncoder = PatternLayoutEncoder().apply {
         context = logbackContext
         pattern = """%date %level [%thread] %logger \(%file:%line\) %msg%n"""
-        start()
     }
-    return FileAppender<ILoggingEvent>().apply {
+
+    val fileAppender = RollingFileAppender<ILoggingEvent>().apply {
         context = logbackContext
         encoder = fileEncoder
         file = "log/failchat.log"
-//        isAppend = false
-        start()
+        isAppend = true
     }
+
+    val triggeringPolicy = SizeBasedTriggeringPolicy<ILoggingEvent>().apply {
+        context = logbackContext
+        setMaxFileSize(FileSize(5 * FileSize.MB_COEFFICIENT))
+    }
+
+    val rollingPolicy = FixedWindowRollingPolicy().apply {
+        context = logbackContext
+        setParent(fileAppender)
+        fileNamePattern = "log/failchat-%i.log"
+        minIndex = 1
+        maxIndex = 1
+    }
+
+    fileAppender.rollingPolicy = rollingPolicy
+    fileAppender.triggeringPolicy = triggeringPolicy
+
+    rollingPolicy.start()
+    triggeringPolicy.start()
+    fileEncoder.start()
+    fileAppender.start()
+
+    return fileAppender
 }
