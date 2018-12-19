@@ -3,22 +3,13 @@ package failchat
 import com.github.salomonbrys.kodein.instance
 import failchat.chat.ChatMessageHistory
 import failchat.chat.badge.BadgeManager
-import failchat.emoticon.Emoticon
-import failchat.emoticon.EmoticonLoadConfiguration
-import failchat.emoticon.EmoticonManager
 import failchat.emoticon.EmoticonStorage
-import failchat.emoticon.OriginEmoticonStorageFactory
-import failchat.goodgame.GgEmoticonLoadConfiguration
+import failchat.emoticon.EmoticonUpdater
 import failchat.gui.GuiLauncher
-import failchat.peka2tv.Peka2tvEmoticonLoadConfiguration
 import failchat.reporter.EventAction
 import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
-import failchat.twitch.BttvEmoticonHandler
-import failchat.twitch.BttvGlobalEmoticonLoadConfiguration
-import failchat.twitch.TwitchEmoticonLoadConfiguration
 import failchat.util.CoroutineExceptionLogger
-import failchat.util.executeWithCatch
 import failchat.util.sp
 import failchat.ws.server.WsFrameSender
 import failchat.ws.server.WsMessageDispatcher
@@ -91,9 +82,7 @@ fun main0(args: Array<String>) {
     val dbFileExists = Files.exists(dbPath)
     if (!dbFileExists) {
         logger.info("DB file '{}' not exists, resetting 'emoticons.last-updated' config parameters to 0", dbPath)
-        OriginEmoticonStorageFactory.mapdbOrigins.forEach {
-            config.setProperty(ConfigKeys.lastUpdatedEmoticons(it), 0)
-        }
+        config.resetEmoticonsUpdatedTime()
     }
 
     // GUI
@@ -122,11 +111,9 @@ fun main0(args: Array<String>) {
     logger.debug("Emoticon storage initialized")
 
 
-    // Load emoticons in background thread
-    backgroundExecutor.executeWithCatch {
-        loadEmoticons()
-        kodein.instance<BttvEmoticonHandler>().compileGlobalEmoticonsPattern()
-    }
+    // Aztualize emoticons
+    val emoticonUpdater = kodein.instance<EmoticonUpdater>()
+    emoticonUpdater.actualizeEmoticonsAsync()
 
     // Load global badges in background thread
     val badgeManager: BadgeManager = kodein.instance()
@@ -217,24 +204,6 @@ fun KtorApplication.failchat() {
 //        get("websocket") {
 //            call.respondRedirect("http://${wsServerAddress.hostString}:${wsServerAddress.port}/", permanent = true)
 //        }
-    }
-}
-
-private fun loadEmoticons() {
-    val manager: EmoticonManager = kodein.instance()
-    val loadersConfigurations: List<EmoticonLoadConfiguration<out Emoticon>> = listOf(
-            kodein.instance<Peka2tvEmoticonLoadConfiguration>(),
-            kodein.instance<GgEmoticonLoadConfiguration>(),
-            kodein.instance<BttvGlobalEmoticonLoadConfiguration>(),
-            kodein.instance<TwitchEmoticonLoadConfiguration>()
-    )
-
-    loadersConfigurations.forEach {
-        try {
-            manager.actualizeEmoticons(it)
-        } catch (e: Exception) {
-            logger.warn("Exception during loading emoticons for {}", it.origin, e)
-        }
     }
 }
 

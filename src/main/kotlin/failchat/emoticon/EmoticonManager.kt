@@ -23,7 +23,21 @@ class EmoticonManager(
     private val updateInterval = Duration.ofMillis(config.getLong("emoticons.updating-delay"))
 
     /**
-     * Load emoticons and put them into the storage. The call is blocking.
+     * Load emoticons by the specified configurations and put them into the storage. Blocking call
+     * Never throws [Exception].
+     * */
+    fun actualizeAllEmoticons(loadConfigurations: List<EmoticonLoadConfiguration<out Emoticon>>) {
+        loadConfigurations.forEach {
+            try {
+                actualizeEmoticons(it)
+            } catch (e: Exception) {
+                logger.warn("Exception during loading emoticons for {}", it.origin, e)
+            }
+        }
+    }
+
+    /**
+     * Load emoticons by specified configuration and put them into the storage. Blocking call
      * */
     fun <T : Emoticon> actualizeEmoticons(loadConfiguration: EmoticonLoadConfiguration<T>) {
         val now = Instant.now()

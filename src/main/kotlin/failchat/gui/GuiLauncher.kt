@@ -2,6 +2,7 @@ package failchat.gui
 
 import com.github.salomonbrys.kodein.instance
 import failchat.ConfigLoader
+import failchat.emoticon.EmoticonUpdater
 import failchat.github.ReleaseChecker
 import failchat.kodein
 import failchat.skin.Skin
@@ -26,27 +27,29 @@ class GuiLauncher : Application() {
 
     override fun start(primaryStage: Stage) {
         val settings = SettingsFrame(
+                this,
                 primaryStage,
                 kodein.instance<GuiEventHandler>(),
                 kodein.instance<ConfigLoader>().get(),
                 kodein.instance<List<Skin>>(),
-                kodein.instance<Path>("customEmoticonsDirectory")
+                kodein.instance<Path>("customEmoticonsDirectory"),
+                kodein.instance<EmoticonUpdater>()
         )
         val chat = ChatFrame(
+                this,
                 kodein.instance<ConfigLoader>().get(),
                 kodein.instance<GuiEventHandler>(),
                 kodein.instance<List<Skin>>()
         )
 
-        settings.chat = chat
-        settings.app = this
-        chat.settings = settings
-        chat.app = this
-
+        val eventHandler = kodein.instance<GuiEventHandler>()
+        eventHandler.settingsFrame = settings
+        eventHandler.chatFrame = chat
         settings.show()
+
         logger.info("GUI loaded")
 
-        chat.clearWebContent() // init web engine (fix flickering)
+        chat.clearWebContent() // init web engine (fixes flickering)
 
         showUpdateNotificationOnNewRelease()
 

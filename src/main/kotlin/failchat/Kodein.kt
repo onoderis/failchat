@@ -23,10 +23,13 @@ import failchat.cybergame.CgApiClient
 import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.CustomEmoticonScanner
+import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonDbFactory
 import failchat.emoticon.EmoticonFinder
+import failchat.emoticon.EmoticonLoadConfiguration
 import failchat.emoticon.EmoticonManager
 import failchat.emoticon.EmoticonStorage
+import failchat.emoticon.EmoticonUpdater
 import failchat.emoticon.OriginEmoticonStorageFactory
 import failchat.github.GithubClient
 import failchat.github.ReleaseChecker
@@ -148,6 +151,25 @@ val kodein = Kodein {
     bind<EmoticonManager>() with singleton {
         EmoticonManager(instance<Configuration>(), instance<EmoticonStorage>())
     }
+    bind<List<EmoticonLoadConfiguration<out Emoticon>>>("emoticonLoadConfigurations") with singleton {
+        listOf(
+                instance<Peka2tvEmoticonLoadConfiguration>(),
+                instance<GgEmoticonLoadConfiguration>(),
+                instance<BttvGlobalEmoticonLoadConfiguration>(),
+                instance<TwitchEmoticonLoadConfiguration>()
+        )
+    }
+    bind<EmoticonUpdater>() with singleton {
+        EmoticonUpdater(
+                instance<EmoticonManager>(),
+                instance<List<EmoticonLoadConfiguration<out Emoticon>>>("emoticonLoadConfigurations"),
+                instance<BttvEmoticonHandler>(),
+                instance<ScheduledExecutorService>("background"),
+                instance<GuiEventHandler>(),
+                instance<Configuration>()
+        )
+    }
+
 
     // Badges
     bind<BadgeStorage>() with singleton { BadgeStorage() }

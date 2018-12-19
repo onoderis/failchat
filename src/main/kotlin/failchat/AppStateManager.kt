@@ -293,7 +293,7 @@ class AppStateManager(private val kodein: Kodein) {
             }
         }
 
-        // Значение может быть null если вызваны shutDown() и stopChat() последовательно, в любой последовательности,
+        // Значение может быть null если вызваны handleShutDown() и handleStopChat() последовательно, в любой последовательности,
         // либо если приложение было закрыто без запуска чата.
         viewersCounter?.stop()
     }
