@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="failchat dev" type="JetRunConfigurationType" factoryName="Kotlin" singleton="true">
+    <module name="failchat" />
+    <option name="VM_PARAMETERS" value="-Xmx120m -XX:+UseG1GC" />
+    <option name="PROGRAM_PARAMETERS" value="--disable-reporter --skip-release-check --enable-console-logging --logger-failchat-level DEBUG" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <option name="PASS_PARENT_ENVS" value="true" />
+    <option name="MAIN_CLASS_NAME" value="failchat.FailchatMainKt" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/target/classes" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/pom.xml" goal="resources:resources@copy-resources-on-compile" />
+    </method>
+  </configuration>
+</component>

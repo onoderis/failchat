@@ -7,7 +7,8 @@ src/main/resources/config/private.properties
 src/main/external-resources/skins/_shared/font/*
 
 #idea
-.idea
+.idea/*
+!.idea/runConfigurations/
 failchat.iml
 
 #etc
