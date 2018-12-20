@@ -5,7 +5,7 @@ import failchat.exception.ChannelOfflineException
 import failchat.okHttpClient
 import failchat.privateConfig
 import failchat.twitchEmoticonUrlFactory
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger

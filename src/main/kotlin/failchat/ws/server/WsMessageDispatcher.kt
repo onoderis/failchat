@@ -5,7 +5,7 @@ import failchat.util.objectMapper
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.readText
 import io.ktor.websocket.DefaultWebSocketServerSession
-import kotlinx.coroutines.experimental.channels.consumeEach
+import kotlinx.coroutines.channels.consumeEach
 import mu.KLogging
 
 class WsMessageDispatcher(

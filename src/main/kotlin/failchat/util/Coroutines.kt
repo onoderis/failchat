@@ -1,10 +1,10 @@
 package failchat.util
 
-import kotlinx.coroutines.experimental.CoroutineExceptionHandler
-import kotlinx.coroutines.experimental.CoroutineName
-import kotlinx.coroutines.experimental.channels.SendChannel
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.channels.SendChannel
 import mu.KotlinLogging
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.CoroutineContext
 
 object CoroutineExceptionLogger : CoroutineExceptionHandler {
 

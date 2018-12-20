@@ -19,7 +19,7 @@ import failchat.util.objectMapper
 import failchat.util.whileNotNull
 import failchat.viewers.ViewersCountLoader
 import failchat.ws.client.WsClient
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI

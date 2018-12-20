@@ -2,8 +2,9 @@ package failchat.cybergame
 
 import failchat.Origin
 import failchat.viewers.ViewersCountLoader
-import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.future.future
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.future.future
 import java.util.concurrent.CompletableFuture
 
 class CgViewersCountLoader(
@@ -14,7 +15,7 @@ class CgViewersCountLoader(
     override val origin = Origin.CYBERGAME
 
     override fun loadViewersCount(): CompletableFuture<Int> {
-        return future(Unconfined) {
+        return CoroutineScope(Dispatchers.Unconfined).future {
             cgApiClient.requestViewersCount(channelName)
         }
     }

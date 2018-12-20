@@ -28,7 +28,7 @@ import failchat.util.executeWithCatch
 import failchat.util.scheduleWithCatch
 import failchat.util.value
 import failchat.viewers.ViewersCountLoader
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import java.time.Duration
 import java.util.concurrent.CompletableFuture

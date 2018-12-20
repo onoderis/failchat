@@ -2,7 +2,7 @@ package failchat.emoticon
 
 import failchat.Origin
 import failchat.util.enumMap
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.channels.ReceiveChannel
 import mu.KLogging
 
 /** Thread safe emoticon storage. */

@@ -2,7 +2,7 @@ package failchat.twitch
 
 import failchat.Origin
 import failchat.emoticon.EmoticonStreamLoader
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.channels.ReceiveChannel
 
 /** Uses official twitch API. */
 class TwitchEmoticonStreamLoader(

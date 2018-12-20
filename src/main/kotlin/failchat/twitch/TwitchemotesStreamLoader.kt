@@ -2,11 +2,11 @@ package failchat.twitch
 
 import failchat.Origin
 import failchat.emoticon.EmoticonStreamLoader
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.toChannel
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.toChannel
+import kotlinx.coroutines.launch
 
 /** Uses twitchemotes.com API. */
 class TwitchemotesStreamLoader(

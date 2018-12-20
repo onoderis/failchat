@@ -6,11 +6,11 @@ import failchat.chat.ChatMessageHistory.Operation.Clear
 import failchat.chat.ChatMessageHistory.Operation.FindAll
 import failchat.chat.ChatMessageHistory.Operation.FindFirst
 import failchat.util.offerOrThrow
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import java.util.Queue
 
 class ChatMessageHistory(capacity: Int) {

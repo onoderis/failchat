@@ -2,8 +2,8 @@ package failchat.twitch
 
 import failchat.Origin
 import failchat.emoticon.EmoticonBulkLoader
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.future.future
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.future.future
 import java.util.concurrent.CompletableFuture
 
 /** Uses twitchemotes.com API. */

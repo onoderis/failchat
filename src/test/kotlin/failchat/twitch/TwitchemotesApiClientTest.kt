@@ -3,7 +3,7 @@ package failchat.twitch
 import failchat.config
 import failchat.okHttpClient
 import failchat.twitchEmoticonUrlFactory
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

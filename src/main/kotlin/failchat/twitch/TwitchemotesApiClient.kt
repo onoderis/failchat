@@ -11,9 +11,9 @@ import failchat.util.objectMapper
 import failchat.util.thenUse
 import failchat.util.toFuture
 import failchat.util.validateResponseCode
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.toList
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.toList
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request

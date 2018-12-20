@@ -5,10 +5,11 @@ import failchat.chat.badge.BadgeOrigin.TWITCH_CHANNEL
 import failchat.chat.badge.BadgeOrigin.TWITCH_GLOBAL
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.twitch.TwitchApiClient
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.future.await
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.future.await
 import mu.KLogging
 
 class BadgeManager(
@@ -22,13 +23,13 @@ class BadgeManager(
     suspend fun loadGlobalBadges() {
         val jobsList: MutableList<Deferred<Unit>> = ArrayList()
 
-        jobsList += async(Unconfined) {
+        jobsList += CoroutineScope(Dispatchers.Unconfined).async {
             val twitchBadges = twitchApiClient.requestGlobalBadges()
             logger.info("Global twitch badges was loaded. Count: {}", twitchBadges.size)
             badgeStorage.putBadges(TWITCH_GLOBAL, twitchBadges)
         }
 
-        jobsList += async(Unconfined) {
+        jobsList += CoroutineScope(Dispatchers.Unconfined).async {
             val peka2tvBadges = peka2tvApiClient.requestBadges().await()
             logger.info("Peka2tv badges was loaded. Count: {}", peka2tvBadges.size)
             badgeStorage.putBadges(PEKA2TV, peka2tvBadges)

@@ -21,7 +21,7 @@ import failchat.exception.UnexpectedResponseException
 import failchat.viewers.ViewersCountLoader
 import io.socket.client.IO
 import io.socket.client.Socket
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import okhttp3.OkHttpClient
 import org.json.JSONObject
