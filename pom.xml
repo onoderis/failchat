@@ -255,10 +255,10 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <version>${kotlin.version}</version>
                 <configuration>
-                    <!--<myIncremental>true</myIncremental> // because of bug: copy-resources only on second run. KT-21581 -->
                     <languageVersion>1.3</languageVersion>
                     <apiVersion>1.3</apiVersion>
                     <jvmTarget>1.8</jvmTarget>
+                    <myIncremental>true</myIncremental>
                 </configuration>
                 <executions>
                     <execution>
