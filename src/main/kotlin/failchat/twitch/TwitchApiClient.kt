@@ -19,11 +19,11 @@ import failchat.util.thenUse
 import failchat.util.toFuture
 import failchat.util.validateResponseCode
 import failchat.util.withSuffix
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.toList
-import kotlinx.coroutines.experimental.future.future
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.toList
+import kotlinx.coroutines.future.future
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response

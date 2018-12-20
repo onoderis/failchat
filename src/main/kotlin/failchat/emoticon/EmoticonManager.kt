@@ -6,7 +6,7 @@ import failchat.emoticon.EmoticonLoadConfiguration.LoadType.BULK
 import failchat.emoticon.EmoticonLoadConfiguration.LoadType.STREAM
 import failchat.emoticon.EmoticonManager.LoadResult.Failure
 import failchat.emoticon.EmoticonManager.LoadResult.Success
-import kotlinx.coroutines.experimental.channels.map
+import kotlinx.coroutines.channels.map
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
 import java.time.Duration

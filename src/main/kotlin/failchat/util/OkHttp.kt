@@ -10,7 +10,9 @@ import okhttp3.Response
 import okhttp3.ResponseBody
 import java.io.IOException
 import java.util.concurrent.CompletableFuture
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 val jsonMediaType: MediaType = MediaType.parse("application/json")!!
 val textMediaType: MediaType = MediaType.parse("text/plain")!!

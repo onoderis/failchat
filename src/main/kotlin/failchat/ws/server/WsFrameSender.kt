@@ -6,10 +6,10 @@ import failchat.ws.server.WsFrameSender.ChannelMessage.SessionClosed
 import failchat.ws.server.WsFrameSender.ChannelMessage.SessionOpened
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.websocket.DefaultWebSocketServerSession
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import mu.KLogging
 
 class WsFrameSender {

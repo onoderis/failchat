@@ -1,8 +1,8 @@
 package failchat.emoticon
 
 import failchat.Origin
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ConcurrentHashMap
 
 class CommonInMemoryEmoticonStorage(override val origin: Origin) : OriginEmoticonStorage {

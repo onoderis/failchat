@@ -4,8 +4,8 @@ import failchat.Origin
 import failchat.Origin.TWITCH
 import failchat.twitch.TwitchEmoticon
 import failchat.twitch.TwitchEmoticonUrlFactory
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.runBlocking
 import org.mapdb.DB
 import org.mapdb.HTreeMap
 import org.mapdb.Serializer

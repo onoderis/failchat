@@ -2,7 +2,7 @@ package failchat.cybergame
 
 import failchat.config
 import failchat.okHttpClient
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import kotlin.test.assertEquals
 

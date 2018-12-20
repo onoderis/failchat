@@ -15,7 +15,7 @@ import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.emoticon.EmoticonFinder
 import failchat.util.notEmptyOrNull
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.pircbotx.Configuration
 import org.pircbotx.PircBotX

@@ -48,11 +48,12 @@ import failchat.youtube.VideoId
 import failchat.youtube.YoutubeUtils
 import failchat.youtube.YtChatClient
 import javafx.application.Platform
-import kotlinx.coroutines.experimental.CoroutineName
-import kotlinx.coroutines.experimental.asCoroutineDispatcher
-import kotlinx.coroutines.experimental.future.await
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
 import org.mapdb.DB
@@ -127,7 +128,7 @@ class AppStateManager(private val kodein: Kodein) {
             viewersCountLoaders.add(kodein.factory<String, TwitchViewersCountLoader>().invoke(channelName))
 
             // load channel badges in background
-            launch(backgroundExecutorDispatcher + CoroutineName("TwitchBadgeLoader") + CoroutineExceptionLogger) {
+            CoroutineScope(backgroundExecutorDispatcher + CoroutineName("TwitchBadgeLoader") + CoroutineExceptionLogger).launch() {
                 val channelId: Long = twitchApiClient.requestUserId(channelName).await()
                 badgeManager.loadTwitchChannelBadges(channelId)
             }

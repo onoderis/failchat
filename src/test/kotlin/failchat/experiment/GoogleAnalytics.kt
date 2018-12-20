@@ -5,7 +5,7 @@ import failchat.reporter.EventAction
 import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
 import failchat.reporter.GAEventReporter
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger

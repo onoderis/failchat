@@ -11,7 +11,7 @@ import failchat.emoticon.Emoticon
 import failchat.gui.StatusMessageModeConverter
 import failchat.viewers.COUNTABLE_ORIGINS
 import failchat.ws.server.WsFrameSender
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
 

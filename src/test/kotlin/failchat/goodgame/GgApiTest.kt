@@ -3,7 +3,7 @@ package failchat.goodgame
 import failchat.config
 import failchat.exception.ChannelOfflineException
 import failchat.okHttpClient
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

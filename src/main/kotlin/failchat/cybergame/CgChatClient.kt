@@ -26,7 +26,7 @@ import failchat.util.urlPattern
 import failchat.util.value
 import failchat.util.withSuffix
 import failchat.ws.client.WsClient
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI

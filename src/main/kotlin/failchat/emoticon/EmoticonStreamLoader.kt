@@ -1,7 +1,7 @@
 package failchat.emoticon
 
 import failchat.Origin
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.channels.ReceiveChannel
 
 interface EmoticonStreamLoader<T : Emoticon> {
     val origin: Origin

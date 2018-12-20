@@ -23,11 +23,11 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
-import kotlinx.coroutines.experimental.CoroutineName
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.asCoroutineDispatcher
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.DefaultParser
@@ -219,7 +219,7 @@ private fun scheduleReportTasks(executor: ScheduledExecutorService) {
     val reporter = kodein.instance<EventReporter>()
     val dispatcher = executor.asCoroutineDispatcher()
 
-    launch(dispatcher) {
+    CoroutineScope(dispatcher).launch {
         try {
             reporter.report(EventCategory.GENERAL, EventAction.APP_LAUNCH)
         } catch (t: Throwable) {
@@ -228,7 +228,7 @@ private fun scheduleReportTasks(executor: ScheduledExecutorService) {
     }
 
     executor.scheduleAtFixedRate({
-        launch(Unconfined) {
+        CoroutineScope(Dispatchers.Unconfined).launch {
             try {
                 reporter.report(EventCategory.GENERAL, EventAction.HEARTBEAT)
             } catch (t: Throwable) {
