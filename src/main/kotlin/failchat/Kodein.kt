@@ -30,7 +30,6 @@ import failchat.emoticon.EmoticonLoadConfiguration
 import failchat.emoticon.EmoticonManager
 import failchat.emoticon.EmoticonStorage
 import failchat.emoticon.EmoticonUpdater
-import failchat.emoticon.OriginEmoticonStorageFactory
 import failchat.github.GithubClient
 import failchat.github.ReleaseChecker
 import failchat.goodgame.GgApiClient
@@ -142,11 +141,7 @@ val kodein = Kodein {
     // Emoticons
     bind<DB>("emoticons") with singleton { EmoticonDbFactory.create(instance<Path>("emoticonDbFile")) }
     bind<EmoticonStorage>() with singleton {
-        val originStorages = OriginEmoticonStorageFactory.create(
-                instance<DB>("emoticons"),
-                instance<TwitchEmoticonUrlFactory>()
-        )
-        EmoticonStorage(originStorages)
+        EmoticonStorage()
     }
     bind<EmoticonFinder>() with singleton { instance<EmoticonStorage>() }
     bind<EmoticonManager>() with singleton {

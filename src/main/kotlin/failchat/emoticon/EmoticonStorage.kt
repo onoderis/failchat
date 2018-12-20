@@ -5,16 +5,15 @@ import failchat.util.enumMap
 import kotlinx.coroutines.channels.ReceiveChannel
 import mu.KLogging
 
-/** Thread safe emoticon storage. */
-class EmoticonStorage(
-        storages: List<OriginEmoticonStorage>
-) : EmoticonFinder {
+class EmoticonStorage : EmoticonFinder {
 
     private companion object : KLogging()
 
-    private val originStorages: Map<Origin, OriginEmoticonStorage>
+    private var originStorages: Map<Origin, OriginEmoticonStorage> = Origin.values
+            .map { it to EmptyEmoticonStorage(it) }
+            .toMap(enumMap<Origin, OriginEmoticonStorage>())
 
-    init {
+    fun setStorages(storages: List<OriginEmoticonStorage>) {
         originStorages = Origin.values.minus(storages.map { it.origin })
                 .map { EmptyEmoticonStorage(it) }
                 .plus(storages)
