@@ -5,10 +5,12 @@ import failchat.chat.ChatMessageHistory
 import failchat.chat.badge.BadgeManager
 import failchat.emoticon.EmoticonStorage
 import failchat.emoticon.EmoticonUpdater
+import failchat.emoticon.OriginEmoticonStorageFactory
 import failchat.gui.GuiLauncher
 import failchat.reporter.EventAction
 import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
+import failchat.twitch.TwitchEmoticonUrlFactory
 import failchat.util.CoroutineExceptionLogger
 import failchat.util.bytesToMegabytes
 import failchat.util.sp
@@ -34,6 +36,7 @@ import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
 import org.apache.commons.configuration2.Configuration
+import org.mapdb.DB
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.ServerSocket
@@ -71,27 +74,18 @@ fun main0(args: Array<String>) {
 
     configureLogging(cmd)
 
-    logSystemInfo()
-
-    handleProgramArguments(cmd)
-
-
-    val config: Configuration = kodein.instance()
-
-    // If emoticon db file not exists, reset 'last-updated' config values
-    val dbPath = kodein.instance<Path>("emoticonDbFile")
-    val dbFileExists = Files.exists(dbPath)
-    if (!dbFileExists) {
-        logger.info("DB file '{}' not exists, resetting 'emoticons.last-updated' config parameters to 0", dbPath)
-        config.resetEmoticonsUpdatedTime()
-    }
-
     // GUI
     // Javafx starts earlier for responsiveness. The thread will be blocked
-    thread(name = "GuiLauncher") {
+    thread(name = "GuiLauncher", priority = Thread.MAX_PRIORITY) {
         logger.info("Launching javafx application")
         JfxApplication.launch(GuiLauncher::class.java)
     }
+
+    val config: Configuration = kodein.instance()
+    handleProgramArguments(cmd, config)
+
+    logSystemInfo()
+
 
     // Http/websocket server
     val wsFrameSender: WsFrameSender = kodein.instance()
@@ -107,9 +101,22 @@ fun main0(args: Array<String>) {
     scheduleReportTasks(backgroundExecutor)
 
 
+    // If emoticon db file not exists, reset 'last-updated' config values
+    val dbPath = kodein.instance<Path>("emoticonDbFile")
+    val dbFileExists = Files.exists(dbPath)
+    if (!dbFileExists) {
+        logger.info("DB file '{}' not exists, resetting 'emoticons.last-updated' config parameters to 0", dbPath)
+        config.resetEmoticonsUpdatedTime()
+    }
+
     // Initialize emoticon storages
-    kodein.instance<EmoticonStorage>()
-    logger.debug("Emoticon storage initialized")
+    val emoticonStorage = kodein.instance<EmoticonStorage>()
+    val originEmoticonStorages = OriginEmoticonStorageFactory.create(
+            kodein.instance<DB>("emoticons"),
+            kodein.instance<TwitchEmoticonUrlFactory>()
+    )
+    emoticonStorage.setStorages(originEmoticonStorages)
+    logger.info("Emoticon storages initialized")
 
 
     // Aztualize emoticons
@@ -166,9 +173,7 @@ private fun logSystemInfo() {
     }
 }
 
-private fun handleProgramArguments(cmd: CommandLine) {
-    val config: Configuration = kodein.instance()
-
+private fun handleProgramArguments(cmd: CommandLine, config: Configuration) {
     if (cmd.hasOption("skip-release-check")) {
         config.setProperty("release-checker.enabled", false)
     }
