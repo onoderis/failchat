@@ -15,11 +15,12 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-<VBox alignment="TOP_CENTER" prefHeight="380.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1">
+<VBox alignment="TOP_CENTER" prefHeight="380.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <TabPane prefHeight="317.0" prefWidth="450.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
@@ -360,6 +361,26 @@
                                                         <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </CheckBox>
+                                    <HBox>
+                                       <children>
+                                          <CheckBox fx:id="hide_messages" alignment="CENTER" mnemonicParsing="false">
+                                             <HBox.margin>
+                                                <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                             </HBox.margin>
+                                          </CheckBox>
+                                          <FlowPane fx:id="fp" prefWidth="0.0">
+                                             <children>
+                                                <Text layoutX="48.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hide messages after" />
+                                                <TextField fx:id="hide_messages_after" maxWidth="38.0" minHeight="-Infinity" prefHeight="18.0">
+                                                   <FlowPane.margin>
+                                                      <Insets left="2.0" />
+                                                   </FlowPane.margin>
+                                                </TextField>
+                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="seconds" />
+                                             </children>
+                                          </FlowPane>
+                                       </children>
+                                    </HBox>
                                             </children>
                                             <HBox.margin>
                                                 <Insets left="20.0" right="20.0" />

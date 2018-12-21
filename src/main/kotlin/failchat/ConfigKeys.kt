@@ -47,6 +47,8 @@ object ConfigKeys {
     const val showUserBadges = "show-user-badges"
     const val zoomPercent = "zoom-percent"
     const val ignore = "ignore"
+    const val hideMessages = "hide-messages"
+    const val hideMessagesAfter = "hide-messages-after"
 
 
     val configurableByUserProperties: List<String> = listOf(

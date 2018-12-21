@@ -2,10 +2,11 @@
 
 const failchat = {
     maxMessages: 50,
-    messageCount: 0,
     iconsPath: "../_shared/icons/",
     origins: ["peka2tv", "twitch", "goodgame", "youtube", "cybergame"],
     deletedTextPlaceholder: "message deleted",
+    hideMessages: false,
+    hideMessagesAfter: 60,
     nativeClient: false
 };
 
@@ -19,6 +20,11 @@ const templates = {
     originViewersBar: new Template("origin-viewers-bar")
 };
 
+const keyCode = {
+    pageUp: 33,
+    home: 36,
+    up: 38
+};
 
 $(() => {
     awaitForTemplates().then(() => {
@@ -37,12 +43,16 @@ async function awaitForTemplates() {
 function initializeFailchat() {
     failchat.nativeClient = (navigator.userAgent.search("failchat") >= 0);
 
+    const activeMessages = [];
+    let lastSystemMessageId = -1; //goes down
+    let autoScroll = true;
+    let showStatusMessages = true; // show if origin-status message received before client-configuration message
+
+    // dom elements
     const bodyWrapper = $("#body-wrapper");
     const messageContainer = $("#message-container");
     const scroller = $(failchat.baronParams.scroller);
     const scrollBar = $(failchat.baronParams.bar);
-    let autoScroll = true;
-    let showStatusMessages = true; // show if origin-status message received before client-configuration message
 
     // viewers bar
     const viewersBar = $(".viewers-bar");
@@ -87,7 +97,7 @@ function initializeFailchat() {
     failchat.socket = socket;
 
     socket.onopen = function() {
-        const connectedMessage = {"origin": "failchat", "status": "connected", "timestamp": Date.now()};
+        const connectedMessage = {id: nextSystemMessageId(), "origin": "failchat", "status": "connected", "timestamp": Date.now()};
         handleStatusMessage(connectedMessage);
 
         socket.send(JSON.stringify({type: "client-configuration", content: {}}));
@@ -95,7 +105,7 @@ function initializeFailchat() {
     };
 
     socket.onclose = function() {
-        const disconnectedMessage = {origin: "failchat", status: "disconnected", timestamp: Date.now()};
+        const disconnectedMessage = {id: nextSystemMessageId(), origin: "failchat", status: "disconnected", timestamp: Date.now()};
         handleStatusMessage(disconnectedMessage);
     };
 
@@ -119,27 +129,21 @@ function initializeFailchat() {
                 break;
             case "client-configuration":
                 handleClientConfigurationMessage(content);
+                resetHideMessageTasks();
                 break;
-        }
-
-        if (content.textHtml !== undefined) {
-            appendToMessageContainer(content.textHtml);
-            return
         }
 
         if (!failchat.nativeClient) return;
 
-        switch (type) {
-            case "viewers-count":
-                updateViewersValues(content);
-                break;
+        if (type === "viewers-count") {
+            updateViewersValues(content);
         }
     }
 
     failchat.handleMessage = handleMessage;
 
-    function handleChatMessage(content) {
-        const elementsArray = content.elements;
+    function handleChatMessage(chatMessage) {
+        const elementsArray = chatMessage.elements;
 
         for (let i = 0; i < elementsArray.length; i++) {
             const element = elementsArray[i];
@@ -160,39 +164,41 @@ function initializeFailchat() {
                     break;
             }
 
-            content.text = content.text.replace("{!" + i + "}", elementHtml);
+            chatMessage.text = chatMessage.text.replace("{!" + i + "}", elementHtml);
         }
 
-        content.iconsPath = failchat.iconsPath;
+        chatMessage.iconsPath = failchat.iconsPath;
 
-        content.textHtml = templates.message.render(content);
+        const messageHtml = templates.message.render(chatMessage);
+
+        appendMessage(chatMessage, messageHtml)
     }
 
-    function handleStatusMessage(content) {
+    function handleStatusMessage(statusMessage) {
         if (!showStatusMessages) return;
 
-        content.iconsPath = failchat.iconsPath;
-        const html = templates.statusMessage.render(content);
-        appendToMessageContainer(html);
+        statusMessage.iconsPath = failchat.iconsPath;
+        const html = templates.statusMessage.render(statusMessage);
+        appendMessage(statusMessage, html);
     }
 
-    function handleClientConfigurationMessage(content) {
-        const bodyZoomStyle = "body { zoom: " + content.zoomPercent + "%; }";
+    function handleClientConfigurationMessage(config) {
+        const bodyZoomStyle = "body { zoom: " + config.zoomPercent + "%; }";
 
         let originBadgesStyle = "";
-        if (content.showOriginBadges === false) {
+        if (config.showOriginBadges === false) {
             originBadgesStyle = ".message .origin-badge { display: none; }"
         }
 
         let userBadgesStyle = "";
-        if (content.showUserBadges === false) {
+        if (config.showUserBadges === false) {
             userBadgesStyle = ".message .user-badges { display: none; }"
         }
 
         dynamicStyles.innerHTML = bodyZoomStyle + originBadgesStyle + userBadgesStyle ;
 
 
-        const statusMessageMode = content.statusMessageMode;
+        const statusMessageMode = config.statusMessageMode;
         if ((statusMessageMode === "everywhere") ||
             (failchat.nativeClient && statusMessageMode === "native_client")) {
             showStatusMessages = true;
@@ -202,24 +208,28 @@ function initializeFailchat() {
 
         let bgHexColor;
         if (failchat.nativeClient) {
-            bgHexColor = content.nativeClientBgColor;
+            bgHexColor = config.nativeClientBgColor;
         } else {
-            bgHexColor = content.externalClientBgColor;
+            bgHexColor = config.externalClientBgColor;
         }
 
         bodyWrapper.css("background-color", "rgba(" + hexToRgba(bgHexColor.substring(1)) + ")");
 
 
-        if (!failchat.nativeClient) return;
-        // handle viewers bar configuration
+        failchat.hideMessages = config.hideMessages;
+        failchat.hideMessagesAfter = config.hideMessagesAfter;
 
-        if (content.showViewersCount === true) {
+        // ---------- native client configuration ----------
+        if (!failchat.nativeClient) return;
+
+        // handle viewers bar configuration
+        if (config.showViewersCount === true) {
             viewersBar.addClass("on");
         } else {
             viewersBar.removeClass("on");
         }
 
-        const enabledOrigins = content.enabledOrigins;
+        const enabledOrigins = config.enabledOrigins;
         failchat.origins.forEach(origin => {
             if (!enabledOrigins.hasOwnProperty(origin)) return;
             if (enabledOrigins[origin] === true) {
@@ -230,9 +240,16 @@ function initializeFailchat() {
         });
     }
 
-    function handleDeleteMessage(content) {
-        const message = $("#message-" + content.messageId);
-        const messageText = $("#message-" + content.messageId + " .message-text");
+    function resetHideMessageTasks() {
+        activeMessages.forEach(m => {
+            cancelHideMessageTask(m);
+            createHideMessageTask(m)
+        });
+    }
+
+    function handleDeleteMessage(deleteMessage) {
+        const message = $("#message-" + deleteMessage.messageId);
+        const messageText = $("#message-" + deleteMessage.messageId + " .message-text");
 
         if (message === null || messageText === null) return;
 
@@ -255,20 +272,72 @@ function initializeFailchat() {
         });
     }
 
-    function appendToMessageContainer(html) {
-        failchat.messageCount++;
-        if (failchat.messageCount > failchat.maxMessages && autoScroll) {
-            $(failchat.messageSelector + ":lt(" + (failchat.messageCount - failchat.maxMessages) + ")").remove();
-            failchat.messageCount = failchat.maxMessages;
-        }
+    /** Append chat message or status message to message container. */
+    function appendMessage(message, html) {
+        activeMessages.push(message);
         messageContainer.append(html);
+
+        if (autoScroll) {
+            deleteOldMessages()
+        }
+
+        createHideMessageTask(message)
+    }
+
+    function hideMessage(id) {
+        const message = $("#message-" + id);
+        if (message != null)
+            message.hide(); //todo css animation?
+    }
+
+    function deleteMessage(message) {
+        const index = activeMessages.indexOf(message);
+        if (index > 0)
+            activeMessages.splice(index, 1);
+
+        cancelHideMessageTask(message);
+
+        const element = $("#message-" + message.id);
+        if (element != null)
+            element.remove();
+    }
+
+    function createHideMessageTask(message) {
+        if (!failchat.hideMessages) return;
+
+        const taskId = setTimeout(() => {
+            // todo hideMessage(id);
+            deleteMessage(message);
+        }, failchat.hideMessagesAfter * 1000);
+        message.hideTaskId = taskId;
+    }
+
+    function cancelHideMessageTask(message) {
+        const taskId = message.hideTaskId;
+
+        if (taskId instanceof Number) {
+            clearTimeout(taskId)
+        }
+    }
+
+    function deleteOldMessages() {
+        if (activeMessages.length <= failchat.maxMessages) return;
+
+        const messagesToDelete = activeMessages.length - failchat.maxMessages;
+        const removedMessages = activeMessages.splice(0, messagesToDelete);
+
+        removedMessages.forEach((m) => deleteMessage(m))
+    }
+
+    function nextSystemMessageId() {
+        return lastSystemMessageId--;
     }
 
     $("body,html").bind("keydown wheel mousewheel", e => {
         //checks for disabling autoscroll
         if (autoScroll) {
             if (e.originalEvent.deltaY < 0 ||
-                (e.type === "keydown" && (e.keyCode === 38 || e.keyCode === 36 || e.keyCode === 33)) // 38-up;36-home;33-pageup
+                (e.type === "keydown" && (e.keyCode === keyCode.home || e.keyCode === keyCode.pageUp || e.keyCode === keyCode.up))
             ) {
                 autoScroll = false;
                 scrollBar.css("visibility", "visible");

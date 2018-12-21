@@ -37,13 +37,13 @@ $(() => {
     );
 
     failchat.handleMessage(
-        {"type": "origin-status", "content": {"origin": "failchat", "status": "connected", "timestamp": Date.now()}}
+        {"type": "origin-status", "content": {"id": "-500", "origin": "failchat", "status": "connected", "timestamp": Date.now()}}
     );
 
     failchat.handleMessage({
         "type": "message",
         "content": {
-            "id": 39311,
+            "id": 1,
             "origin": "twitch",
             "author": {"name": "fail0001", "id": "fail0001"},
             "text": "hello",
@@ -62,7 +62,7 @@ $(() => {
     failchat.handleMessage({
         "type": "message",
         "content": {
-            "id": 39312,
+            "id": 2,
             "origin": "peka2tv",
             "author": {"name": "fail0001", "id": "fail0001"},
             "text": "{!0}",
@@ -86,7 +86,7 @@ $(() => {
     failchat.handleMessage({
         "type": "message",
         "content": {
-            "id": 39313,
+            "id": 3,
             "origin": "youtube",
             "author": {"name": "fail0001", "id": "fail0001"},
             "text": "123 {!0} 123 {!1} 123 {!2} 123 {!3} 123 {!4} 123 {!5} 123 {!6} 123 {!7} 123 {!8} 123 {!9} 123 {!10} 123 {!11} 123 {!12} 123 {!13} 123 {!14} 123 {!15} 123 {!16} 123 {!17}",
@@ -195,7 +195,7 @@ $(() => {
     failchat.handleMessage({
         "type": "message",
         "content": {
-            "id": 39314,
+            "id": 4,
             "origin": "cybergame",
             "author": {"name": "fail0001", "id": "fail0001"},
             "text": "{!0}",
@@ -214,7 +214,7 @@ $(() => {
     failchat.handleMessage({
         "type": "message",
         "content": {
-            "id": 39315,
+            "id": 5,
             "origin": "goodgame",
             "author": {"name": "fail0001", "id": "fail0001"},
             "text": "test image {!1} 123ffff {!0}",
@@ -238,7 +238,7 @@ $(() => {
     failchat.handleMessage({
         "type": "message",
         "content": {
-            "id": 39316,
+            "id": 6,
             "origin": "twitch",
             "author": {"name": "fail0001", "id": "fail0001"},
             "text": "hello Kappa",
@@ -258,7 +258,7 @@ $(() => {
     failchat.handleMessage({
         "type": "message",
         "content": {
-            "id": 39317,
+            "id": 7,
             "origin": "peka2tv",
             "author": {"name": "fail0001", "id": "fail0001"},
             "text": "should be deleted!",
@@ -273,7 +273,7 @@ $(() => {
         {
             "type": "delete-message",
             "content": {
-                "messageId": 39317
+                "messageId": 7
             }
         }
     );
@@ -281,7 +281,7 @@ $(() => {
     failchat.handleMessage({
         "type": "message",
         "content": {
-            "id": 393000,
+            "id": 8,
             "origin": "peka2tv",
             "author": {"name": "fail0001", "id": "fail0001"},
             "text": "so many badges!",
@@ -312,7 +312,7 @@ $(() => {
     failchat.handleMessage({
         "type": "message",
         "content": {
-            "id": 393000,
+            "id": 9,
             "origin": "goodgame",
             "author": {"name": "fail0001", "id": "fail0001"},
             "text": "badges test",
@@ -369,7 +369,7 @@ $(() => {
     failchat.handleMessage({
         "type": "message",
         "content": {
-            "id": 393111,
+            "id": 10,
             "origin": "peka2tv",
             "author": {"name": "fail0001", "id": "fail0001"},
             "text": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
@@ -383,7 +383,7 @@ $(() => {
     failchat.handleMessage({
         "type": "message",
         "content": {
-            "id": 393112,
+            "id": 11,
             "origin": "peka2tv",
             "author": {"name": "fail0001", "id": "fail0001"},
             "text": "highlighted message! one two three",
@@ -397,7 +397,7 @@ $(() => {
     failchat.handleMessage({
         "type": "message",
         "content": {
-            "id": 53332,
+            "id": 12,
             "timestamp": 1499789037199,
             "author": {
                 "name": "theauthor",

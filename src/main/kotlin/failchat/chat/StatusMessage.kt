@@ -6,5 +6,6 @@ import java.time.Instant
 data class StatusMessage(
         val origin: Origin,
         val status: OriginStatus,
+        val id: Long,
         val timestamp: Instant = Instant.now()
 )

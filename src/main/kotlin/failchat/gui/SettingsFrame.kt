@@ -70,6 +70,9 @@ class SettingsFrame(
     private val showOriginBadges = scene.lookup("#show_origin_badges") as CheckBox
     private val showUserBadges = scene.lookup("#show_user_badges") as CheckBox
     private val zoomPercent = scene.lookup("#zoom_percent") as TextField
+    private val hideMessages = scene.lookup("#hide_messages") as CheckBox
+    private val hideMessagesAfter = scene.lookup("#hide_messages_after") as TextField
+    
 
     // Actions tab
     private val customEmoticonsButton = scene.lookup("#custom_emoticons") as Button
@@ -210,6 +213,8 @@ class SettingsFrame(
         showOriginBadges.isSelected = config.getBoolean(ConfigKeys.showOriginBadges)
         showUserBadges.isSelected = config.getBoolean(ConfigKeys.showUserBadges)
         zoomPercent.text = config.getInt(ConfigKeys.zoomPercent).toString()
+        hideMessages.isSelected = config.getBoolean(ConfigKeys.hideMessages)
+        hideMessagesAfter.text = config.getInt(ConfigKeys.hideMessagesAfter).toString()
 
         nativeBgColorPicker.value = Color.web(config.getString(ConfigKeys.backgroundColor.native))
         externalBgColorPicker.value = Color.web(config.getString(ConfigKeys.backgroundColor.external))
@@ -252,6 +257,8 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.showOriginBadges, showOriginBadges.isSelected)
         config.setProperty(ConfigKeys.showUserBadges, showUserBadges.isSelected)
         config.setProperty(ConfigKeys.zoomPercent, parseZoomPercent(zoomPercent.text))
+        config.setProperty(ConfigKeys.hideMessages, hideMessages.isSelected)
+        config.setProperty(ConfigKeys.hideMessagesAfter, parseHideMessagesAfter(hideMessagesAfter.text))
 
         config.setProperty(ConfigKeys.ignore, ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
     }
@@ -270,6 +277,22 @@ class SettingsFrame(
         }
 
         return percent
+    }
+    
+    private fun parseHideMessagesAfter(hideMessagesAfter: String): Int {
+        val intValue = try {
+            hideMessagesAfter.toInt()
+        } catch (e: Exception) {
+            logger.warn("Failed to parse 'hide messages after' as Int", e)
+            return 60
+        }
+
+        if (intValue < 0) {
+            logger.warn("'hide messages after' value  {} < 0", intValue)
+            return 60
+        }
+
+        return intValue
     }
 
 }

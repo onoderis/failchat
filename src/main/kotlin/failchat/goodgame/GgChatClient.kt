@@ -115,7 +115,7 @@ class GgChatClient(
             logger.info("Goodgame chat client connected to channel {}", channelId)
 
             wsClient.send(joinMessage.toString())
-            onStatusMessage?.invoke(StatusMessage(GOODGAME, CONNECTED))
+            onStatusMessage?.invoke(StatusMessage(GOODGAME, CONNECTED, messageIdGenerator.generate()))
         }
 
         override fun onClose(code: Int, reason: String, remote: Boolean) {
@@ -141,7 +141,7 @@ class GgChatClient(
 
         override fun onReconnect() {
             logger.info("Goodgame chat client disconnected, trying to reconnect")
-            onStatusMessage?.invoke(StatusMessage(GOODGAME, DISCONNECTED))
+            onStatusMessage?.invoke(StatusMessage(GOODGAME, DISCONNECTED, messageIdGenerator.generate()))
         }
 
         private fun handleUserMessage(dataNode: JsonNode) {
