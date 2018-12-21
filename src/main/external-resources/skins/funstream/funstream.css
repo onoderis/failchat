@@ -44,6 +44,10 @@ span.highlighted {
     color: #7FCDFF;
 }
 
+.removing {
+    animation: disappear-top 0.4s;
+}
+
 /* Animations */
 
 @keyframes appear-bottom {
@@ -54,5 +58,16 @@ span.highlighted {
     to {
         bottom: 0;
         opacity: 1
+    }
+}
+
+@keyframes disappear-top {
+    from {
+        top: 0;
+        opacity: 1
+    }
+    to {
+        top: -100px;
+        opacity: 0
     }
 }

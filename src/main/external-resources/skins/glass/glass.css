@@ -123,6 +123,10 @@ span.status-text {
     color: #c02b2b;
 }
 
+.removing {
+    animation: disappear-top 0.4s;
+}
+
 @keyframes appear-bottom {
     from {
         bottom: -100px;
@@ -131,5 +135,16 @@ span.status-text {
     to {
         bottom: 0;
         opacity: 1
+    }
+}
+
+@keyframes disappear-top {
+    from {
+        top: 0;
+        opacity: 1
+    }
+    to {
+        top: -100px;
+        opacity: 0
     }
 }

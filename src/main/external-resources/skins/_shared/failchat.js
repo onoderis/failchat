@@ -3,6 +3,7 @@
 const failchat = {
     maxMessages: 50,
     iconsPath: "../_shared/icons/",
+    removeMessageAnimationClass: null,
     origins: ["peka2tv", "twitch", "goodgame", "youtube", "cybergame"],
     deletedTextPlaceholder: "message deleted",
     hideMessages: false,
@@ -284,30 +285,47 @@ function initializeFailchat() {
         createHideMessageTask(message)
     }
 
-    function hideMessage(id) {
-        const message = $("#message-" + id);
-        if (message != null)
-            message.hide(); //todo css animation?
+    function hideAndDeleteMessage(message) {
+        const messageElement = $("#message-" + message.id);
+
+        if (failchat.removeMessageAnimationClass === null) {
+            // delete without animation
+            deleteMessage(message);
+            return;
+        }
+
+        // delete with animation
+        inactivateMessage(message);
+        messageElement.on("animationend", null, null, () => {
+            deleteMessageElement(message);
+        });
+        messageElement.addClass(failchat.removeMessageAnimationClass);
     }
 
-    function deleteMessage(message) {
+    function inactivateMessage(message) {
         const index = activeMessages.indexOf(message);
         if (index > 0)
             activeMessages.splice(index, 1);
 
         cancelHideMessageTask(message);
+    }
 
+    function deleteMessageElement(message) {
         const element = $("#message-" + message.id);
         if (element != null)
             element.remove();
+    }
+
+    function deleteMessage(message) {
+        inactivateMessage(message);
+        deleteMessageElement(message);
     }
 
     function createHideMessageTask(message) {
         if (!failchat.hideMessages) return;
 
         const taskId = setTimeout(() => {
-            // todo hideMessage(id);
-            deleteMessage(message);
+            hideAndDeleteMessage(message);
         }, failchat.hideMessagesAfter * 1000);
         message.hideTaskId = taskId;
     }
@@ -326,7 +344,7 @@ function initializeFailchat() {
         const messagesToDelete = activeMessages.length - failchat.maxMessages;
         const removedMessages = activeMessages.splice(0, messagesToDelete);
 
-        removedMessages.forEach((m) => deleteMessage(m))
+        removedMessages.forEach((m) => deleteMessage(m)) // delete w/o potential animation
     }
 
     function nextSystemMessageId() {
