@@ -16,6 +16,7 @@ import javafx.scene.control.CheckMenuItem
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.CustomMenuItem
 import javafx.scene.control.MenuItem
+import javafx.scene.control.SeparatorMenuItem
 import javafx.scene.input.KeyCode
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
@@ -148,7 +149,11 @@ class ChatFrame(
         val clearChatItem = MenuItem("Clear chat")
         val closeChatItem = MenuItem("Close chat")
 
-        val contextMenu = ContextMenu(switchDecorationsItem, onTopItem, viewersItem, clearChatItem, zoomItem, closeChatItem)
+        val contextMenu = ContextMenu(
+                switchDecorationsItem, onTopItem, viewersItem, zoomItem, SeparatorMenuItem(),
+                clearChatItem, SeparatorMenuItem(),
+                closeChatItem
+        )
 
         // Show/hide context menu
         chatScene.setOnMouseClicked { mouseEvent ->
