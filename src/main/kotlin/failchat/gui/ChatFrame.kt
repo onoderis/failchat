@@ -145,8 +145,10 @@ class ChatFrame(
         }
         val zoomItem = CustomMenuItem(zoomBox, false)
 
+        val clearChatItem = MenuItem("Clear chat")
         val closeChatItem = MenuItem("Close chat")
-        val contextMenu = ContextMenu(switchDecorationsItem, onTopItem, viewersItem, zoomItem, closeChatItem)
+
+        val contextMenu = ContextMenu(switchDecorationsItem, onTopItem, viewersItem, clearChatItem, zoomItem, closeChatItem)
 
         // Show/hide context menu
         chatScene.setOnMouseClicked { mouseEvent ->
@@ -169,6 +171,10 @@ class ChatFrame(
             val newValue = !config.getBoolean(ConfigKeys.showViewers)
             config.setProperty(ConfigKeys.showViewers, newValue)
             guiEventHandler.handleConfigurationChange()
+        }
+
+        clearChatItem.setOnAction {
+            guiEventHandler.handleClearChat()
         }
 
         // zoom item callbacks

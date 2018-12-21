@@ -95,7 +95,6 @@ function initializeFailchat() {
 
     const socket = new ReconnectingWebSocket(wsUrl);
     socket.maxReconnectInterval = 5000;
-    failchat.socket = socket;
 
     socket.onopen = function() {
         const connectedMessage = {id: nextSystemMessageId(), "origin": "failchat", "status": "connected", "timestamp": Date.now()};
@@ -110,9 +109,12 @@ function initializeFailchat() {
         handleStatusMessage(disconnectedMessage);
     };
 
-    socket.onmessage = function() {
+    socket.onmessage = function(event) {
         handleMessage(JSON.parse(event.data));
     };
+
+    failchat.socket = socket;
+
 
     function handleMessage(wsMessage) {
         const type = wsMessage.type;
@@ -131,6 +133,9 @@ function initializeFailchat() {
             case "client-configuration":
                 handleClientConfigurationMessage(content);
                 resetHideMessageTasks();
+                break;
+            case "clear-chat":
+                handleClearChatMessage();
                 break;
         }
 
@@ -244,7 +249,7 @@ function initializeFailchat() {
     function resetHideMessageTasks() {
         activeMessages.forEach(m => {
             cancelHideMessageTask(m);
-            createHideMessageTask(m)
+            createHideMessageTaskIfRequired(m)
         });
     }
 
@@ -257,6 +262,14 @@ function initializeFailchat() {
         message.addClass("deleted-message");
         messageText.removeClass("highlighted");
         messageText.text(failchat.deletedTextPlaceholder);
+    }
+
+    function handleClearChatMessage() {
+        activeMessages
+            .splice(0)
+            .forEach((m) =>
+                hideAndDeleteMessage(m)
+            );
     }
 
     function updateViewersValues(counters) {
@@ -282,7 +295,7 @@ function initializeFailchat() {
             deleteOldMessages()
         }
 
-        createHideMessageTask(message)
+        createHideMessageTaskIfRequired(message)
     }
 
     function hideAndDeleteMessage(message) {
@@ -304,7 +317,7 @@ function initializeFailchat() {
 
     function inactivateMessage(message) {
         const index = activeMessages.indexOf(message);
-        if (index > 0)
+        if (index >= 0)
             activeMessages.splice(index, 1);
 
         cancelHideMessageTask(message);
@@ -321,7 +334,7 @@ function initializeFailchat() {
         deleteMessageElement(message);
     }
 
-    function createHideMessageTask(message) {
+    function createHideMessageTaskIfRequired(message) {
         if (!failchat.hideMessages) return;
 
         const taskId = setTimeout(() => {

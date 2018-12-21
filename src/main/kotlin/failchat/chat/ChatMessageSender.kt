@@ -157,6 +157,15 @@ class ChatMessageSender(
         wsFrameSender.sendToAll(messageNode.toString())
     }
 
+    fun sendClearChat() {
+        val clearChatNode = nodeFactory.objectNode().apply {
+            put("type", "clear-chat")
+            putObject("content")
+        }
+
+        wsFrameSender.sendToAll(clearChatNode.toString())
+    }
+
     fun send(jsonMessage: JsonNode) {
         wsFrameSender.sendToAll(jsonMessage.toString())
     }

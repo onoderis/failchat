@@ -60,6 +60,12 @@ class GuiEventHandler(
         }
     }
 
+    fun handleClearChat() {
+        executor.executeWithCatch {
+            messageSender.sendClearChat()
+        }
+    }
+
     fun notifyEmoticonsAreLoading() {
         if (!::settingsFrame.isInitialized) return
         Platform.runLater {
