@@ -91,7 +91,7 @@ class CgChatClient(
                 CgWsMessageType.STATE.jsonValue -> {
                     val state = data.get("state").intValue()
                     if (state == 2) {
-                        onStatusMessage?.invoke(StatusMessage(origin, CONNECTED))
+                        onStatusMessage?.invoke(StatusMessage(origin, CONNECTED, messageIdGenerator.generate()))
                     }
                 }
 
@@ -126,7 +126,7 @@ class CgChatClient(
 
         override fun onReconnect() {
             logger.info("Cybergame chat client disconnected, trying to reconnect. channel: '{}', channel id: {}", channelName, channelId)
-            onStatusMessage?.invoke(StatusMessage(origin, DISCONNECTED))
+            onStatusMessage?.invoke(StatusMessage(origin, DISCONNECTED, messageIdGenerator.generate()))
         }
 
         override fun onError(e: Exception) {

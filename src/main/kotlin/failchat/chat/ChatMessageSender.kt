@@ -120,6 +120,7 @@ class ChatMessageSender(
         val messageNode = nodeFactory.objectNode().apply {
             put("type", "origin-status")
             putObject("content").apply {
+                put("id", message.id)
                 put("origin", message.origin.commonName)
                 put("status", message.status.jsonValue)
                 put("timestamp", message.timestamp.toEpochMilli())
@@ -143,6 +144,8 @@ class ChatMessageSender(
                 put("showOriginBadges", config.getBoolean(ConfigKeys.showOriginBadges))
                 put("showUserBadges", config.getBoolean(ConfigKeys.showUserBadges))
                 put("zoomPercent", config.getInt(ConfigKeys.zoomPercent))
+                put("hideMessages", config.getBoolean(ConfigKeys.hideMessages))
+                put("hideMessagesAfter", config.getInt(ConfigKeys.hideMessagesAfter))
                 putObject("enabledOrigins").apply {
                     COUNTABLE_ORIGINS.forEach { origin ->
                         put(origin.commonName, config.getBoolean("${origin.commonName}.enabled"))

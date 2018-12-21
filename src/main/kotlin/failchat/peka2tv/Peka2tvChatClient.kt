@@ -128,7 +128,7 @@ class Peka2tvChatClient(
                     socket.emit("/chat/join", arrayOf(message)) {
                         logger.info("Connected to ${Origin.PEKA2TV}")
                         atomicStatus.set(ChatClientStatus.CONNECTED)
-                        onStatusMessage?.invoke(StatusMessage(PEKA2TV, CONNECTED))
+                        onStatusMessage?.invoke(StatusMessage(PEKA2TV, CONNECTED, messageIdGenerator.generate()))
                     }
                 }
 
@@ -136,7 +136,7 @@ class Peka2tvChatClient(
                 .on(Socket.EVENT_DISCONNECT) {
                     atomicStatus.set(CONNECTING)
                     logger.info("Received disconnected event from peka2tv ")
-                    onStatusMessage?.invoke(StatusMessage(PEKA2TV, DISCONNECTED))
+                    onStatusMessage?.invoke(StatusMessage(PEKA2TV, DISCONNECTED, messageIdGenerator.generate()))
                 }
 
                 // Message

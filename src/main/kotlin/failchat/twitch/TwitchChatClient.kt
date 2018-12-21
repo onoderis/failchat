@@ -114,7 +114,7 @@ class TwitchChatClient(
             atomicStatus.set(ChatClientStatus.CONNECTED)
             twitchIrcClient.sendCAP().request("twitch.tv/tags")
             twitchIrcClient.sendCAP().request("twitch.tv/commands")
-            onStatusMessage?.invoke(StatusMessage(TWITCH, CONNECTED))
+            onStatusMessage?.invoke(StatusMessage(TWITCH, CONNECTED, messageIdGenerator.generate()))
         }
 
         override fun onDisconnect(event: DisconnectEvent) {
@@ -124,7 +124,7 @@ class TwitchChatClient(
                 else -> {
                     atomicStatus.set(ChatClientStatus.CONNECTING)
                     logger.info("Twitch irc client disconnected")
-                    onStatusMessage?.invoke(StatusMessage(TWITCH, DISCONNECTED))
+                    onStatusMessage?.invoke(StatusMessage(TWITCH, DISCONNECTED, messageIdGenerator.generate()))
                 }
             }
         }

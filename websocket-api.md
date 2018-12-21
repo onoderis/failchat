@@ -67,6 +67,8 @@
         "showOriginBadges": true,
         "showUserBadges": true,
         "zoomPercent": 100,
+        "hideMessages": true,
+        "hideMessagesAfter": 60,
         "enabledOrigins": {
             "peka2tv": false,
             "twitch": true,
@@ -84,6 +86,7 @@
 {
     "type": "origin-status",
     "content": {
+        "id": 43,
         "origin": "twitch",
         "status": "connected",
         "timestamp": 1499789037199

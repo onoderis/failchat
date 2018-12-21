@@ -171,7 +171,7 @@ class YtChatClient(
 
             // Change status to disconnected / send status message
             val statusChanged = atomicStatus.compareAndSet(ChatClientStatus.CONNECTED, CONNECTING)
-            if (statusChanged) onStatusMessage?.invoke(StatusMessage(YOUTUBE, DISCONNECTED))
+            if (statusChanged) onStatusMessage?.invoke(StatusMessage(YOUTUBE, DISCONNECTED, messageIdGenerator.generate()))
             return
         }
 
@@ -184,7 +184,7 @@ class YtChatClient(
 
         // Send "connected" status message
         val statusChanged = atomicStatus.compareAndSet(CONNECTING, ChatClientStatus.CONNECTED)
-        if (statusChanged) onStatusMessage?.invoke(StatusMessage(YOUTUBE, CONNECTED))
+        if (statusChanged) onStatusMessage?.invoke(StatusMessage(YOUTUBE, CONNECTED, messageIdGenerator.generate()))
 
         // Skip messages from first request
         if (params.isFirstRequest) {
