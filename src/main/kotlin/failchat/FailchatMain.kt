@@ -136,8 +136,7 @@ fun main0(args: Array<String>) {
     // Create directory for custom emoticons if required
     Files.createDirectories(kodein.instance<Path>("customEmoticonsDirectory"))
 
-    val workingDirectory = kodein.instance<Path>("workingDirectory").toAbsolutePath()
-    logger.info("Application started. Version: {}. Working directory: {}", config.getString("version"), workingDirectory)
+    logger.info("Application started")
 }
 
 private fun checkForAnotherInstance() {
@@ -163,13 +162,15 @@ private fun parseArguments(args: Array<String>): CommandLine {
 }
 
 private fun logSystemInfo() {
-    val failchatVersion = kodein.instance<Configuration>().getString("version")
-    val rt = Runtime.getRuntime()
     logger.info {
+        val failchatVersion = kodein.instance<Configuration>().getString("version")
+        val workingDirectory = kodein.instance<Path>("workingDirectory").toAbsolutePath()
+        val rt = Runtime.getRuntime()
         "Failchat started. Version: $failchatVersion, OS: ${sp("os.name")} (${sp("os.version")}). " +
                 "Processors: ${rt.availableProcessors()}. " +
                 "Memory: max ${rt.maxMemory().bytesToMegabytes()}mb; total ${rt.totalMemory().bytesToMegabytes()}mb, " +
-                "free ${rt.freeMemory().bytesToMegabytes()}mb"
+                "free ${rt.freeMemory().bytesToMegabytes()}mb; " +
+                "Working directory: '$workingDirectory'"
     }
 }
 
