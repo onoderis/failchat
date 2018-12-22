@@ -10,7 +10,12 @@ import javafx.collections.FXCollections
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
 import javafx.scene.Scene
+import javafx.scene.control.Alert
+import javafx.scene.control.Alert.AlertType.WARNING
 import javafx.scene.control.Button
+import javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE
+import javafx.scene.control.ButtonBar.ButtonData.OK_DONE
+import javafx.scene.control.ButtonType
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ChoiceBox
 import javafx.scene.control.ColorPicker
@@ -181,6 +186,32 @@ class SettingsFrame(
         reloadEmoticonsButton.text = "Loading emoticons"
     }
 
+    /** @return true if user confirmed the reset. */
+    fun confirmConfigReset(): Boolean {
+        val notification = Alert(WARNING).apply {
+            title = "Reset confirmation"
+            headerText = "Are you sure you want to reset the configuration?"
+        }
+        val stage = notification.dialogPane.scene.window as Stage
+        stage.icons.setAll(GuiLauncher.appIcon)
+
+        val okButton = ButtonType("OK", OK_DONE)
+        val closeButton = ButtonType("Cancel", CANCEL_CLOSE)
+        notification.buttonTypes.setAll(okButton, closeButton)
+
+        val result = notification.showAndWait().get()
+
+        return result === okButton
+    }
+
+    fun disableResetConfigurationButton() {
+        resetConfigurationButton.apply {
+            isDisable = true
+            text = "Restart the application"
+            textFill = Color.ORANGERED
+        }
+    }
+
     fun updateSettingsValues() {
         peka2tvChannel.text = config.getString(ConfigKeys.peka2tv.channel)
         goodgameChannel.text = config.getString(ConfigKeys.goodgame.channel)
@@ -234,9 +265,6 @@ class SettingsFrame(
         } else {
             userIds.joinToString(separator = "\n", postfix = "\n")
         }
-    }
-    fun showConfigurationResetNotification() {
-        //todo
     }
 
     private fun saveSettingsValues() {
