@@ -222,8 +222,13 @@ function initializeFailchat() {
         bodyWrapper.css("background-color", "rgba(" + hexToRgba(bgHexColor.substring(1)) + ")");
 
 
-        failchat.hideMessages = config.hideMessages;
-        failchat.hideMessagesAfter = config.hideMessagesAfter;
+        if (failchat.nativeClient) {
+            failchat.hideMessages = config.hideMessagesNative;
+            failchat.hideMessagesAfter = config.hideMessagesNativeAfter;
+        } else {
+            failchat.hideMessages = config.hideMessagesExternal;
+            failchat.hideMessagesAfter = config.hideMessagesExternalAfter;
+        }
 
         // ---------- native client configuration ----------
         if (!failchat.nativeClient) return;
