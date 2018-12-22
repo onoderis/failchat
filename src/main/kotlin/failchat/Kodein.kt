@@ -110,7 +110,7 @@ val kodein = Kodein {
     // Core dependencies
     bind<AppStateManager>() with singleton { AppStateManager(kodein) }
     bind<ConfigLoader>() with singleton { ConfigLoader(instance<Path>("homeDirectory")) }
-    bind<Configuration>() with singleton { instance<ConfigLoader>().get() }
+    bind<Configuration>() with singleton { instance<ConfigLoader>().load() }
     bind<ChatMessageSender>() with singleton {
         ChatMessageSender(
                 instance<WsFrameSender>(),
@@ -133,7 +133,7 @@ val kodein = Kodein {
         GuiEventHandler(
                 instance<AppStateManager>(),
                 instance<ChatMessageSender>(),
-                instance<ConfigLoader>()
+                instance<Configuration>()
         )
     }
     bind<ChatMessageHistory>() with singleton { ChatMessageHistory(50) }

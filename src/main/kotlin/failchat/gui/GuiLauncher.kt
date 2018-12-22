@@ -1,7 +1,6 @@
 package failchat.gui
 
 import com.github.salomonbrys.kodein.instance
-import failchat.ConfigLoader
 import failchat.emoticon.EmoticonUpdater
 import failchat.github.ReleaseChecker
 import failchat.kodein
@@ -16,6 +15,7 @@ import javafx.scene.control.ButtonType
 import javafx.scene.image.Image
 import javafx.stage.Stage
 import mu.KotlinLogging
+import org.apache.commons.configuration2.Configuration
 import java.nio.file.Path
 
 class GuiLauncher : Application() {
@@ -30,14 +30,14 @@ class GuiLauncher : Application() {
                 this,
                 primaryStage,
                 kodein.instance<GuiEventHandler>(),
-                kodein.instance<ConfigLoader>().get(),
+                kodein.instance<Configuration>(),
                 kodein.instance<List<Skin>>(),
                 kodein.instance<Path>("customEmoticonsDirectory"),
                 kodein.instance<EmoticonUpdater>()
         )
         val chat = ChatFrame(
                 this,
-                kodein.instance<ConfigLoader>().get(),
+                kodein.instance<Configuration>(),
                 kodein.instance<GuiEventHandler>(),
                 kodein.instance<List<Skin>>()
         )

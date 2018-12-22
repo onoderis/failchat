@@ -3,7 +3,7 @@ package failchat
 @Suppress("ClassName")
 object ConfigKeys {
 
-    //todo user properties from here
+    //todo use properties from here
 
     object peka2tv {
         const val enabled = "peka2tv.enabled"
@@ -52,25 +52,8 @@ object ConfigKeys {
     const val hideMessagesExternal = "hide-messages-external"
     const val hideMessagesExternalAfter = "hide-messages-external-after"
 
-    val configurableByUserProperties: List<String> = listOf(
-            peka2tv.enabled, peka2tv.channel,
-            goodgame.enabled, goodgame.channel,
-            twitch.enabled, twitch.channel,
-            youtube.enabled, youtube.channel,
-            cybergame.enabled, cybergame.channel,
-            backgroundColor.native, backgroundColor.external,
-            skin,
-            frame,
-            onTop,
-            showViewers,
-            showImages,
-            opacity,
-            statusMessageMode,
-            showOriginBadges,
-            showUserBadges,
-            zoomPercent,
-            ignore
-    )
+    const val resetConfiguration = "reset-configuration"
+
 
     fun lastUpdatedEmoticons(origin: Origin): String = "${origin.commonName}.emoticons.last-updated"
 

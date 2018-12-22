@@ -70,6 +70,8 @@ fun main0(args: Array<String>) {
 
     configureLogging(cmd)
 
+    handleResetConfigurationOption()
+
     // GUI
     // Javafx starts earlier for responsiveness. The thread will be blocked
     thread(name = "GuiLauncher", priority = Thread.MAX_PRIORITY) {
@@ -95,7 +97,6 @@ fun main0(args: Array<String>) {
     // Reporter
     val backgroundExecutor = kodein.instance<ScheduledExecutorService>("background")
     scheduleReportTasks(backgroundExecutor)
-
 
     // If emoticon db file not exists, reset 'last-updated' config values
     val dbPath = kodein.instance<Path>("emoticonDbFile")
@@ -142,6 +143,25 @@ private fun checkForAnotherInstance() {
     } catch (e: Exception) {
         System.err.println("Another instance is running at ${FcServerInfo.host}:${FcServerInfo.port}. Exception: $e")
         System.exit(0)
+    }
+}
+
+/** Delete user config file and emoticons db file if user configuration was reset during a previous launch. */
+private fun handleResetConfigurationOption() {
+    // don't initialize Configuration in kodein module for the case when configuration reset needed
+    val configLoader = kodein.instance<ConfigLoader>()
+    val config = configLoader.load()
+
+    if (config.getBoolean(ConfigKeys.resetConfiguration)) {
+        logger.info("Resetting user configuration...")
+        configLoader.deleteUserConfigFile()
+        configLoader.dropLoadedConfig()
+
+        val emoticonsDbFile: Path = kodein.instance("emoticonDbFile")
+        Files.deleteIfExists(emoticonsDbFile)
+        logger.info("Emoticons db file was deleted: {}", emoticonsDbFile)
+    } else {
+        logger.debug("Configuration reset isn't needed")
     }
 }
 

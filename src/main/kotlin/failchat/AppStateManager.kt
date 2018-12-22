@@ -86,7 +86,7 @@ class AppStateManager(private val kodein: Kodein) {
     private val customEmoticonHandler: CustomEmoticonHandler = kodein.instance()
 
     private val lock: Lock = ReentrantLock()
-    private val config: Configuration = configLoader.get()
+    private val config: Configuration = kodein.instance<Configuration>()
 
     private var chatClients: Map<Origin, ChatClient<*>> = emptyMap()
     private var viewersCounter: ViewersCounter? = null
@@ -247,9 +247,10 @@ class AppStateManager(private val kodein: Kodein) {
         logger.info("Shutting down")
 
         try {
-            reset()
+            emoticonsDb.close()
+            logger.info("Emoticons db was closed")
         } catch (t: Throwable) {
-            logger.error("Failed to reset {} during a shutdown", this.javaClass.simpleName, t)
+            logger.error("Failed to close emoticons db during a shutdown", t)
         }
 
         try {
@@ -259,12 +260,6 @@ class AppStateManager(private val kodein: Kodein) {
             logger.error("Failed to save config during a shutdown", t)
         }
 
-        try {
-            emoticonsDb.close()
-            logger.info("Emoticons db was closed")
-        } catch (t: Throwable) {
-            logger.error("Failed to close emoticons db during a shutdown", t)
-        }
 
         Platform.exit()
         System.exit(0)
