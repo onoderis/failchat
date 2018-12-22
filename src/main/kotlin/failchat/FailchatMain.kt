@@ -37,8 +37,6 @@ import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
 import org.apache.commons.configuration2.Configuration
 import org.mapdb.DB
-import java.net.InetAddress
-import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.nio.file.Files
 import java.nio.file.Path
@@ -47,10 +45,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 import io.ktor.application.Application as KtorApplication
 import javafx.application.Application as JfxApplication
-
-val wsServerAddress = InetSocketAddress(InetAddress.getLoopbackAddress(), 10880)
-const val httpServerHost = "127.0.0.1"
-const val httpServerPort = 10880
 
 private val logger = KotlinLogging.logger {}
 
@@ -68,9 +62,11 @@ fun main(args: Array<String>) {
 
 fun main0(args: Array<String>) {
 
-    checkForAnotherInstance()
-
     val cmd = parseArguments(args)
+
+    handlePortArgument(cmd)
+
+    checkForAnotherInstance()
 
     configureLogging(cmd)
 
@@ -93,7 +89,7 @@ fun main0(args: Array<String>) {
 
     val httpServer: ApplicationEngine = kodein.instance()
     httpServer.start()
-    logger.info("Http/websocket server started at {}:{}", httpServerHost, httpServerPort)
+    logger.info("Http/websocket server started at {}:{}", FcServerInfo.host.hostAddress, FcServerInfo.port)
 
 
     // Reporter
@@ -141,10 +137,10 @@ fun main0(args: Array<String>) {
 
 private fun checkForAnotherInstance() {
     try {
-        val serverSocket = ServerSocket(wsServerAddress.port, 10, wsServerAddress.address)
+        val serverSocket = ServerSocket(FcServerInfo.port, 10, FcServerInfo.host)
         serverSocket.close()
     } catch (e: Exception) {
-        System.err.println("Another instance is running at $wsServerAddress. Exception: $e")
+        System.err.println("Another instance is running at ${FcServerInfo.host}:${FcServerInfo.port}. Exception: $e")
         System.exit(0)
     }
 }
@@ -156,6 +152,7 @@ private fun parseArguments(args: Array<String>): CommandLine {
         addOption(Option("l", "logger-root-level",      true,  "Logging level for root logger"))
         addOption(Option("f", "logger-failchat-level",  true,  "Logging level for failchat package"))
         addOption(Option("o", "enable-console-logging", false, "Enable logging into the console"))
+        addOption(Option("p", "port",                   true,  "Server port"))
     }
 
     return DefaultParser().parse(options, args)
@@ -174,6 +171,12 @@ private fun logSystemInfo() {
     }
 }
 
+private fun handlePortArgument(cmd: CommandLine) {
+    if (cmd.hasOption("port")) {
+        FcServerInfo.port = cmd.getOptionValue("port")!!.toInt()
+    }
+}
+
 private fun handleProgramArguments(cmd: CommandLine, config: Configuration) {
     if (cmd.hasOption("skip-release-check")) {
         config.setProperty("release-checker.enabled", false)
@@ -186,8 +189,8 @@ private fun handleProgramArguments(cmd: CommandLine, config: Configuration) {
 fun createHttpServer(): ApplicationEngine {
     return embeddedServer(
             Netty,
-            host = httpServerHost,
-            port = httpServerPort,
+            host = FcServerInfo.host.hostAddress,
+            port = FcServerInfo.port,
             module = KtorApplication::failchat
     )
 }

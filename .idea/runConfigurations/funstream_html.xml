@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="funstream.html" type="JavascriptDebugType" nameIsGenerated="true" uri="http://localhost:63342/failchat/src/main/external-resources/skins/funstream/funstream.html" useBuiltInWebServerPort="true">
+  <configuration default="false" name="funstream.html" type="JavascriptDebugType" uri="http://localhost:63342/failchat/src/main/external-resources/skins/funstream/funstream.html?port=10881" useBuiltInWebServerPort="true">
     <method v="2" />
   </configuration>
 </component>

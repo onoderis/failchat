@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="old_sc2tv.html" type="JavascriptDebugType" nameIsGenerated="true" uri="http://localhost:63342/failchat/src/main/external-resources/skins/old_sc2tv/old_sc2tv.html" useBuiltInWebServerPort="true">
+  <configuration default="false" name="old_sc2tv.html" type="JavascriptDebugType" uri="http://localhost:63342/failchat/src/main/external-resources/skins/old_sc2tv/old_sc2tv.html?port=10881" useBuiltInWebServerPort="true">
     <method v="2" />
   </configuration>
 </component>
