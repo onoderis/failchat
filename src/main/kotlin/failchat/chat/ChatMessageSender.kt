@@ -144,8 +144,10 @@ class ChatMessageSender(
                 put("showOriginBadges", config.getBoolean(ConfigKeys.showOriginBadges))
                 put("showUserBadges", config.getBoolean(ConfigKeys.showUserBadges))
                 put("zoomPercent", config.getInt(ConfigKeys.zoomPercent))
-                put("hideMessages", config.getBoolean(ConfigKeys.hideMessages))
-                put("hideMessagesAfter", config.getInt(ConfigKeys.hideMessagesAfter))
+                put("hideMessagesNative", config.getBoolean(ConfigKeys.hideMessagesNative))
+                put("hideMessagesNativeAfter", config.getInt(ConfigKeys.hideMessagesNativeAfter))
+                put("hideMessagesExternal", config.getBoolean(ConfigKeys.hideMessagesExternal))
+                put("hideMessagesExternalAfter", config.getInt(ConfigKeys.hideMessagesExternalAfter))
                 putObject("enabledOrigins").apply {
                     COUNTABLE_ORIGINS.forEach { origin ->
                         put(origin.commonName, config.getBoolean("${origin.commonName}.enabled"))

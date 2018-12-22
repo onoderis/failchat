@@ -47,9 +47,10 @@ object ConfigKeys {
     const val showUserBadges = "show-user-badges"
     const val zoomPercent = "zoom-percent"
     const val ignore = "ignore"
-    const val hideMessages = "hide-messages"
-    const val hideMessagesAfter = "hide-messages-after"
-
+    const val hideMessagesNative = "hide-messages-native"
+    const val hideMessagesNativeAfter = "hide-messages-native-after"
+    const val hideMessagesExternal = "hide-messages-external"
+    const val hideMessagesExternalAfter = "hide-messages-external-after"
 
     val configurableByUserProperties: List<String> = listOf(
             peka2tv.enabled, peka2tv.channel,

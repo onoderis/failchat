@@ -67,8 +67,10 @@
         "showOriginBadges": true,
         "showUserBadges": true,
         "zoomPercent": 100,
-        "hideMessages": true,
-        "hideMessagesAfter": 60,
+        "hideMessagesNative": false,
+        "hideMessagesNativeAfter": 60,
+        "hideMessagesExternal": true,
+        "hideMessagesExternalAfter": 60,
         "enabledOrigins": {
             "peka2tv": false,
             "twitch": true,

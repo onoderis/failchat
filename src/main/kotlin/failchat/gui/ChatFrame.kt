@@ -233,7 +233,7 @@ class ChatFrame(
                 val page = f.get(webEngine) as com.sun.webkit.WebPage
                 page.setBackgroundColor(0) //fully transparent
             } catch (e: Exception) {
-                logger.debug("Exception during setting of the transparency hack", e)
+                logger.warn("Exception during setting of the transparency hack", e)
             }
         }
 
