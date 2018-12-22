@@ -15,7 +15,6 @@ object EmoticonDbFactory {
 
         return DBMaker
                 .fileDB(dbPath.toFile())
-                .closeOnJvmShutdown()
                 .checksumHeaderBypass()
                 .fileMmapEnable()
                 .make()

@@ -19,35 +19,52 @@ class ConfigLoader(private val configDirectory: Path) {
     private companion object : KLogging()
 
     private val userConfigPath = configDirectory.resolve("user.properties")
-    private val userConfigBuilder = createOptionalConfig(userConfigPath)
-    private val userConfig = userConfigBuilder.configuration
     private val defaultConfig = createMandatoryConfig("/config/default.properties")
     private val privateConfig = createMandatoryConfig("/config/private.properties")
-    private val compositeConfig = CompositeConfiguration()
 
-    init {
+    @Volatile
+    private var loadedConfig: LoadedConfig? = null
+
+    fun load(): Configuration {
+        loadedConfig?.let { return it.compositeConfig }
+
+        val userConfigBuilder = createOptionalConfig(userConfigPath)
+        val userConfig = userConfigBuilder.configuration
+
         // Если передавать в конструктор CompositeConfiguration как inMemoryConfig,
         // он будет последний в списке на чтение
+        val compositeConfig = CompositeConfiguration()
+
         compositeConfig.addConfiguration(userConfig, true)
         compositeConfig.addConfiguration(defaultConfig)
         compositeConfig.addConfiguration(privateConfig)
         compositeConfig.synchronizer = ReadWriteSynchronizer()
         compositeConfig.isThrowExceptionOnMissing = true
+
+        loadedConfig = LoadedConfig(userConfigBuilder, compositeConfig)
+
+        return compositeConfig
     }
 
-    fun get(): Configuration = compositeConfig
+    fun dropLoadedConfig() {
+        loadedConfig = null
+        logger.info("Loaded config was dropped")
+    }
 
     fun save() {
         Files.createDirectories(configDirectory)
-        userConfigBuilder.save()
+        val config = loadedConfig ?: run {
+            logger.warn("There is not last loaded config to save")
+            return
+        }
+
+        config.userConfigBuilder.save()
         logger.info("User config saved to '{}'", userConfigPath)
     }
 
-    fun resetConfigurableByUserProperties() {
-        ConfigKeys.configurableByUserProperties.forEach {
-            userConfig.clearProperty(it)
-        }
-        logger.info("User configuration was reset")
+    fun deleteUserConfigFile() {
+        Files.deleteIfExists(userConfigPath)
+        logger.info("User configuration file was deleted, path: {}", userConfigPath)
     }
 
     private fun createOptionalConfig(path: Path): FileBasedConfigurationBuilder<PropertiesConfiguration> {
@@ -72,4 +89,8 @@ class ConfigLoader(private val configDirectory: Path) {
                 .configuration
     }
 
+    private class LoadedConfig(
+            val userConfigBuilder: FileBasedConfigurationBuilder<PropertiesConfiguration>,
+            val compositeConfig: CompositeConfiguration
+    )
 }

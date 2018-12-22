@@ -235,6 +235,9 @@ class SettingsFrame(
             userIds.joinToString(separator = "\n", postfix = "\n")
         }
     }
+    fun showConfigurationResetNotification() {
+        //todo
+    }
 
     private fun saveSettingsValues() {
         //todo use loop for origins
