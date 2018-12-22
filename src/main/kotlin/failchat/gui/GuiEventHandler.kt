@@ -48,8 +48,11 @@ class GuiEventHandler(
 
     /** Should be invoked in javafx thread. */
     fun handleResetUserConfiguration() {
-        config.setProperty(ConfigKeys.resetConfiguration, true)
-        settingsFrame.showConfigurationResetNotification()
+        val resetConfirmed = settingsFrame.confirmConfigReset()
+        if (resetConfirmed) {
+            settingsFrame.disableResetConfigurationButton()
+            config.setProperty(ConfigKeys.resetConfiguration, true)
+        }
     }
 
     /** Should be invoked in javafx thread. */
