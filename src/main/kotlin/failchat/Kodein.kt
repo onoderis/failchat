@@ -201,7 +201,7 @@ val kodein = Kodein {
     bind<Path>("customEmoticonsDirectory") with singleton { instance<Path>("homeDirectory").resolve("custom-emoticons") }
     bind<Path>("emoticonCacheDirectory") with singleton { instance<Path>("workingDirectory").resolve("emoticons") }
     bind<Path>("emoticonDbFile") with singleton { instance<Path>("emoticonCacheDirectory").resolve("emoticons.db") }
-    bind<String>("customEmoticonsUrl") with singleton { "http://$httpServerHost:$httpServerPort/emoticons/" }
+    bind<String>("customEmoticonsUrl") with singleton { "http://${FcServerInfo.host.hostAddress}:${FcServerInfo.port}/emoticons/" }
     bind<String>("userId") with singleton { instance<UserIdManager>().getUserId() }
 
     bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastMessageId")) }

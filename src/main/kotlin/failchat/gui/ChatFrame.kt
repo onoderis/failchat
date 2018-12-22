@@ -1,8 +1,7 @@
 package failchat.gui
 
 import failchat.ConfigKeys
-import failchat.httpServerHost
-import failchat.httpServerPort
+import failchat.FcServerInfo
 import failchat.skin.Skin
 import failchat.util.urlPattern
 import javafx.application.Application
@@ -86,7 +85,14 @@ class ChatFrame(
         val skinName = config.getString(ConfigKeys.skin)
         try {
             val skin = skins.find { it.name == skinName } ?: skins.first()
-            val url = "http://$httpServerHost:$httpServerPort/resources/${skin.name}/${skin.name}.html"
+            val optionalPortParam = if (FcServerInfo.port != FcServerInfo.defaultPort) {
+                "?port=${FcServerInfo.port}"
+            } else {
+                ""
+            }
+            val url = "http://${FcServerInfo.host.hostAddress}:${FcServerInfo.port}/resources/${skin.name}/${skin.name}.html" +
+                    optionalPortParam
+
             lastOpenedSkinUrl = url
             webEngine.load(url)
         } catch (e: MalformedURLException) {
