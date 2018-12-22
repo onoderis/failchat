@@ -228,111 +228,26 @@
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
-                        <VBox prefHeight="282.0" prefWidth="450.0">
+                        <VBox alignment="TOP_CENTER" prefHeight="282.0" prefWidth="450.0">
                            <children>
-                              <HBox alignment="TOP_CENTER" prefWidth="200.0">
+                              <HBox alignment="CENTER">
                                  <children>
-                                    <VBox prefWidth="200.0">
-                                       <children>
-                                          <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Native client settings">
-                                             <VBox.margin>
-                                                <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
-                                             </VBox.margin>
-                                             <font>
-                                                <Font name="System Bold" size="12.0" />
-                                             </font></Text>
-                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Background color">
-                                                          <font>
-                                                              <Font size="12.0" />
-                                                          </font>
-                                                          <VBox.margin>
-                                                              <Insets left="2.0" right="2.0" top="6.0" />
-                                                          </VBox.margin>
-                                                      </Text>
-                                                      <ColorPicker fx:id="bgcolor_native">
-                                                          <opaqueInsets>
-                                                              <Insets />
-                                                          </opaqueInsets>
-                                                          <VBox.margin>
-                                                              <Insets bottom="6.0" left="2.0" right="2.0" />
-                                                          </VBox.margin>
-                                                      </ColorPicker>
-                                          <HBox>
-                                             <children>
-                                                <CheckBox fx:id="hide_messages_native" alignment="CENTER" mnemonicParsing="false">
-                                                   <HBox.margin>
-                                                      <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
-                                                   </HBox.margin>
-                                                </CheckBox>
-                                                <FlowPane fx:id="fp" prefWidth="0.0">
-                                                   <children>
-                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hide messages after" />
-                                                      <TextField fx:id="hide_messages_native_after" maxWidth="38.0" minHeight="-Infinity" prefHeight="18.0" />
-                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="seconds" />
-                                                   </children></FlowPane>
-                                             </children>
-                                          </HBox>
-                                       </children>
-                                       <padding>
-                                          <Insets top="6.0" />
-                                       </padding>
-                                    </VBox>
-                                    <Separator orientation="VERTICAL" prefHeight="200.0" />
-                                    <VBox prefWidth="200.0">
-                                       <children>
-                                          <Text strokeType="OUTSIDE" strokeWidth="0.0" text="External clients settings">
-                                             <VBox.margin>
-                                                <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
-                                             </VBox.margin>
-                                             <font>
-                                                <Font name="System Bold" size="12.0" />
-                                             </font></Text>
-                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Background color">
-                                                          <font>
-                                                              <Font size="12.0" />
-                                                          </font>
-                                                          <VBox.margin>
-                                                              <Insets left="2.0" right="2.0" top="6.0" />
-                                                          </VBox.margin>
-                                                      </Text>
-                                                      <ColorPicker fx:id="bgcolor_external">
-                                                          <opaqueInsets>
-                                                              <Insets />
-                                                          </opaqueInsets>
-                                                          <VBox.margin>
-                                                              <Insets bottom="6.0" left="2.0" right="2.0" />
-                                                          </VBox.margin>
-                                                      </ColorPicker>
-                                          <HBox>
-                                             <children>
-                                                <CheckBox fx:id="hide_messages_external" alignment="CENTER" mnemonicParsing="false">
-                                                   <HBox.margin>
-                                                      <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
-                                                   </HBox.margin>
-                                                </CheckBox>
-                                                <FlowPane fx:id="fp" prefWidth="0.0">
-                                                   <children>
-                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hide messages after" />
-                                                      <TextField fx:id="hide_messages_external_after" maxWidth="38.0" minHeight="-Infinity" prefHeight="18.0" />
-                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="seconds" />
-                                                   </children>
-                                                </FlowPane>
-                                             </children>
-                                          </HBox>
-                                       </children>
-                                       <padding>
-                                          <Insets top="6.0" />
-                                       </padding>
-                                    </VBox>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Common settings">
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                       <HBox.margin>
+                                          <Insets right="25.0" />
+                                       </HBox.margin>
+                                    </Text>
                                  </children>
                                  <VBox.margin>
-                                    <Insets />
+                                    <Insets top="6.0" />
                                  </VBox.margin>
                               </HBox>
-                              <Separator prefWidth="200.0" />
-                                      <HBox alignment="CENTER" prefWidth="450.0">
+                                      <HBox alignment="CENTER_LEFT" prefWidth="450.0">
                                           <children>
-                                              <VBox maxHeight="200.0">
+                                              <VBox>
                                                   <children>
                                                       <HBox>
                                                           <VBox.margin>
@@ -379,10 +294,10 @@
                                                       </ChoiceBox>
                                                   </children>
                                                   <HBox.margin>
-                                                      <Insets right="20.0" />
+                                                      <Insets left="29.0" />
                                                   </HBox.margin>
                                               </VBox>
-                                              <VBox maxHeight="200.0" maxWidth="160.0" prefHeight="200.0" prefWidth="212.0">
+                                              <VBox>
                                                   <children>
       
                                                       <HBox alignment="CENTER_LEFT">
@@ -434,11 +349,121 @@
                                                       </CheckBox>
                                                   </children>
                                                   <HBox.margin>
-                                                      <Insets left="20.0" right="20.0" />
+                                                      <Insets left="38.0" />
                                                   </HBox.margin>
                                               </VBox>
                                           </children>
+                                 <VBox.margin>
+                                    <Insets bottom="6.0" />
+                                 </VBox.margin>
                                       </HBox>
+                              <Separator prefWidth="200.0" />
+                              <HBox alignment="TOP_CENTER" prefWidth="450.0">
+                                 <children>
+                                    <VBox>
+                                       <children>
+                                          <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Native client settings">
+                                             <VBox.margin>
+                                                <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                             </VBox.margin>
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font></Text>
+                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Background color">
+                                                          <font>
+                                                              <Font size="12.0" />
+                                                          </font>
+                                                          <VBox.margin>
+                                                              <Insets left="2.0" right="2.0" top="6.0" />
+                                                          </VBox.margin>
+                                                      </Text>
+                                                      <ColorPicker fx:id="bgcolor_native">
+                                                          <opaqueInsets>
+                                                              <Insets />
+                                                          </opaqueInsets>
+                                                          <VBox.margin>
+                                                              <Insets bottom="6.0" left="2.0" right="2.0" />
+                                                          </VBox.margin>
+                                                      </ColorPicker>
+                                          <HBox>
+                                             <children>
+                                                <CheckBox fx:id="hide_messages_native" alignment="CENTER" mnemonicParsing="false">
+                                                   <HBox.margin>
+                                                      <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                                   </HBox.margin>
+                                                </CheckBox>
+                                                <FlowPane fx:id="fp" prefWidth="0.0">
+                                                   <children>
+                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hide messages after" />
+                                                      <TextField fx:id="hide_messages_native_after" maxWidth="38.0" minHeight="-Infinity" prefHeight="18.0" />
+                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="seconds" />
+                                                   </children></FlowPane>
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                       <padding>
+                                          <Insets top="6.0" />
+                                       </padding>
+                                       <HBox.margin>
+                                          <Insets right="6.0" />
+                                       </HBox.margin>
+                                    </VBox>
+                                    <Separator orientation="VERTICAL" prefHeight="200.0" />
+                                    <VBox prefWidth="200.0">
+                                       <children>
+                                          <Text strokeType="OUTSIDE" strokeWidth="0.0" text="External clients settings">
+                                             <VBox.margin>
+                                                <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                             </VBox.margin>
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font></Text>
+                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Background color">
+                                                          <font>
+                                                              <Font size="12.0" />
+                                                          </font>
+                                                          <VBox.margin>
+                                                              <Insets left="2.0" right="2.0" top="6.0" />
+                                                          </VBox.margin>
+                                                      </Text>
+                                                      <ColorPicker fx:id="bgcolor_external">
+                                                          <opaqueInsets>
+                                                              <Insets />
+                                                          </opaqueInsets>
+                                                          <VBox.margin>
+                                                              <Insets bottom="6.0" left="2.0" right="2.0" />
+                                                          </VBox.margin>
+                                                      </ColorPicker>
+                                          <HBox>
+                                             <children>
+                                                <CheckBox fx:id="hide_messages_external" alignment="CENTER" mnemonicParsing="false">
+                                                   <HBox.margin>
+                                                      <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                                   </HBox.margin>
+                                                </CheckBox>
+                                                <FlowPane fx:id="fp" prefWidth="0.0">
+                                                   <children>
+                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hide messages after" />
+                                                      <TextField fx:id="hide_messages_external_after" maxWidth="38.0" minHeight="-Infinity" prefHeight="18.0" />
+                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="seconds" />
+                                                   </children>
+                                                </FlowPane>
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                       <padding>
+                                          <Insets top="6.0" />
+                                       </padding>
+                                       <HBox.margin>
+                                          <Insets left="6.0" />
+                                       </HBox.margin>
+                                    </VBox>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets />
+                                 </VBox.margin>
+                              </HBox>
+                              <Separator prefWidth="200.0" />
                            </children>
                         </VBox>
                             </children>
