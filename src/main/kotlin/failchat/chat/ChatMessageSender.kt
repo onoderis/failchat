@@ -148,6 +148,7 @@ class ChatMessageSender(
                 put("hideMessagesNativeAfter", config.getInt(ConfigKeys.hideMessagesNativeAfter))
                 put("hideMessagesExternal", config.getBoolean(ConfigKeys.hideMessagesExternal))
                 put("hideMessagesExternalAfter", config.getInt(ConfigKeys.hideMessagesExternalAfter))
+                put("showHiddenMessages", config.getBoolean(ConfigKeys.showHiddenMessages))
                 putObject("enabledOrigins").apply {
                     COUNTABLE_ORIGINS.forEach { origin ->
                         put(origin.commonName, config.getBoolean("${origin.commonName}.enabled"))
