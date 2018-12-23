@@ -336,7 +336,14 @@ class ChatFrame(
         onTopItem.isSelected = config.getBoolean(ConfigKeys.onTop)
         viewersItem.isSelected = config.getBoolean(ConfigKeys.showViewers)
         zoomValueText.text = config.getString(ConfigKeys.zoomPercent)
-        showHiddenMessages.isSelected = config.getBoolean(ConfigKeys.showHiddenMessages)
+
+        if (config.getBoolean(ConfigKeys.hideMessagesNative)) {
+            showHiddenMessages.isDisable = false
+            showHiddenMessages.isSelected = config.getBoolean(ConfigKeys.showHiddenMessages)
+        } else {
+            showHiddenMessages.isDisable = true
+            showHiddenMessages.isSelected = false
+        }
     }
 
 }
