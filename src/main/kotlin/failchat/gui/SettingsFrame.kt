@@ -294,6 +294,8 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.showOriginBadges, showOriginBadges.isSelected)
         config.setProperty(ConfigKeys.showUserBadges, showUserBadges.isSelected)
         config.setProperty(ConfigKeys.zoomPercent, parseZoomPercent(zoomPercent.text))
+        config.setProperty(ConfigKeys.hideMessagesNative, hideMessagesNative.isSelected)
+        config.setProperty(ConfigKeys.hideMessagesNativeAfter, parseHideMessagesAfter(hideMessagesNativeAfter.text))
         config.setProperty(ConfigKeys.hideMessagesExternal, hideMessagesExternal.isSelected)
         config.setProperty(ConfigKeys.hideMessagesExternalAfter, parseHideMessagesAfter(hideMessagesExternalAfter.text))
 

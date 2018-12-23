@@ -123,7 +123,7 @@ span.status-text {
     color: #c02b2b;
 }
 
-.removing {
+.hiding {
     animation: disappear-top 0.4s;
 }
 

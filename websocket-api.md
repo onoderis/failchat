@@ -71,6 +71,7 @@
         "hideMessagesNativeAfter": 60,
         "hideMessagesExternal": true,
         "hideMessagesExternalAfter": 60,
+        "showHiddenMessages": false,
         "enabledOrigins": {
             "peka2tv": false,
             "twitch": true,

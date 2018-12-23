@@ -200,3 +200,12 @@ img.image {
     color: red;
     cursor: pointer;
 }
+
+.hidden {
+    display: none;
+}
+
+.unhidden {
+    display: block !important;
+    animation: none !important;
+}

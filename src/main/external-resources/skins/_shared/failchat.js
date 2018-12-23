@@ -3,11 +3,9 @@
 const failchat = {
     maxMessages: 50,
     iconsPath: "../_shared/icons/",
-    removeMessageAnimationClass: null,
+    hideMessageAnimationClass: null,
     origins: ["peka2tv", "twitch", "goodgame", "youtube", "cybergame"],
     deletedTextPlaceholder: "message deleted",
-    hideMessages: false,
-    hideMessagesAfter: 60,
     nativeClient: false
 };
 
@@ -48,6 +46,9 @@ function initializeFailchat() {
     let lastSystemMessageId = -1; //goes down
     let autoScroll = true;
     let showStatusMessages = true; // show if origin-status message received before client-configuration message
+    let hideMessages = false;
+    let hideMessagesAfter = 60;
+    let showHiddenMessages = false;
 
     // dom elements
     const bodyWrapper = $("#body-wrapper");
@@ -141,7 +142,6 @@ function initializeFailchat() {
                 break;
             case "client-configuration":
                 handleClientConfigurationMessage(content);
-                resetHideMessageTasks();
                 break;
             case "clear-chat":
                 handleClearChatMessage();
@@ -231,16 +231,33 @@ function initializeFailchat() {
         bodyWrapper.css("background-color", "rgba(" + hexToRgba(bgHexColor.substring(1)) + ")");
 
 
+        let clientType;
         if (failchat.nativeClient) {
-            failchat.hideMessages = config.hideMessagesNative;
-            failchat.hideMessagesAfter = config.hideMessagesNativeAfter;
+            clientType = "Native";
         } else {
-            failchat.hideMessages = config.hideMessagesExternal;
-            failchat.hideMessagesAfter = config.hideMessagesExternalAfter;
+            clientType = "External";
+        }
+        if (isHideMessagePropertiesChanged(clientType)) {
+            hideMessages = config["hideMessages" + clientType];
+            hideMessagesAfter = config["hideMessages" + clientType + "After"];
+            resetHideMessageTasks();
         }
 
         // ---------- native client configuration ----------
         if (!failchat.nativeClient) return;
+
+        // handle hiddenMessages property
+        if (showHiddenMessages !== config.showHiddenMessages) {
+            showHiddenMessages = config.showHiddenMessages;
+            activeMessages.forEach((m) => {
+                const messageElement = $(messageSelector(m));
+                if (showHiddenMessages) {
+                    messageElement.addClass("unhidden")
+                } else {
+                    messageElement.removeClass("unhidden")
+                }
+            });
+        }
 
         // handle viewers bar configuration
         if (config.showViewersCount === true) {
@@ -263,13 +280,19 @@ function initializeFailchat() {
     function resetHideMessageTasks() {
         activeMessages.forEach(m => {
             cancelHideMessageTask(m);
-            createHideMessageTaskIfRequired(m)
+            createHideMessageTaskIfRequired(m);
         });
     }
 
+    function isHideMessagePropertiesChanged(config, clientType) {
+        const isSameValues = (hideMessages === config["hideMessages" + clientType]) &&
+            (hideMessagesAfter === config["hideMessages" + clientType + "After"]);
+        return !isSameValues
+    }
+
     function handleDeleteMessage(deleteMessage) {
-        const message = $("#message-" + deleteMessage.messageId);
-        const messageText = $("#message-" + deleteMessage.messageId + " .message-text");
+        const message = $(messageSelector(deleteMessage));
+        const messageText = $(messageSelector(message) + " .message-text");
 
         if (message === null || messageText === null) return;
 
@@ -279,11 +302,9 @@ function initializeFailchat() {
     }
 
     function handleClearChatMessage() {
-        activeMessages
-            .splice(0)
-            .forEach((m) =>
-                hideAndDeleteMessage(m)
-            );
+        activeMessages.forEach((m) =>
+            hideMessage(m)
+        );
     }
 
     function updateViewersValues(counters) {
@@ -302,8 +323,13 @@ function initializeFailchat() {
 
     /** Append chat message or status message to message container. */
     function appendMessage(message, html) {
+        message.hidden = false;
         activeMessages.push(message);
         messageContainer.append(html);
+
+        if (showHiddenMessages) {
+            $(messageSelector(message)).addClass("unhidden")
+        }
 
         if (autoScroll) {
             deleteOldMessages()
@@ -312,48 +338,40 @@ function initializeFailchat() {
         createHideMessageTaskIfRequired(message)
     }
 
-    function hideAndDeleteMessage(message) {
-        const messageElement = $("#message-" + message.id);
+    function hideMessage(message) {
+        const messageElement = $(messageSelector(message));
 
-        if (failchat.removeMessageAnimationClass === null) {
-            // delete without animation
-            deleteMessage(message);
+        if (failchat.hideMessageAnimationClass === null) {
+            // hide without animation
+            messageElement.addClass("hidden");
+            message.hidden = true;
             return;
         }
 
-        // delete with animation
-        inactivateMessage(message);
+        // hide with animation
+        messageElement.addClass(failchat.hideMessageAnimationClass);
+
         messageElement.on("animationend", null, null, () => {
-            deleteMessageElement(message);
+            messageElement.addClass("hidden");
+            messageElement.removeClass(failchat.hideMessageAnimationClass);
+            message.hidden = true;
         });
-        messageElement.addClass(failchat.removeMessageAnimationClass);
+        messageElement.addClass(failchat.hideMessageAnimationClass);
     }
 
-    function inactivateMessage(message) {
-        const index = activeMessages.indexOf(message);
-        if (index >= 0)
-            activeMessages.splice(index, 1);
-
-        cancelHideMessageTask(message);
-    }
-
-    function deleteMessageElement(message) {
-        const element = $("#message-" + message.id);
+    function removeMessageElement(message) {
+        const element = $(messageSelector(message));
         if (element != null)
             element.remove();
     }
 
-    function deleteMessage(message) {
-        inactivateMessage(message);
-        deleteMessageElement(message);
-    }
-
     function createHideMessageTaskIfRequired(message) {
-        if (!failchat.hideMessages) return;
+        if (!hideMessages) return;
+        if (message.hidden) return;
 
         const taskId = setTimeout(() => {
-            hideAndDeleteMessage(message);
-        }, failchat.hideMessagesAfter * 1000);
+            hideMessage(message);
+        }, hideMessagesAfter * 1000);
         message.hideTaskId = taskId;
     }
 
@@ -371,7 +389,10 @@ function initializeFailchat() {
         const messagesToDelete = activeMessages.length - failchat.maxMessages;
         const removedMessages = activeMessages.splice(0, messagesToDelete);
 
-        removedMessages.forEach((m) => deleteMessage(m)) // delete w/o potential animation
+        removedMessages.forEach((m) => {
+            cancelHideMessageTask(m);
+            removeMessageElement(m);
+        })
     }
 
     function nextSystemMessageId() {
@@ -498,4 +519,8 @@ function Template(name) {
         }
         return this.jsrTemplate.render(parameters)
     }
+}
+
+function messageSelector(message) {
+    return "#message-" + message.id;
 }

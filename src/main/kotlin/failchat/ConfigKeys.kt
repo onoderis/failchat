@@ -51,6 +51,7 @@ object ConfigKeys {
     const val hideMessagesNativeAfter = "hide-messages-native-after"
     const val hideMessagesExternal = "hide-messages-external"
     const val hideMessagesExternalAfter = "hide-messages-external-after"
+    const val showHiddenMessages = "show-hidden-messages"
 
     const val resetConfiguration = "reset-configuration"
 
