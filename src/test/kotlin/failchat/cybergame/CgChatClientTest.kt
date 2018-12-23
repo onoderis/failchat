@@ -13,7 +13,7 @@ import org.junit.Test
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.assertTrue
 
-class ChatClientTest {
+class CgChatClientTest {
 
     private lateinit var chatClient: CgChatClient
 
@@ -30,6 +30,7 @@ class ChatClientTest {
     @After
     fun stopChatClient() = chatClient.stop()
 
+    @Ignore
     @Test
     fun connectionTest() {
         initChatClient("scatman", 10946)
