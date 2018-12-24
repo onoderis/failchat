@@ -2,10 +2,10 @@ package failchat.peka2tv
 
 import failchat.Origin
 import failchat.chat.MessageHandler
-import failchat.chat.handlers.SemicolonCodeProcessor
-import failchat.chat.handlers.SemicolonCodeProcessor.Decision
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonFinder
+import failchat.emoticon.ReplaceDecision
+import failchat.emoticon.SemicolonCodeProcessor
 import failchat.goodgame.GgEmoticon
 
 class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHandler<Peka2tvMessage> {
@@ -15,9 +15,9 @@ class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messa
             val emoticon = findByMultiOriginCode(code.toLowerCase()) //ignore case
             if (emoticon != null) {
                 val elementLabel = message.addElement(emoticon)
-                Decision.Replace(elementLabel)
+                ReplaceDecision.Replace(elementLabel)
             } else {
-                Decision.Skip
+                ReplaceDecision.Skip
             }
         }
     }

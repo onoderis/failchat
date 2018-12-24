@@ -3,6 +3,7 @@ package failchat.emoticon
 import failchat.Origin
 import failchat.Origin.BTTV_CHANNEL
 import failchat.Origin.BTTV_GLOBAL
+import failchat.Origin.FRANKERFASEZ
 import failchat.Origin.GOODGAME
 import failchat.Origin.PEKA2TV
 import failchat.Origin.TWITCH
@@ -12,7 +13,7 @@ import org.mapdb.DB
 object OriginEmoticonStorageFactory {
 
     private val commonDbOrigins: List<Origin> = listOf(BTTV_GLOBAL, GOODGAME, PEKA2TV)
-    private val inMemoryOrigins: List<Origin> = listOf(BTTV_CHANNEL)
+    private val inMemoryOrigins: List<Origin> = listOf(BTTV_CHANNEL, FRANKERFASEZ)
 
     val dbOrigins: List<Origin> = commonDbOrigins + TWITCH
 

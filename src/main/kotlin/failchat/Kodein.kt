@@ -22,13 +22,14 @@ import failchat.chat.handlers.LinkHandler
 import failchat.cybergame.CgApiClient
 import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
+import failchat.emoticon.ChannelEmoticonUpdater
 import failchat.emoticon.CustomEmoticonScanner
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonFinder
 import failchat.emoticon.EmoticonLoadConfiguration
 import failchat.emoticon.EmoticonManager
 import failchat.emoticon.EmoticonStorage
-import failchat.emoticon.EmoticonUpdater
+import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.emoticon.MapdbFactory
 import failchat.github.GithubClient
 import failchat.github.ReleaseChecker
@@ -56,6 +57,8 @@ import failchat.twitch.BttvApiClient
 import failchat.twitch.BttvEmoticonHandler
 import failchat.twitch.BttvGlobalEmoticonBulkLoader
 import failchat.twitch.BttvGlobalEmoticonLoadConfiguration
+import failchat.twitch.FfzApiClient
+import failchat.twitch.FfzEmoticonHandler
 import failchat.twitch.TwitchApiClient
 import failchat.twitch.TwitchBadgeHandler
 import failchat.twitch.TwitchChatClient
@@ -155,14 +158,21 @@ val kodein = Kodein {
                 instance<TwitchEmoticonLoadConfiguration>()
         )
     }
-    bind<EmoticonUpdater>() with singleton {
-        EmoticonUpdater(
+    bind<GlobalEmoticonUpdater>() with singleton {
+        GlobalEmoticonUpdater(
                 instance<EmoticonManager>(),
                 instance<List<EmoticonLoadConfiguration<out Emoticon>>>("emoticonLoadConfigurations"),
-                instance<BttvEmoticonHandler>(),
                 instance<ScheduledExecutorService>("background"),
                 instance<GuiEventHandler>(),
                 instance<Configuration>()
+        )
+    }
+    bind<ChannelEmoticonUpdater>() with singleton {
+        ChannelEmoticonUpdater(
+                instance<EmoticonStorage>(),
+                instance<BttvApiClient>(),
+                instance<FfzApiClient>(),
+                instance<ScheduledExecutorService>("background")
         )
     }
 
@@ -318,6 +328,7 @@ val kodein = Kodein {
                 emoticonFinder = instance<EmoticonFinder>(),
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 bttvEmoticonHandler = instance<BttvEmoticonHandler>(),
+                ffzEmoticonHandler = instance<FfzEmoticonHandler>(),
                 twitchBadgeHandler = instance<TwitchBadgeHandler>(),
                 history = instance<ChatMessageHistory>()
         )
@@ -341,6 +352,17 @@ val kodein = Kodein {
     bind<BttvGlobalEmoticonBulkLoader>() with singleton { BttvGlobalEmoticonBulkLoader(instance<BttvApiClient>()) }
     bind<BttvGlobalEmoticonLoadConfiguration>() with singleton {
         BttvGlobalEmoticonLoadConfiguration(instance<BttvGlobalEmoticonBulkLoader>())
+    }
+
+    // FFZ
+    bind<FfzApiClient>() with singleton {
+        FfzApiClient(
+                httpClient = instance<OkHttpClient>(),
+                apiUrl = instance<Configuration>().getString(ConfigKeys.frankerfacezApiUrl)
+        )
+    }
+    bind<FfzEmoticonHandler>() with singleton {
+        FfzEmoticonHandler(instance<EmoticonFinder>())
     }
 
     // Goodgame

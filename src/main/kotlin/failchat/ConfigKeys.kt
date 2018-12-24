@@ -60,6 +60,7 @@ object ConfigKeys {
 
     const val resetConfiguration = "reset-configuration"
 
+    const val frankerfacezApiUrl = "frankerfacez.api-url"
 
     fun lastUpdatedEmoticons(origin: Origin): String = "${origin.commonName}.emoticons.last-updated"
 

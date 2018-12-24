@@ -2,9 +2,10 @@ package failchat.chat.handlers
 
 import failchat.chat.ChatMessage
 import failchat.chat.MessageHandler
-import failchat.chat.handlers.SemicolonCodeProcessor.Decision
 import failchat.emoticon.CustomEmoticonScanner
 import failchat.emoticon.Emoticon
+import failchat.emoticon.ReplaceDecision
+import failchat.emoticon.SemicolonCodeProcessor
 import mu.KLogging
 import kotlin.system.measureTimeMillis
 
@@ -24,9 +25,9 @@ class CustomEmoticonHandler(
             val emoticon = localEmoticons[code.toLowerCase()]
             if (emoticon != null) {
                 val label = message.addElement(emoticon)
-                Decision.Replace(label)
+                ReplaceDecision.Replace(label)
             } else {
-                Decision.Skip
+                ReplaceDecision.Skip
             }
         }
     }

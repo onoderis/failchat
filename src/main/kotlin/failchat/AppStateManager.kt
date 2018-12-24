@@ -23,7 +23,7 @@ import failchat.chat.handlers.ImageLinkHandler
 import failchat.cybergame.CgApiClient
 import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
-import failchat.emoticon.EmoticonAndId
+import failchat.emoticon.ChannelEmoticonUpdater
 import failchat.emoticon.EmoticonStorage
 import failchat.exception.InvalidConfigurationException
 import failchat.goodgame.GgApiClient
@@ -31,16 +31,11 @@ import failchat.goodgame.GgChannel
 import failchat.goodgame.GgChatClient
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvChatClient
-import failchat.twitch.BttvApiClient
-import failchat.twitch.BttvChannelNotFoundException
-import failchat.twitch.BttvEmoticonHandler
 import failchat.twitch.TwitchApiClient
 import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.util.CoroutineExceptionLogger
-import failchat.util.completionCause
 import failchat.util.enumMap
-import failchat.util.logException
 import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
@@ -78,16 +73,15 @@ class AppStateManager(private val kodein: Kodein) {
     private val ignoreFilter: IgnoreFilter = kodein.instance()
     private val imageLinkHandler: ImageLinkHandler = kodein.instance()
     private val viewersCountWsHandler: ViewersCountWsHandler = kodein.instance()
-    private val bttvEmoticonHandler: BttvEmoticonHandler = kodein.instance()
-    private val bttvApiClient: BttvApiClient = kodein.instance()
     private val emoticonStorage: EmoticonStorage = kodein.instance()
+    private val channelEmoticonUpdater: ChannelEmoticonUpdater = kodein.instance()
     private val emoticonsDb: DB = kodein.instance("emoticons")
     private val badgeManager: BadgeManager = kodein.instance()
     private val backgroundExecutorDispatcher = kodein.instance<ScheduledExecutorService>("background").asCoroutineDispatcher()
     private val customEmoticonHandler: CustomEmoticonHandler = kodein.instance()
 
     private val lock: Lock = ReentrantLock()
-    private val config: Configuration = kodein.instance<Configuration>()
+    private val config: Configuration = kodein.instance()
 
     private var chatClients: Map<Origin, ChatClient<*>> = emptyMap()
     private var viewersCounter: ViewersCounter? = null
@@ -134,8 +128,8 @@ class AppStateManager(private val kodein: Kodein) {
                 badgeManager.loadTwitchChannelBadges(channelId)
             }
 
-            // load BTTV channel emoticons in background
-            loadBttvEmoticonsAsync(channelName)
+            // load BTTV and FFZ channel emoticons in background
+            channelEmoticonUpdater.update(channelName)
         }
 
 
@@ -261,7 +255,6 @@ class AppStateManager(private val kodein: Kodein) {
 
         // reset BTTV channel emoticons
         emoticonStorage.clear(BTTV_CHANNEL)
-        bttvEmoticonHandler.resetChannelEmoticonsPattern()
 
         badgeManager.resetChannelBadges()
 
@@ -290,26 +283,6 @@ class AppStateManager(private val kodein: Kodein) {
         if (channel.isEmpty()) return null
 
         return channel
-    }
-
-    private fun loadBttvEmoticonsAsync(channelName: String) {
-        bttvApiClient.loadChannelEmoticons(channelName)
-                .thenApply<Unit> { emoticons ->
-                    val emoticonAndIdMapping = emoticons
-                            .map { EmoticonAndId(it, it.bttvId) }
-                    emoticonStorage.putMapping(BTTV_CHANNEL, emoticonAndIdMapping)
-                    logger.info("BTTV emoticons loaded for channel '{}', count: {}", channelName, emoticonAndIdMapping.size)
-                    bttvEmoticonHandler.compileChannelEmoticonsPattern()
-                }
-                .exceptionally { t ->
-                    val completionCause = t.completionCause()
-                    if (completionCause is BttvChannelNotFoundException) {
-                        logger.info("BTTV emoticons not found for channel '{}'", completionCause.channel)
-                    } else {
-                        logger.error("Failed to load BTTV emoticons for channel '{}'", channelName, completionCause)
-                    }
-                }
-                .logException()
     }
 
 }

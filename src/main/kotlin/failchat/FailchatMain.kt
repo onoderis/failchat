@@ -4,7 +4,7 @@ import com.github.salomonbrys.kodein.instance
 import failchat.chat.ChatMessageHistory
 import failchat.chat.badge.BadgeManager
 import failchat.emoticon.EmoticonStorage
-import failchat.emoticon.EmoticonUpdater
+import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.emoticon.OriginEmoticonStorageFactory
 import failchat.gui.GuiLauncher
 import failchat.reporter.EventAction
@@ -118,8 +118,8 @@ fun main0(args: Array<String>) {
     logger.info("Emoticon storages initialized")
 
 
-    // Aztualize emoticons
-    val emoticonUpdater = kodein.instance<EmoticonUpdater>()
+    // Actualize emoticons
+    val emoticonUpdater = kodein.instance<GlobalEmoticonUpdater>()
     emoticonUpdater.actualizeEmoticonsAsync()
 
     // Load global badges in background thread
