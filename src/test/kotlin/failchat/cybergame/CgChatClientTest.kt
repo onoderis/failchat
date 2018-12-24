@@ -14,7 +14,7 @@ import org.junit.Test
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.assertTrue
 
-class ChatClientTest {
+class CgChatClientTest {
 
     private val history = ChatMessageHistory(10)
     private lateinit var chatClient: CgChatClient
@@ -37,6 +37,7 @@ class ChatClientTest {
         history.stop()
     }
 
+    @Ignore
     @Test
     fun connectionTest() {
         initChatClient("scatman", 10946)

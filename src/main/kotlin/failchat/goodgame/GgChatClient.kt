@@ -15,6 +15,9 @@ import failchat.chat.StatusMessage
 import failchat.chat.findFirstTyped
 import failchat.chat.handlers.CommaHighlightHandler
 import failchat.chat.handlers.ElementLabelEscaper
+import failchat.exception.ChannelOfflineException
+import failchat.util.completedFuture
+import failchat.util.exceptionalFuture
 import failchat.util.objectMapper
 import failchat.util.whileNotNull
 import failchat.viewers.ViewersCountLoader
@@ -23,9 +26,7 @@ import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
-import java.util.Queue
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicReference
 
 class GgChatClient(
@@ -59,7 +60,8 @@ class GgChatClient(
             badgeHandler
     )
 
-    private val viewersCountFutures: Queue<CompletableFuture<Int>> = ConcurrentLinkedQueue()
+    @Volatile
+    private var viewersCount: Int? = null
 
 
     override fun start() {
@@ -76,29 +78,10 @@ class GgChatClient(
     }
 
     override fun loadViewersCount(): CompletableFuture<Int> {
-        /*
-        * Undocumented api
-        * request:  {"type":"get_all_viewers","data":{"channel":"21506"}}
-        * response: {"type":"viewers","data":{"channel_id":"21506","count":173}}
-        * Ответ приходит 1 раз. Если канал оффлайн - значение 0.
-        * */
-        val getAllViewersMessage = objectMapper.createObjectNode().apply {
-            put("type", "get_all_viewers")
-            putObject("data").apply {
-                put("channel", channelId.toString())
-            }
+        viewersCount?.let {
+            return completedFuture(it)
         }
-
-        val countFuture = CompletableFuture<Int>()
-        try {
-            wsClient.send(getAllViewersMessage.toString())
-        } catch (e: Exception) {
-            countFuture.completeExceptionally(e)
-        }
-        if (!countFuture.isCompletedExceptionally) {
-            viewersCountFutures.offer(countFuture)
-        }
-        return countFuture
+        return exceptionalFuture(ChannelOfflineException(Origin.GOODGAME, channelName))
     }
 
     private inner class GgWsClient(uri: URI) : WsClient(uri) {
@@ -131,7 +114,7 @@ class GgChatClient(
             when (type) {
                 "message" -> handleUserMessage(data)
                 "remove_message" -> handleModMessage(data)
-                "viewers" -> handleViewersMessage(data)
+                "channel_counters" -> handleChannelCountersMessage(data)
             }
         }
 
@@ -178,11 +161,8 @@ class GgChatClient(
             foundMessage?.let { onChatMessageDeleted?.invoke(it) }
         }
 
-        private fun handleViewersMessage(dataNode: JsonNode) {
-            val count = dataNode.get("count").asInt()
-            whileNotNull({ viewersCountFutures.poll() }) {
-                it.complete(count)
-            }
+        private fun handleChannelCountersMessage(dataNode: JsonNode) {
+            viewersCount = dataNode.get("clients_in_channel").asInt()
         }
     }
 
