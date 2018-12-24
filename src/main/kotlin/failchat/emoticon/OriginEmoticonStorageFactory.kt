@@ -12,14 +12,16 @@ import org.mapdb.DB
 
 object OriginEmoticonStorageFactory {
 
-    private val commonDbOrigins: List<Origin> = listOf(BTTV_GLOBAL, GOODGAME, PEKA2TV)
-    private val inMemoryOrigins: List<Origin> = listOf(BTTV_CHANNEL, FRANKERFASEZ)
+    private val idCodeDbOrigins: List<Origin> = listOf(BTTV_GLOBAL, GOODGAME, PEKA2TV)
+    private val idCodeMemoryOrigins: List<Origin> = listOf(BTTV_CHANNEL)
+    private val codeMemoryOrigins: List<Origin> = listOf(FRANKERFASEZ)
 
-    val dbOrigins: List<Origin> = commonDbOrigins + TWITCH
+    val dbOrigins: List<Origin> = idCodeDbOrigins + TWITCH
 
     fun create(db: DB, twitchEmoticonUrlFactory: TwitchEmoticonUrlFactory): List<OriginEmoticonStorage> {
-        return commonDbOrigins.map { CommonDbEmoticonStorage(db, it) } +
-                inMemoryOrigins.map { CommonInMemoryEmoticonStorage(it) } +
+        return idCodeDbOrigins.map { EmoticonCodeIdDbStorage(db, it) } +
+                idCodeMemoryOrigins.map { EmoticonCodeIdMemoryStorage(it) } +
+                codeMemoryOrigins.map { EmoticonCodeMemoryStorage(it) } +
                 TwitchEmoticonStorage(db, twitchEmoticonUrlFactory)
     }
 }
