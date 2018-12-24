@@ -1,7 +1,6 @@
 package failchat.gui
 
 import failchat.ConfigKeys
-import failchat.chat.StatusMessageMode
 import failchat.emoticon.EmoticonUpdater
 import failchat.skin.Skin
 import failchat.util.toHexFormat
@@ -67,16 +66,18 @@ class SettingsFrame(
     private val showImages = scene.lookup("#show_images") as CheckBox
 
     // Additional settings tab
+    // native client
     private val nativeBgColorPicker = scene.lookup("#bgcolor_native") as ColorPicker
     private val hideMessagesNative = scene.lookup("#hide_messages_native") as CheckBox
     private val hideMessagesNativeAfter = scene.lookup("#hide_messages_native_after") as TextField
+    private val showStatusMessagesNative = scene.lookup("#show_status_messages_native") as CheckBox
 
+    // external client
     private val externalBgColorPicker = scene.lookup("#bgcolor_external") as ColorPicker
     private val hideMessagesExternal = scene.lookup("#hide_messages_external") as CheckBox
     private val hideMessagesExternalAfter = scene.lookup("#hide_messages_external_after") as TextField
+    private val showStatusMessagesExternal = scene.lookup("#show_status_messages_external") as CheckBox
 
-    @Suppress("UNCHECKED_CAST")
-    private val statusMessagesMode = scene.lookup("#status_messages") as ChoiceBox<StatusMessageMode>
     private val opacitySlider = scene.lookup("#opacity") as Slider
     private val showOriginBadges = scene.lookup("#show_origin_badges") as CheckBox
     private val showUserBadges = scene.lookup("#show_user_badges") as CheckBox
@@ -94,9 +95,6 @@ class SettingsFrame(
 
 
     private val startButton = scene.lookup("#start_button") as Button
-
-
-    private val statusMessagesModeConverter = StatusMessageModeConverter()
 
 
     init {
@@ -122,9 +120,6 @@ class SettingsFrame(
 
         skin.converter = SkinConverter(skinList)
         skin.items = FXCollections.observableArrayList(skinList)
-
-        statusMessagesMode.converter = statusMessagesModeConverter
-        statusMessagesMode.items = FXCollections.observableList(StatusMessageMode.values().toList())
 
         stage.setOnCloseRequest {
             saveSettingsValues()
@@ -248,16 +243,18 @@ class SettingsFrame(
         showOriginBadges.isSelected = config.getBoolean(ConfigKeys.showOriginBadges)
         showUserBadges.isSelected = config.getBoolean(ConfigKeys.showUserBadges)
         zoomPercent.text = config.getInt(ConfigKeys.zoomPercent).toString()
-        hideMessagesNative.isSelected = config.getBoolean(ConfigKeys.hideMessagesNative)
-        hideMessagesNativeAfter.text = config.getInt(ConfigKeys.hideMessagesNativeAfter).toString()
-        hideMessagesExternal.isSelected = config.getBoolean(ConfigKeys.hideMessagesExternal)
-        hideMessagesExternalAfter.text = config.getInt(ConfigKeys.hideMessagesExternalAfter).toString()
 
-        nativeBgColorPicker.value = Color.web(config.getString(ConfigKeys.backgroundColor.native))
-        externalBgColorPicker.value = Color.web(config.getString(ConfigKeys.backgroundColor.external))
+        hideMessagesNative.isSelected = config.getBoolean(ConfigKeys.nativeClient.hideMessages)
+        hideMessagesNativeAfter.text = config.getInt(ConfigKeys.nativeClient.hideMessagesAfter).toString()
+        showStatusMessagesNative.isSelected = config.getBoolean(ConfigKeys.nativeClient.showStatusMessages)
+        nativeBgColorPicker.value = Color.web(config.getString(ConfigKeys.nativeClient.backgroundColor))
+
+        hideMessagesExternal.isSelected = config.getBoolean(ConfigKeys.externalClient.hideMessages)
+        hideMessagesExternalAfter.text = config.getInt(ConfigKeys.externalClient.hideMessagesAfter).toString()
+        showStatusMessagesExternal.isSelected = config.getBoolean(ConfigKeys.externalClient.showStatusMessages)
+        externalBgColorPicker.value = Color.web(config.getString(ConfigKeys.externalClient.backgroundColor))
+
         opacitySlider.value = config.getDouble(ConfigKeys.opacity)
-        statusMessagesMode.value = statusMessagesModeConverter.fromString(config.getString(ConfigKeys.statusMessageMode))
-
 
         val userIds = config.getStringArray(ConfigKeys.ignore)
         ignoreList.text = if (userIds.isEmpty()) {
@@ -287,17 +284,20 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.showViewers, showViewers.isSelected)
         config.setProperty(ConfigKeys.showImages, showImages.isSelected)
 
-        config.setProperty(ConfigKeys.backgroundColor.native, nativeBgColorPicker.value.toHexFormat())
-        config.setProperty(ConfigKeys.backgroundColor.external, externalBgColorPicker.value.toHexFormat())
         config.setProperty(ConfigKeys.opacity, opacitySlider.value.toInt())
-        config.setProperty(ConfigKeys.statusMessageMode, statusMessagesModeConverter.toString(statusMessagesMode.value))
         config.setProperty(ConfigKeys.showOriginBadges, showOriginBadges.isSelected)
         config.setProperty(ConfigKeys.showUserBadges, showUserBadges.isSelected)
         config.setProperty(ConfigKeys.zoomPercent, parseZoomPercent(zoomPercent.text))
-        config.setProperty(ConfigKeys.hideMessagesNative, hideMessagesNative.isSelected)
-        config.setProperty(ConfigKeys.hideMessagesNativeAfter, parseHideMessagesAfter(hideMessagesNativeAfter.text))
-        config.setProperty(ConfigKeys.hideMessagesExternal, hideMessagesExternal.isSelected)
-        config.setProperty(ConfigKeys.hideMessagesExternalAfter, parseHideMessagesAfter(hideMessagesExternalAfter.text))
+
+        config.setProperty(ConfigKeys.nativeClient.backgroundColor, nativeBgColorPicker.value.toHexFormat())
+        config.setProperty(ConfigKeys.nativeClient.hideMessages, hideMessagesNative.isSelected)
+        config.setProperty(ConfigKeys.nativeClient.hideMessagesAfter, parseHideMessagesAfter(hideMessagesNativeAfter.text))
+        config.setProperty(ConfigKeys.nativeClient.showStatusMessages, showStatusMessagesNative.isSelected)
+
+        config.setProperty(ConfigKeys.externalClient.backgroundColor, externalBgColorPicker.value.toHexFormat())
+        config.setProperty(ConfigKeys.externalClient.hideMessages, hideMessagesExternal.isSelected)
+        config.setProperty(ConfigKeys.externalClient.hideMessagesAfter, parseHideMessagesAfter(hideMessagesExternalAfter.text))
+        config.setProperty(ConfigKeys.externalClient.showStatusMessages, showStatusMessagesExternal.isSelected)
 
         config.setProperty(ConfigKeys.ignore, ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
     }

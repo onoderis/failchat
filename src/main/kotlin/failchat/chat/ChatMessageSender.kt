@@ -4,18 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.ConfigKeys
-import failchat.chat.StatusMessageMode.NOWHERE
 import failchat.chat.badge.CharacterBadge
 import failchat.chat.badge.ImageBadge
 import failchat.emoticon.Emoticon
-import failchat.gui.StatusMessageModeConverter
 import failchat.viewers.COUNTABLE_ORIGINS
 import failchat.ws.server.WsFrameSender
 import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
 
-//todo rename
 class ChatMessageSender(
         private val wsFrameSender: WsFrameSender,
         private val config: Configuration,
@@ -27,7 +24,6 @@ class ChatMessageSender(
     private companion object : KLogging()
 
     private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
-    private val statusMessagesModeConverter = StatusMessageModeConverter()
 
 
     fun send(message: ChatMessage) {
@@ -113,10 +109,6 @@ class ChatMessageSender(
     }
 
     fun send(message: StatusMessage) {
-        //todo optimize
-        val mode = statusMessagesModeConverter.fromString(config.getString(ConfigKeys.statusMessageMode))
-        if (mode == NOWHERE) return
-
         val messageNode = nodeFactory.objectNode().apply {
             put("type", "origin-status")
             putObject("content").apply {
@@ -132,23 +124,26 @@ class ChatMessageSender(
 
     /** Send client configuration to all clients. */
     fun sendClientConfiguration() {
-        val mode = statusMessagesModeConverter.fromString(config.getString(ConfigKeys.statusMessageMode))
-
         val messageNode = nodeFactory.objectNode().apply {
             put("type", "client-configuration")
             putObject("content").apply {
-                put("statusMessageMode", mode.jsonValue)
                 put("showViewersCount", config.getBoolean(ConfigKeys.showViewers))
-                put("nativeClientBgColor", config.getString(ConfigKeys.backgroundColor.native))
-                put("externalClientBgColor", config.getString(ConfigKeys.backgroundColor.external))
                 put("showOriginBadges", config.getBoolean(ConfigKeys.showOriginBadges))
                 put("showUserBadges", config.getBoolean(ConfigKeys.showUserBadges))
                 put("zoomPercent", config.getInt(ConfigKeys.zoomPercent))
-                put("hideMessagesNative", config.getBoolean(ConfigKeys.hideMessagesNative))
-                put("hideMessagesNativeAfter", config.getInt(ConfigKeys.hideMessagesNativeAfter))
-                put("hideMessagesExternal", config.getBoolean(ConfigKeys.hideMessagesExternal))
-                put("hideMessagesExternalAfter", config.getInt(ConfigKeys.hideMessagesExternalAfter))
                 put("showHiddenMessages", config.getBoolean(ConfigKeys.showHiddenMessages))
+                putObject("nativeClient").apply {
+                    put("backgroundColor", config.getString(ConfigKeys.nativeClient.backgroundColor))
+                    put("hideMessages", config.getBoolean(ConfigKeys.nativeClient.hideMessages))
+                    put("hideMessagesAfter", config.getInt(ConfigKeys.nativeClient.hideMessagesAfter))
+                    put("showStatusMessages", config.getBoolean(ConfigKeys.nativeClient.showStatusMessages))
+                }
+                putObject("externalClient").apply {
+                    put("backgroundColor", config.getString(ConfigKeys.externalClient.backgroundColor))
+                    put("hideMessages", config.getBoolean(ConfigKeys.externalClient.hideMessages))
+                    put("hideMessagesAfter", config.getInt(ConfigKeys.externalClient.hideMessagesAfter))
+                    put("showStatusMessages", config.getBoolean(ConfigKeys.externalClient.showStatusMessages))
+                }
                 putObject("enabledOrigins").apply {
                     COUNTABLE_ORIGINS.forEach { origin ->
                         put(origin.commonName, config.getBoolean("${origin.commonName}.enabled"))

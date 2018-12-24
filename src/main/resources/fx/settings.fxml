@@ -245,61 +245,33 @@
                                     <Insets top="6.0" />
                                  </VBox.margin>
                               </HBox>
-                                      <HBox alignment="CENTER_LEFT" prefWidth="450.0">
+                                      <HBox prefWidth="450.0">
                                           <children>
                                               <VBox>
                                                   <children>
-                                                      <HBox>
-                                                          <VBox.margin>
-                                                              <Insets left="2.0" right="2.0" top="6.0" />
-                                                          </VBox.margin>
-                                                          <children>
-                                                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Window opacity: ">
-                                                                  <font>
-                                                                      <Font size="12.0" />
-                                                                  </font>
-                                                                  <HBox.margin>
-                                                                      <Insets />
-                                                                  </HBox.margin>
-                                                              </Text>
-                                                              <Text fx:id="opacity_text" strokeType="OUTSIDE" strokeWidth="0.0">
-                                                                  <font>
-                                                                      <Font size="12.0" />
-                                                                  </font>
-                                                              </Text>
-                                                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="\%">
-                                                                  <font>
-                                                                      <Font size="12.0" />
-                                                                  </font>
-                                                              </Text>
-                                                          </children>
-                                                      </HBox>
-                                                      <Slider fx:id="opacity" blockIncrement="1.0" maxWidth="150.0" prefHeight="20.0">
-                                                          <VBox.margin>
-                                                              <Insets bottom="6.0" left="2.0" right="2.0" />
-                                                          </VBox.margin>
-                                                      </Slider>
-                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Show status messages">
+                                                      <CheckBox fx:id="show_origin_badges" mnemonicParsing="false" text="Show origin badges">
                                                           <font>
                                                               <Font size="12.0" />
                                                           </font>
                                                           <VBox.margin>
-                                                              <Insets left="2.0" right="2.0" />
+                                                              <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                           </VBox.margin>
-                                                      </Text>
-                                                      <ChoiceBox fx:id="status_messages" prefWidth="150.0">
+                                                      </CheckBox>
+                                                      <CheckBox fx:id="show_user_badges" mnemonicParsing="false" text="Show user badges">
+                                                          <font>
+                                                              <Font size="12.0" />
+                                                          </font>
                                                           <VBox.margin>
-                                                              <Insets bottom="6.0" left="2.0" right="2.0" />
+                                                              <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                           </VBox.margin>
-                                                      </ChoiceBox>
+                                                      </CheckBox>
                                                   </children>
                                                   <HBox.margin>
-                                                      <Insets left="29.0" />
+                                                      <Insets left="38.0" right="30.0" />
                                                   </HBox.margin>
                                               </VBox>
                                               <VBox>
                                                   <children>
-      
                                                       <HBox alignment="CENTER_LEFT">
                                                           <children>
                                                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Zoom: ">
@@ -331,25 +303,39 @@
                                                               <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                           </VBox.margin>
                                                       </HBox>
-                                                      <CheckBox fx:id="show_origin_badges" mnemonicParsing="false" text="Show origin badges">
-                                                          <font>
-                                                              <Font size="12.0" />
-                                                          </font>
+                                                      <HBox>
                                                           <VBox.margin>
-                                                              <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                                              <Insets left="2.0" right="2.0" top="6.0" />
                                                           </VBox.margin>
-                                                      </CheckBox>
-                                                      <CheckBox fx:id="show_user_badges" mnemonicParsing="false" text="Show user badges">
-                                                          <font>
-                                                              <Font size="12.0" />
-                                                          </font>
+                                                          <children>
+                                                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Window opacity: ">
+                                                                  <font>
+                                                                      <Font size="12.0" />
+                                                                  </font>
+                                                                  <HBox.margin>
+                                                                      <Insets />
+                                                                  </HBox.margin>
+                                                              </Text>
+                                                              <Text fx:id="opacity_text" strokeType="OUTSIDE" strokeWidth="0.0">
+                                                                  <font>
+                                                                      <Font size="12.0" />
+                                                                  </font>
+                                                              </Text>
+                                                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="\%">
+                                                                  <font>
+                                                                      <Font size="12.0" />
+                                                                  </font>
+                                                              </Text>
+                                                          </children>
+                                                      </HBox>
+                                                      <Slider fx:id="opacity" blockIncrement="1.0" maxWidth="150.0" prefHeight="20.0">
                                                           <VBox.margin>
-                                                              <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                                              <Insets bottom="6.0" left="2.0" right="2.0" />
                                                           </VBox.margin>
-                                                      </CheckBox>
+                                                      </Slider>
                                                   </children>
                                                   <HBox.margin>
-                                                      <Insets left="38.0" />
+                                                      <Insets left="29.0" />
                                                   </HBox.margin>
                                               </VBox>
                                           </children>
@@ -358,7 +344,7 @@
                                  </VBox.margin>
                                       </HBox>
                               <Separator prefWidth="200.0" />
-                              <HBox alignment="TOP_CENTER" prefWidth="450.0">
+                              <HBox prefWidth="450.0">
                                  <children>
                                     <VBox>
                                        <children>
@@ -400,16 +386,24 @@
                                                    </children></FlowPane>
                                              </children>
                                           </HBox>
+                                          <CheckBox fx:id="show_status_messages_native" mnemonicParsing="false" text="Show status messages">
+                                             <font>
+                                                <Font size="12.0" />
+                                             </font>
+                                             <VBox.margin>
+                                                <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                             </VBox.margin>
+                                          </CheckBox>
                                        </children>
                                        <padding>
                                           <Insets top="6.0" />
                                        </padding>
                                        <HBox.margin>
-                                          <Insets right="6.0" />
+                                          <Insets left="38.0" right="6.0" />
                                        </HBox.margin>
                                     </VBox>
                                     <Separator orientation="VERTICAL" prefHeight="200.0" />
-                                    <VBox prefWidth="200.0">
+                                    <VBox>
                                        <children>
                                           <Text strokeType="OUTSIDE" strokeWidth="0.0" text="External clients settings">
                                              <VBox.margin>
@@ -450,6 +444,14 @@
                                                 </FlowPane>
                                              </children>
                                           </HBox>
+                                          <CheckBox fx:id="show_status_messages_external" mnemonicParsing="false" text="Show status messages">
+                                             <font>
+                                                <Font size="12.0" />
+                                             </font>
+                                             <VBox.margin>
+                                                <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                             </VBox.margin>
+                                          </CheckBox>
                                        </children>
                                        <padding>
                                           <Insets top="6.0" />
