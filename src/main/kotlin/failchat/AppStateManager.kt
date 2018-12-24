@@ -222,7 +222,7 @@ class AppStateManager(private val kodein: Kodein) {
         configLoader.save()
     }
 
-    fun shutDown(): Unit = lock.withLock {
+    fun shutDown(guiEnabled: Boolean): Unit = lock.withLock {
         logger.info("Shutting down")
 
         try {
@@ -239,9 +239,10 @@ class AppStateManager(private val kodein: Kodein) {
             logger.error("Failed to save config during a shutdown", t)
         }
 
-
-        Platform.exit()
-        System.exit(0)
+        if (guiEnabled) {
+            Platform.exit()
+            System.exit(0)
+        }
     }
 
     private fun ChatClient<*>.setCallbacks() {

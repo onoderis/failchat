@@ -74,11 +74,9 @@ fun main0(args: Array<String>) {
 
     handleResetConfigurationOption()
 
-    // GUI
-    // Javafx starts earlier for responsiveness. The thread will be blocked
-    thread(name = "GuiLauncher", priority = Thread.MAX_PRIORITY) {
-        logger.info("Launching javafx application")
-        JfxApplication.launch(GuiLauncher::class.java)
+    val guiEnabled = !cmd.hasOption("no-gui")
+    if (guiEnabled) {
+        runGui()
     }
 
     val config: Configuration = kodein.instance()
@@ -135,6 +133,18 @@ fun main0(args: Array<String>) {
     // Create directory for custom emoticons if required
     Files.createDirectories(kodein.instance<Path>("customEmoticonsDirectory"))
 
+    if (!guiEnabled) {
+        // start app with current configuration
+        val appStateManager = kodein.instance<AppStateManager>()
+        appStateManager.startChat()
+
+        // add shutdown hook
+        val hookThread = Thread({
+            appStateManager.shutDown(false)
+        }, "ShutdownHookThread")
+        Runtime.getRuntime().addShutdownHook(hookThread)
+    }
+
     logger.info("Application started")
 }
 
@@ -167,6 +177,14 @@ private fun handleResetConfigurationOption() {
     }
 }
 
+private fun runGui() {
+    // Javafx starts earlier for responsiveness. Thread will be blocked
+    thread(name = "GuiLauncher", priority = Thread.MAX_PRIORITY) {
+        logger.info("Launching javafx application")
+        JfxApplication.launch(GuiLauncher::class.java)
+    }
+}
+
 private fun parseArguments(args: Array<String>): CommandLine {
     val options = Options().apply {
         addOption(Option("c", "skip-release-check",     false, "Skip the check for a new release"))
@@ -175,6 +193,7 @@ private fun parseArguments(args: Array<String>): CommandLine {
         addOption(Option("f", "logger-failchat-level",  true,  "Logging level for failchat package"))
         addOption(Option("o", "enable-console-logging", false, "Enable logging into the console"))
         addOption(Option("p", "port",                   true,  "Server port"))
+        addOption(Option("g", "no-gui",                 false, "Run application without GUI"))
     }
 
     return DefaultParser().parse(options, args)
