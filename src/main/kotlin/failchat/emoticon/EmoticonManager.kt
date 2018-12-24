@@ -26,7 +26,7 @@ class EmoticonManager(
      * Load emoticons by the specified configurations and put them into the storage. Blocking call
      * Never throws [Exception].
      * */
-    fun actualizeAllEmoticons(loadConfigurations: List<EmoticonLoadConfiguration<out Emoticon>>) {
+    fun actualizeEmoticons(loadConfigurations: List<EmoticonLoadConfiguration<out Emoticon>>) {
         loadConfigurations.forEach {
             try {
                 actualizeEmoticons(it)

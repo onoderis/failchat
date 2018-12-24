@@ -2,19 +2,20 @@ package failchat.emoticon
 
 import failchat.gui.GuiEventHandler
 import failchat.resetEmoticonsUpdatedTime
-import failchat.twitch.BttvEmoticonHandler
 import failchat.util.executeWithCatch
+import mu.KLogging
 import org.apache.commons.configuration2.Configuration
 import java.util.concurrent.ExecutorService
 
-class EmoticonUpdater(
+class GlobalEmoticonUpdater(
         private val emoticonManager: EmoticonManager,
         private val emoticonLoadConfigurations: List<EmoticonLoadConfiguration<out Emoticon>>,
-        private val bttvEmoticonHandler: BttvEmoticonHandler,
         private val backgroundExecutor: ExecutorService,
         private val guiEventHandler: GuiEventHandler,
         private val config: Configuration
 ) {
+
+    private companion object : KLogging()
 
     fun reloadEmoticonsAsync() {
         config.resetEmoticonsUpdatedTime()
@@ -25,10 +26,10 @@ class EmoticonUpdater(
         backgroundExecutor.executeWithCatch {
             guiEventHandler.notifyEmoticonsAreLoading()
 
-            emoticonManager.actualizeAllEmoticons(emoticonLoadConfigurations)
-            bttvEmoticonHandler.compileGlobalEmoticonsPattern()
+            emoticonManager.actualizeEmoticons(emoticonLoadConfigurations)
 
             guiEventHandler.notifyEmoticonsLoaded()
         }
     }
+
 }

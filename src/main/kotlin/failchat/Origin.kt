@@ -9,6 +9,7 @@ enum class Origin(val commonName: String) { //todo rename to MessageOrigin, remo
     TWITCH("twitch"),
     BTTV_GLOBAL("bttvGlobal"), //todo refactor?
     BTTV_CHANNEL("bttvChannel"),
+    FRANKERFASEZ("frankerfacez"),
     YOUTUBE("youtube"),
     CYBERGAME("cybergame"),
     FAILCHAT("failchat");

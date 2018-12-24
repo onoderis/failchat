@@ -41,6 +41,7 @@ class TwitchChatClient(
         emoticonFinder: EmoticonFinder,
         private val messageIdGenerator: MessageIdGenerator,
         bttvEmoticonHandler: BttvEmoticonHandler,
+        ffzEmoticonHandler: FfzEmoticonHandler,
         twitchBadgeHandler: MessageHandler<TwitchMessage>,
         private val history: ChatMessageHistory
 ) : ChatClient<TwitchMessage> {
@@ -65,6 +66,7 @@ class TwitchChatClient(
             ElementLabelEscaper(),
             TwitchEmoticonHandler(emoticonFinder),
             bttvEmoticonHandler,
+            ffzEmoticonHandler,
             BraceEscaper(),
             TwitchHighlightHandler(userName),
             twitchBadgeHandler
@@ -176,7 +178,7 @@ class TwitchChatClient(
         val author: String = if (displayedName.isNullOrEmpty()) {
             event.userHostmask.nick.capitalize()
         } else {
-            displayedName!!
+            displayedName
         }
 
         return TwitchMessage(

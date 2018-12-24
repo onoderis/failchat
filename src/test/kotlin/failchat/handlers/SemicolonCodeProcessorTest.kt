@@ -1,7 +1,7 @@
 package failchat.handlers
 
-import failchat.chat.handlers.SemicolonCodeProcessor
-import failchat.chat.handlers.SemicolonCodeProcessor.Decision
+import failchat.emoticon.ReplaceDecision
+import failchat.emoticon.SemicolonCodeProcessor
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -27,7 +27,7 @@ class SemicolonCodeProcessorTest {
     fun replaceSingleCode() {
         val processedString = SemicolonCodeProcessor.process(":code:") {
             assertEquals("code", it)
-            Decision.Replace("42")
+            ReplaceDecision.Replace("42")
         }
 
         assertEquals("42", processedString)
@@ -37,7 +37,7 @@ class SemicolonCodeProcessorTest {
     fun replaceSingleCodeAroundText() {
         val processedString = SemicolonCodeProcessor.process("text1 :code: text2") {
             assertEquals("code", it)
-            Decision.Replace("42")
+            ReplaceDecision.Replace("42")
         }
 
         assertEquals("text1 42 text2", processedString)
@@ -48,7 +48,7 @@ class SemicolonCodeProcessorTest {
     fun skipSingleCode() {
         val processedString = SemicolonCodeProcessor.process(":code:") {
             assertEquals("code", it)
-            Decision.Skip
+            ReplaceDecision.Skip
         }
 
         assertEquals(":code:", processedString)
@@ -60,7 +60,7 @@ class SemicolonCodeProcessorTest {
 
         val processedString = SemicolonCodeProcessor.process("hello :one: :two: :)") {
             codes.add(it)
-            Decision.Replace("1")
+            ReplaceDecision.Replace("1")
         }
 
         assertEquals(listOf("one", "two"), codes)
@@ -73,12 +73,11 @@ class SemicolonCodeProcessorTest {
 
         val processedString = SemicolonCodeProcessor.process(":w:wrong:right:w:w:") {
             codes.add(it)
-            if (it == "right") Decision.Replace("1") else Decision.Skip
+            if (it == "right") ReplaceDecision.Replace("1") else ReplaceDecision.Skip
         }
 
         assertEquals(listOf("w", "wrong", "right", "w"), codes)
         assertEquals(":w:wrong1w:w:", processedString)
     }
-
 
 }

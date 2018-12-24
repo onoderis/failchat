@@ -1,7 +1,7 @@
 package failchat.gui
 
 import failchat.ConfigKeys
-import failchat.emoticon.EmoticonUpdater
+import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.skin.Skin
 import failchat.util.toHexFormat
 import javafx.application.Application
@@ -37,7 +37,7 @@ class SettingsFrame(
         private val config: Configuration,
         private val skinList: List<Skin>,
         private val customEmoticonsDirectory: Path,
-        private val emoticonUpdater: EmoticonUpdater
+        private val emoticonUpdater: GlobalEmoticonUpdater
 ) {
 
     private companion object : KLogging()

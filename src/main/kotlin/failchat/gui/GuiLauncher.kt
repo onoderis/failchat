@@ -1,7 +1,7 @@
 package failchat.gui
 
 import com.github.salomonbrys.kodein.instance
-import failchat.emoticon.EmoticonUpdater
+import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.github.ReleaseChecker
 import failchat.kodein
 import failchat.skin.Skin
@@ -33,7 +33,7 @@ class GuiLauncher : Application() {
                 kodein.instance<Configuration>(),
                 kodein.instance<List<Skin>>(),
                 kodein.instance<Path>("customEmoticonsDirectory"),
-                kodein.instance<EmoticonUpdater>()
+                kodein.instance<GlobalEmoticonUpdater>()
         )
         val chat = ChatFrame(
                 this,
