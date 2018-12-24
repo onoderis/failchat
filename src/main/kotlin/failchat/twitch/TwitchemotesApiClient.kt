@@ -13,6 +13,7 @@ import failchat.util.toFuture
 import failchat.util.validateResponseCode
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.channels.toList
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
@@ -55,7 +56,7 @@ class TwitchemotesApiClient(
         val request = Request.Builder()
                 .url(url)
                 .build()
-        val channel = Channel<TwitchEmoticon>(Channel.UNLIMITED)
+        val channel = Channel<TwitchEmoticon>(2000)
 
         httpClient.newCall(request)
                 .toFuture()
@@ -76,7 +77,7 @@ class TwitchemotesApiClient(
                         parser.expect(JsonToken.START_OBJECT) // emoticon object
 
                         val node: JsonNode = parser.readValueAsTree()
-                        channel.offer(parseEmoticon(node))
+                        channel.sendBlocking(parseEmoticon(node))
                         token = parser.nextNonNullToken()
                     }
 

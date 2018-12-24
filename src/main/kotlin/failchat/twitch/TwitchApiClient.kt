@@ -22,6 +22,7 @@ import failchat.util.withSuffix
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.channels.toList
 import kotlinx.coroutines.future.future
 import okhttp3.OkHttpClient
@@ -76,7 +77,7 @@ class TwitchApiClient(
         // https://dev.twitch.tv/docs/v5/reference/chat/#get-chat-emoticons-by-set !! Формат ответа без setId не по доке
         // https://dev.twitch.tv/docs/v5/guides/irc/#privmsg-twitch-tags формат ссылки на смайл
 
-        val channel = Channel<TwitchEmoticon>(Channel.UNLIMITED)
+        val channel = Channel<TwitchEmoticon>(2000)
 
         request("/chat/emoticon_images")
                 .thenUse {
@@ -97,7 +98,7 @@ class TwitchApiClient(
 
                     while (token != JsonToken.END_ARRAY) {
                         val node: JsonNode = parser.readValueAsTree()
-                        channel.offer(parseEmoticon(node))
+                        channel.sendBlocking(parseEmoticon(node))
                         token = parser.nextNonNullToken()
                     }
 
