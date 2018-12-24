@@ -5,7 +5,6 @@ import failchat.ws.server.InboundWsMessage
 import failchat.ws.server.WsMessageHandler
 import io.ktor.http.cio.websocket.Frame
 import org.apache.commons.configuration2.Configuration
-import java.util.concurrent.atomic.AtomicReference
 
 
 class ViewersCountWsHandler(
@@ -14,19 +13,20 @@ class ViewersCountWsHandler(
 
     override val expectedType = InboundWsMessage.Type.VIEWERS_COUNT
 
-    val viewersCounter: AtomicReference<ViewersCounter?> = AtomicReference(null)
+    @Volatile
+    var viewersCounter: ViewersCounter? = null
 
     private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
 
     
     override fun handle(message: InboundWsMessage) {
-        viewersCounter.get()?.let {
+        viewersCounter?.let {
             it.sendViewersCountWsMessage()
             return
         }
 
-        // viewersCounter is null
-        // Send message with null values for enabled origins
+        // viewersCounter is not set yet
+        // send message with null values for enabled origins
         val enabledOrigins = COUNTABLE_ORIGINS.filter {
             config.getBoolean("${it.commonName}.enabled")
         }

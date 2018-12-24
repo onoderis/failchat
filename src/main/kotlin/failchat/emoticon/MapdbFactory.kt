@@ -6,7 +6,7 @@ import org.mapdb.DBMaker
 import java.nio.file.Files
 import java.nio.file.Path
 
-object EmoticonDbFactory {
+object MapdbFactory {
 
     private val logger = KotlinLogging.logger {}
 
