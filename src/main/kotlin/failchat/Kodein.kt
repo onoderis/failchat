@@ -24,12 +24,12 @@ import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.CustomEmoticonScanner
 import failchat.emoticon.Emoticon
-import failchat.emoticon.EmoticonDbFactory
 import failchat.emoticon.EmoticonFinder
 import failchat.emoticon.EmoticonLoadConfiguration
 import failchat.emoticon.EmoticonManager
 import failchat.emoticon.EmoticonStorage
 import failchat.emoticon.EmoticonUpdater
+import failchat.emoticon.MapdbFactory
 import failchat.github.GithubClient
 import failchat.github.ReleaseChecker
 import failchat.goodgame.GgApiClient
@@ -139,7 +139,7 @@ val kodein = Kodein {
     bind<ChatMessageHistory>() with singleton { ChatMessageHistory(50) }
 
     // Emoticons
-    bind<DB>("emoticons") with singleton { EmoticonDbFactory.create(instance<Path>("emoticonDbFile")) }
+    bind<DB>("emoticons") with singleton { MapdbFactory.create(instance<Path>("emoticonDbFile")) }
     bind<EmoticonStorage>() with singleton {
         EmoticonStorage()
     }
@@ -185,7 +185,7 @@ val kodein = Kodein {
 
     // Message handlers and filters
     bind<IgnoreFilter>() with singleton { IgnoreFilter(instance<Configuration>()) }
-    bind<ImageLinkHandler>() with singleton { ImageLinkHandler(instance<Configuration>()) }
+    bind<ImageLinkHandler>() with singleton { ImageLinkHandler() }
     bind<CustomEmoticonHandler>() with singleton {
         val scanner = CustomEmoticonScanner(
                 instance<Path>("customEmoticonsDirectory"),
