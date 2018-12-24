@@ -40,6 +40,8 @@ import org.mapdb.DB
 import java.net.ServerSocket
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.Instant
+import java.time.ZoneOffset
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -183,11 +185,13 @@ private fun logSystemInfo() {
         val failchatVersion = kodein.instance<Configuration>().getString("version")
         val workingDirectory = kodein.instance<Path>("workingDirectory").toAbsolutePath()
         val rt = Runtime.getRuntime()
-        "Failchat started. Version: $failchatVersion, OS: ${sp("os.name")} (${sp("os.version")}). " +
+        "Failchat started. Version: $failchatVersion." +
+                "OS: ${sp("os.name")} (${sp("os.version")}). " +
                 "Processors: ${rt.availableProcessors()}. " +
                 "Memory: max ${rt.maxMemory().bytesToMegabytes()}mb; total ${rt.totalMemory().bytesToMegabytes()}mb, " +
-                "free ${rt.freeMemory().bytesToMegabytes()}mb; " +
-                "Working directory: '$workingDirectory'"
+                "free ${rt.freeMemory().bytesToMegabytes()}mb. " +
+                "Working directory: '$workingDirectory'. " +
+                "Time zone: ${ZoneOffset.systemDefault().rules.getOffset(Instant.now())}"
     }
 }
 
