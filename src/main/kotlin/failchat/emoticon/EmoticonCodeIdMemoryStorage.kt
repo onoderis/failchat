@@ -5,7 +5,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ConcurrentHashMap
 
-class CommonInMemoryEmoticonStorage(override val origin: Origin) : OriginEmoticonStorage {
+class EmoticonCodeIdMemoryStorage(override val origin: Origin) : OriginEmoticonStorage {
 
     private val idMap: MutableMap<String, Emoticon> = ConcurrentHashMap()
     private val codeMap: MutableMap<String, Emoticon> = ConcurrentHashMap()

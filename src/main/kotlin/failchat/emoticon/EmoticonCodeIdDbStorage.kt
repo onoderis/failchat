@@ -8,7 +8,7 @@ import org.mapdb.HTreeMap
 import org.mapdb.Serializer
 import org.mapdb.serializer.GroupSerializer
 
-open class CommonDbEmoticonStorage(
+open class EmoticonCodeIdDbStorage(
         db: DB,
         override val origin: Origin
 ) : OriginEmoticonStorage {
