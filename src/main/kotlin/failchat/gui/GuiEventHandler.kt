@@ -14,25 +14,35 @@ class GuiEventHandler(
         private val config: Configuration
 ) {
 
-    lateinit var settingsFrame: SettingsFrame
-    lateinit var chatFrame: ChatFrame
-
     private val executor = Executors.newSingleThreadExecutor()
 
-    /** Should be invoked in javafx thread. */
+    @Volatile
+    private var gui: Gui? = null
+
+    fun setGui(settingsFrame: SettingsFrame, chatFrame: ChatFrame) {
+        gui = Gui(settingsFrame, chatFrame)
+    }
+
     fun handleStartChat() {
-        settingsFrame.hide()
-        chatFrame.show()
+        gui?.let {
+            Platform.runLater {
+                it.settingsFrame.hide()
+                it.chatFrame.show()
+            }
+        }
 
         executor.executeWithCatch {
             appStateManager.startChat()
         }
     }
 
-    /** Should be invoked in javafx thread. */
     fun handleStopChat() {
-        chatFrame.hide()
-        settingsFrame.show()
+        gui?.let {
+            Platform.runLater {
+                it.chatFrame.hide()
+                it.settingsFrame.show()
+            }
+        }
 
         executor.executeWithCatch {
             appStateManager.stopChat()
@@ -41,21 +51,23 @@ class GuiEventHandler(
 
     fun handleShutDown() {
         executor.executeWithCatch {
-            appStateManager.shutDown()
+            appStateManager.shutDown(true)
         }
         executor.shutdown()
     }
 
-    /** Should be invoked in javafx thread. */
     fun handleResetUserConfiguration() {
-        val resetConfirmed = settingsFrame.confirmConfigReset()
-        if (resetConfirmed) {
-            settingsFrame.disableResetConfigurationButton()
-            config.setProperty(ConfigKeys.resetConfiguration, true)
+        val settingsFrame = gui?.settingsFrame ?: return
+
+        Platform.runLater {
+            val resetConfirmed = settingsFrame.confirmConfigReset()
+            if (resetConfirmed) {
+                settingsFrame.disableResetConfigurationButton()
+                config.setProperty(ConfigKeys.resetConfiguration, true)
+            }
         }
     }
 
-    /** Should be invoked in javafx thread. */
     fun handleConfigurationChange() {
         executor.executeWithCatch {
             messageSender.sendClientConfiguration()
@@ -69,17 +81,24 @@ class GuiEventHandler(
     }
 
     fun notifyEmoticonsAreLoading() {
-        if (!::settingsFrame.isInitialized) return
+        val settingsFrame = gui?.settingsFrame ?: return
+
         Platform.runLater {
             settingsFrame.disableRefreshEmoticonsButton()
         }
     }
 
     fun notifyEmoticonsLoaded() {
-        if (!::settingsFrame.isInitialized) return
+        val settingsFrame = gui?.settingsFrame ?: return
+
         Platform.runLater {
             settingsFrame.enableRefreshEmoticonsButton()
         }
     }
+
+    private class Gui(
+            val settingsFrame: SettingsFrame,
+            val chatFrame: ChatFrame
+    )
 
 }

@@ -43,8 +43,7 @@ class GuiLauncher : Application() {
         )
 
         val eventHandler = kodein.instance<GuiEventHandler>()
-        eventHandler.settingsFrame = settings
-        eventHandler.chatFrame = chat
+        eventHandler.setGui(settings, chat)
         settings.show()
 
         logger.info("GUI loaded")
