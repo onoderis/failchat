@@ -54,24 +54,28 @@
 ```
 
 #### Client configuration
-`content.status-message-mode: "everywhere" | "native_client" | "nowhere"`
 `content.zoomPercent: [1..500]`
 ```json
 {
     "type": "client-configuration",
     "content": {
-        "statusMessageMode": "everywhere",
         "showViewersCount": true,
-        "nativeClientBgColor": "0x000000ff",
-        "externalClientBgColor": "0x00000000",
         "showOriginBadges": true,
         "showUserBadges": true,
         "zoomPercent": 100,
-        "hideMessagesNative": false,
-        "hideMessagesNativeAfter": 60,
-        "hideMessagesExternal": true,
-        "hideMessagesExternalAfter": 60,
         "showHiddenMessages": false,
+        "nativeClient": {
+            "backgroundColor": "0x000000ff",
+            "hideMessages" : false,
+            "hideMessagesAfter" : 60,
+            "showStatusMessages" : true
+        },
+        "externalClient": {
+            "backgroundColor": "0x00000000",
+            "hideMessages" : true,
+            "hideMessagesAfter" : 20,
+            "showStatusMessages" : false
+        },
         "enabledOrigins": {
             "peka2tv": false,
             "twitch": true,

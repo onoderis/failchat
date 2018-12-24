@@ -64,7 +64,7 @@ class ChatFrame(
     }
 
     fun show() {
-        val nativeBgColor = Color.web(config.getString(ConfigKeys.backgroundColor.native))
+        val nativeBgColor = Color.web(config.getString(ConfigKeys.nativeClient.backgroundColor))
 
         if (config.getBoolean(ConfigKeys.frame)) {
             currentChatStage = decoratedChatStage
@@ -282,7 +282,7 @@ class ChatFrame(
         val toDecorated = currentChatStage === undecoratedChatStage || currentChatStage === transparentChatStage
         val fromChatStage = currentChatStage
 
-        val bgColor = Color.web(config.getString(ConfigKeys.backgroundColor.native))
+        val bgColor = Color.web(config.getString(ConfigKeys.nativeClient.backgroundColor))
         val toChatStage = if (toDecorated) {
             config.setProperty(ConfigKeys.frame, true)
             chatScene.fill = Color.BLACK
@@ -337,7 +337,7 @@ class ChatFrame(
         viewersItem.isSelected = config.getBoolean(ConfigKeys.showViewers)
         zoomValueText.text = config.getString(ConfigKeys.zoomPercent)
 
-        if (config.getBoolean(ConfigKeys.hideMessagesNative)) {
+        if (config.getBoolean(ConfigKeys.nativeClient.hideMessages)) {
             showHiddenMessages.isDisable = false
             showHiddenMessages.isSelected = config.getBoolean(ConfigKeys.showHiddenMessages)
         } else {

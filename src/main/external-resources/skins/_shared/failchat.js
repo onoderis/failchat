@@ -213,33 +213,21 @@ function initializeFailchat() {
         dynamicStyles.innerHTML = bodyZoomStyle + originBadgesStyle + userBadgesStyle ;
 
 
-        const statusMessageMode = config.statusMessageMode;
-        if ((statusMessageMode === "everywhere") ||
-            (failchat.nativeClient && statusMessageMode === "native_client")) {
-            showStatusMessages = true;
-        } else {
-            showStatusMessages = false;
-        }
-
-        let bgHexColor;
+        let clientConfig;
         if (failchat.nativeClient) {
-            bgHexColor = config.nativeClientBgColor;
+            clientConfig = config.nativeClient;
         } else {
-            bgHexColor = config.externalClientBgColor;
+            clientConfig = config.externalClient;
         }
 
-        bodyWrapper.css("background-color", "rgba(" + hexToRgba(bgHexColor.substring(1)) + ")");
+        showStatusMessages = clientConfig.showStatusMessages;
 
+        const backgroundColor = clientConfig.backgroundColor;
+        bodyWrapper.css("background-color", "rgba(" + hexToRgba(backgroundColor.substring(1)) + ")");
 
-        let clientType;
-        if (failchat.nativeClient) {
-            clientType = "Native";
-        } else {
-            clientType = "External";
-        }
-        if (isHideMessagePropertiesChanged(clientType)) {
-            hideMessages = config["hideMessages" + clientType];
-            hideMessagesAfter = config["hideMessages" + clientType + "After"];
+        if (isHideMessagePropertiesChanged(clientConfig)) {
+            hideMessages = clientConfig.hideMessages;
+            hideMessagesAfter = clientConfig.hideMessagesAfter;
             resetHideMessageTasks();
         }
 
@@ -284,9 +272,9 @@ function initializeFailchat() {
         });
     }
 
-    function isHideMessagePropertiesChanged(config, clientType) {
-        const isSameValues = (hideMessages === config["hideMessages" + clientType]) &&
-            (hideMessagesAfter === config["hideMessages" + clientType + "After"]);
+    function isHideMessagePropertiesChanged(clientConfig) {
+        const isSameValues = (hideMessages === clientConfig.hideMessages) &&
+            (hideMessagesAfter === clientConfig.hideMessagesAfter);
         return !isSameValues
     }
 

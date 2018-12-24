@@ -30,10 +30,20 @@ object ConfigKeys {
         const val channel = "cybergame.channel"
     }
 
+    object nativeClient {
+        private const val prefix = "native-client"
+        const val backgroundColor = "$prefix.background-color"
+        const val hideMessages = "$prefix.hide-messages"
+        const val hideMessagesAfter = "$prefix.hide-messages-after"
+        const val showStatusMessages = "$prefix.show-status-messages"
+    }
 
-    object backgroundColor {
-        const val native = "background-color.native"
-        const val external = "background-color.external"
+    object externalClient {
+        private const val prefix = "external-client"
+        const val backgroundColor = "$prefix.background-color"
+        const val hideMessages = "$prefix.hide-messages"
+        const val hideMessagesAfter = "$prefix.hide-messages-after"
+        const val showStatusMessages = "$prefix.show-status-messages"
     }
 
     const val skin = "skin"
@@ -42,15 +52,10 @@ object ConfigKeys {
     const val showViewers = "show-viewers"
     const val showImages = "show-images"
     const val opacity = "opacity"
-    const val statusMessageMode = "status-message-mode"
     const val showOriginBadges = "show-origin-badges"
     const val showUserBadges = "show-user-badges"
     const val zoomPercent = "zoom-percent"
     const val ignore = "ignore"
-    const val hideMessagesNative = "hide-messages-native"
-    const val hideMessagesNativeAfter = "hide-messages-native-after"
-    const val hideMessagesExternal = "hide-messages-external"
-    const val hideMessagesExternalAfter = "hide-messages-external-after"
     const val showHiddenMessages = "show-hidden-messages"
 
     const val resetConfiguration = "reset-configuration"
