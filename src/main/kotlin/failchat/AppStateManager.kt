@@ -239,6 +239,7 @@ class AppStateManager(private val kodein: Kodein) {
             logger.error("Failed to save config during a shutdown", t)
         }
 
+        // prevent shutdown hook from locking on System.exit()
         if (guiEnabled) {
             Platform.exit()
             System.exit(0)
