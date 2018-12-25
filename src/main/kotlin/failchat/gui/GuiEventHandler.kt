@@ -3,6 +3,7 @@ package failchat.gui
 import failchat.AppStateManager
 import failchat.ConfigKeys
 import failchat.chat.ChatMessageSender
+import failchat.util.LateinitVal
 import failchat.util.executeWithCatch
 import javafx.application.Platform
 import org.apache.commons.configuration2.Configuration
@@ -16,15 +17,10 @@ class GuiEventHandler(
 
     private val executor = Executors.newSingleThreadExecutor()
 
-    @Volatile
-    private var gui: Gui? = null
-
-    fun setGui(settingsFrame: SettingsFrame, chatFrame: ChatFrame) {
-        gui = Gui(settingsFrame, chatFrame)
-    }
+    val gui = LateinitVal<GuiFrames>()
 
     fun handleStartChat() {
-        gui?.let {
+        gui.get()?.let {
             Platform.runLater {
                 it.settingsFrame.hide()
                 it.chatFrame.show()
@@ -37,7 +33,7 @@ class GuiEventHandler(
     }
 
     fun handleStopChat() {
-        gui?.let {
+        gui.get()?.let {
             Platform.runLater {
                 it.chatFrame.hide()
                 it.settingsFrame.show()
@@ -57,7 +53,7 @@ class GuiEventHandler(
     }
 
     fun handleResetUserConfiguration() {
-        val settingsFrame = gui?.settingsFrame ?: return
+        val settingsFrame = gui.get()?.settingsFrame ?: return
 
         Platform.runLater {
             val resetConfirmed = settingsFrame.confirmConfigReset()
@@ -81,7 +77,7 @@ class GuiEventHandler(
     }
 
     fun notifyEmoticonsAreLoading() {
-        val settingsFrame = gui?.settingsFrame ?: return
+        val settingsFrame = gui.get()?.settingsFrame ?: return
 
         Platform.runLater {
             settingsFrame.disableRefreshEmoticonsButton()
@@ -89,16 +85,11 @@ class GuiEventHandler(
     }
 
     fun notifyEmoticonsLoaded() {
-        val settingsFrame = gui?.settingsFrame ?: return
+        val settingsFrame = gui.get()?.settingsFrame ?: return
 
         Platform.runLater {
             settingsFrame.enableRefreshEmoticonsButton()
         }
     }
-
-    private class Gui(
-            val settingsFrame: SettingsFrame,
-            val chatFrame: ChatFrame
-    )
 
 }
