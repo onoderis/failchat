@@ -300,6 +300,7 @@
                                     <directory>${basedir}/src/main/external-resources</directory>
                                     <excludes>
                                         <exclude>failchat.bat</exclude>
+                                        <exclude>failchat-no-gui.bat</exclude>
                                     </excludes>
                                 </resource>
                             </resources>
@@ -319,15 +320,17 @@
                                     <directory>${basedir}/src/main/external-resources</directory>
                                     <excludes>
                                         <exclude>failchat.bat</exclude>
+                                        <exclude>failchat-no-gui.bat</exclude>
                                         <exclude>skins/_shared/example-messages.js</exclude>
                                     </excludes>
                                 </resource>
                                 <resource>
-                                    <!-- failchat.bat with filtering -->
+                                    <!-- .bat files with filtering -->
                                     <directory>${basedir}/src/main/external-resources</directory>
                                     <filtering>true</filtering>
                                     <includes>
                                         <include>failchat.bat</include>
+                                        <include>failchat-no-gui.bat</include>
                                     </includes>
                                 </resource>
                             </resources>
