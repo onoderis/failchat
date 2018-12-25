@@ -43,7 +43,8 @@ function initializeFailchat() {
     failchat.nativeClient = (navigator.userAgent.search("failchat") >= 0);
 
     const activeMessages = [];
-    const shownOriginStatuses = {}; // Map<Origin, status>
+    const originsStatus = new OriginsStatus();
+
     let lastSystemMessageId = -1; //goes down
     let autoScroll = true;
     let showStatusMessages = true; // show if origin-status message received before client-configuration message
@@ -109,16 +110,17 @@ function initializeFailchat() {
 
     socket.onopen = function() {
         const connectedMessage = {id: nextSystemMessageId(), "origin": "failchat", "status": "connected", "timestamp": Date.now()};
-        handleStatusMessage(connectedMessage);
+        appendStatusMessage(connectedMessage);
 
         socket.send(JSON.stringify({type: "client-configuration", content: {}}));
         socket.send(JSON.stringify({type: "viewers-count", content: {}}));
-        socket.send(JSON.stringify({type: "connected-origins", content: {}}));
+        socket.send(JSON.stringify({type: "origins-status", content: {}}));
     };
 
     socket.onclose = function() {
         const disconnectedMessage = {id: nextSystemMessageId(), origin: "failchat", status: "disconnected", timestamp: Date.now()};
-        handleStatusMessage(disconnectedMessage);
+        appendStatusMessage(disconnectedMessage);
+        originsStatus.reset()
     };
 
     socket.onmessage = function(event) {
@@ -136,8 +138,8 @@ function initializeFailchat() {
             case "message":
                 handleChatMessage(content);
                 break;
-            case "origin-status":
-                handleStatusMessage(content);
+            case "origins-status":
+                handleOriginsStatusMessage(content);
                 break;
             case "delete-message":
                 handleDeleteMessage(content);
@@ -147,9 +149,6 @@ function initializeFailchat() {
                 break;
             case "clear-chat":
                 handleClearChatMessage();
-                break;
-            case "connected-origins":
-                handleConnectedOriginsMessage(content);
                 break;
         }
 
@@ -194,32 +193,10 @@ function initializeFailchat() {
         appendMessage(chatMessage, messageHtml)
     }
 
-    function handleStatusMessage(statusMessage) {
-        if (!showStatusMessages) return;
-
-        const origin = statusMessage.origin;
-
-        let lastShownStatus = shownOriginStatuses[origin];
-
-        let newStatus;
-        if (statusMessage.status === "connected") {
-            newStatus = status.connected;
-        } else {
-            newStatus = status.disconnected;
-        }
-
-        // don't show connected message when it was sent by a client
-        if (newStatus === lastShownStatus) return;
-
-        // don't show disconnected message when chat isn't connected yet
-        if (lastShownStatus === undefined && newStatus === status.disconnected && origin !== "failchat") return;
-
-
-        statusMessage.iconsPath = failchat.iconsPath;
-        const html = templates.statusMessage.render(statusMessage);
-        appendMessage(statusMessage, html);
-
-        shownOriginStatuses[origin] = newStatus;
+    function appendStatusMessage(message) {
+        message.iconsPath = failchat.iconsPath;
+        const html = templates.statusMessage.render(message);
+        appendMessage(message, html);
     }
 
     function handleClientConfigurationMessage(config) {
@@ -320,13 +297,16 @@ function initializeFailchat() {
         );
     }
 
-    function handleConnectedOriginsMessage(message) {
-        message.origins.forEach(origin => {
-            if (shownOriginStatuses[origin] !== undefined) return; // status message already shown
+    function handleOriginsStatusMessage(message) {
+        failchat.origins.forEach(origin => {
+            const oldStatus = originsStatus[origin];
+            const newStatus = message[origin];
 
-            const connectedMessage = {id: nextSystemMessageId(), "origin": origin, "status": "connected", "timestamp": Date.now()};
-            handleStatusMessage(connectedMessage);
-            shownOriginStatuses[origin] = status.connected;
+            if (newStatus === oldStatus) return;
+
+            originsStatus[origin] = newStatus;
+            const connectedMessage = {id: nextSystemMessageId(), "origin": origin, "status": newStatus, "timestamp": Date.now()};
+            appendStatusMessage(connectedMessage);
         });
     }
 
@@ -549,6 +529,16 @@ function messageSelector(message) {
 }
 
 const status = {
-    connected: 0,
-    disconnected: 1
+    connected: "connected",
+    disconnected: "disconnected"
 };
+
+function OriginsStatus() {
+    this.reset = function() {
+        failchat.origins.forEach((origin) => {
+            this[origin] = status.disconnected;
+        });
+    };
+
+    this.reset()
+}

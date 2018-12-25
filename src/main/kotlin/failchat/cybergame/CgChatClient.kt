@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import failchat.Origin
 import failchat.chat.Author
 import failchat.chat.ChatClient
+import failchat.chat.ChatClientCallbacks
 import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.READY
 import failchat.chat.ChatMessage
@@ -17,7 +18,7 @@ import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
 import failchat.chat.OriginStatus.DISCONNECTED
-import failchat.chat.StatusMessage
+import failchat.chat.StatusUpdate
 import failchat.chat.findTyped
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.CommaHighlightHandler
@@ -38,7 +39,8 @@ class CgChatClient(
         wsUrl: String,
         private val emoticonUrlPrefix: String,
         private val messageIdGenerator: MessageIdGenerator,
-        private val history: ChatMessageHistory
+        private val history: ChatMessageHistory,
+        private val chatClientCallbacks: ChatClientCallbacks
 ) : ChatClient<ChatMessage> {
 
     private companion object : KLogging() {
@@ -55,10 +57,6 @@ class CgChatClient(
 
     override val origin = Origin.CYBERGAME
     override val status: ChatClientStatus = aStatus.value
-
-    override var onChatMessage: ((ChatMessage) -> Unit)? = null
-    override var onStatusMessage: ((StatusMessage) -> Unit)? = null
-    override var onChatMessageDeleted: ((ChatMessage) -> Unit)?  = null
 
     override fun start() = wsClient.start()
 
@@ -91,7 +89,7 @@ class CgChatClient(
                 CgWsMessageType.STATE.jsonValue -> {
                     val state = data.get("state").intValue()
                     if (state == 2) {
-                        onStatusMessage?.invoke(StatusMessage(origin, CONNECTED, messageIdGenerator.generate()))
+                        chatClientCallbacks.onStatusUpdate(StatusUpdate(origin, CONNECTED))
                     }
                 }
 
@@ -102,7 +100,7 @@ class CgChatClient(
                         it.handleMessage(parsedMessage)
                     }
 
-                    onChatMessage?.invoke(parsedMessage)
+                    chatClientCallbacks.onChatMessage(parsedMessage)
                 }
 
                 CgWsMessageType.CLEAR.jsonValue -> {
@@ -112,7 +110,7 @@ class CgChatClient(
                                 .findTyped<CgChatMessage> {it.author.id == userId }
                                 .await()
                     }
-                            .forEach { onChatMessageDeleted?.invoke(it) }
+                            .forEach { chatClientCallbacks.onChatMessageDeleted(it) }
                 }
 
                 else -> throw IllegalStateException("Unhandled type '$type'")
@@ -125,7 +123,7 @@ class CgChatClient(
 
         override fun onReconnect() {
             logger.info("Cybergame chat client disconnected, trying to reconnect. channel: '{}', channel id: {}", channelName, channelId)
-            onStatusMessage?.invoke(StatusMessage(origin, DISCONNECTED, messageIdGenerator.generate()))
+            chatClientCallbacks.onStatusUpdate(StatusUpdate(origin, DISCONNECTED))
         }
 
         override fun onError(e: Exception) {

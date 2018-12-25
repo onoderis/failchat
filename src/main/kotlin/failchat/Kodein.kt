@@ -8,21 +8,23 @@ import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.singleton
 import com.google.api.services.youtube.YouTube
 import either.Either
+import failchat.chat.ChatClientCallbacks
 import failchat.chat.ChatMessageHistory
 import failchat.chat.ChatMessageRemover
 import failchat.chat.ChatMessageSender
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OnChatMessageCallback
 import failchat.chat.OnChatMessageDeletedCallback
-import failchat.chat.OnStatusMessageCallback
+import failchat.chat.OnStatusUpdateCallback
+import failchat.chat.OriginStatusManager
 import failchat.chat.badge.BadgeFinder
 import failchat.chat.badge.BadgeManager
 import failchat.chat.badge.BadgeStorage
-import failchat.chat.handlers.ConnectedOriginsHandler
 import failchat.chat.handlers.CustomEmoticonHandler
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
 import failchat.chat.handlers.LinkHandler
+import failchat.chat.handlers.OriginsStatusHandler
 import failchat.cybergame.CgApiClient
 import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
@@ -106,12 +108,15 @@ val kodein = Kodein {
                 instance<ViewersCountWsHandler>(),
                 DeleteWsMessageHandler(instance<ChatMessageRemover>()),
                 IgnoreWsMessageHandler(instance<IgnoreFilter>(), instance<Configuration>()),
-                instance<ConnectedOriginsHandler>()
+                instance<OriginsStatusHandler>()
         ))
     }
     bind<WsFrameSender>() with singleton { WsFrameSender() }
-    bind<ConnectedOriginsHandler>() with singleton {
-        ConnectedOriginsHandler(instance<ChatMessageSender>())
+    bind<OriginsStatusHandler>() with singleton {
+        OriginsStatusHandler(
+                instance<OriginStatusManager>(),
+                instance<ChatMessageSender>()
+        )
     }
 
     bind<ViewersCountWsHandler>() with singleton {
@@ -120,6 +125,9 @@ val kodein = Kodein {
 
     // Core dependencies
     bind<AppStateManager>() with singleton { AppStateManager(kodein) }
+    bind<OriginStatusManager>() with singleton {
+        OriginStatusManager(instance<ChatMessageSender>())
+    }
     bind<ConfigLoader>() with singleton { ConfigLoader(instance<Path>("homeDirectory")) }
     bind<Configuration>() with singleton { instance<ConfigLoader>().load() }
     bind<ChatMessageSender>() with singleton {
@@ -211,6 +219,13 @@ val kodein = Kodein {
 
 
     // Chat client callbacks
+    bind<ChatClientCallbacks>() with singleton {
+        ChatClientCallbacks(
+                kodein.instance<OnChatMessageCallback>(),
+                kodein.instance<OnStatusUpdateCallback>(),
+                kodein.instance<OnChatMessageDeletedCallback>()
+        )
+    }
     bind<OnChatMessageCallback>() with singleton {
         OnChatMessageCallback(
                 listOf(instance<IgnoreFilter>()),
@@ -219,10 +234,9 @@ val kodein = Kodein {
                 instance<ChatMessageSender>()
         )
     }
-    bind<OnStatusMessageCallback>() with singleton {
-        OnStatusMessageCallback(
-                instance<ConnectedOriginsHandler>(),
-                instance<ChatMessageSender>()
+    bind<OnStatusUpdateCallback>() with singleton {
+        OnStatusUpdateCallback(
+                instance<OriginStatusManager>()
         )
     }
     bind<OnChatMessageDeletedCallback>() with singleton {
@@ -303,7 +317,8 @@ val kodein = Kodein {
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 emoticonHandler = instance<Peka2tvEmoticonHandler>(),
                 badgeHandler = instance<Peka2tvBadgeHandler>(),
-                history = instance<ChatMessageHistory>()
+                history = instance<ChatMessageHistory>(),
+                chatClientCallbacks = instance<ChatClientCallbacks>()
         )
     }
 
@@ -355,7 +370,8 @@ val kodein = Kodein {
                 bttvEmoticonHandler = instance<BttvEmoticonHandler>(),
                 ffzEmoticonHandler = instance<FfzEmoticonHandler>(),
                 twitchBadgeHandler = instance<TwitchBadgeHandler>(),
-                history = instance<ChatMessageHistory>()
+                history = instance<ChatMessageHistory>(),
+                chatClientCallbacks = instance<ChatClientCallbacks>()
         )
     }
     bind<TwitchViewersCountLoader>() with factory { channelName: String ->
@@ -399,7 +415,8 @@ val kodein = Kodein {
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 emoticonHandler = instance<GgEmoticonHandler>(),
                 badgeHandler = factory<GgChannel, GgBadgeHandler>().invoke(channel),
-                history = instance<ChatMessageHistory>()
+                history = instance<ChatMessageHistory>(),
+                chatClientCallbacks = instance<ChatClientCallbacks>()
         )
     }
     bind<GgApiClient>() with singleton {
@@ -429,7 +446,8 @@ val kodein = Kodein {
                 instance<YtApiClient>(),
                 instance<ScheduledExecutorService>("youtube"),
                 instance<MessageIdGenerator>(),
-                instance<ChatMessageHistory>()
+                instance<ChatMessageHistory>(),
+                instance<ChatClientCallbacks>()
         )
     }
 
@@ -447,7 +465,8 @@ val kodein = Kodein {
                 wsUrl = instance<Configuration>().getString("cybergame.ws-url"),
                 emoticonUrlPrefix = instance<Configuration>().getString("cybergame.emoticon-url-prefix"),
                 messageIdGenerator = instance<MessageIdGenerator>(),
-                history = instance<ChatMessageHistory>()
+                history = instance<ChatMessageHistory>(),
+                chatClientCallbacks = instance<ChatClientCallbacks>()
         )
     }
     bind<CgViewersCountLoader>() with factory { channelName: String ->

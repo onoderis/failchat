@@ -2,11 +2,13 @@ package failchat.chat
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
-import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import failchat.ConfigKeys
+import failchat.Origin
 import failchat.chat.badge.CharacterBadge
 import failchat.chat.badge.ImageBadge
 import failchat.emoticon.Emoticon
+import failchat.util.nodeFactory
+import failchat.util.objectMapper
 import failchat.viewers.COUNTABLE_ORIGINS
 import failchat.ws.server.WsFrameSender
 import mu.KLogging
@@ -18,9 +20,6 @@ class ChatMessageSender(
 ) {
 
     private companion object : KLogging()
-
-    private val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
-
 
     fun send(message: ChatMessage) {
         val messageNode = nodeFactory.objectNode().apply {
@@ -94,20 +93,6 @@ class ChatMessageSender(
         }
     }
 
-    fun send(message: StatusMessage) {
-        val messageNode = nodeFactory.objectNode().apply {
-            put("type", "origin-status")
-            putObject("content").apply {
-                put("id", message.id)
-                put("origin", message.origin.commonName)
-                put("status", message.status.jsonValue)
-                put("timestamp", message.timestamp.toEpochMilli())
-            }
-        }
-
-        wsFrameSender.sendToAll(messageNode.toString())
-    }
-
     /** Send client configuration to all clients. */
     fun sendClientConfiguration() {
         val messageNode = nodeFactory.objectNode().apply {
@@ -148,6 +133,19 @@ class ChatMessageSender(
         }
 
         wsFrameSender.sendToAll(clearChatNode.toString())
+    }
+
+    fun sendConnectedOriginsMessage(statuses: Map<Origin, OriginStatus>) {
+        val message = objectMapper.createObjectNode().apply {
+            put("type", "origins-status")
+            putObject("content").apply {
+                statuses.forEach { (origin, status) ->
+                    put(origin.commonName, status.jsonValue)
+                }
+            }
+        }
+
+        wsFrameSender.sendToAll(message.toString())
     }
 
     fun send(jsonMessage: JsonNode) {

@@ -3,13 +3,14 @@ package failchat.twitch
 import failchat.Origin
 import failchat.Origin.TWITCH
 import failchat.chat.ChatClient
+import failchat.chat.ChatClientCallbacks
 import failchat.chat.ChatClientStatus
 import failchat.chat.ChatMessageHistory
 import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
 import failchat.chat.OriginStatus.DISCONNECTED
-import failchat.chat.StatusMessage
+import failchat.chat.StatusUpdate
 import failchat.chat.findTyped
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
@@ -43,7 +44,8 @@ class TwitchChatClient(
         bttvEmoticonHandler: BttvEmoticonHandler,
         ffzEmoticonHandler: FfzEmoticonHandler,
         twitchBadgeHandler: MessageHandler<TwitchMessage>,
-        private val history: ChatMessageHistory
+        private val history: ChatMessageHistory,
+        private val chatClientCallbacks: ChatClientCallbacks
 ) : ChatClient<TwitchMessage> {
 
     private companion object : KLogging() {
@@ -53,10 +55,6 @@ class TwitchChatClient(
 
     override val origin = Origin.TWITCH
     override val status: ChatClientStatus get() = atomicStatus.get()
-
-    override var onChatMessage: ((TwitchMessage) -> Unit)? = null
-    override var onStatusMessage: ((StatusMessage) -> Unit)? = null
-    override var onChatMessageDeleted: ((TwitchMessage) -> Unit)? = null
 
 
     private val twitchIrcClient: PircBotX
@@ -116,7 +114,7 @@ class TwitchChatClient(
             atomicStatus.set(ChatClientStatus.CONNECTED)
             twitchIrcClient.sendCAP().request("twitch.tv/tags")
             twitchIrcClient.sendCAP().request("twitch.tv/commands")
-            onStatusMessage?.invoke(StatusMessage(TWITCH, CONNECTED, messageIdGenerator.generate()))
+            chatClientCallbacks.onStatusUpdate(StatusUpdate(TWITCH, CONNECTED))
         }
 
         override fun onDisconnect(event: DisconnectEvent) {
@@ -126,7 +124,7 @@ class TwitchChatClient(
                 else -> {
                     atomicStatus.set(ChatClientStatus.CONNECTING)
                     logger.info("Twitch irc client disconnected")
-                    onStatusMessage?.invoke(StatusMessage(TWITCH, DISCONNECTED, messageIdGenerator.generate()))
+                    chatClientCallbacks.onStatusUpdate(StatusUpdate(TWITCH, DISCONNECTED))
                 }
             }
         }
@@ -138,7 +136,7 @@ class TwitchChatClient(
 
             val message = parseOrdinaryMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
-            onChatMessage?.invoke(message)
+            chatClientCallbacks.onChatMessage(message)
         }
 
         override fun onListenerException(event: ListenerExceptionEvent) {
@@ -151,7 +149,7 @@ class TwitchChatClient(
         override fun onAction(event: ActionEvent) {
             val message = parseMeMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
-            onChatMessage?.invoke(message)
+            chatClientCallbacks.onChatMessage(message)
         }
 
         override fun onUnknown(event: UnknownEvent) {
@@ -166,7 +164,9 @@ class TwitchChatClient(
                         .await()
             }
 
-            onChatMessageDeleted?.let { messagesToDelete.forEach(it) }
+            messagesToDelete.forEach {
+                chatClientCallbacks.onChatMessageDeleted(it)
+            }
         }
     }
 

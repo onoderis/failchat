@@ -7,6 +7,7 @@ import failchat.Origin
 import failchat.Origin.YOUTUBE
 import failchat.chat.Author
 import failchat.chat.ChatClient
+import failchat.chat.ChatClientCallbacks
 import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.CONNECTING
 import failchat.chat.ChatClientStatus.OFFLINE
@@ -17,7 +18,7 @@ import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
 import failchat.chat.OriginStatus.DISCONNECTED
-import failchat.chat.StatusMessage
+import failchat.chat.StatusUpdate
 import failchat.chat.badge.ImageBadge
 import failchat.chat.findFirstTyped
 import failchat.chat.handlers.BraceEscaper
@@ -44,7 +45,8 @@ class YtChatClient(
         private val ytApiClient: YtApiClient,
         private val youtubeExecutor: ScheduledExecutorService,
         private val messageIdGenerator: MessageIdGenerator,
-        private val history: ChatMessageHistory
+        private val history: ChatMessageHistory,
+        private val chatClientCallbacks: ChatClientCallbacks
 ) : ChatClient<YtMessage>,
     ViewersCountLoader {
 
@@ -59,10 +61,6 @@ class YtChatClient(
 
     override val origin = Origin.YOUTUBE
     override val status: ChatClientStatus get() = atomicStatus.get()
-
-    override var onChatMessage: ((YtMessage) -> Unit)? = null
-    override var onStatusMessage: ((StatusMessage) -> Unit)? = null
-    override var onChatMessageDeleted: ((YtMessage) -> Unit)? = null
 
     private val highlightHandler = YtHighlightHandler()
     private val messageHandlers: List<MessageHandler<YtMessage>> = listOf(
@@ -171,7 +169,7 @@ class YtChatClient(
 
             // Change status to disconnected / send status message
             val statusChanged = atomicStatus.compareAndSet(ChatClientStatus.CONNECTED, CONNECTING)
-            if (statusChanged) onStatusMessage?.invoke(StatusMessage(YOUTUBE, DISCONNECTED, messageIdGenerator.generate()))
+            if (statusChanged) chatClientCallbacks.onStatusUpdate(StatusUpdate(YOUTUBE, DISCONNECTED))
             return
         }
 
@@ -184,7 +182,7 @@ class YtChatClient(
 
         // Send "connected" status message
         val statusChanged = atomicStatus.compareAndSet(CONNECTING, ChatClientStatus.CONNECTED)
-        if (statusChanged) onStatusMessage?.invoke(StatusMessage(YOUTUBE, CONNECTED, messageIdGenerator.generate()))
+        if (statusChanged) chatClientCallbacks.onStatusUpdate(StatusUpdate(YOUTUBE, CONNECTED))
 
         // Skip messages from first request
         if (params.isFirstRequest) {
@@ -202,7 +200,7 @@ class YtChatClient(
                 }
                 .forEach { message ->
                     messageHandlers.forEach { it.handleMessage(message) }
-                    onChatMessage?.invoke(message)
+                    chatClientCallbacks.onChatMessage(message)
                 }
 
         // Handle message deletions
@@ -217,7 +215,7 @@ class YtChatClient(
                     }
                 }
                 .filterNotNull()
-                .forEach { onChatMessageDeleted?.invoke(it) }
+                .forEach { chatClientCallbacks.onChatMessageDeleted(it) }
     }
 
     private fun LiveChatMessage.toYtChatMessage(): YtMessage {

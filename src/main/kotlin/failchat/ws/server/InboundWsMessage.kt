@@ -14,7 +14,7 @@ class InboundWsMessage(
         DELETE_MESSAGE("delete-message"),
         IGNORE_AUTHOR("ignore-author"),
         VIEWERS_COUNT("viewers-count"),
-        CONNECTED_ORIGINS("connected-origins");
+        ORIGINS_STATUS("origins-status");
 
         companion object {
             private val map = values()
