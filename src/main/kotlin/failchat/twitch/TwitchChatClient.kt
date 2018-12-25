@@ -138,7 +138,6 @@ class TwitchChatClient(
 
             val message = parseOrdinaryMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
-            history.add(message)
             onChatMessage?.invoke(message)
         }
 
@@ -152,7 +151,6 @@ class TwitchChatClient(
         override fun onAction(event: ActionEvent) {
             val message = parseMeMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
-            history.add(message)
             onChatMessage?.invoke(message)
         }
 

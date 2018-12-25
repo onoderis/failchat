@@ -102,7 +102,6 @@ class CgChatClient(
                         it.handleMessage(parsedMessage)
                     }
 
-                    history.add(parsedMessage)
                     onChatMessage?.invoke(parsedMessage)
                 }
 

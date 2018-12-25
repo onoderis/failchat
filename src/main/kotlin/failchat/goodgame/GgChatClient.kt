@@ -19,7 +19,6 @@ import failchat.exception.ChannelOfflineException
 import failchat.util.completedFuture
 import failchat.util.exceptionalFuture
 import failchat.util.objectMapper
-import failchat.util.whileNotNull
 import failchat.viewers.ViewersCountLoader
 import failchat.ws.client.WsClient
 import kotlinx.coroutines.runBlocking
@@ -146,7 +145,6 @@ class GgChatClient(
 
             messageHandlers.forEach { it.handleMessage(ggMessage) }
 
-            history.add(ggMessage)
             onChatMessage?.invoke(ggMessage)
         }
 
