@@ -5,11 +5,11 @@ import failchat.chat.ChatMessageHistory.Operation.Add
 import failchat.chat.ChatMessageHistory.Operation.Clear
 import failchat.chat.ChatMessageHistory.Operation.FindAll
 import failchat.chat.ChatMessageHistory.Operation.FindFirst
-import failchat.util.offerOrThrow
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.launch
 import java.util.Queue
 
@@ -46,23 +46,23 @@ class ChatMessageHistory(capacity: Int) {
     }
 
     fun add(message: ChatMessage) {
-        opChannel.offerOrThrow(Add(message))
+        opChannel.sendBlocking(Add(message))
     }
 
     fun findFirst(predicate: (ChatMessage) -> Boolean): Deferred<ChatMessage?> {
         val foundFuture = CompletableDeferred<ChatMessage?>()
-        opChannel.offerOrThrow(FindFirst(predicate, foundFuture))
+        opChannel.sendBlocking(FindFirst(predicate, foundFuture))
         return foundFuture
     }
 
     fun find(predicate: (ChatMessage) -> Boolean): Deferred<List<ChatMessage>> {
         val foundFuture = CompletableDeferred<List<ChatMessage>>()
-        opChannel.offerOrThrow(FindAll(predicate, foundFuture))
+        opChannel.sendBlocking(FindAll(predicate, foundFuture))
         return foundFuture
     }
 
     fun clear() {
-        opChannel.offerOrThrow(Clear)
+        opChannel.sendBlocking(Clear)
     }
 
     private sealed class Operation {
