@@ -9,16 +9,12 @@ import failchat.chat.badge.ImageBadge
 import failchat.emoticon.Emoticon
 import failchat.viewers.COUNTABLE_ORIGINS
 import failchat.ws.server.WsFrameSender
-import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
 
 class ChatMessageSender(
         private val wsFrameSender: WsFrameSender,
-        private val config: Configuration,
-        private val filters: List<MessageFilter<ChatMessage>>,
-        private val handlers: List<MessageHandler<ChatMessage>>,
-        private val history: ChatMessageHistory
+        private val config: Configuration
 ) {
 
     private companion object : KLogging()
@@ -27,16 +23,6 @@ class ChatMessageSender(
 
 
     fun send(message: ChatMessage) {
-        // apply filters and handlers
-        filters.forEach {
-            if (it.filterMessage(message)) return
-        }
-        handlers.forEach { it.handleMessage(message) }
-
-        runBlocking {
-            history.add(message)
-        }
-
         val messageNode = nodeFactory.objectNode().apply {
             put("type", "message")
             with("content").apply {

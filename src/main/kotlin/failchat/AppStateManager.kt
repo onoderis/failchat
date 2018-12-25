@@ -8,15 +8,17 @@ import failchat.AppState.CHAT
 import failchat.AppState.SETTINGS
 import failchat.Origin.BTTV_CHANNEL
 import failchat.Origin.CYBERGAME
+import failchat.Origin.FRANKERFASEZ
 import failchat.Origin.GOODGAME
 import failchat.Origin.PEKA2TV
 import failchat.Origin.TWITCH
 import failchat.Origin.YOUTUBE
 import failchat.chat.ChatClient
-import failchat.chat.ChatMessageRemover
-import failchat.chat.ChatMessageSender
 import failchat.chat.MessageIdGenerator
+import failchat.chat.OnChatMessageDeletedCallback
+import failchat.chat.OnStatusMessageCallback
 import failchat.chat.badge.BadgeManager
+import failchat.chat.handlers.ConnectedOriginsHandler
 import failchat.chat.handlers.CustomEmoticonHandler
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
@@ -63,8 +65,6 @@ class AppStateManager(private val kodein: Kodein) {
     private companion object : KLogging()
 
     private val messageIdGenerator: MessageIdGenerator = kodein.instance()
-    private val chatMessageSender: ChatMessageSender = kodein.instance()
-    private val chatMessageRemover: ChatMessageRemover = kodein.instance()
     private val peka2tvApiClient: Peka2tvApiClient = kodein.instance()
     private val twitchApiClient: TwitchApiClient = kodein.instance()
     private val goodgameApiClient: GgApiClient = kodein.instance()
@@ -79,6 +79,10 @@ class AppStateManager(private val kodein: Kodein) {
     private val badgeManager: BadgeManager = kodein.instance()
     private val backgroundExecutorDispatcher = kodein.instance<ScheduledExecutorService>("background").asCoroutineDispatcher()
     private val customEmoticonHandler: CustomEmoticonHandler = kodein.instance()
+    private val connectedOriginsHandler: ConnectedOriginsHandler = kodein.instance()
+    private val onChatMessageCallback: OnChatMessageDeletedCallback = kodein.instance()
+    private val onStatusMessageCallback: OnStatusMessageCallback = kodein.instance()
+    private val onChatMessageDeletedCallback: OnChatMessageDeletedCallback = kodein.instance()
 
     private val lock: Lock = ReentrantLock()
     private val config: Configuration = kodein.instance()
@@ -247,16 +251,18 @@ class AppStateManager(private val kodein: Kodein) {
     }
 
     private fun ChatClient<*>.setCallbacks() {
-        onChatMessage = { chatMessageSender.send(it) }
-        onStatusMessage = { chatMessageSender.send(it) }
-        onChatMessageDeleted = { chatMessageRemover.remove(it) }
+        onChatMessage = onChatMessageCallback
+        onStatusMessage = onStatusMessageCallback
+        onChatMessageDeleted = onChatMessageDeletedCallback
     }
 
     private fun reset() {
         viewersCountWsHandler.viewersCounter = null
+        connectedOriginsHandler.reset()
 
-        // reset BTTV channel emoticons
+        // reset BTTV and FFZ channel emoticons
         emoticonStorage.clear(BTTV_CHANNEL)
+        emoticonStorage.clear(FRANKERFASEZ)
 
         badgeManager.resetChannelBadges()
 
