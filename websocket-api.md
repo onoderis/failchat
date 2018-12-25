@@ -135,7 +135,16 @@
 }
 ```
 
-
+#### Connected origins
+Подключённые в текущий момент чаты
+```json
+{
+    "type": "connected-origins",
+    "content": {
+        "origins": ["twitch", "youtube"]
+    }
+}
+```
 
 # Сообщения от клиента
 
@@ -173,6 +182,14 @@
 ```json
 {
     "type": "viewers-count",
+    "content": {}
+}
+```
+
+#### Connected origins request
+```json
+{
+    "type": "connected-origins",
     "content": {}
 }
 ```

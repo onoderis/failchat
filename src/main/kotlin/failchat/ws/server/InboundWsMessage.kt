@@ -13,7 +13,8 @@ class InboundWsMessage(
         CLIENT_CONFIGURATION("client-configuration"),
         DELETE_MESSAGE("delete-message"),
         IGNORE_AUTHOR("ignore-author"),
-        VIEWERS_COUNT("viewers-count");
+        VIEWERS_COUNT("viewers-count"),
+        CONNECTED_ORIGINS("connected-origins");
 
         companion object {
             private val map = values()

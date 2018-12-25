@@ -12,9 +12,13 @@ import failchat.chat.ChatMessageHistory
 import failchat.chat.ChatMessageRemover
 import failchat.chat.ChatMessageSender
 import failchat.chat.MessageIdGenerator
+import failchat.chat.OnChatMessageCallback
+import failchat.chat.OnChatMessageDeletedCallback
+import failchat.chat.OnStatusMessageCallback
 import failchat.chat.badge.BadgeFinder
 import failchat.chat.badge.BadgeManager
 import failchat.chat.badge.BadgeStorage
+import failchat.chat.handlers.ConnectedOriginsHandler
 import failchat.chat.handlers.CustomEmoticonHandler
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
@@ -101,10 +105,14 @@ val kodein = Kodein {
                 ClientConfigurationWsHandler(instance<ChatMessageSender>()),
                 instance<ViewersCountWsHandler>(),
                 DeleteWsMessageHandler(instance<ChatMessageRemover>()),
-                IgnoreWsMessageHandler(instance<IgnoreFilter>(), instance<Configuration>())
+                IgnoreWsMessageHandler(instance<IgnoreFilter>(), instance<Configuration>()),
+                instance<ConnectedOriginsHandler>()
         ))
     }
     bind<WsFrameSender>() with singleton { WsFrameSender() }
+    bind<ConnectedOriginsHandler>() with singleton {
+        ConnectedOriginsHandler(instance<ChatMessageSender>())
+    }
 
     bind<ViewersCountWsHandler>() with singleton {
         ViewersCountWsHandler(instance<Configuration>())
@@ -117,10 +125,7 @@ val kodein = Kodein {
     bind<ChatMessageSender>() with singleton {
         ChatMessageSender(
                 instance<WsFrameSender>(),
-                instance<Configuration>(),
-                listOf(instance<IgnoreFilter>()),
-                listOf(LinkHandler(), instance<ImageLinkHandler>(), instance<CustomEmoticonHandler>()),
-                instance<ChatMessageHistory>()
+                instance<Configuration>()
         )
     }
     bind<ChatMessageRemover>() with singleton {
@@ -202,6 +207,26 @@ val kodein = Kodein {
                 instance<String>("customEmoticonsUrl")
         )
         CustomEmoticonHandler(scanner)
+    }
+
+
+    // Chat client callbacks
+    bind<OnChatMessageCallback>() with singleton {
+        OnChatMessageCallback(
+                listOf(instance<IgnoreFilter>()),
+                listOf(LinkHandler(), instance<ImageLinkHandler>(), instance<CustomEmoticonHandler>()),
+                instance<ChatMessageHistory>(),
+                instance<ChatMessageSender>()
+        )
+    }
+    bind<OnStatusMessageCallback>() with singleton {
+        OnStatusMessageCallback(
+                instance<ConnectedOriginsHandler>(),
+                instance<ChatMessageSender>()
+        )
+    }
+    bind<OnChatMessageDeletedCallback>() with singleton {
+        OnChatMessageDeletedCallback(instance<ChatMessageRemover>())
     }
 
 
