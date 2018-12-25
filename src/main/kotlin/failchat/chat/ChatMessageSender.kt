@@ -9,7 +9,6 @@ import failchat.chat.badge.ImageBadge
 import failchat.emoticon.Emoticon
 import failchat.viewers.COUNTABLE_ORIGINS
 import failchat.ws.server.WsFrameSender
-import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
 
@@ -33,9 +32,7 @@ class ChatMessageSender(
         }
         handlers.forEach { it.handleMessage(message) }
 
-        runBlocking {
-            history.add(message)
-        }
+        history.add(message)
 
         val messageNode = nodeFactory.objectNode().apply {
             put("type", "message")

@@ -166,7 +166,6 @@ class Peka2tvChatClient(
                     //handle message
                     messageHandlers.forEach { it.handleMessage(message) }
 
-                    history.add(message)
                     onChatMessage?.invoke(message)
                 }
 

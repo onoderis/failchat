@@ -202,7 +202,6 @@ class YtChatClient(
                 }
                 .forEach { message ->
                     messageHandlers.forEach { it.handleMessage(message) }
-                    history.add(message)
                     onChatMessage?.invoke(message)
                 }
 
