@@ -5,6 +5,7 @@ import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.github.ReleaseChecker
 import failchat.kodein
 import failchat.skin.Skin
+import failchat.util.executeWithCatch
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.control.Alert
@@ -17,6 +18,9 @@ import javafx.stage.Stage
 import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
 import java.nio.file.Path
+import java.time.Duration
+import java.time.Instant
+import java.util.concurrent.ScheduledExecutorService
 
 class GuiLauncher : Application() {
 
@@ -26,31 +30,45 @@ class GuiLauncher : Application() {
     }
 
     override fun start(primaryStage: Stage) {
+        val startTime = Instant.now()
+
         val settings = SettingsFrame(
                 this,
                 primaryStage,
-                kodein.instance<GuiEventHandler>(),
                 kodein.instance<Configuration>(),
                 kodein.instance<List<Skin>>(),
                 kodein.instance<Path>("customEmoticonsDirectory"),
-                kodein.instance<GlobalEmoticonUpdater>()
-        )
-        val chat = ChatFrame(
-                this,
-                kodein.instance<Configuration>(),
-                kodein.instance<GuiEventHandler>(),
-                kodein.instance<List<Skin>>()
+                lazy { kodein.instance<GuiEventHandler>() },
+                lazy { kodein.instance<GlobalEmoticonUpdater>() }
         )
 
-        val eventHandler = kodein.instance<GuiEventHandler>()
-        eventHandler.setGui(settings, chat)
         settings.show()
 
+        val showTime = Instant.now()
+        logger.debug { "Settings frame showed in ${Duration.between(startTime, showTime).toMillis()} ms" }
+
+
+        Platform.runLater {
+            val chat = ChatFrame(
+                    this,
+                    kodein.instance<Configuration>(),
+                    kodein.instance<List<Skin>>(),
+                    lazy { kodein.instance<GuiEventHandler>() }
+            )
+
+            val backgroundExecutor = kodein.instance<ScheduledExecutorService>("background")
+            backgroundExecutor.executeWithCatch {
+                val eventHandler = kodein.instance<GuiEventHandler>()
+                eventHandler.setGui(settings, chat)
+            }
+
+            // init web engine (fixes flickering)
+            chat.clearWebContent()
+
+            showUpdateNotificationOnNewRelease()
+        }
+
         logger.info("GUI loaded")
-
-        chat.clearWebContent() // init web engine (fixes flickering)
-
-        showUpdateNotificationOnNewRelease()
 
     }
 
