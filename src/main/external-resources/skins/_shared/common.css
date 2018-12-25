@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Roboto:400,700&amp;subset=cyrillic");
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,700&subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese');
 
 @font-face {
     font-family: icomoon;
