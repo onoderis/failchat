@@ -34,8 +34,8 @@ import java.net.MalformedURLException
 class ChatFrame(
         private val app: Application,
         private val config: Configuration,
-        private val guiEventHandler: GuiEventHandler,
-        private val skins: List<Skin>
+        private val skins: List<Skin>,
+        private val guiEventHandler: Lazy<GuiEventHandler>
 ) {
 
     private companion object : KLogging()
@@ -130,7 +130,7 @@ class ChatFrame(
         }
         stage.setOnCloseRequest {
             saveChatPosition(stage)
-            guiEventHandler.handleShutDown()
+            guiEventHandler.value.handleShutDown()
         }
         stage.icons.setAll(GuiLauncher.appIcon)
         return stage
@@ -178,21 +178,21 @@ class ChatFrame(
             config.setProperty(ConfigKeys.onTop, newValue)
             currentChatStage.isAlwaysOnTop = newValue
         }
-        closeChatItem.setOnAction { guiEventHandler.handleStopChat() }
+        closeChatItem.setOnAction { guiEventHandler.value.handleStopChat() }
         viewersItem.setOnAction {
             val newValue = !config.getBoolean(ConfigKeys.showViewers)
             config.setProperty(ConfigKeys.showViewers, newValue)
-            guiEventHandler.handleConfigurationChange()
+            guiEventHandler.value.handleConfigurationChange()
         }
 
         clearChatItem.setOnAction {
-            guiEventHandler.handleClearChat()
+            guiEventHandler.value.handleClearChat()
         }
 
         showHiddenMessages.setOnAction {
             val newValue = !config.getBoolean(ConfigKeys.showHiddenMessages)
             config.setProperty(ConfigKeys.showHiddenMessages, newValue)
-            guiEventHandler.handleConfigurationChange()
+            guiEventHandler.value.handleConfigurationChange()
         }
 
         // zoom item callbacks
@@ -206,7 +206,7 @@ class ChatFrame(
                         else zoomValues.last()
                     }
             config.setProperty(ConfigKeys.zoomPercent, newValue)
-            guiEventHandler.handleConfigurationChange()
+            guiEventHandler.value.handleConfigurationChange()
             zoomValueText.text = newValue.toString()
         }
 
@@ -253,7 +253,7 @@ class ChatFrame(
         // hot keys
         chatScene.setOnKeyReleased { key ->
             when (key.code) {
-                KeyCode.ESCAPE -> guiEventHandler.handleStopChat()
+                KeyCode.ESCAPE -> guiEventHandler.value.handleStopChat()
                 KeyCode.SPACE -> switchDecorations()
                 else -> {}
             }

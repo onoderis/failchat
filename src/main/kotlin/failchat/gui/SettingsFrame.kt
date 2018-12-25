@@ -33,11 +33,11 @@ import java.nio.file.Path
 class SettingsFrame(
         private val app: Application,
         private val stage: Stage,
-        private val guiEventHandler: GuiEventHandler,
         private val config: Configuration,
         private val skinList: List<Skin>,
         private val customEmoticonsDirectory: Path,
-        private val emoticonUpdater: GlobalEmoticonUpdater
+        private val guiEventHandler: Lazy<GuiEventHandler>,
+        private val emoticonUpdater: Lazy<GlobalEmoticonUpdater>
 ) {
 
     private companion object : KLogging()
@@ -123,7 +123,7 @@ class SettingsFrame(
 
         stage.setOnCloseRequest {
             saveSettingsValues()
-            guiEventHandler.handleShutDown()
+            guiEventHandler.value.handleShutDown()
         }
 
 
@@ -138,11 +138,11 @@ class SettingsFrame(
 
         disableRefreshEmoticonsButton()
         reloadEmoticonsButton.setOnAction {
-            emoticonUpdater.reloadEmoticonsAsync()
+            emoticonUpdater.value.reloadEmoticonsAsync()
         }
 
         resetConfigurationButton.setOnAction {
-            guiEventHandler.handleResetUserConfiguration()
+            guiEventHandler.value.handleResetUserConfiguration()
         }
 
         val githubLink = scene.lookup("#github_link") as Hyperlink
@@ -156,7 +156,7 @@ class SettingsFrame(
         }
 
 
-        startButton.setOnAction { guiEventHandler.handleStartChat() }
+        startButton.setOnAction { guiEventHandler.value.handleStartChat() }
     }
 
     fun show() {
