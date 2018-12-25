@@ -3,8 +3,10 @@ package failchat.util
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 
 val objectMapper = ObjectMapper()
+val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
 
 /**
  * Read the next token and assert that it is not null.

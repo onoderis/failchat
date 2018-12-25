@@ -3,6 +3,7 @@ package failchat.peka2tv
 import failchat.Origin
 import failchat.Origin.PEKA2TV
 import failchat.chat.ChatClient
+import failchat.chat.ChatClientCallbacks
 import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.CONNECTING
 import failchat.chat.ChatClientStatus.OFFLINE
@@ -13,7 +14,7 @@ import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
 import failchat.chat.OriginStatus.DISCONNECTED
-import failchat.chat.StatusMessage
+import failchat.chat.StatusUpdate
 import failchat.chat.findFirstTyped
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
@@ -36,17 +37,15 @@ class Peka2tvChatClient(
         private val messageIdGenerator: MessageIdGenerator,
         emoticonHandler: Peka2tvEmoticonHandler,
         badgeHandler: Peka2tvBadgeHandler,
-        private val history: ChatMessageHistory
+        private val history: ChatMessageHistory,
+        private val chatClientCallbacks: ChatClientCallbacks
 ) : ChatClient<Peka2tvMessage>, ViewersCountLoader {
 
     private companion object : KLogging()
 
-    override val status: ChatClientStatus get() = atomicStatus.get()
+    override val status: ChatClientStatus
+        get() = atomicStatus.get()
     override val origin = PEKA2TV
-
-    override var onChatMessage: ((Peka2tvMessage) -> Unit)? = null
-    override var onStatusMessage: ((StatusMessage) -> Unit)? = null
-    override var onChatMessageDeleted: ((Peka2tvMessage) -> Unit)? = null
 
 
     private val socket = buildSocket()
@@ -128,7 +127,7 @@ class Peka2tvChatClient(
                     socket.emit("/chat/join", arrayOf(message)) {
                         logger.info("Connected to ${Origin.PEKA2TV}")
                         atomicStatus.set(ChatClientStatus.CONNECTED)
-                        onStatusMessage?.invoke(StatusMessage(PEKA2TV, CONNECTED, messageIdGenerator.generate()))
+                        chatClientCallbacks.onStatusUpdate(StatusUpdate(PEKA2TV, CONNECTED))
                     }
                 }
 
@@ -136,7 +135,7 @@ class Peka2tvChatClient(
                 .on(Socket.EVENT_DISCONNECT) {
                     atomicStatus.set(CONNECTING)
                     logger.info("Received disconnected event from peka2tv ")
-                    onStatusMessage?.invoke(StatusMessage(PEKA2TV, DISCONNECTED, messageIdGenerator.generate()))
+                    chatClientCallbacks.onStatusUpdate(StatusUpdate(PEKA2TV, DISCONNECTED))
                 }
 
                 // Message
@@ -166,7 +165,7 @@ class Peka2tvChatClient(
                     //handle message
                     messageHandlers.forEach { it.handleMessage(message) }
 
-                    onChatMessage?.invoke(message)
+                    chatClientCallbacks.onChatMessage(message)
                 }
 
                 // Message removal
@@ -180,7 +179,7 @@ class Peka2tvChatClient(
                                 .await()
                     }
 
-                    foundMessage?.let { onChatMessageDeleted?.invoke(it) }
+                    foundMessage?.let { chatClientCallbacks.onChatMessageDeleted(it) }
                 }
 
         return socket

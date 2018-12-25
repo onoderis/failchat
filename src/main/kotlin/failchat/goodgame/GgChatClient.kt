@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import failchat.Origin
 import failchat.Origin.GOODGAME
 import failchat.chat.ChatClient
+import failchat.chat.ChatClientCallbacks
 import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.OFFLINE
 import failchat.chat.ChatMessageHistory
@@ -11,7 +12,7 @@ import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus.CONNECTED
 import failchat.chat.OriginStatus.DISCONNECTED
-import failchat.chat.StatusMessage
+import failchat.chat.StatusUpdate
 import failchat.chat.findFirstTyped
 import failchat.chat.handlers.CommaHighlightHandler
 import failchat.chat.handlers.ElementLabelEscaper
@@ -35,17 +36,14 @@ class GgChatClient(
         private val messageIdGenerator: MessageIdGenerator,
         emoticonHandler: MessageHandler<GgMessage>,
         badgeHandler: GgBadgeHandler,
-        private val history: ChatMessageHistory
+        private val history: ChatMessageHistory,
+        private val chatClientCallbacks: ChatClientCallbacks
 ) : ChatClient<GgMessage>, ViewersCountLoader {
 
     private companion object : KLogging()
 
     override val origin = Origin.GOODGAME
     override val status: ChatClientStatus get() = atomicStatus.get()
-
-    override var onChatMessage: ((GgMessage) -> Unit)? = null
-    override var onStatusMessage: ((StatusMessage) -> Unit)? = null
-    override var onChatMessageDeleted: ((GgMessage) -> Unit)? = null
 
 
     private var wsClient: WsClient = GgWsClient(URI.create(webSocketUri))
@@ -97,7 +95,7 @@ class GgChatClient(
             logger.info("Goodgame chat client connected to channel {}", channelId)
 
             wsClient.send(joinMessage.toString())
-            onStatusMessage?.invoke(StatusMessage(GOODGAME, CONNECTED, messageIdGenerator.generate()))
+            chatClientCallbacks.onStatusUpdate(StatusUpdate(GOODGAME, CONNECTED))
         }
 
         override fun onClose(code: Int, reason: String, remote: Boolean) {
@@ -123,7 +121,7 @@ class GgChatClient(
 
         override fun onReconnect() {
             logger.info("Goodgame chat client disconnected, trying to reconnect")
-            onStatusMessage?.invoke(StatusMessage(GOODGAME, DISCONNECTED, messageIdGenerator.generate()))
+            chatClientCallbacks.onStatusUpdate(StatusUpdate(GOODGAME, DISCONNECTED))
         }
 
         private fun handleUserMessage(dataNode: JsonNode) {
@@ -145,7 +143,7 @@ class GgChatClient(
 
             messageHandlers.forEach { it.handleMessage(ggMessage) }
 
-            onChatMessage?.invoke(ggMessage)
+            chatClientCallbacks.onChatMessage(ggMessage)
         }
 
         private fun handleModMessage(dataNode: JsonNode) {
@@ -156,7 +154,7 @@ class GgChatClient(
                         .findFirstTyped<GgMessage> { it.ggId == idToRemove }
                         .await()
             }
-            foundMessage?.let { onChatMessageDeleted?.invoke(it) }
+            foundMessage?.let { chatClientCallbacks.onChatMessageDeleted(it) }
         }
 
         private fun handleChannelCountersMessage(dataNode: JsonNode) {

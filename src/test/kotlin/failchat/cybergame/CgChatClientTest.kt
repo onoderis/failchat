@@ -1,8 +1,10 @@
 package failchat.cybergame
 
+import failchat.chat.ChatClientCallbacks
 import failchat.chat.ChatMessageHistory
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatus
+import failchat.chat.StatusUpdate
 import failchat.config
 import failchat.doAwhile
 import failchat.ms
@@ -19,7 +21,7 @@ class CgChatClientTest {
     private val history = ChatMessageHistory(10)
     private lateinit var chatClient: CgChatClient
 
-    private fun initChatClient(name: String, channelId: Long) {
+    private fun initChatClient(name: String, channelId: Long, callbacks: ChatClientCallbacks) {
         history.start()
         chatClient = CgChatClient(
                 name,
@@ -27,7 +29,8 @@ class CgChatClientTest {
                 config.getString("cybergame.ws-url"),
                 config.getString("cybergame.emoticon-url-prefix"),
                 MessageIdGenerator(0),
-                history
+                history,
+                callbacks
         )
     }
 
@@ -40,13 +43,14 @@ class CgChatClientTest {
     @Ignore
     @Test
     fun connectionTest() {
-        initChatClient("scatman", 10946)
         val connected = AtomicBoolean(false)
-        chatClient.onStatusMessage = {
-            if (it.status == OriginStatus.CONNECTED) {
+        val onStatusMessage = { statusUpdate: StatusUpdate ->
+            if (statusUpdate.status == OriginStatus.CONNECTED) {
                 connected.set(true)
             }
         }
+        val callbacks = ChatClientCallbacks({}, onStatusMessage, {})
+        initChatClient("scatman", 10946, callbacks)
 
         chatClient.start()
 
@@ -58,11 +62,16 @@ class CgChatClientTest {
     @Ignore
     @Test
     fun manualTest() {
-        initChatClient(privateConfig.getString("test.cybergame.channel-name"),
-                privateConfig.getLong("test.cybergame.channel-id"))
-        chatClient.onStatusMessage = { println("Status message:  $it") }
-        chatClient.onChatMessage = { println("Message:         $it") }
-        chatClient.onChatMessageDeleted = { println("Message deleted: $it") }
+        val callbacks = ChatClientCallbacks(
+                { println("Status message:  $it") },
+                { println("Message:         $it") },
+                { println("Message deleted: $it") }
+        )
+        initChatClient(
+                privateConfig.getString("test.cybergame.channel-name"),
+                privateConfig.getLong("test.cybergame.channel-id"),
+                callbacks
+        )
 
         chatClient.start()
 

@@ -86,17 +86,17 @@
 }
 ```
 
-#### Origin status
-Сюда входят сообщения об подключение и отключение к источникам  
-`content.status: "connected" | "disconnected"`  
+#### Origins status
+Список подключённых и отключённых источников.   
 ```json
 {
-    "type": "origin-status",
+    "type": "origins-status",
     "content": {
-        "id": 43,
-        "origin": "twitch",
-        "status": "connected",
-        "timestamp": 1499789037199
+        "twitch": "connected",
+        "youtube": "disconnected",
+        "peka2tv":  "connected",
+        "goodgame": "disconnected",
+        "cybergame": "disconnected"
     }
 }
 ```
@@ -135,16 +135,6 @@
 }
 ```
 
-#### Connected origins
-Подключённые в текущий момент чаты
-```json
-{
-    "type": "connected-origins",
-    "content": {
-        "origins": ["twitch", "youtube"]
-    }
-}
-```
 
 # Сообщения от клиента
 
@@ -189,7 +179,7 @@
 #### Connected origins request
 ```json
 {
-    "type": "connected-origins",
+    "type": "origins-status",
     "content": {}
 }
 ```

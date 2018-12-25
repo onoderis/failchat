@@ -15,10 +15,8 @@ import failchat.Origin.TWITCH
 import failchat.Origin.YOUTUBE
 import failchat.chat.ChatClient
 import failchat.chat.MessageIdGenerator
-import failchat.chat.OnChatMessageDeletedCallback
-import failchat.chat.OnStatusMessageCallback
+import failchat.chat.OriginStatusManager
 import failchat.chat.badge.BadgeManager
-import failchat.chat.handlers.ConnectedOriginsHandler
 import failchat.chat.handlers.CustomEmoticonHandler
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
@@ -79,10 +77,7 @@ class AppStateManager(private val kodein: Kodein) {
     private val badgeManager: BadgeManager = kodein.instance()
     private val backgroundExecutorDispatcher = kodein.instance<ScheduledExecutorService>("background").asCoroutineDispatcher()
     private val customEmoticonHandler: CustomEmoticonHandler = kodein.instance()
-    private val connectedOriginsHandler: ConnectedOriginsHandler = kodein.instance()
-    private val onChatMessageCallback: OnChatMessageDeletedCallback = kodein.instance()
-    private val onStatusMessageCallback: OnStatusMessageCallback = kodein.instance()
-    private val onChatMessageDeletedCallback: OnChatMessageDeletedCallback = kodein.instance()
+    private val originStatusManager: OriginStatusManager = kodein.instance()
 
     private val lock: Lock = ReentrantLock()
     private val config: Configuration = kodein.instance()
@@ -111,7 +106,6 @@ class AppStateManager(private val kodein: Kodein) {
 
             val chatClient = kodein.factory<Pair<String, Long>, Peka2tvChatClient>()
                     .invoke(channelName to channelId)
-                    .also { it.setCallbacks() }
 
             initializedChatClients.put(PEKA2TV, chatClient)
             viewersCountLoaders.add(chatClient)
@@ -122,7 +116,6 @@ class AppStateManager(private val kodein: Kodein) {
         checkEnabled(TWITCH)?.let { channelName ->
             val chatClient = kodein.factory<String, TwitchChatClient>()
                     .invoke(channelName)
-                    .also { it.setCallbacks() }
             initializedChatClients.put(TWITCH, chatClient)
             viewersCountLoaders.add(kodein.factory<String, TwitchViewersCountLoader>().invoke(channelName))
 
@@ -149,7 +142,6 @@ class AppStateManager(private val kodein: Kodein) {
 
             val chatClient = kodein.factory<GgChannel, GgChatClient>()
                     .invoke(channel)
-                    .also { it.setCallbacks() }
 
             initializedChatClients.put(GOODGAME, chatClient)
             viewersCountLoaders.add(chatClient)
@@ -161,7 +153,6 @@ class AppStateManager(private val kodein: Kodein) {
             val eitherId = YoutubeUtils.determineId(channelIdOrVideoId)
             val chatClient = kodein.factory<Either<ChannelId, VideoId>, YtChatClient>()
                     .invoke(eitherId)
-                    .also { it.setCallbacks() }
 
             initializedChatClients.put(YOUTUBE, chatClient)
             viewersCountLoaders.add(chatClient)
@@ -179,7 +170,6 @@ class AppStateManager(private val kodein: Kodein) {
 
             val chatClient = kodein.factory<Pair<String, Long>, CgChatClient>()
                     .invoke(channelName to channelId)
-                    .also { it.setCallbacks() }
 
             initializedChatClients.put(CYBERGAME, chatClient)
             viewersCountLoaders.add(kodein.factory<String, CgViewersCountLoader>().invoke(channelName))
@@ -250,15 +240,9 @@ class AppStateManager(private val kodein: Kodein) {
         }
     }
 
-    private fun ChatClient<*>.setCallbacks() {
-        onChatMessage = onChatMessageCallback
-        onStatusMessage = onStatusMessageCallback
-        onChatMessageDeleted = onChatMessageDeletedCallback
-    }
-
     private fun reset() {
         viewersCountWsHandler.viewersCounter = null
-        connectedOriginsHandler.reset()
+        originStatusManager.reset()
 
         // reset BTTV and FFZ channel emoticons
         emoticonStorage.clear(BTTV_CHANNEL)
