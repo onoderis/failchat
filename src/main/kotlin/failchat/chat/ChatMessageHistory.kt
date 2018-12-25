@@ -6,10 +6,11 @@ import failchat.chat.ChatMessageHistory.Operation.Clear
 import failchat.chat.ChatMessageHistory.Operation.FindAll
 import failchat.chat.ChatMessageHistory.Operation.FindFirst
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.launch
 import java.util.Queue
 
@@ -19,7 +20,7 @@ class ChatMessageHistory(capacity: Int) {
     private val opChannel: Channel<Operation> = Channel(Channel.UNLIMITED)
 
     fun start() {
-        GlobalScope.launch {
+        CoroutineScope(Dispatchers.Default + CoroutineName("ChatMessageHistoryHandler")).launch {
             handleOperations()
         }
     }
@@ -45,24 +46,24 @@ class ChatMessageHistory(capacity: Int) {
         opChannel.close()
     }
 
-    fun add(message: ChatMessage) {
-        opChannel.sendBlocking(Add(message))
+    suspend fun add(message: ChatMessage) {
+        opChannel.send(Add(message))
     }
 
-    fun findFirst(predicate: (ChatMessage) -> Boolean): Deferred<ChatMessage?> {
+    suspend fun findFirst(predicate: (ChatMessage) -> Boolean): ChatMessage? {
         val foundFuture = CompletableDeferred<ChatMessage?>()
-        opChannel.sendBlocking(FindFirst(predicate, foundFuture))
-        return foundFuture
+        opChannel.send(FindFirst(predicate, foundFuture))
+        return foundFuture.await()
     }
 
-    fun find(predicate: (ChatMessage) -> Boolean): Deferred<List<ChatMessage>> {
+    suspend fun find(predicate: (ChatMessage) -> Boolean): List<ChatMessage> {
         val foundFuture = CompletableDeferred<List<ChatMessage>>()
-        opChannel.sendBlocking(FindAll(predicate, foundFuture))
-        return foundFuture
+        opChannel.send(FindAll(predicate, foundFuture))
+        return foundFuture.await()
     }
 
-    fun clear() {
-        opChannel.sendBlocking(Clear)
+    suspend fun clear() {
+        opChannel.send(Clear)
     }
 
     private sealed class Operation {
@@ -74,13 +75,13 @@ class ChatMessageHistory(capacity: Int) {
 
 }
 
-inline fun <reified T : ChatMessage> ChatMessageHistory.findFirstTyped(crossinline predicate: (T) -> Boolean): Deferred<T?> {
+suspend inline fun <reified T : ChatMessage> ChatMessageHistory.findFirstTyped(crossinline predicate: (T) -> Boolean): Deferred<T?> {
     @Suppress("UNCHECKED_CAST")
     return findFirst { it is T && predicate(it) }
             as Deferred<T?>
 }
 
-inline fun <reified T : ChatMessage> ChatMessageHistory.findTyped(crossinline predicate: (T) -> Boolean): Deferred<List<T>> {
+suspend inline fun <reified T : ChatMessage> ChatMessageHistory.findTyped(crossinline predicate: (T) -> Boolean): Deferred<List<T>> {
     @Suppress("UNCHECKED_CAST")
     return find { it is T && predicate(it) }
             as Deferred<List<T>>
