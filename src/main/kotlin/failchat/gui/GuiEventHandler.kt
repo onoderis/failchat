@@ -4,10 +4,14 @@ import failchat.AppStateManager
 import failchat.ConfigKeys
 import failchat.chat.ChatMessageSender
 import failchat.util.LateinitVal
+import failchat.util.completedFuture
 import failchat.util.executeWithCatch
 import javafx.application.Platform
 import org.apache.commons.configuration2.Configuration
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
 import java.util.concurrent.Executors
+import java.util.function.BiConsumer
 
 class GuiEventHandler(
         private val appStateManager: AppStateManager,
@@ -17,32 +21,28 @@ class GuiEventHandler(
 
     private val executor = Executors.newSingleThreadExecutor()
 
-    val gui = LateinitVal<GuiFrames>()
+    val guiFrames = LateinitVal<GuiFrames>()
 
     fun handleStartChat() {
-        gui.get()?.let {
-            Platform.runLater {
-                it.settingsFrame.hide()
-                it.chatFrame.show()
-            }
+        val guiTransitionFuture = makeGuiTransition {
+            it.settingsFrame.hide()
+            it.chatFrame.show()
         }
 
-        executor.executeWithCatch {
+        guiTransitionFuture.whenCompleteAsync(BiConsumer { _, _ ->
             appStateManager.startChat()
-        }
+        }, executor)
     }
 
     fun handleStopChat() {
-        gui.get()?.let {
-            Platform.runLater {
-                it.chatFrame.hide()
-                it.settingsFrame.show()
-            }
+        val guiTransitionFuture = makeGuiTransition {
+            it.chatFrame.hide()
+            it.settingsFrame.show()
         }
 
-        executor.executeWithCatch {
+        guiTransitionFuture.whenCompleteAsync(BiConsumer { _, _ ->
             appStateManager.stopChat()
-        }
+        }, executor)
     }
 
     fun handleShutDown() {
@@ -53,7 +53,7 @@ class GuiEventHandler(
     }
 
     fun handleResetUserConfiguration() {
-        val settingsFrame = gui.get()?.settingsFrame ?: return
+        val settingsFrame = guiFrames.get()?.settingsFrame ?: return
 
         Platform.runLater {
             val resetConfirmed = settingsFrame.confirmConfigReset()
@@ -77,7 +77,7 @@ class GuiEventHandler(
     }
 
     fun notifyEmoticonsAreLoading() {
-        val settingsFrame = gui.get()?.settingsFrame ?: return
+        val settingsFrame = guiFrames.get()?.settingsFrame ?: return
 
         Platform.runLater {
             settingsFrame.disableRefreshEmoticonsButton()
@@ -85,10 +85,28 @@ class GuiEventHandler(
     }
 
     fun notifyEmoticonsLoaded() {
-        val settingsFrame = gui.get()?.settingsFrame ?: return
+        val settingsFrame = guiFrames.get()?.settingsFrame ?: return
 
         Platform.runLater {
             settingsFrame.enableRefreshEmoticonsButton()
+        }
+    }
+
+    private fun makeGuiTransition(framesOperation: (GuiFrames) -> Unit): CompletionStage<Unit> {
+        val frames = guiFrames.get()
+
+        return if (frames != null) {
+            val guiTransitionFuture = CompletableFuture<Unit>()
+            Platform.runLater {
+                try {
+                    framesOperation(frames)
+                } finally {
+                    guiTransitionFuture.complete(Unit)
+                }
+            }
+            guiTransitionFuture
+        } else {
+            completedFuture()
         }
     }
 
