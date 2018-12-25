@@ -1,6 +1,5 @@
 package failchat.ws.server
 
-import failchat.util.offerOrThrow
 import failchat.ws.server.WsFrameSender.ChannelMessage.Broadcast
 import failchat.ws.server.WsFrameSender.ChannelMessage.SessionClosed
 import failchat.ws.server.WsFrameSender.ChannelMessage.SessionOpened
@@ -9,6 +8,7 @@ import io.ktor.websocket.DefaultWebSocketServerSession
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.launch
 import mu.KLogging
 
@@ -62,11 +62,11 @@ class WsFrameSender {
     }
 
     fun sendToAll(message: String) {
-        channel.offerOrThrow(Broadcast(message))
+        channel.sendBlocking(Broadcast(message))
     }
 
-    fun notifyNewSession(session: DefaultWebSocketServerSession) {
-        channel.offerOrThrow(SessionOpened(session))
+    suspend fun notifyNewSession(session: DefaultWebSocketServerSession) {
+        channel.send(SessionOpened(session))
     }
 
     private sealed class ChannelMessage {
