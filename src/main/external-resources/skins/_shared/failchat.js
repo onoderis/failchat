@@ -42,7 +42,7 @@ async function awaitForTemplates() {
 function initializeFailchat() {
     failchat.nativeClient = (navigator.userAgent.search("failchat") >= 0);
 
-    const activeMessages = [];
+    const activeMessages = new LinkedList(); // head - newest message
     const originsStatus = new OriginsStatus();
 
     let lastSystemMessageId = -1; //goes down
@@ -239,14 +239,14 @@ function initializeFailchat() {
         // handle hiddenMessages property
         if (showHiddenMessages !== config.showHiddenMessages) {
             showHiddenMessages = config.showHiddenMessages;
-            activeMessages.forEach((m) => {
-                const messageElement = $(messageSelector(m));
+            for (let [message] of activeMessages) {
+                const messageElement = $(messageSelector(message));
                 if (showHiddenMessages) {
                     messageElement.addClass("unhidden")
                 } else {
                     messageElement.removeClass("unhidden")
                 }
-            });
+            }
         }
 
         // handle viewers bar configuration
@@ -268,10 +268,10 @@ function initializeFailchat() {
     }
 
     function resetHideMessageTasks() {
-        activeMessages.forEach(m => {
-            cancelHideMessageTask(m);
-            createHideMessageTaskIfRequired(m);
-        });
+        for (let [message] of activeMessages) {
+            cancelHideMessageTask(message);
+            createHideMessageTaskIfRequired(message);
+        }
     }
 
     function isHideMessagePropertiesChanged(clientConfig) {
@@ -292,9 +292,9 @@ function initializeFailchat() {
     }
 
     function handleClearChatMessage() {
-        activeMessages.forEach((m) =>
-            hideMessage(m)
-        );
+        for (let [message] of activeMessages) {
+            hideMessage(message);
+        }
     }
 
     function handleOriginsStatusMessage(message) {
@@ -327,7 +327,7 @@ function initializeFailchat() {
     /** Append chat message or status message to message container. */
     function appendMessage(message, html) {
         message.hidden = false;
-        activeMessages.push(message);
+        activeMessages.unshift(message);
         messageContainer.append(html);
 
         if (showHiddenMessages) {
@@ -389,13 +389,11 @@ function initializeFailchat() {
     function deleteOldMessages() {
         if (activeMessages.length <= failchat.maxMessages) return;
 
-        const messagesToDelete = activeMessages.length - failchat.maxMessages;
-        const removedMessages = activeMessages.splice(0, messagesToDelete);
-
-        removedMessages.forEach((m) => {
-            cancelHideMessageTask(m);
-            removeMessageElement(m);
-        })
+        while (activeMessages.length >= failchat.maxMessages) {
+            const removedMessage = activeMessages.pop();
+            cancelHideMessageTask(removedMessage);
+            removeMessageElement(removedMessage);
+        }
     }
 
     function nextSystemMessageId() {
