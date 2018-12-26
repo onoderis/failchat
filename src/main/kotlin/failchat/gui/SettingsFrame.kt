@@ -35,7 +35,7 @@ class SettingsFrame(
         private val stage: Stage,
         private val config: Configuration,
         private val skinList: List<Skin>,
-        private val customEmoticonsDirectory: Path,
+        private val failchatEmoticonsDirectory: Path,
         private val guiEventHandler: Lazy<GuiEventHandler>,
         private val emoticonUpdater: Lazy<GlobalEmoticonUpdater>
 ) {
@@ -85,7 +85,7 @@ class SettingsFrame(
 
 
     // Actions tab
-    private val customEmoticonsButton = scene.lookup("#custom_emoticons") as Button
+    private val failchatEmoticonsButton = scene.lookup("#failchat_emoticons") as Button
     private val reloadEmoticonsButton = scene.lookup("#reload_emoticons_button") as Button
     private val reloadEmoticonsIndicator = scene.lookup("#reload_emoticons_indicator") as ProgressIndicator
     private val resetConfigurationButton = scene.lookup("#reset_configuration") as Button
@@ -132,8 +132,8 @@ class SettingsFrame(
             opacityText.text = Integer.toString(newValue.toInt())
         }
 
-        customEmoticonsButton.setOnAction {
-            app.hostServices.showDocument(customEmoticonsDirectory.toUri().toString())
+        failchatEmoticonsButton.setOnAction {
+            app.hostServices.showDocument(failchatEmoticonsDirectory.toUri().toString())
         }
 
         disableRefreshEmoticonsButton()

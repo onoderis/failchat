@@ -4,9 +4,9 @@ import failchat.Origin.FAILCHAT
 import failchat.util.executeWithCatch
 import java.util.concurrent.ExecutorService
 
-class CustomEmoticonUpdater(
+class FailchatEmoticonUpdater(
         private val storage: EmoticonStorage,
-        private val scanner: CustomEmoticonScanner,
+        private val scanner: FailchatEmoticonScanner,
         private val backgroundExecutor: ExecutorService
 ) {
 

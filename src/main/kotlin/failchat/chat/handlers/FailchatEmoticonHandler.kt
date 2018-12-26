@@ -8,7 +8,7 @@ import failchat.emoticon.ReplaceDecision
 import failchat.emoticon.SemicolonCodeProcessor
 import mu.KLogging
 
-class CustomEmoticonHandler(
+class FailchatEmoticonHandler(
         private val finder: EmoticonFinder
 ) : MessageHandler<ChatMessage> {
 

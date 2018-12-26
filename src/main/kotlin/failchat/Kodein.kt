@@ -20,7 +20,7 @@ import failchat.chat.OriginStatusManager
 import failchat.chat.badge.BadgeFinder
 import failchat.chat.badge.BadgeManager
 import failchat.chat.badge.BadgeStorage
-import failchat.chat.handlers.CustomEmoticonHandler
+import failchat.chat.handlers.FailchatEmoticonHandler
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
 import failchat.chat.handlers.LinkHandler
@@ -29,13 +29,13 @@ import failchat.cybergame.CgApiClient
 import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.ChannelEmoticonUpdater
-import failchat.emoticon.CustomEmoticonScanner
-import failchat.emoticon.CustomEmoticonUpdater
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonFinder
 import failchat.emoticon.EmoticonLoadConfiguration
 import failchat.emoticon.EmoticonManager
 import failchat.emoticon.EmoticonStorage
+import failchat.emoticon.FailchatEmoticonScanner
+import failchat.emoticon.FailchatEmoticonUpdater
 import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.emoticon.MapdbFactory
 import failchat.github.GithubClient
@@ -190,17 +190,17 @@ val kodein = Kodein {
         )
     }
 
-    bind<CustomEmoticonUpdater>() with singleton {
-        CustomEmoticonUpdater(
+    bind<FailchatEmoticonUpdater>() with singleton {
+        FailchatEmoticonUpdater(
                 instance<EmoticonStorage>(),
-                instance<CustomEmoticonScanner>(),
+                instance<FailchatEmoticonScanner>(),
                 instance<ScheduledExecutorService>("background")
         )
     }
-    bind<CustomEmoticonScanner>() with singleton {
-        CustomEmoticonScanner(
-                instance<Path>("customEmoticonsDirectory"),
-                instance<String>("customEmoticonsUrl")
+    bind<FailchatEmoticonScanner>() with singleton {
+        FailchatEmoticonScanner(
+                instance<Path>("failchatEmoticonsDirectory"),
+                instance<String>("failchatEmoticonsUrl")
         )
     }
 
@@ -224,8 +224,8 @@ val kodein = Kodein {
     // Message handlers and filters
     bind<IgnoreFilter>() with singleton { IgnoreFilter(instance<Configuration>()) }
     bind<ImageLinkHandler>() with singleton { ImageLinkHandler() }
-    bind<CustomEmoticonHandler>() with singleton {
-        CustomEmoticonHandler(instance<EmoticonFinder>())
+    bind<FailchatEmoticonHandler>() with singleton {
+        FailchatEmoticonHandler(instance<EmoticonFinder>())
     }
 
 
@@ -240,7 +240,7 @@ val kodein = Kodein {
     bind<OnChatMessageCallback>() with singleton {
         OnChatMessageCallback(
                 listOf(instance<IgnoreFilter>()),
-                listOf(LinkHandler(), instance<ImageLinkHandler>(), instance<CustomEmoticonHandler>()),
+                listOf(LinkHandler(), instance<ImageLinkHandler>(), instance<FailchatEmoticonHandler>()),
                 instance<ChatMessageHistory>(),
                 instance<ChatMessageSender>()
         )
@@ -258,10 +258,10 @@ val kodein = Kodein {
     // Etc
     bind<Path>("workingDirectory") with singleton { Paths.get("") }
     bind<Path>("homeDirectory") with singleton { Paths.get(System.getProperty("user.home")).resolve(".failchat") }
-    bind<Path>("customEmoticonsDirectory") with singleton { instance<Path>("homeDirectory").resolve("custom-emoticons") }
+    bind<Path>("failchatEmoticonsDirectory") with singleton { instance<Path>("homeDirectory").resolve("failchat-emoticons") }
     bind<Path>("emoticonCacheDirectory") with singleton { instance<Path>("workingDirectory").resolve("emoticons") }
     bind<Path>("emoticonDbFile") with singleton { instance<Path>("emoticonCacheDirectory").resolve("emoticons.db") }
-    bind<String>("customEmoticonsUrl") with singleton { "http://${FcServerInfo.host.hostAddress}:${FcServerInfo.port}/emoticons/" }
+    bind<String>("failchatEmoticonsUrl") with singleton { "http://${FcServerInfo.host.hostAddress}:${FcServerInfo.port}/emoticons/" }
     bind<String>("userId") with singleton { instance<UserIdManager>().getUserId() }
 
     bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastMessageId")) }

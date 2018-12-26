@@ -130,8 +130,8 @@ fun main0(args: Array<String>) {
     kodein.instance<ChatMessageHistory>().start()
 
 
-    // Create directory for custom emoticons if required
-    Files.createDirectories(kodein.instance<Path>("customEmoticonsDirectory"))
+    // Create directory for failchat emoticons if required
+    Files.createDirectories(kodein.instance<Path>("failchatEmoticonsDirectory"))
 
     if (!guiEnabled) {
         // start app with current configuration
@@ -241,7 +241,7 @@ fun createHttpServer(): ApplicationEngine {
 fun KtorApplication.failchat() {
     val wsMessageDispatcher: WsMessageDispatcher = kodein.instance()
     val wsFrameSender: WsFrameSender = kodein.instance()
-    val customEmoticonsPath: Path = kodein.instance("customEmoticonsDirectory")
+    val failchatEmoticonsPath: Path = kodein.instance("failchatEmoticonsDirectory")
 
     install(WebSockets)
 
@@ -250,7 +250,7 @@ fun KtorApplication.failchat() {
             files("skins")
         }
         static("emoticons") {
-            files(customEmoticonsPath.toFile())
+            files(failchatEmoticonsPath.toFile())
         }
 
         webSocket("/chat") {
