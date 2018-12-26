@@ -13,7 +13,7 @@ class PortBindAlert : Application() {
 
         alert.title = "Launch error"
         alert.headerText = "Looks like failchat is already running."
-        alert.contentText = "Failed to bind socket ${FcServerInfo.host.hostAddress}:${FcServerInfo.port}"
+        alert.contentText = "Failed to create socket at ${FcServerInfo.host.hostAddress}:${FcServerInfo.port}"
 
         val stage = alert.dialogPane.scene.window as Stage
         stage.icons.setAll(Images.appIcon)
