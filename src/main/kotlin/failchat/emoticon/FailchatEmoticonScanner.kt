@@ -12,7 +12,7 @@ import java.time.Instant
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 
-class CustomEmoticonScanner(
+class FailchatEmoticonScanner(
         private val emoticonsDirectory: Path,
         locationUrlPrefix: String
 ) {
@@ -30,7 +30,7 @@ class CustomEmoticonScanner(
                 .map { fileName ->
                     val m = fileNamePattern.matcher(fileName)
                     if (!m.matches()) {
-                        logger.warn("Incorrect custom emoticon file was ignored: '{}'", fileName)
+                        logger.warn("Incorrect failchat emoticon file was ignored: '{}'", fileName)
                         return@map null
                     }
 
@@ -42,12 +42,12 @@ class CustomEmoticonScanner(
                         "svg" -> VECTOR
                         else -> RASTER
                     }
-                    CustomEmoticon(code, format, locationUrlPrefix + fileName)
+                    FailchatEmoticon(code, format, locationUrlPrefix + fileName)
                 }
                 .collect(Collectors.toList())
 
         val t2 = Instant.now()
-        logger.debug { "Custom emoticons was scanned in ${Duration.between(t1, t2).toMillis()} ms" }
+        logger.debug { "Failchat emoticons was scanned in ${Duration.between(t1, t2).toMillis()} ms" }
 
         return emoticons
     }

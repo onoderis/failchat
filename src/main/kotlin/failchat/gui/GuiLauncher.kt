@@ -37,7 +37,7 @@ class GuiLauncher : Application() {
                 primaryStage,
                 kodein.instance<Configuration>(),
                 kodein.instance<List<Skin>>(),
-                kodein.instance<Path>("customEmoticonsDirectory"),
+                kodein.instance<Path>("failchatEmoticonsDirectory"),
                 lazy { kodein.instance<GuiEventHandler>() },
                 lazy { kodein.instance<GlobalEmoticonUpdater>() }
         )

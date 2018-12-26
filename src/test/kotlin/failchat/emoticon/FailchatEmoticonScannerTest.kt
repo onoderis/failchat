@@ -6,14 +6,14 @@ import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class CustomEmoticonScannerTest {
+class FailchatEmoticonScannerTest {
 
     private companion object {
-        val testDirPath: Path = Paths.get(CustomEmoticonScannerTest::class.java.getResource("/custom-emoticons").toURI())
-        val customEmoticonScanner = CustomEmoticonScanner(testDirPath, "/")
+        val testDirPath: Path = Paths.get(FailchatEmoticonScannerTest::class.java.getResource("/failchat-emoticons").toURI())
+        val failchatEmoticonScanner = FailchatEmoticonScanner(testDirPath, "/")
     }
 
-    private val scanResult = customEmoticonScanner.scan()
+    private val scanResult = failchatEmoticonScanner.scan()
 
     @Test
     fun scanJpg(){

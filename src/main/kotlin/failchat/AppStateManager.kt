@@ -23,8 +23,8 @@ import failchat.cybergame.CgApiClient
 import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.ChannelEmoticonUpdater
-import failchat.emoticon.CustomEmoticonUpdater
 import failchat.emoticon.EmoticonStorage
+import failchat.emoticon.FailchatEmoticonUpdater
 import failchat.exception.InvalidConfigurationException
 import failchat.goodgame.GgApiClient
 import failchat.goodgame.GgChannel
@@ -73,7 +73,7 @@ class AppStateManager(private val kodein: Kodein) {
     private val viewersCountWsHandler: ViewersCountWsHandler = kodein.instance()
     private val emoticonStorage: EmoticonStorage = kodein.instance()
     private val channelEmoticonUpdater: ChannelEmoticonUpdater = kodein.instance()
-    private val customEmoticonUpdater: CustomEmoticonUpdater = kodein.instance()
+    private val failchatEmoticonUpdater: FailchatEmoticonUpdater = kodein.instance()
     private val emoticonsDb: DB = kodein.instance("emoticons")
     private val badgeManager: BadgeManager = kodein.instance()
     private val backgroundExecutorDispatcher = kodein.instance<ScheduledExecutorService>("background").asCoroutineDispatcher()
@@ -205,7 +205,7 @@ class AppStateManager(private val kodein: Kodein) {
         // Save config
         configLoader.save()
 
-        customEmoticonUpdater.update()
+        failchatEmoticonUpdater.update()
     }
 
     fun stopChat(): Unit = lock.withLock {
