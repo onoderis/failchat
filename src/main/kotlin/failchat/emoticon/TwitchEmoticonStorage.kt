@@ -50,7 +50,7 @@ class TwitchEmoticonStorage(
         return idToNormalCaseCode.size
     }
 
-    override fun putAll(emoticons: List<EmoticonAndId>) {
+    override fun putAll(emoticons: Collection<EmoticonAndId>) {
         emoticons.forEach {
             putEmoticon(it)
         }

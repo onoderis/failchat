@@ -42,7 +42,7 @@ open class EmoticonCodeIdDbStorage(
         return idToEmoticon.size
     }
 
-    override fun putAll(emoticons: List<EmoticonAndId>) {
+    override fun putAll(emoticons: Collection<EmoticonAndId>) {
         emoticons.forEach {
             idToEmoticon.put(it.id, it.emoticon)
             codeToId.put(it.emoticon.code, it.id)

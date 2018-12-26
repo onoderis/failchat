@@ -15,7 +15,7 @@ interface OriginEmoticonStorage {
 
     fun count(): Int
 
-    fun putAll(emoticons: List<EmoticonAndId>)
+    fun putAll(emoticons: Collection<EmoticonAndId>)
 
     /** Put all emoticons in storage from the channel. Blocking call. */
     fun putAll(emoticons: ReceiveChannel<EmoticonAndId>)

@@ -25,7 +25,7 @@ class EmoticonCodeMemoryStorage(override val origin: Origin) : OriginEmoticonSto
         return codeMap.size
     }
 
-    override fun putAll(emoticons: List<EmoticonAndId>) {
+    override fun putAll(emoticons: Collection<EmoticonAndId>) {
         emoticons.forEach {
             putEmoticon(it)
         }
