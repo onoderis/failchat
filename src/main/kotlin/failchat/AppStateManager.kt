@@ -17,13 +17,13 @@ import failchat.chat.ChatClient
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatusManager
 import failchat.chat.badge.BadgeManager
-import failchat.chat.handlers.CustomEmoticonHandler
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
 import failchat.cybergame.CgApiClient
 import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.ChannelEmoticonUpdater
+import failchat.emoticon.CustomEmoticonUpdater
 import failchat.emoticon.EmoticonStorage
 import failchat.exception.InvalidConfigurationException
 import failchat.goodgame.GgApiClient
@@ -73,10 +73,10 @@ class AppStateManager(private val kodein: Kodein) {
     private val viewersCountWsHandler: ViewersCountWsHandler = kodein.instance()
     private val emoticonStorage: EmoticonStorage = kodein.instance()
     private val channelEmoticonUpdater: ChannelEmoticonUpdater = kodein.instance()
+    private val customEmoticonUpdater: CustomEmoticonUpdater = kodein.instance()
     private val emoticonsDb: DB = kodein.instance("emoticons")
     private val badgeManager: BadgeManager = kodein.instance()
     private val backgroundExecutorDispatcher = kodein.instance<ScheduledExecutorService>("background").asCoroutineDispatcher()
-    private val customEmoticonHandler: CustomEmoticonHandler = kodein.instance()
     private val originStatusManager: OriginStatusManager = kodein.instance()
 
     private val lock: Lock = ReentrantLock()
@@ -205,7 +205,7 @@ class AppStateManager(private val kodein: Kodein) {
         // Save config
         configLoader.save()
 
-        customEmoticonHandler.scanEmoticonsDirectory()
+        customEmoticonUpdater.update()
     }
 
     fun stopChat(): Unit = lock.withLock {

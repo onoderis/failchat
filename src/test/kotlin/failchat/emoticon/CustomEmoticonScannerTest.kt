@@ -17,57 +17,57 @@ class CustomEmoticonScannerTest {
 
     @Test
     fun scanJpg(){
-        assertNotNull(scanResult["1"])
+        assertNotNull(scanResult.find { it.code == "1" })
     }
 
     @Test
     fun scanJpeg(){
-        assertNotNull(scanResult["2"])
+        assertNotNull(scanResult.find { it.code == "2" })
     }
 
     @Test
     fun scanPng(){
-        assertNotNull(scanResult["3"])
+        assertNotNull(scanResult.find { it.code == "3" })
     }
 
     @Test
     fun scanSvg(){
-        assertNotNull(scanResult["4"])
+        assertNotNull(scanResult.find { it.code == "4" })
     }
 
     @Test
     fun scanGif(){
-        assertNotNull(scanResult["5"])
+        assertNotNull(scanResult.find { it.code == "5" })
     }
 
     @Test
     fun ignoreUnknownFormat() {
-        assertNull(scanResult["unknown-format"])
+        assertNull(scanResult.find { it.code == "unknown-format" })
     }
 
     @Test
     fun ignoreUnsupportedFormat() {
-        assertNull(scanResult["unsupported-format"])
+        assertNull(scanResult.find { it.code == "unsupported-format" })
     }
 
     @Test
     fun acceptMultipleDotsInName() {
-        assertNotNull(scanResult["so.many.dots"])
+        assertNotNull(scanResult.find { it.code == "so.many.dots" })
     }
 
     @Test
     fun acceptUnderscoreInName() {
-        assertNotNull(scanResult["underscore_"])
+        assertNotNull(scanResult.find { it.code == "underscore_" })
     }
 
     @Test
     fun acceptMinusInName() {
-        assertNotNull(scanResult["minus-"])
+        assertNotNull(scanResult.find { it.code == "minus-" })
     }
 
     @Test
     fun ignoreCase() {
-        assertNotNull(scanResult["uppercase"])
+        assertNotNull(scanResult.find { it.code == "uppercase" })
     }
 
 }

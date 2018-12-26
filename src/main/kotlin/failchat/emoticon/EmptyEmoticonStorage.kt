@@ -11,7 +11,7 @@ class EmptyEmoticonStorage(override val origin: Origin) : OriginEmoticonStorage 
     override fun findById(id: String): Emoticon? = null
     override fun getAll(): Collection<Emoticon> = emptyList()
     override fun count(): Int = 0
-    override fun putAll(emoticons: List<EmoticonAndId>) = warnOnPut()
+    override fun putAll(emoticons: Collection<EmoticonAndId>) = warnOnPut()
     override fun putAll(emoticons: ReceiveChannel<EmoticonAndId>) = warnOnPut()
     override fun clear() {}
     private fun warnOnPut() {

@@ -30,6 +30,7 @@ import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.ChannelEmoticonUpdater
 import failchat.emoticon.CustomEmoticonScanner
+import failchat.emoticon.CustomEmoticonUpdater
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonFinder
 import failchat.emoticon.EmoticonLoadConfiguration
@@ -189,6 +190,20 @@ val kodein = Kodein {
         )
     }
 
+    bind<CustomEmoticonUpdater>() with singleton {
+        CustomEmoticonUpdater(
+                instance<EmoticonStorage>(),
+                instance<CustomEmoticonScanner>(),
+                instance<ScheduledExecutorService>("background")
+        )
+    }
+    bind<CustomEmoticonScanner>() with singleton {
+        CustomEmoticonScanner(
+                instance<Path>("customEmoticonsDirectory"),
+                instance<String>("customEmoticonsUrl")
+        )
+    }
+
 
     // Badges
     bind<BadgeStorage>() with singleton { BadgeStorage() }
@@ -210,11 +225,7 @@ val kodein = Kodein {
     bind<IgnoreFilter>() with singleton { IgnoreFilter(instance<Configuration>()) }
     bind<ImageLinkHandler>() with singleton { ImageLinkHandler() }
     bind<CustomEmoticonHandler>() with singleton {
-        val scanner = CustomEmoticonScanner(
-                instance<Path>("customEmoticonsDirectory"),
-                instance<String>("customEmoticonsUrl")
-        )
-        CustomEmoticonHandler(scanner)
+        CustomEmoticonHandler(instance<EmoticonFinder>())
     }
 
 

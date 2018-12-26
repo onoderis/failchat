@@ -43,7 +43,7 @@ class EmoticonStorage : EmoticonFinder {
         return originStorages.get(origin)!!.count()
     }
 
-    fun putMapping(origin: Origin, emoticons: List<EmoticonAndId>) {
+    fun putMapping(origin: Origin, emoticons: Collection<EmoticonAndId>) {
         originStorages.get(origin)!!
                 .putAll(emoticons)
     }
