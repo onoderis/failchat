@@ -105,9 +105,7 @@ class CgChatClient(
                 CgWsMessageType.CLEAR.jsonValue -> {
                     val userId: String = data.get("message").get("uid").asText()
                     runBlocking {
-                        history
-                                .findTyped<CgChatMessage> {it.author.id == userId }
-                                .await()
+                        history.findTyped<CgChatMessage> { it.author.id == userId }
                     }
                             .forEach { callbacks.onChatMessageDeleted(it) }
                 }

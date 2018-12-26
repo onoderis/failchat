@@ -209,9 +209,7 @@ class YtChatClient(
                 .filter { it.snippet.type == "messageDeletedEvent" }
                 .map { ytMessage ->
                     runBlocking {
-                        history
-                                .findFirstTyped<YtMessage> { it.ytId == ytMessage.snippet.messageDeletedDetails.deletedMessageId }
-                                .await()
+                        history.findFirstTyped<YtMessage> { it.ytId == ytMessage.snippet.messageDeletedDetails.deletedMessageId }
                     }
                 }
                 .filterNotNull()

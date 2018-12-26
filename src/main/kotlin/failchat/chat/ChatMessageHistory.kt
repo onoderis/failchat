@@ -8,7 +8,6 @@ import failchat.chat.ChatMessageHistory.Operation.FindFirst
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -75,14 +74,10 @@ class ChatMessageHistory(capacity: Int) {
 
 }
 
-suspend inline fun <reified T : ChatMessage> ChatMessageHistory.findFirstTyped(crossinline predicate: (T) -> Boolean): Deferred<T?> {
-    @Suppress("UNCHECKED_CAST")
-    return findFirst { it is T && predicate(it) }
-            as Deferred<T?>
+suspend inline fun <reified T : ChatMessage> ChatMessageHistory.findFirstTyped(crossinline predicate: (T) -> Boolean): T? {
+    return findFirst { it is T && predicate(it) } as T?
 }
 
-suspend inline fun <reified T : ChatMessage> ChatMessageHistory.findTyped(crossinline predicate: (T) -> Boolean): Deferred<List<T>> {
-    @Suppress("UNCHECKED_CAST")
-    return find { it is T && predicate(it) }
-            as Deferred<List<T>>
+suspend inline fun <reified T : ChatMessage> ChatMessageHistory.findTyped(crossinline predicate: (T) -> Boolean): List<T> {
+    return find { it is T && predicate(it) } as List<T>
 }

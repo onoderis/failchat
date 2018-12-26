@@ -133,9 +133,7 @@ class GgChatClient(
             val idToRemove = dataNode.get("message_id").asText().toLong()
 
             val foundMessage = runBlocking {
-                history
-                        .findFirstTyped<GgMessage> { it.ggId == idToRemove }
-                        .await()
+                history.findFirstTyped<GgMessage> { it.ggId == idToRemove }
             }
             foundMessage?.let { callbacks.onChatMessageDeleted(it) }
         }

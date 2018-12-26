@@ -159,9 +159,7 @@ class TwitchChatClient(
 
             val author = matcher.group(1)
             val messagesToDelete = runBlocking {
-                history
-                        .findTyped<TwitchMessage> { it.author.id.equals(author, ignoreCase = true) }
-                        .await()
+                history.findTyped<TwitchMessage> { it.author.id.equals(author, ignoreCase = true) }
             }
 
             messagesToDelete.forEach {
