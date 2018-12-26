@@ -38,8 +38,8 @@ class Peka2tvChatClient(
         emoticonHandler: Peka2tvEmoticonHandler,
         badgeHandler: Peka2tvBadgeHandler,
         private val history: ChatMessageHistory,
-        private val chatClientCallbacks: ChatClientCallbacks
-) : ChatClient<Peka2tvMessage>, ViewersCountLoader {
+        override val callbacks: ChatClientCallbacks
+) : ChatClient, ViewersCountLoader {
 
     private companion object : KLogging()
 
@@ -127,7 +127,7 @@ class Peka2tvChatClient(
                     socket.emit("/chat/join", arrayOf(message)) {
                         logger.info("Connected to ${Origin.PEKA2TV}")
                         atomicStatus.set(ChatClientStatus.CONNECTED)
-                        chatClientCallbacks.onStatusUpdate(StatusUpdate(PEKA2TV, CONNECTED))
+                        callbacks.onStatusUpdate(StatusUpdate(PEKA2TV, CONNECTED))
                     }
                 }
 
@@ -135,7 +135,7 @@ class Peka2tvChatClient(
                 .on(Socket.EVENT_DISCONNECT) {
                     atomicStatus.set(CONNECTING)
                     logger.info("Received disconnected event from peka2tv ")
-                    chatClientCallbacks.onStatusUpdate(StatusUpdate(PEKA2TV, DISCONNECTED))
+                    callbacks.onStatusUpdate(StatusUpdate(PEKA2TV, DISCONNECTED))
                 }
 
                 // Message
@@ -165,7 +165,7 @@ class Peka2tvChatClient(
                     //handle message
                     messageHandlers.forEach { it.handleMessage(message) }
 
-                    chatClientCallbacks.onChatMessage(message)
+                    callbacks.onChatMessage(message)
                 }
 
                 // Message removal
@@ -179,7 +179,7 @@ class Peka2tvChatClient(
                                 .await()
                     }
 
-                    foundMessage?.let { chatClientCallbacks.onChatMessageDeleted(it) }
+                    foundMessage?.let { callbacks.onChatMessageDeleted(it) }
                 }
 
         return socket

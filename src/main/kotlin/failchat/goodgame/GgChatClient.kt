@@ -31,8 +31,8 @@ class GgChatClient(
         emoticonHandler: MessageHandler<GgMessage>,
         badgeHandler: GgBadgeHandler,
         private val history: ChatMessageHistory,
-        private val chatClientCallbacks: ChatClientCallbacks
-) : ChatClient<GgMessage> {
+        override val callbacks: ChatClientCallbacks
+) : ChatClient {
 
     private companion object : KLogging()
 
@@ -79,7 +79,7 @@ class GgChatClient(
             logger.info("Goodgame chat client connected to channel {}", channel.id)
 
             wsClient.send(joinMessage.toString())
-            chatClientCallbacks.onStatusUpdate(StatusUpdate(GOODGAME, CONNECTED))
+            callbacks.onStatusUpdate(StatusUpdate(GOODGAME, CONNECTED))
         }
 
         override fun onClose(code: Int, reason: String, remote: Boolean) {
@@ -104,7 +104,7 @@ class GgChatClient(
 
         override fun onReconnect() {
             logger.info("Goodgame chat client disconnected, trying to reconnect")
-            chatClientCallbacks.onStatusUpdate(StatusUpdate(GOODGAME, DISCONNECTED))
+            callbacks.onStatusUpdate(StatusUpdate(GOODGAME, DISCONNECTED))
         }
 
         private fun handleUserMessage(dataNode: JsonNode) {
@@ -126,7 +126,7 @@ class GgChatClient(
 
             messageHandlers.forEach { it.handleMessage(ggMessage) }
 
-            chatClientCallbacks.onChatMessage(ggMessage)
+            callbacks.onChatMessage(ggMessage)
         }
 
         private fun handleModMessage(dataNode: JsonNode) {
@@ -137,7 +137,7 @@ class GgChatClient(
                         .findFirstTyped<GgMessage> { it.ggId == idToRemove }
                         .await()
             }
-            foundMessage?.let { chatClientCallbacks.onChatMessageDeleted(it) }
+            foundMessage?.let { callbacks.onChatMessageDeleted(it) }
         }
     }
 

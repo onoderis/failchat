@@ -83,7 +83,7 @@ class AppStateManager(private val kodein: Kodein) {
     private val lock: Lock = ReentrantLock()
     private val config: Configuration = kodein.instance()
 
-    private var chatClients: Map<Origin, ChatClient<*>> = emptyMap()
+    private var chatClients: Map<Origin, ChatClient> = emptyMap()
     private var viewersCounter: ViewersCounter? = null
     
     private var state: AppState = SETTINGS
@@ -92,7 +92,7 @@ class AppStateManager(private val kodein: Kodein) {
         if (state != SETTINGS) IllegalStateException("Expected: $SETTINGS, actual: $state")
 
         val viewersCountLoaders: MutableList<ViewersCountLoader> = ArrayList()
-        val initializedChatClients: MutableMap<Origin, ChatClient<*>> = enumMap()
+        val initializedChatClients: MutableMap<Origin, ChatClient> = enumMap()
 
 
         // Peka2tv chat client initialization

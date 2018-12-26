@@ -46,8 +46,8 @@ class YtChatClient(
         private val youtubeExecutor: ScheduledExecutorService,
         private val messageIdGenerator: MessageIdGenerator,
         private val history: ChatMessageHistory,
-        private val chatClientCallbacks: ChatClientCallbacks
-) : ChatClient<YtMessage>,
+        override val callbacks: ChatClientCallbacks
+) : ChatClient,
     ViewersCountLoader {
 
     private companion object : KLogging() {
@@ -169,7 +169,7 @@ class YtChatClient(
 
             // Change status to disconnected / send status message
             val statusChanged = atomicStatus.compareAndSet(ChatClientStatus.CONNECTED, CONNECTING)
-            if (statusChanged) chatClientCallbacks.onStatusUpdate(StatusUpdate(YOUTUBE, DISCONNECTED))
+            if (statusChanged) callbacks.onStatusUpdate(StatusUpdate(YOUTUBE, DISCONNECTED))
             return
         }
 
@@ -182,7 +182,7 @@ class YtChatClient(
 
         // Send "connected" status message
         val statusChanged = atomicStatus.compareAndSet(CONNECTING, ChatClientStatus.CONNECTED)
-        if (statusChanged) chatClientCallbacks.onStatusUpdate(StatusUpdate(YOUTUBE, CONNECTED))
+        if (statusChanged) callbacks.onStatusUpdate(StatusUpdate(YOUTUBE, CONNECTED))
 
         // Skip messages from first request
         if (params.isFirstRequest) {
@@ -200,7 +200,7 @@ class YtChatClient(
                 }
                 .forEach { message ->
                     messageHandlers.forEach { it.handleMessage(message) }
-                    chatClientCallbacks.onChatMessage(message)
+                    callbacks.onChatMessage(message)
                 }
 
         // Handle message deletions
@@ -215,7 +215,7 @@ class YtChatClient(
                     }
                 }
                 .filterNotNull()
-                .forEach { chatClientCallbacks.onChatMessageDeleted(it) }
+                .forEach { callbacks.onChatMessageDeleted(it) }
     }
 
     private fun LiveChatMessage.toYtChatMessage(): YtMessage {
