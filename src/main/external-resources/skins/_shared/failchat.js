@@ -281,8 +281,9 @@ function initializeFailchat() {
     }
 
     function handleDeleteMessage(deleteMessage) {
-        const message = $(messageSelector(deleteMessage));
-        const messageText = $(messageSelector(message) + " .message-text");
+        const selector = messageSelectorById(deleteMessage.messageId);
+        const message = $(selector);
+        const messageText = $(selector + " .message-text");
 
         if (message === null || messageText === null) return;
 
@@ -523,7 +524,11 @@ function Template(name) {
 }
 
 function messageSelector(message) {
-    return "#message-" + message.id;
+    return messageSelectorById(message.id);
+}
+
+function messageSelectorById(id) {
+    return "#message-" + id;
 }
 
 const status = {
