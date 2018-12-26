@@ -7,7 +7,6 @@ import failchat.chat.ChatClient
 import failchat.chat.ChatClientCallbacks
 import failchat.chat.ChatClientStatus
 import failchat.chat.ChatClientStatus.READY
-import failchat.chat.ChatMessage
 import failchat.chat.ChatMessageHistory
 import failchat.chat.Elements
 import failchat.chat.ImageFormat.RASTER
@@ -40,8 +39,8 @@ class CgChatClient(
         private val emoticonUrlPrefix: String,
         private val messageIdGenerator: MessageIdGenerator,
         private val history: ChatMessageHistory,
-        private val chatClientCallbacks: ChatClientCallbacks
-) : ChatClient<ChatMessage> {
+        override val callbacks: ChatClientCallbacks
+) : ChatClient {
 
     private companion object : KLogging() {
         val acceptedMessageTypes: Set<String> = CgWsMessageType.values().mapTo(HashSet()) { it.jsonValue }
@@ -89,7 +88,7 @@ class CgChatClient(
                 CgWsMessageType.STATE.jsonValue -> {
                     val state = data.get("state").intValue()
                     if (state == 2) {
-                        chatClientCallbacks.onStatusUpdate(StatusUpdate(origin, CONNECTED))
+                        callbacks.onStatusUpdate(StatusUpdate(origin, CONNECTED))
                     }
                 }
 
@@ -100,7 +99,7 @@ class CgChatClient(
                         it.handleMessage(parsedMessage)
                     }
 
-                    chatClientCallbacks.onChatMessage(parsedMessage)
+                    callbacks.onChatMessage(parsedMessage)
                 }
 
                 CgWsMessageType.CLEAR.jsonValue -> {
@@ -110,7 +109,7 @@ class CgChatClient(
                                 .findTyped<CgChatMessage> {it.author.id == userId }
                                 .await()
                     }
-                            .forEach { chatClientCallbacks.onChatMessageDeleted(it) }
+                            .forEach { callbacks.onChatMessageDeleted(it) }
                 }
 
                 else -> throw IllegalStateException("Unhandled type '$type'")
@@ -123,7 +122,7 @@ class CgChatClient(
 
         override fun onReconnect() {
             logger.info("Cybergame chat client disconnected, trying to reconnect. channel: '{}', channel id: {}", channelName, channelId)
-            chatClientCallbacks.onStatusUpdate(StatusUpdate(origin, DISCONNECTED))
+            callbacks.onStatusUpdate(StatusUpdate(origin, DISCONNECTED))
         }
 
         override fun onError(e: Exception) {

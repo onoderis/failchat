@@ -45,8 +45,8 @@ class TwitchChatClient(
         ffzEmoticonHandler: FfzEmoticonHandler,
         twitchBadgeHandler: MessageHandler<TwitchMessage>,
         private val history: ChatMessageHistory,
-        private val chatClientCallbacks: ChatClientCallbacks
-) : ChatClient<TwitchMessage> {
+        override val callbacks: ChatClientCallbacks
+) : ChatClient {
 
     private companion object : KLogging() {
         val reconnectTimeout: Duration = Duration.ofSeconds(10)
@@ -114,7 +114,7 @@ class TwitchChatClient(
             atomicStatus.set(ChatClientStatus.CONNECTED)
             twitchIrcClient.sendCAP().request("twitch.tv/tags")
             twitchIrcClient.sendCAP().request("twitch.tv/commands")
-            chatClientCallbacks.onStatusUpdate(StatusUpdate(TWITCH, CONNECTED))
+            callbacks.onStatusUpdate(StatusUpdate(TWITCH, CONNECTED))
         }
 
         override fun onDisconnect(event: DisconnectEvent) {
@@ -124,7 +124,7 @@ class TwitchChatClient(
                 else -> {
                     atomicStatus.set(ChatClientStatus.CONNECTING)
                     logger.info("Twitch irc client disconnected")
-                    chatClientCallbacks.onStatusUpdate(StatusUpdate(TWITCH, DISCONNECTED))
+                    callbacks.onStatusUpdate(StatusUpdate(TWITCH, DISCONNECTED))
                 }
             }
         }
@@ -136,7 +136,7 @@ class TwitchChatClient(
 
             val message = parseOrdinaryMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
-            chatClientCallbacks.onChatMessage(message)
+            callbacks.onChatMessage(message)
         }
 
         override fun onListenerException(event: ListenerExceptionEvent) {
@@ -149,7 +149,7 @@ class TwitchChatClient(
         override fun onAction(event: ActionEvent) {
             val message = parseMeMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
-            chatClientCallbacks.onChatMessage(message)
+            callbacks.onChatMessage(message)
         }
 
         override fun onUnknown(event: UnknownEvent) {
@@ -165,7 +165,7 @@ class TwitchChatClient(
             }
 
             messagesToDelete.forEach {
-                chatClientCallbacks.onChatMessageDeleted(it)
+                callbacks.onChatMessageDeleted(it)
             }
         }
     }

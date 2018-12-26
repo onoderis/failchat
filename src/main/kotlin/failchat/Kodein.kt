@@ -330,7 +330,7 @@ val kodein = Kodein {
                 emoticonHandler = instance<Peka2tvEmoticonHandler>(),
                 badgeHandler = instance<Peka2tvBadgeHandler>(),
                 history = instance<ChatMessageHistory>(),
-                chatClientCallbacks = instance<ChatClientCallbacks>()
+                callbacks = instance<ChatClientCallbacks>()
         )
     }
 
@@ -383,7 +383,7 @@ val kodein = Kodein {
                 ffzEmoticonHandler = instance<FfzEmoticonHandler>(),
                 twitchBadgeHandler = instance<TwitchBadgeHandler>(),
                 history = instance<ChatMessageHistory>(),
-                chatClientCallbacks = instance<ChatClientCallbacks>()
+                callbacks = instance<ChatClientCallbacks>()
         )
     }
     bind<TwitchViewersCountLoader>() with factory { channelName: String ->
@@ -427,7 +427,7 @@ val kodein = Kodein {
                 emoticonHandler = instance<GgEmoticonHandler>(),
                 badgeHandler = factory<GgChannel, GgBadgeHandler>().invoke(channel),
                 history = instance<ChatMessageHistory>(),
-                chatClientCallbacks = instance<ChatClientCallbacks>()
+                callbacks = instance<ChatClientCallbacks>()
         )
     }
     bind<GgViewersCountLoader>() with factory { channelName: String ->
@@ -483,7 +483,7 @@ val kodein = Kodein {
                 emoticonUrlPrefix = instance<Configuration>().getString("cybergame.emoticon-url-prefix"),
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 history = instance<ChatMessageHistory>(),
-                chatClientCallbacks = instance<ChatClientCallbacks>()
+                callbacks = instance<ChatClientCallbacks>()
         )
     }
     bind<CgViewersCountLoader>() with factory { channelName: String ->
