@@ -38,8 +38,10 @@ class GgApiTest {
     @Test
     fun viewersCountTest() = runBlocking<Unit> {
         try {
-            apiClient.requestViewersCount("Miker")
+            val count = apiClient.requestViewersCount("Miker11332")
+            log.debug("gg viewers count: {}", count)
         } catch (ignored: ChannelOfflineException) {
+            log.debug("gg channel is offline")
         }
     }
 

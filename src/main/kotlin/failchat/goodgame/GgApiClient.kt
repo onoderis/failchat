@@ -2,6 +2,7 @@ package failchat.goodgame
 
 import com.fasterxml.jackson.databind.JsonNode
 import failchat.Origin
+import failchat.exception.ChannelNotFoundException
 import failchat.exception.ChannelOfflineException
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
@@ -64,7 +65,8 @@ class GgApiClient(
     suspend fun requestViewersCount(channelName: String): Int {
         // https://github.com/GoodGame/API/blob/master/Streams/stream_api.md
         val response = requestChannelStatus(channelName)
-        val statusNode = response.first()
+        val statusNode = response.firstOrNull()
+                ?: throw ChannelNotFoundException("goodgame: $channelName")
         if (statusNode.get("status").asText() != "Live") throw ChannelOfflineException(Origin.GOODGAME, channelName)
         return statusNode.get("viewers").asText().toInt()
     }
