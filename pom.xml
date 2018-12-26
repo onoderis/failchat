@@ -416,6 +416,18 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>js-digital-chain</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>wget</goal>
+                        </goals>
+                        <configuration>
+                            <url>https://unpkg.com/digital-chain@3.6.0/index.js</url>
+                            <outputDirectory>${basedir}/src/main/external-resources/skins/_shared/lib/</outputDirectory>
+                            <outputFileName>digital-chain.js</outputFileName>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>goodgame-badge-font</id>
                         <phase>generate-resources</phase>
                         <goals>
