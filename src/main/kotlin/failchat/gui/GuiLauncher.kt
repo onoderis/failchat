@@ -13,7 +13,6 @@ import javafx.scene.control.Alert.AlertType
 import javafx.scene.control.ButtonBar.ButtonData
 import javafx.scene.control.ButtonBar.ButtonData.OK_DONE
 import javafx.scene.control.ButtonType
-import javafx.scene.image.Image
 import javafx.stage.Stage
 import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
@@ -26,7 +25,6 @@ class GuiLauncher : Application() {
 
     companion object {
         private val logger = KotlinLogging.logger {}
-        val appIcon = Image(GuiLauncher::class.java.getResourceAsStream("/icons/failchat.png"))
     }
 
     override fun start(primaryStage: Stage) {
@@ -82,7 +80,7 @@ class GuiLauncher : Application() {
                     contentText = "New release available: ${release.version}"
                 }
                 val stage = notification.dialogPane.scene.window as Stage
-                stage.icons.setAll(appIcon)
+                stage.icons.setAll(Images.appIcon)
 
                 val changelogButton = ButtonType("Download", OK_DONE)
                 val closeButton = ButtonType("Close", ButtonData.CANCEL_CLOSE)

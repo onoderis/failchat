@@ -100,7 +100,7 @@ class SettingsFrame(
     init {
         stage.scene = scene
         stage.title = "failchat v" + config.getString("version")
-        stage.icons.setAll(GuiLauncher.appIcon)
+        stage.icons.setAll(Images.appIcon)
 
         peka2tvEnabled.selectedProperty().addListener { _, _, newValue ->
             peka2tvChannel.configureChannelField(newValue)
@@ -188,7 +188,7 @@ class SettingsFrame(
             headerText = "Are you sure you want to reset the configuration?"
         }
         val stage = notification.dialogPane.scene.window as Stage
-        stage.icons.setAll(GuiLauncher.appIcon)
+        stage.icons.setAll(Images.appIcon)
 
         val okButton = ButtonType("OK", OK_DONE)
         val closeButton = ButtonType("Cancel", CANCEL_CLOSE)
