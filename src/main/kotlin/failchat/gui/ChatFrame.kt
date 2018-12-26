@@ -132,7 +132,7 @@ class ChatFrame(
             saveChatPosition(stage)
             guiEventHandler.value.handleShutDown()
         }
-        stage.icons.setAll(GuiLauncher.appIcon)
+        stage.icons.setAll(Images.appIcon)
         return stage
     }
 

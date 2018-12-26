@@ -7,6 +7,7 @@ import failchat.emoticon.EmoticonStorage
 import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.emoticon.OriginEmoticonStorageFactory
 import failchat.gui.GuiLauncher
+import failchat.gui.PortBindAlert
 import failchat.reporter.EventAction
 import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
@@ -152,10 +153,13 @@ private fun checkForAnotherInstance() {
     try {
         val serverSocket = ServerSocket(FcServerInfo.port, 10, FcServerInfo.host)
         serverSocket.close()
+        return
     } catch (e: Exception) {
         System.err.println("Another instance is running at ${FcServerInfo.host}:${FcServerInfo.port}. Exception: $e")
-        System.exit(0)
     }
+
+    JfxApplication.launch(PortBindAlert::class.java)
+    System.exit(0)
 }
 
 /** Delete user config file and emoticons db file if user configuration was reset during a previous launch. */
