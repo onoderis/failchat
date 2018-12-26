@@ -91,7 +91,7 @@ class ChatFrame(
             } else {
                 ""
             }
-            val url = "http://${FcServerInfo.host.hostAddress}:${FcServerInfo.port}/resources/${skin.name}/${skin.name}.html" +
+            val url = "http://${FcServerInfo.host.hostAddress}:${FcServerInfo.port}/chat/${skin.name}" +
                     optionalPortParam
 
             lastOpenedSkinUrl = url

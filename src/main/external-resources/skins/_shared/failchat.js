@@ -92,7 +92,7 @@ function initializeFailchat() {
 
 
     // Web socket
-    const wsUrl = new URL("/chat", window.location.href);
+    const wsUrl = new URL("/ws", window.location.href);
     wsUrl.protocol = wsUrl.protocol.replace('http', 'ws');
 
     const paramParser = new URLSearchParams(window.location.search);

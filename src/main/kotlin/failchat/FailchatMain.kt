@@ -11,15 +11,19 @@ import failchat.gui.PortBindAlert
 import failchat.reporter.EventAction
 import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
+import failchat.skin.Skins
 import failchat.twitch.TwitchEmoticonUrlFactory
 import failchat.util.CoroutineExceptionLogger
 import failchat.util.bytesToMegabytes
 import failchat.util.sp
 import failchat.ws.server.WsFrameSender
 import failchat.ws.server.WsMessageDispatcher
+import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.http.content.files
 import io.ktor.http.content.static
+import io.ktor.response.respondRedirect
+import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
@@ -257,14 +261,16 @@ fun KtorApplication.failchat() {
             files(failchatEmoticonsPath.toFile())
         }
 
-        webSocket("/chat") {
+        webSocket("/ws") {
             wsFrameSender.notifyNewSession(this)
             wsMessageDispatcher.handleWebSocket(this)
         }
 
-//        get("websocket") {
-//            call.respondRedirect("http://${wsServerAddress.hostString}:${wsServerAddress.port}/", permanent = true)
-//        }
+        get("/chat/{skin?}") {
+            val skin = call.parameters["skin"] ?: Skins.default
+            val params = call.parameters["port"]?.let { p -> "?port=$p" } ?: ""
+            call.respondRedirect("/resources/$skin/$skin.html$params", permanent = true)
+        }
     }
 }
 
