@@ -47,6 +47,7 @@ import failchat.goodgame.GgChatClient
 import failchat.goodgame.GgEmoticonBulkLoader
 import failchat.goodgame.GgEmoticonHandler
 import failchat.goodgame.GgEmoticonLoadConfiguration
+import failchat.goodgame.GgViewersCountLoader
 import failchat.gui.GuiEventHandler
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvBadgeHandler
@@ -420,14 +421,19 @@ val kodein = Kodein {
     // Goodgame
     bind<GgChatClient>() with factory { channel: GgChannel ->
         GgChatClient(
-                channelName = channel.name,
-                channelId = channel.id,
+                channel = channel,
                 webSocketUri = instance<Configuration>().getString("goodgame.ws-url"),
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 emoticonHandler = instance<GgEmoticonHandler>(),
                 badgeHandler = factory<GgChannel, GgBadgeHandler>().invoke(channel),
                 history = instance<ChatMessageHistory>(),
                 chatClientCallbacks = instance<ChatClientCallbacks>()
+        )
+    }
+    bind<GgViewersCountLoader>() with factory { channelName: String ->
+        GgViewersCountLoader(
+                instance<GgApiClient>(),
+                channelName
         )
     }
     bind<GgApiClient>() with singleton {

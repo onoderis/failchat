@@ -16,29 +16,23 @@ import failchat.chat.StatusUpdate
 import failchat.chat.findFirstTyped
 import failchat.chat.handlers.CommaHighlightHandler
 import failchat.chat.handlers.ElementLabelEscaper
-import failchat.exception.ChannelOfflineException
-import failchat.util.completedFuture
-import failchat.util.exceptionalFuture
 import failchat.util.objectMapper
-import failchat.viewers.ViewersCountLoader
 import failchat.ws.client.WsClient
 import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 
 class GgChatClient(
-        private val channelName: String,
-        private val channelId: Long,
+        private val channel: GgChannel,
         private val webSocketUri: String,
         private val messageIdGenerator: MessageIdGenerator,
         emoticonHandler: MessageHandler<GgMessage>,
         badgeHandler: GgBadgeHandler,
         private val history: ChatMessageHistory,
         private val chatClientCallbacks: ChatClientCallbacks
-) : ChatClient<GgMessage>, ViewersCountLoader {
+) : ChatClient<GgMessage> {
 
     private companion object : KLogging()
 
@@ -53,12 +47,9 @@ class GgChatClient(
             ElementLabelEscaper(),
             HtmlUrlCleaner(),
             emoticonHandler,
-            CommaHighlightHandler(channelName),
+            CommaHighlightHandler(channel.name),
             badgeHandler
     )
-
-    @Volatile
-    private var viewersCount: Int? = null
 
 
     override fun start() {
@@ -74,32 +65,25 @@ class GgChatClient(
         wsClient.stop()
     }
 
-    override fun loadViewersCount(): CompletableFuture<Int> {
-        viewersCount?.let {
-            return completedFuture(it)
-        }
-        return exceptionalFuture(ChannelOfflineException(Origin.GOODGAME, channelName))
-    }
-
     private inner class GgWsClient(uri: URI) : WsClient(uri) {
 
         override fun onOpen(serverHandshake: ServerHandshake) {
             val joinMessage = objectMapper.createObjectNode().apply {
                 put("type", "join")
                 putObject("data").apply {
-                    put("channel_id", channelId.toString())
+                    put("channel_id", channel.id.toString())
                     put("isHidden", false)
                 }
             }
             atomicStatus.set(ChatClientStatus.CONNECTED)
-            logger.info("Goodgame chat client connected to channel {}", channelId)
+            logger.info("Goodgame chat client connected to channel {}", channel.id)
 
             wsClient.send(joinMessage.toString())
             chatClientCallbacks.onStatusUpdate(StatusUpdate(GOODGAME, CONNECTED))
         }
 
         override fun onClose(code: Int, reason: String, remote: Boolean) {
-            logger.info("Goodgame chat client disconnected from channel {}", channelId)
+            logger.info("Goodgame chat client disconnected from channel {}", channel.id)
         }
 
         override fun onMessage(message: String) {
@@ -111,7 +95,6 @@ class GgChatClient(
             when (type) {
                 "message" -> handleUserMessage(data)
                 "remove_message" -> handleModMessage(data)
-                "channel_counters" -> handleChannelCountersMessage(data)
             }
         }
 
@@ -155,10 +138,6 @@ class GgChatClient(
                         .await()
             }
             foundMessage?.let { chatClientCallbacks.onChatMessageDeleted(it) }
-        }
-
-        private fun handleChannelCountersMessage(dataNode: JsonNode) {
-            viewersCount = dataNode.get("clients_in_channel").asInt()
         }
     }
 

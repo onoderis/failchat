@@ -135,7 +135,7 @@ class YtChatClient(
             logger.debug("Got liveChatId: '{}'", liveChatId)
 
             val channelTitle = ytApiClient.getChannelTitle(channelId)
-                    ?: throw ChannelNotFoundException(channelId)
+                    ?: throw YtChannelNotFoundException(channelId)
             logger.debug("Got channelTitle: '{}'", channelTitle)
 
             highlightHandler.channelTitle.value = channelTitle //todo refactor

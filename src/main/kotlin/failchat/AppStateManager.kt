@@ -29,6 +29,7 @@ import failchat.exception.InvalidConfigurationException
 import failchat.goodgame.GgApiClient
 import failchat.goodgame.GgChannel
 import failchat.goodgame.GgChatClient
+import failchat.goodgame.GgViewersCountLoader
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvChatClient
 import failchat.twitch.TwitchApiClient
@@ -144,7 +145,10 @@ class AppStateManager(private val kodein: Kodein) {
                     .invoke(channel)
 
             initializedChatClients.put(GOODGAME, chatClient)
-            viewersCountLoaders.add(chatClient)
+
+            val counter = kodein.factory<String, GgViewersCountLoader>()
+                    .invoke(channelName)
+            viewersCountLoaders.add(counter)
         }
 
 
