@@ -174,9 +174,7 @@ class Peka2tvChatClient(
                     val idToRemove = removeMessage.getLong("id")
 
                     val foundMessage = runBlocking {
-                        history
-                                .findFirstTyped<Peka2tvMessage> { it.peka2tvId == idToRemove }
-                                .await()
+                        history.findFirstTyped<Peka2tvMessage> { it.peka2tvId == idToRemove }
                     }
 
                     foundMessage?.let { callbacks.onChatMessageDeleted(it) }
