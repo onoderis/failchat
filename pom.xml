@@ -301,6 +301,7 @@
                                     <excludes>
                                         <exclude>failchat.bat</exclude>
                                         <exclude>failchat-no-gui.bat</exclude>
+                                        <exclude>failchat-debug.bat</exclude>
                                     </excludes>
                                 </resource>
                             </resources>
@@ -321,6 +322,7 @@
                                     <excludes>
                                         <exclude>failchat.bat</exclude>
                                         <exclude>failchat-no-gui.bat</exclude>
+                                        <exclude>failchat-debug.bat</exclude>
                                         <exclude>skins/_shared/example-messages.js</exclude>
                                     </excludes>
                                 </resource>
