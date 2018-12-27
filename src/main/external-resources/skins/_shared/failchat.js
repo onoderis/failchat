@@ -306,8 +306,11 @@ function initializeFailchat() {
             if (newStatus === oldStatus) return;
 
             originsStatus[origin] = newStatus;
-            const connectedMessage = {id: nextSystemMessageId(), "origin": origin, "status": newStatus, "timestamp": Date.now()};
-            appendStatusMessage(connectedMessage);
+
+            if (showStatusMessages) {
+                const connectedMessage = {id: nextSystemMessageId(), "origin": origin, "status": newStatus, "timestamp": Date.now()};
+                appendStatusMessage(connectedMessage);
+            }
         });
     }
 
