@@ -6,21 +6,26 @@ import failchat.emoticon.EmoticonLoadConfiguration.LoadType.BULK
 import failchat.emoticon.EmoticonLoadConfiguration.LoadType.STREAM
 import failchat.emoticon.EmoticonManager.LoadResult.Failure
 import failchat.emoticon.EmoticonManager.LoadResult.Success
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.map
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 class EmoticonManager(
         private val config: Configuration,
-        private val storage: EmoticonStorage
+        private val storage: EmoticonStorage,
+        private val scheduledExecutorService: ScheduledExecutorService
 ) {
 
     private companion object : KLogging()
 
     private val updateInterval = Duration.ofMillis(config.getLong("emoticons.updating-delay"))
+    private val dispatcher = scheduledExecutorService.asCoroutineDispatcher()
 
     /**
      * Load emoticons by the specified configurations and put them into the storage. Blocking call
@@ -80,6 +85,7 @@ class EmoticonManager(
             try {
                 emoticons = bulkLoader.loadEmoticons().join()
                 loadedSuccessfully = true
+                break
             } catch (e: Exception) {
                 logger.warn("Failed to load emoticon list for {} via bulk loader {}", origin, e, bulkLoader)
             }
@@ -105,17 +111,24 @@ class EmoticonManager(
 
         for (streamLoader in loadConfiguration.streamLoaders) {
             count.set(0)
+            val loggingTask = scheduledExecutorService.scheduleAtFixedRate({
+                logger.info("Loading {} emoticons, loaded: {}", origin, count.get())
+            }, 5, 5, TimeUnit.SECONDS)
+
             try {
                 val emoticonsChannel = streamLoader.loadEmoticons()
                         .map {
                             count.incrementAndGet()
                             EmoticonAndId(it, idExtractor.extractId(it))
                         }
-                //todo check that exception throws here
+
                 storage.putChannel(origin, emoticonsChannel)
                 loadedSuccessfully = true
+                break
             } catch (e: Exception) {
                 logger.warn("Failed to load emoticons for {} via stream loader {}", origin, streamLoader, e)
+            } finally {
+                loggingTask.cancel(false)
             }
         }
 
