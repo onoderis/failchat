@@ -1,1 +1,1 @@
-java -Xmx400m -jar failchat-${project.version}.jar --no-gui
+java -Xmx200m -Xms100m -XX:+UseG1GC -jar failchat-${project.version}.jar --no-gui
