@@ -163,7 +163,11 @@ val kodein = Kodein {
     }
     bind<EmoticonFinder>() with singleton { instance<EmoticonStorage>() }
     bind<EmoticonManager>() with singleton {
-        EmoticonManager(instance<Configuration>(), instance<EmoticonStorage>())
+        EmoticonManager(
+                instance<Configuration>(),
+                instance<EmoticonStorage>(),
+                instance<ScheduledExecutorService>("background")
+        )
     }
     bind<List<EmoticonLoadConfiguration<out Emoticon>>>("emoticonLoadConfigurations") with singleton {
         listOf(
@@ -296,7 +300,7 @@ val kodein = Kodein {
     // Background task executor
     bind<ScheduledExecutorService>("background") with singleton {
         val threadNumber = AtomicInteger()
-        Executors.newScheduledThreadPool(2) {
+        Executors.newScheduledThreadPool(4) {
             Thread(it, "BackgroundExecutor-${threadNumber.getAndIncrement()}").apply {
                 isDaemon = true
                 priority = 3
