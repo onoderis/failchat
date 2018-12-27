@@ -15,7 +15,7 @@ class CgViewersCountLoader(
     override val origin = Origin.CYBERGAME
 
     override fun loadViewersCount(): CompletableFuture<Int> {
-        return CoroutineScope(Dispatchers.Unconfined).future {
+        return CoroutineScope(Dispatchers.Default).future {
             cgApiClient.requestViewersCount(channelName)
         }
     }
