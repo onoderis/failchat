@@ -9,13 +9,11 @@ Chat message aggregator for twitch, youtube, goodgame, peka2tv, cybergame.tv
 * Ignore list
 * Moderation
 * Skin customization via html/css/js
-* Could be captured by Browser Source, CLR Browser or the same plugins
+* Could be captured by OBS Browser, CLR Browser or the same plugins
 
 ### Requirements
-Java 8 (recommended u60 and newer)
+Java 8 (recommended u191 and newer)
 
 ### Screenshots
-![Settings](https://i.imgur.com/diZtVLN.png)
-
-![Chat](https://i.imgur.com/zLf5mmZ.png)
+[Imgur album](https://imgur.com/a/AVYzrmo)
 
