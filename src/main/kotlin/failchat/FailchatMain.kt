@@ -290,7 +290,7 @@ private fun scheduleReportTasks(executor: ScheduledExecutorService) {
     }
 
     executor.scheduleAtFixedRate({
-        CoroutineScope(Dispatchers.Unconfined).launch {
+        CoroutineScope(Dispatchers.Default).launch {
             try {
                 reporter.report(EventCategory.GENERAL, EventAction.HEARTBEAT)
             } catch (t: Throwable) {
