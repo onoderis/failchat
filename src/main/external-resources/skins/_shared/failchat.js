@@ -53,7 +53,6 @@ function initializeFailchat() {
     let showHiddenMessages = false;
 
     // dom elements
-    const bodyWrapper = $("#body-wrapper");
     const messageContainer = $("#message-container");
     const scroller = $(failchat.baronParams.scroller);
     const scrollBar = $(failchat.baronParams.bar);
@@ -200,6 +199,19 @@ function initializeFailchat() {
     }
 
     function handleClientConfigurationMessage(config) {
+        let clientConfig;
+        if (failchat.nativeClient) {
+            clientConfig = config.nativeClient;
+        } else {
+            clientConfig = config.externalClient;
+        }
+
+        showStatusMessages = clientConfig.showStatusMessages;
+        if (failchat.nativeClient) {
+            showHiddenMessages = config.showHiddenMessages;
+        }
+
+        // dynamic styles
         const bodyZoomStyle = "body { zoom: " + config.zoomPercent + "%; }";
 
         let originBadgesStyle = "";
@@ -212,20 +224,16 @@ function initializeFailchat() {
             userBadgesStyle = ".message .user-badges { display: none; }"
         }
 
-        dynamicStyles.innerHTML = bodyZoomStyle + originBadgesStyle + userBadgesStyle ;
+        const rgbaBackgroundColor = hexToRgba(clientConfig.backgroundColor.substring(1));
+        let bgColorStyle = "#body-wrapper { background-color: rgba(" + rgbaBackgroundColor + ") }";
 
-
-        let clientConfig;
-        if (failchat.nativeClient) {
-            clientConfig = config.nativeClient;
-        } else {
-            clientConfig = config.externalClient;
+        let hiddenMessageStyle = ".hidden { display: none; }";
+        if (showHiddenMessages) {
+            hiddenMessageStyle = "";
         }
 
-        showStatusMessages = clientConfig.showStatusMessages;
+        dynamicStyles.innerHTML = bodyZoomStyle + originBadgesStyle + userBadgesStyle + bgColorStyle + hiddenMessageStyle;
 
-        const backgroundColor = clientConfig.backgroundColor;
-        bodyWrapper.css("background-color", "rgba(" + hexToRgba(backgroundColor.substring(1)) + ")");
 
         if (isHideMessagePropertiesChanged(clientConfig)) {
             hideMessages = clientConfig.hideMessages;
@@ -233,21 +241,9 @@ function initializeFailchat() {
             resetHideMessageTasks();
         }
 
+
         // ---------- native client configuration ----------
         if (!failchat.nativeClient) return;
-
-        // handle hiddenMessages property
-        if (showHiddenMessages !== config.showHiddenMessages) {
-            showHiddenMessages = config.showHiddenMessages;
-            for (let [message] of activeMessages) {
-                const messageElement = $(messageSelector(message));
-                if (showHiddenMessages) {
-                    messageElement.addClass("unhidden")
-                } else {
-                    messageElement.removeClass("unhidden")
-                }
-            }
-        }
 
         // handle viewers bar configuration
         if (config.showViewersCount === true) {
@@ -334,10 +330,6 @@ function initializeFailchat() {
         activeMessages.unshift(message);
         messageContainer.append(html);
 
-        if (showHiddenMessages) {
-            $(messageSelector(message)).addClass("unhidden")
-        }
-
         if (autoScroll) {
             deleteOldMessages()
         }
@@ -348,7 +340,7 @@ function initializeFailchat() {
     function hideMessage(message) {
         const messageElement = $(messageSelector(message));
 
-        if (failchat.hideMessageAnimationClass === null) {
+        if (failchat.hideMessageAnimationClass === null || showHiddenMessages) {
             // hide without animation
             messageElement.addClass("hidden");
             message.hidden = true;
