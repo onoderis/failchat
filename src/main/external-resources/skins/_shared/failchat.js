@@ -5,7 +5,6 @@ const failchat = {
     iconsPath: "../_shared/icons/",
     hideMessageAnimationClass: null,
     origins: ["peka2tv", "twitch", "goodgame", "youtube", "cybergame"],
-    deletedMessagePlaceholder: "message deleted",
     nativeClient: false
 };
 
@@ -51,6 +50,8 @@ function initializeFailchat() {
     let hideMessages = false;
     let hideMessagesAfter = 60;
     let showHiddenMessages = false;
+    let deletedMessagePlaceholder = "message deleted";
+    let hideDeletedMessages = false;
 
     // dom elements
     const messageContainer = $("#message-container");
@@ -199,8 +200,8 @@ function initializeFailchat() {
     }
 
     function handleClientConfigurationMessage(config) {
-        failchat.deletedMessagePlaceholder = config.deletedMessagePlaceholder;
-
+        deletedMessagePlaceholder = config.deletedMessagePlaceholder;
+        hideDeletedMessages = config.hideDeletedMessages;
 
         let clientConfig;
         if (failchat.nativeClient) {
@@ -288,7 +289,16 @@ function initializeFailchat() {
 
         message.addClass("deleted-message");
         messageText.removeClass("highlighted");
-        messageText.text(failchat.deletedMessagePlaceholder);
+        messageText.text(deletedMessagePlaceholder);
+
+        if (hideDeletedMessages) {
+            const foundNode = activeMessages.findFirstBy(function (m) {
+                return m.id === deleteMessage.messageId;
+            });
+            if (foundNode !== null) {
+                hideMessage(foundNode.data)
+            }
+        }
     }
 
     function handleClearChatMessage() {

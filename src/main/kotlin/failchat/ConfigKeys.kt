@@ -56,6 +56,7 @@ object ConfigKeys {
     const val showUserBadges = "show-user-badges"
     const val zoomPercent = "zoom-percent"
     const val deletedMessagePlaceholder = "deleted-message-placeholder"
+    const val hideDeletedMessages = "hide-deleted-messages"
     const val ignore = "ignore"
     const val showHiddenMessages = "show-hidden-messages"
 
