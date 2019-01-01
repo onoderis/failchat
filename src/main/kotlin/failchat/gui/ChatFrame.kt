@@ -180,9 +180,7 @@ class ChatFrame(
         }
         closeChatItem.setOnAction { guiEventHandler.value.handleStopChat() }
         viewersItem.setOnAction {
-            val newValue = !config.getBoolean(ConfigKeys.showViewers)
-            config.setProperty(ConfigKeys.showViewers, newValue)
-            guiEventHandler.value.handleConfigurationChange()
+            toggleShowViewersBar()
         }
 
         clearChatItem.setOnAction {
@@ -256,6 +254,10 @@ class ChatFrame(
                 KeyCode.H -> {
                     val newValue = toggleShowHiddenMessages()
                     showHiddenMessages.isSelected = newValue
+                }
+                KeyCode.V -> {
+                    val newValue = toggleShowViewersBar()
+                    viewersItem.isSelected = newValue
                 }
                 else -> {}
             }
@@ -340,10 +342,18 @@ class ChatFrame(
         zoomValueText.text = config.getString(ConfigKeys.zoomPercent)
         showHiddenMessages.isSelected = config.getBoolean(ConfigKeys.showHiddenMessages)
     }
-    
+
+    private fun toggleShowViewersBar(): Boolean {
+        return toggleCheckMenuItem(ConfigKeys.showViewers)
+    }
+
     private fun toggleShowHiddenMessages(): Boolean {
-        val newValue = !config.getBoolean(ConfigKeys.showHiddenMessages)
-        config.setProperty(ConfigKeys.showHiddenMessages, newValue)
+        return toggleCheckMenuItem(ConfigKeys.showHiddenMessages)
+    }
+
+    private fun toggleCheckMenuItem(configKey: String): Boolean {
+        val newValue = !config.getBoolean(configKey)
+        config.setProperty(configKey, newValue)
         guiEventHandler.value.handleConfigurationChange()
 
         return newValue
