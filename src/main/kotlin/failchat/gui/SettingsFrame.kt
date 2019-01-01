@@ -71,6 +71,7 @@ class SettingsFrame(
     private val opacitySlider = namespace["opacity"] as Slider
     private val showOriginBadges = namespace["show_origin_badges"] as CheckBox
     private val showUserBadges = namespace["show_user_badges"] as CheckBox
+    private val hideDeletedMessages = namespace["hide_deleted_messages"] as CheckBox
     private val zoomPercent = namespace["zoom_percent"] as TextField
     private val deletedMessagePlaceholder = namespace["deleted_message_placeholder"] as TextField
 
@@ -246,6 +247,7 @@ class SettingsFrame(
         onTop.isSelected = config.getBoolean(ConfigKeys.onTop)
         showOriginBadges.isSelected = config.getBoolean(ConfigKeys.showOriginBadges)
         showUserBadges.isSelected = config.getBoolean(ConfigKeys.showUserBadges)
+        hideDeletedMessages.isSelected = config.getBoolean(ConfigKeys.hideDeletedMessages)
         zoomPercent.text = config.getInt(ConfigKeys.zoomPercent).toString()
         deletedMessagePlaceholder.text = config.getString(ConfigKeys.deletedMessagePlaceholder)
 
@@ -292,6 +294,7 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.opacity, opacitySlider.value.toInt())
         config.setProperty(ConfigKeys.showOriginBadges, showOriginBadges.isSelected)
         config.setProperty(ConfigKeys.showUserBadges, showUserBadges.isSelected)
+        config.setProperty(ConfigKeys.hideDeletedMessages, hideDeletedMessages.isSelected)
         config.setProperty(ConfigKeys.zoomPercent, parseZoomPercent(zoomPercent.text))
         config.setProperty(ConfigKeys.deletedMessagePlaceholder, deletedMessagePlaceholder.text)
 

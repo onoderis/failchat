@@ -103,6 +103,7 @@ class ChatMessageSender(
                 put("showUserBadges", config.getBoolean(ConfigKeys.showUserBadges))
                 put("zoomPercent", config.getInt(ConfigKeys.zoomPercent))
                 put("deletedMessagePlaceholder", config.getString(ConfigKeys.deletedMessagePlaceholder))
+                put("hideDeletedMessages", config.getString(ConfigKeys.hideDeletedMessages))
                 put("showHiddenMessages", config.getBoolean(ConfigKeys.showHiddenMessages))
                 putObject("nativeClient").apply {
                     put("backgroundColor", config.getString(ConfigKeys.nativeClient.backgroundColor))
