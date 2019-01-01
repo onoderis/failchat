@@ -190,9 +190,7 @@ class ChatFrame(
         }
 
         showHiddenMessages.setOnAction {
-            val newValue = !config.getBoolean(ConfigKeys.showHiddenMessages)
-            config.setProperty(ConfigKeys.showHiddenMessages, newValue)
-            guiEventHandler.value.handleConfigurationChange()
+            toggleShowHiddenMessages()
         }
 
         // zoom item callbacks
@@ -255,6 +253,10 @@ class ChatFrame(
             when (key.code) {
                 KeyCode.ESCAPE -> guiEventHandler.value.handleStopChat()
                 KeyCode.SPACE -> switchDecorations()
+                KeyCode.H -> {
+                    val newValue = toggleShowHiddenMessages()
+                    showHiddenMessages.isSelected = newValue
+                }
                 else -> {}
             }
         }
@@ -336,14 +338,15 @@ class ChatFrame(
         onTopItem.isSelected = config.getBoolean(ConfigKeys.onTop)
         viewersItem.isSelected = config.getBoolean(ConfigKeys.showViewers)
         zoomValueText.text = config.getString(ConfigKeys.zoomPercent)
+        showHiddenMessages.isSelected = config.getBoolean(ConfigKeys.showHiddenMessages)
+    }
+    
+    private fun toggleShowHiddenMessages(): Boolean {
+        val newValue = !config.getBoolean(ConfigKeys.showHiddenMessages)
+        config.setProperty(ConfigKeys.showHiddenMessages, newValue)
+        guiEventHandler.value.handleConfigurationChange()
 
-        if (config.getBoolean(ConfigKeys.nativeClient.hideMessages)) {
-            showHiddenMessages.isDisable = false
-            showHiddenMessages.isSelected = config.getBoolean(ConfigKeys.showHiddenMessages)
-        } else {
-            showHiddenMessages.isDisable = true
-            showHiddenMessages.isSelected = false
-        }
+        return newValue
     }
 
 }
