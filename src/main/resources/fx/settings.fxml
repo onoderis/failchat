@@ -229,7 +229,7 @@
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0">
                             <children>
-                        <ScrollPane focusTraversable="false" prefHeight="282.0" prefWidth="450.0" style="-fx-focus-color: transparent; -fx-faint-focus-color: transparent;">
+                        <ScrollPane focusTraversable="false" prefHeight="282.0" prefWidth="450.0">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0">
                                  <children>
@@ -389,22 +389,6 @@
                                                                           <Insets bottom="6.0" left="2.0" right="2.0" />
                                                                       </VBox.margin>
                                                                   </ColorPicker>
-                                                      <HBox>
-                                                         <children>
-                                                            <CheckBox fx:id="hide_messages_native" alignment="CENTER" mnemonicParsing="false">
-                                                               <HBox.margin>
-                                                                  <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
-                                                               </HBox.margin>
-                                                            </CheckBox>
-                                                            <FlowPane fx:id="fp" prefWidth="0.0">
-                                                               <children>
-                                                                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hide messages after" />
-                                                                  <TextField fx:id="hide_messages_native_after" maxWidth="38.0" minHeight="-Infinity" prefHeight="18.0" />
-                                                                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="seconds" />
-                                                               </children>
-                                                            </FlowPane>
-                                                         </children>
-                                                      </HBox>
                                                       <CheckBox fx:id="show_status_messages_native" mnemonicParsing="false" text="Show status messages">
                                                          <font>
                                                             <Font size="12.0" />
@@ -412,6 +396,17 @@
                                                          <VBox.margin>
                                                             <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                          </VBox.margin>
+                                                      </CheckBox>
+                                                      <CheckBox fx:id="hide_messages_native" alignment="CENTER" mnemonicParsing="false">
+                                                         <graphic>
+                                                            <FlowPane fx:id="fp" prefWidth="0.0">
+                                                               <children>
+                                                                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hide messages after" />
+                                                                  <TextField fx:id="hide_messages_native_after" maxWidth="38.0" minHeight="-Infinity" prefHeight="18.0" />
+                                                                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="seconds" />
+                                                               </children>
+                                                            </FlowPane>
+                                                         </graphic>
                                                       </CheckBox>
                                                    </children>
                                                    <padding>
@@ -421,7 +416,7 @@
                                                       <Insets left="38.0" right="6.0" />
                                                    </HBox.margin>
                                                 </VBox>
-                                                <Separator orientation="VERTICAL" prefHeight="150.0" />
+                                                <Separator orientation="VERTICAL" prefHeight="167.0" />
                                                 <VBox>
                                                    <children>
                                                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="External clients settings">
@@ -448,22 +443,6 @@
                                                                           <Insets bottom="6.0" left="2.0" right="2.0" />
                                                                       </VBox.margin>
                                                                   </ColorPicker>
-                                                      <HBox>
-                                                         <children>
-                                                            <CheckBox fx:id="hide_messages_external" alignment="CENTER" mnemonicParsing="false">
-                                                               <HBox.margin>
-                                                                  <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
-                                                               </HBox.margin>
-                                                            </CheckBox>
-                                                            <FlowPane fx:id="fp" prefWidth="0.0">
-                                                               <children>
-                                                                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hide messages after" />
-                                                                  <TextField fx:id="hide_messages_external_after" maxWidth="38.0" minHeight="-Infinity" prefHeight="18.0" />
-                                                                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="seconds" />
-                                                               </children>
-                                                            </FlowPane>
-                                                         </children>
-                                                      </HBox>
                                                       <CheckBox fx:id="show_status_messages_external" mnemonicParsing="false" text="Show status messages">
                                                          <font>
                                                             <Font size="12.0" />
@@ -471,6 +450,17 @@
                                                          <VBox.margin>
                                                             <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                          </VBox.margin>
+                                                      </CheckBox>
+                                                      <CheckBox fx:id="hide_messages_external" alignment="CENTER" mnemonicParsing="false">
+                                                         <graphic>
+                                                            <FlowPane fx:id="fp" prefWidth="0.0">
+                                                               <children>
+                                                                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hide messages after" />
+                                                                  <TextField fx:id="hide_messages_external_after" maxWidth="38.0" minHeight="-Infinity" prefHeight="18.0" />
+                                                                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="seconds" />
+                                                               </children>
+                                                            </FlowPane>
+                                                         </graphic>
                                                       </CheckBox>
                                                    </children>
                                                    <padding>
