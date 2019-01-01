@@ -7,7 +7,6 @@ import failchat.util.toHexFormat
 import javafx.application.Application
 import javafx.collections.FXCollections
 import javafx.fxml.FXMLLoader
-import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.Alert
 import javafx.scene.control.Alert.AlertType.WARNING
@@ -42,59 +41,64 @@ class SettingsFrame(
 
     private companion object : KLogging()
 
-    private val scene = Scene(FXMLLoader.load<Parent>(javaClass.getResource("/fx/settings.fxml")))
+    private val loader = FXMLLoader(javaClass.getResource("/fx/settings.fxml"))
+    private val scene = Scene(loader.load())
+    private val namespace = loader.namespace
 
     //channels
-    private val peka2tvChannel = scene.lookup("#peka2tv_channel") as TextField
-    private val goodgameChannel = scene.lookup("#goodgame_channel") as TextField
-    private val twitchChannel = scene.lookup("#twitch_channel") as TextField
-    private val youtubeChannel = scene.lookup("#youtube_channel") as TextField
-    private val cybergameChannel = scene.lookup("#cybergame_channel") as TextField
+    private val peka2tvChannel = namespace["peka2tv_channel"] as TextField
+    private val goodgameChannel = namespace["goodgame_channel"] as TextField
+    private val twitchChannel = namespace["twitch_channel"] as TextField
+    private val youtubeChannel = namespace["youtube_channel"] as TextField
+    private val cybergameChannel = namespace["cybergame_channel"] as TextField
 
     //channels checkboxes
-    private val peka2tvEnabled = scene.lookup("#peka2tv_enabled") as CheckBox
-    private val goodgameEnabled = scene.lookup("#goodgame_enabled") as CheckBox
-    private val twitchEnabled = scene.lookup("#twitch_enabled") as CheckBox
-    private val youtubeEnabled = scene.lookup("#youtube_enabled") as CheckBox
-    private val cybergameEnabled = scene.lookup("#cybergame_enabled") as CheckBox
+    private val peka2tvEnabled = namespace["peka2tv_enabled"] as CheckBox
+    private val goodgameEnabled = namespace["goodgame_enabled"] as CheckBox
+    private val twitchEnabled = namespace["twitch_enabled"] as CheckBox
+    private val youtubeEnabled = namespace["youtube_enabled"] as CheckBox
+    private val cybergameEnabled = namespace["cybergame_enabled"] as CheckBox
 
     @Suppress("UNCHECKED_CAST")
-    private val skin = scene.lookup("#skin") as ChoiceBox<Skin>
-    private val frame = scene.lookup("#frame") as CheckBox
-    private val onTop = scene.lookup("#top") as CheckBox
-    private val showViewers = scene.lookup("#show_viewers") as CheckBox
-    private val showImages = scene.lookup("#show_images") as CheckBox
+    private val skin = namespace["skin"] as ChoiceBox<Skin>
+    private val frame = namespace["frame"] as CheckBox
+    private val onTop = namespace["top"] as CheckBox
+    private val showViewers = namespace["show_viewers"] as CheckBox
+    private val showImages = namespace["show_images"] as CheckBox
 
     // Additional settings tab
+    // common settings
+    private val opacitySlider = namespace["opacity"] as Slider
+    private val showOriginBadges = namespace["show_origin_badges"] as CheckBox
+    private val showUserBadges = namespace["show_user_badges"] as CheckBox
+    private val zoomPercent = namespace["zoom_percent"] as TextField
+    private val deletedMessagePlaceholder = namespace["deleted_message_placeholder"] as TextField
+
     // native client
-    private val nativeBgColorPicker = scene.lookup("#bgcolor_native") as ColorPicker
-    private val hideMessagesNative = scene.lookup("#hide_messages_native") as CheckBox
-    private val hideMessagesNativeAfter = scene.lookup("#hide_messages_native_after") as TextField
-    private val showStatusMessagesNative = scene.lookup("#show_status_messages_native") as CheckBox
+    private val nativeBgColorPicker = namespace["bgcolor_native"] as ColorPicker
+    private val hideMessagesNative = namespace["hide_messages_native"] as CheckBox
+    private val hideMessagesNativeAfter = namespace["hide_messages_native_after"] as TextField
+    private val showStatusMessagesNative = namespace["show_status_messages_native"] as CheckBox
 
     // external client
-    private val externalBgColorPicker = scene.lookup("#bgcolor_external") as ColorPicker
-    private val hideMessagesExternal = scene.lookup("#hide_messages_external") as CheckBox
-    private val hideMessagesExternalAfter = scene.lookup("#hide_messages_external_after") as TextField
-    private val showStatusMessagesExternal = scene.lookup("#show_status_messages_external") as CheckBox
+    private val externalBgColorPicker = namespace["bgcolor_external"] as ColorPicker
+    private val hideMessagesExternal = namespace["hide_messages_external"] as CheckBox
+    private val hideMessagesExternalAfter = namespace["hide_messages_external_after"] as TextField
+    private val showStatusMessagesExternal = namespace["show_status_messages_external"] as CheckBox
 
-    private val opacitySlider = scene.lookup("#opacity") as Slider
-    private val showOriginBadges = scene.lookup("#show_origin_badges") as CheckBox
-    private val showUserBadges = scene.lookup("#show_user_badges") as CheckBox
-    private val zoomPercent = scene.lookup("#zoom_percent") as TextField
 
 
     // Actions tab
-    private val failchatEmoticonsButton = scene.lookup("#failchat_emoticons") as Button
-    private val reloadEmoticonsButton = scene.lookup("#reload_emoticons_button") as Button
-    private val reloadEmoticonsIndicator = scene.lookup("#reload_emoticons_indicator") as ProgressIndicator
-    private val resetConfigurationButton = scene.lookup("#reset_configuration") as Button
+    private val failchatEmoticonsButton = namespace["failchat_emoticons"] as Button
+    private val reloadEmoticonsButton = namespace["reload_emoticons_button"] as Button
+    private val reloadEmoticonsIndicator = namespace["reload_emoticons_indicator"] as ProgressIndicator
+    private val resetConfigurationButton = namespace["reset_configuration"] as Button
 
     // Ignore list tab
-    private val ignoreList = scene.lookup("#ignore_list") as TextArea
+    private val ignoreList = namespace["ignore_list"] as TextArea
 
 
-    private val startButton = scene.lookup("#start_button") as Button
+    private val startButton = namespace["start_button"] as Button
 
 
     init {
@@ -127,7 +131,7 @@ class SettingsFrame(
         }
 
 
-        val opacityText = scene.lookup("#opacity_text") as Text
+        val opacityText = namespace["opacity_text"] as Text
         opacitySlider.valueProperty().addListener { _, _, newValue ->
             opacityText.text = Integer.toString(newValue.toInt())
         }
@@ -145,12 +149,12 @@ class SettingsFrame(
             guiEventHandler.value.handleResetUserConfiguration()
         }
 
-        val githubLink = scene.lookup("#github_link") as Hyperlink
+        val githubLink = namespace["github_link"] as Hyperlink
         githubLink.setOnAction {
             app.hostServices.showDocument(config.getString("about.github-repo"))
         }
 
-        val discordLink = scene.lookup("#discord_link") as Hyperlink
+        val discordLink = namespace["discord_link"] as Hyperlink
         discordLink.setOnAction {
             app.hostServices.showDocument(config.getString("about.discord-server"))
         }
@@ -243,6 +247,7 @@ class SettingsFrame(
         showOriginBadges.isSelected = config.getBoolean(ConfigKeys.showOriginBadges)
         showUserBadges.isSelected = config.getBoolean(ConfigKeys.showUserBadges)
         zoomPercent.text = config.getInt(ConfigKeys.zoomPercent).toString()
+        deletedMessagePlaceholder.text = config.getString(ConfigKeys.deletedMessagePlaceholder)
 
         hideMessagesNative.isSelected = config.getBoolean(ConfigKeys.nativeClient.hideMessages)
         hideMessagesNativeAfter.text = config.getInt(ConfigKeys.nativeClient.hideMessagesAfter).toString()
@@ -288,6 +293,7 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.showOriginBadges, showOriginBadges.isSelected)
         config.setProperty(ConfigKeys.showUserBadges, showUserBadges.isSelected)
         config.setProperty(ConfigKeys.zoomPercent, parseZoomPercent(zoomPercent.text))
+        config.setProperty(ConfigKeys.deletedMessagePlaceholder, deletedMessagePlaceholder.text)
 
         config.setProperty(ConfigKeys.nativeClient.backgroundColor, nativeBgColorPicker.value.toHexFormat())
         config.setProperty(ConfigKeys.nativeClient.hideMessages, hideMessagesNative.isSelected)

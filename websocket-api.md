@@ -63,6 +63,7 @@
         "showOriginBadges": true,
         "showUserBadges": true,
         "zoomPercent": 100,
+        "deletedMessagePlaceholder": "message deleted",
         "showHiddenMessages": false,
         "nativeClient": {
             "backgroundColor": "0x000000ff",
