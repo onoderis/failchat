@@ -67,13 +67,13 @@
         "hideDeletedMessages" : false,
         "showHiddenMessages": false,
         "nativeClient": {
-            "backgroundColor": "0x000000ff",
+            "backgroundColor": "#000000ff",
             "hideMessages" : false,
             "hideMessagesAfter" : 60,
             "showStatusMessages" : true
         },
         "externalClient": {
-            "backgroundColor": "0x00000000",
+            "backgroundColor": "#00000000",
             "hideMessages" : true,
             "hideMessagesAfter" : 20,
             "showStatusMessages" : false
@@ -82,7 +82,8 @@
             "peka2tv": false,
             "twitch": true,
             "goodgame": true,
-            "youtube": false
+            "youtube": false,
+            "cybergame": false
         }
     }
 }
