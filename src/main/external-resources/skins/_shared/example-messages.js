@@ -1,46 +1,83 @@
 $(() => {
+    awaitForTemplates().then(() => {
+        sendExampleMessages()
+    });
+});
+
+
+function sendExampleMessages() {
 
     failchat.nativeClient = true;
 
     failchat.handleMessage({
         "type": "client-configuration",
         "content": {
-            "statusMessageMode": "everywhere",
             "showViewersCount": true,
-            "nativeClientBgColor": "#000000ff",
-            // "nativeClientBgColor": "#ffffffff",
-            "externalClientBgColor": "#000000ff",
             "showOriginBadges": true,
             "showUserBadges": true,
             "zoomPercent": 100,
+            "deletedMessagePlaceholder": "message deleted",
+            "hideDeletedMessages" : false,
+            "showHiddenMessages": false,
+            "nativeClient": {
+                "backgroundColor": "#333333ff",
+                "hideMessages" : false,
+                "hideMessagesAfter" : 60,
+                "showStatusMessages" : true
+            },
+            "externalClient": {
+                "backgroundColor": "#333333ff",
+                "hideMessages" : true,
+                "hideMessagesAfter" : 20,
+                "showStatusMessages" : false
+            },
             "enabledOrigins": {
-                "peka2tv": true,
-                "goodgame": true,
+                "peka2tv": false,
                 "twitch": true,
-                "youtube": true,
-                "cybergame": true
+                "goodgame": true,
+                "youtube": false,
+                "cybergame": false
             }
         }
     });
 
-    failchat.handleMessage(
-        {
-            "type": "viewers-count",
-            "content": {
-                "peka2tv": 5,
-                "goodgame": 25,
-                "twitch": 250,
-                "youtube": 2514,
-                "cybergame": null
-            }
-        }
-    );
-
-    failchat.handleMessage(
-        {"type": "origin-status", "content": {"id": "-500", "origin": "failchat", "status": "connected", "timestamp": Date.now()}}
-    );
-
     failchat.handleMessage({
+        "type": "viewers-count",
+        "content": {
+            "peka2tv": 5,
+            "goodgame": 25,
+            "twitch": 250,
+            "youtube": 2514,
+            "cybergame": null
+        }
+    });
+
+
+    sendMessageAfterTimeout()
+
+}
+
+let lastMessageIndex = 0;
+let lastId = 1;
+
+function sendMessageAfterTimeout() {
+    setTimeout(() => {
+        if (lastMessageIndex >= exampleMessages.length) {
+            lastMessageIndex = 0
+        }
+
+        exampleMessages[lastMessageIndex].content.id = lastId;
+        failchat.handleMessage(exampleMessages[lastMessageIndex]);
+
+        lastMessageIndex++;
+        lastId++;
+
+        sendMessageAfterTimeout();
+    }, 500)
+}
+
+const exampleMessages = [
+    {
         "type": "message",
         "content": {
             "id": 1,
@@ -57,9 +94,9 @@ $(() => {
             }],
             "elements": []
         }
-    });
+    },
 
-    failchat.handleMessage({
+    {
         "type": "message",
         "content": {
             "id": 2,
@@ -81,9 +118,9 @@ $(() => {
                 "format": "raster"
             }]
         }
-    });
+    },
 
-    failchat.handleMessage({
+    {
         "type": "message",
         "content": {
             "id": 3,
@@ -190,9 +227,9 @@ $(() => {
                 "format": "raster"
             }]
         }
-    });
+    },
 
-    failchat.handleMessage({
+    {
         "type": "message",
         "content": {
             "id": 4,
@@ -209,9 +246,9 @@ $(() => {
             }],
             "elements": [{"type": "image", "url": "https://i.imgur.com/tCGN8Zj.png"}]
         }
-    });
+    },
 
-    failchat.handleMessage({
+    {
         "type": "message",
         "content": {
             "id": 5,
@@ -233,9 +270,9 @@ $(() => {
                 "format": "raster"
             }, {"type": "image", "url": "https://i.imgur.com/tCGN8Zj.png"}]
         }
-    });
+    },
 
-    failchat.handleMessage({
+    {
         "type": "message",
         "content": {
             "id": 6,
@@ -253,9 +290,9 @@ $(() => {
             ],
             "elements": []
         }
-    });
+    },
 
-    failchat.handleMessage({
+    {
         "type": "message",
         "content": {
             "id": 7,
@@ -267,18 +304,16 @@ $(() => {
             "badges": [],
             "elements": []
         }
-    });
+    },
 
-    failchat.handleMessage(
-        {
-            "type": "delete-message",
-            "content": {
-                "messageId": 7
-            }
+    {
+        "type": "delete-message",
+        "content": {
+            "messageId": 7
         }
-    );
+    },
 
-    failchat.handleMessage({
+    {
         "type": "message",
         "content": {
             "id": 8,
@@ -306,10 +341,10 @@ $(() => {
             ],
             "elements": []
         }
-    });
+    },
 
     // GG badges
-    failchat.handleMessage({
+    {
         "type": "message",
         "content": {
             "id": 9,
@@ -364,9 +399,9 @@ $(() => {
             ],
             "elements": []
         }
-    });
+    },
 
-    failchat.handleMessage({
+    {
         "type": "message",
         "content": {
             "id": 10,
@@ -378,9 +413,9 @@ $(() => {
             "badges": [],
             "elements": []
         }
-    });
+    },
 
-    failchat.handleMessage({
+    {
         "type": "message",
         "content": {
             "id": 11,
@@ -392,9 +427,9 @@ $(() => {
             "badges": [],
             "elements": []
         }
-    });
+    },
 
-    failchat.handleMessage({
+    {
         "type": "message",
         "content": {
             "id": 12,
@@ -416,6 +451,6 @@ $(() => {
             ],
             "badges": []
         }
-    });
+    }
 
-});
+];
