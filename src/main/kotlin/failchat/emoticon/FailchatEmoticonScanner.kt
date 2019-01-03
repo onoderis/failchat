@@ -34,11 +34,11 @@ class FailchatEmoticonScanner(
                         return@map null
                     }
 
-                    Triple(fileName, m.group("code").toLowerCase(), m.group("format").toLowerCase())
+                    Triple(fileName, m.group("code"), m.group("format"))
                 }
                 .filterNotNull()
                 .map { (fileName, code, formatStr) ->
-                    val format = when (formatStr) {
+                    val format = when (formatStr.toLowerCase()) {
                         "svg" -> VECTOR
                         else -> RASTER
                     }

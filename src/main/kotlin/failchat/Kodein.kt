@@ -38,6 +38,7 @@ import failchat.emoticon.FailchatEmoticonScanner
 import failchat.emoticon.FailchatEmoticonUpdater
 import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.emoticon.MapdbFactory
+import failchat.emoticon.TwitchEmoticonFactory
 import failchat.github.GithubClient
 import failchat.github.ReleaseChecker
 import failchat.goodgame.GgApiClient
@@ -349,6 +350,9 @@ val kodein = Kodein {
                 token = config.getString("twitch.api-token"),
                 emoticonUrlFactory = instance<TwitchEmoticonUrlFactory>()
         )
+    }
+    bind<TwitchEmoticonFactory>() with singleton {
+        TwitchEmoticonFactory(instance<TwitchEmoticonUrlFactory>())
     }
     bind<TwitchEmoticonUrlFactory>() with singleton {
         with(instance<Configuration>()) {

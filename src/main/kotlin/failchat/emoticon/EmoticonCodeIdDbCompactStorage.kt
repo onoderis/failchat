@@ -1,9 +1,6 @@
 package failchat.emoticon
 
 import failchat.Origin
-import failchat.Origin.TWITCH
-import failchat.twitch.TwitchEmoticon
-import failchat.twitch.TwitchEmoticonUrlFactory
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.runBlocking
 import org.mapdb.DB
@@ -11,9 +8,11 @@ import org.mapdb.HTreeMap
 import org.mapdb.Serializer
 import java.io.Closeable
 
-class TwitchEmoticonStorage(
+/** Search by code is case insensitive. */
+class EmoticonCodeIdDbCompactStorage(
         db: DB,
-        private val twitchEmoticonUrlFactory: TwitchEmoticonUrlFactory
+        override val origin: Origin,
+        private val emoticonFactory: EmoticonFactory
 ) : OriginEmoticonStorage, Closeable {
 
     private val lowerCaseCodeToId: HTreeMap<String, Long>
@@ -21,25 +20,23 @@ class TwitchEmoticonStorage(
 
     init {
         lowerCaseCodeToId = db
-                .hashMap(TWITCH.commonName + "-lowerCaseCodeToId", Serializer.STRING, Serializer.LONG)
+                .hashMap(origin.commonName + "-lowerCaseCodeToId", Serializer.STRING, Serializer.LONG)
                 .createOrOpen()
         idToNormalCaseCode = db
-                .hashMap(TWITCH.commonName + "-idToNormalCaseCode", Serializer.LONG, Serializer.STRING)
+                .hashMap(origin.commonName + "-idToNormalCaseCode", Serializer.LONG, Serializer.STRING)
                 .createOrOpen()
     }
-
-    override val origin = Origin.TWITCH
 
     override fun findByCode(code: String): Emoticon? {
         val id = lowerCaseCodeToId.get(code.toLowerCase()) ?: return null
         val normalCaseCode = idToNormalCaseCode.get(id) ?: return null
-        return TwitchEmoticon(id, normalCaseCode, twitchEmoticonUrlFactory)
+        return emoticonFactory.create(id, normalCaseCode)
     }
 
     override fun findById(id: String): Emoticon? {
         val idLong = id.toLong()
-        val code = idToNormalCaseCode.get(idLong) ?: return null
-        return TwitchEmoticon(idLong, code, twitchEmoticonUrlFactory)
+        val normalCaseCode = idToNormalCaseCode.get(idLong) ?: return null
+        return emoticonFactory.create(idLong, normalCaseCode)
     }
 
     override fun getAll(): Collection<Emoticon> {

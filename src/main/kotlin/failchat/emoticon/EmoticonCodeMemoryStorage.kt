@@ -5,16 +5,21 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ConcurrentHashMap
 
-class EmoticonCodeMemoryStorage(override val origin: Origin) : OriginEmoticonStorage {
+class EmoticonCodeMemoryStorage(
+        override val origin: Origin,
+        private val caseSensitiveCode: Boolean
+) : OriginEmoticonStorage {
 
     private val codeMap: MutableMap<String, Emoticon> = ConcurrentHashMap()
 
     override fun findByCode(code: String): Emoticon? {
-        return codeMap.get(code)
+        val cCode = if (caseSensitiveCode) code else code.toLowerCase()
+        return codeMap.get(cCode)
     }
 
     override fun findById(id: String): Emoticon? {
-        return codeMap.get(id)
+        val cId = if (caseSensitiveCode) id else id.toLowerCase()
+        return codeMap.get(cId)
     }
 
     override fun getAll(): Collection<Emoticon> {
@@ -40,7 +45,11 @@ class EmoticonCodeMemoryStorage(override val origin: Origin) : OriginEmoticonSto
     }
 
     private fun putEmoticon(emoticonAndId: EmoticonAndId) {
-        codeMap.put(emoticonAndId.emoticon.code, emoticonAndId.emoticon)
+        val code = emoticonAndId.emoticon.code.let {
+            if (caseSensitiveCode) it else it.toLowerCase()
+        }
+
+        codeMap.put(code, emoticonAndId.emoticon)
     }
 
     override fun clear() {

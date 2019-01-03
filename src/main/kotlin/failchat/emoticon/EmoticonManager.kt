@@ -6,7 +6,6 @@ import failchat.emoticon.EmoticonLoadConfiguration.LoadType.BULK
 import failchat.emoticon.EmoticonLoadConfiguration.LoadType.STREAM
 import failchat.emoticon.EmoticonManager.LoadResult.Failure
 import failchat.emoticon.EmoticonManager.LoadResult.Success
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.map
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
@@ -25,7 +24,6 @@ class EmoticonManager(
     private companion object : KLogging()
 
     private val updateInterval = Duration.ofMillis(config.getLong("emoticons.updating-delay"))
-    private val dispatcher = scheduledExecutorService.asCoroutineDispatcher()
 
     /**
      * Load emoticons by the specified configurations and put them into the storage. Blocking call
