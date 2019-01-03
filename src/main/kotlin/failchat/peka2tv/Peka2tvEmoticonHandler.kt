@@ -24,9 +24,8 @@ class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messa
 
     private fun findByMultiOriginCode(code: String): Emoticon? {
         return when {
-            //todo tW TW
-            code.startsWith("tw-") -> emoticonFinder.findByCode(Origin.TWITCH, code.substring(3))
-            code.startsWith("gg-") -> {
+            code.startsWith("tw-", ignoreCase = true) -> emoticonFinder.findByCode(Origin.TWITCH, code.substring(3))
+            code.startsWith("gg-", ignoreCase = true) -> {
                 val emoticon = emoticonFinder.findByCode(Origin.GOODGAME, code.substring(3))
                         ?.let { it as GgEmoticon }
                 val animatedEmoticon = emoticon?.animatedInstance
