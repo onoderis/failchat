@@ -69,8 +69,7 @@ class BttvApiClient(
                     BttvEmoticon(
                             origin,
                             it.get("code").asText(),
-                            "https://cdn.betterttv.net/emote/${it.get("id").asText()}/2x",
-                            it.get("id").asText()
+                            "https://cdn.betterttv.net/emote/${it.get("id").asText()}/2x"
                     )
                 }
     }

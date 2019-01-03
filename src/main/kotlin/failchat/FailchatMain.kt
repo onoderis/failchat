@@ -6,13 +6,13 @@ import failchat.chat.badge.BadgeManager
 import failchat.emoticon.EmoticonStorage
 import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.emoticon.OriginEmoticonStorageFactory
+import failchat.emoticon.TwitchEmoticonFactory
 import failchat.gui.GuiLauncher
 import failchat.gui.PortBindAlert
 import failchat.reporter.EventAction
 import failchat.reporter.EventCategory
 import failchat.reporter.EventReporter
 import failchat.skin.Skins
-import failchat.twitch.TwitchEmoticonUrlFactory
 import failchat.util.CoroutineExceptionLogger
 import failchat.util.bytesToMegabytes
 import failchat.util.sp
@@ -115,7 +115,7 @@ fun main0(args: Array<String>) {
     val emoticonStorage = kodein.instance<EmoticonStorage>()
     val originEmoticonStorages = OriginEmoticonStorageFactory.create(
             kodein.instance<DB>("emoticons"),
-            kodein.instance<TwitchEmoticonUrlFactory>()
+            kodein.instance<TwitchEmoticonFactory>()
     )
     emoticonStorage.setStorages(originEmoticonStorages)
     logger.info("Emoticon storages initialized")

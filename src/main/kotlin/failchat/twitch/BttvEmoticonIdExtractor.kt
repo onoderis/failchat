@@ -8,6 +8,6 @@ object BttvEmoticonIdExtractor : EmoticonIdExtractor<BttvEmoticon> {
     override val origin = Origin.BTTV_GLOBAL
 
     override fun extractId(emoticon: BttvEmoticon): String {
-        return emoticon.bttvId
+        return emoticon.code
     }
 }

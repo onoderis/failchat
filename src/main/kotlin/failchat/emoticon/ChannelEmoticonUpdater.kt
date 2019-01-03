@@ -34,7 +34,7 @@ class ChannelEmoticonUpdater(
         bttvApiClient.loadChannelEmoticons(channelName)
                 .thenApply<Unit> { emoticons ->
                     val emoticonAndIdMapping = emoticons
-                            .map { EmoticonAndId(it, it.bttvId) }
+                            .map { EmoticonAndId(it, it.code) }
                     emoticonStorage.putMapping(BTTV_CHANNEL, emoticonAndIdMapping)
                     logger.info("BTTV emoticons loaded for channel '{}', count: {}", channelName, emoticonAndIdMapping.size)
                 }

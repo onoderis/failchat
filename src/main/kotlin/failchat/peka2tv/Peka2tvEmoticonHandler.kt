@@ -12,7 +12,7 @@ class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messa
 
     override fun handleMessage(message: Peka2tvMessage) {
         message.text = SemicolonCodeProcessor.process(message.text) { code ->
-            val emoticon = findByMultiOriginCode(code.toLowerCase()) //ignore case
+            val emoticon = findByMultiOriginCode(code)
             if (emoticon != null) {
                 val elementLabel = message.addElement(emoticon)
                 ReplaceDecision.Replace(elementLabel)
@@ -24,6 +24,7 @@ class Peka2tvEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messa
 
     private fun findByMultiOriginCode(code: String): Emoticon? {
         return when {
+            //todo tW TW
             code.startsWith("tw-") -> emoticonFinder.findByCode(Origin.TWITCH, code.substring(3))
             code.startsWith("gg-") -> {
                 val emoticon = emoticonFinder.findByCode(Origin.GOODGAME, code.substring(3))

@@ -8,9 +8,10 @@ import org.mapdb.HTreeMap
 import org.mapdb.Serializer
 import org.mapdb.serializer.GroupSerializer
 
-open class EmoticonCodeIdDbStorage(
+class EmoticonCodeIdDbStorage(
         db: DB,
-        override val origin: Origin
+        override val origin: Origin,
+        private val caseSensitiveCode: Boolean
 ) : OriginEmoticonStorage {
 
     private val codeToId: HTreeMap<String, String>
@@ -26,7 +27,8 @@ open class EmoticonCodeIdDbStorage(
     }
 
     override fun findByCode(code: String): Emoticon? {
-        val id = codeToId.get(code) ?: return null
+        val cCode = if (caseSensitiveCode) code else code.toLowerCase()
+        val id = codeToId.get(cCode) ?: return null
         return idToEmoticon.get(id)
     }
 
@@ -44,18 +46,25 @@ open class EmoticonCodeIdDbStorage(
 
     override fun putAll(emoticons: Collection<EmoticonAndId>) {
         emoticons.forEach {
-            idToEmoticon.put(it.id, it.emoticon)
-            codeToId.put(it.emoticon.code, it.id)
+            putEmoticon(it)
         }
     }
 
     override fun putAll(emoticons: ReceiveChannel<EmoticonAndId>) {
         runBlocking {
-            for (emoticonToId in emoticons) {
-                idToEmoticon.put(emoticonToId.id, emoticonToId.emoticon)
-                codeToId.putIfAbsent(emoticonToId.emoticon.code, emoticonToId.id)
+            for (emoticonAndId in emoticons) {
+                putEmoticon(emoticonAndId)
             }
         }
+    }
+
+    private fun putEmoticon(emoticonAndId: EmoticonAndId) {
+        val code = emoticonAndId.emoticon.code.let { c ->
+            if (caseSensitiveCode) c else c.toLowerCase()
+        }
+
+        idToEmoticon.put(emoticonAndId.id, emoticonAndId.emoticon)
+        codeToId.put(code, emoticonAndId.id)
     }
 
     override fun clear() {
