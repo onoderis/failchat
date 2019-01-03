@@ -30,11 +30,12 @@ import org.apache.commons.configuration2.Configuration
 import java.nio.file.Path
 
 class SettingsFrame(
-        private val app: Application,
+        private val app: Application, //todo replace with LinkOpener
         private val stage: Stage,
         private val config: Configuration,
         private val skinList: List<Skin>,
         private val failchatEmoticonsDirectory: Path,
+        private val clickTransparencyEnabled: Boolean,
         private val guiEventHandler: Lazy<GuiEventHandler>,
         private val emoticonUpdater: Lazy<GlobalEmoticonUpdater>
 ) {
@@ -63,6 +64,7 @@ class SettingsFrame(
     private val skin = namespace["skin"] as ChoiceBox<Skin>
     private val frame = namespace["frame"] as CheckBox
     private val onTop = namespace["top"] as CheckBox
+    private val clickTransparency = namespace["click_transparency"] as CheckBox
     private val showViewers = namespace["show_viewers"] as CheckBox
     private val showImages = namespace["show_images"] as CheckBox
 
@@ -125,6 +127,9 @@ class SettingsFrame(
 
         skin.converter = SkinConverter(skinList)
         skin.items = FXCollections.observableArrayList(skinList)
+
+        clickTransparency.isDisable = !clickTransparencyEnabled
+
 
         stage.setOnCloseRequest {
             saveSettingsValues()
@@ -242,9 +247,13 @@ class SettingsFrame(
 
         skin.value = skin.converter.fromString(config.getString(ConfigKeys.skin))
         frame.isSelected = config.getBoolean(ConfigKeys.frame)
+        onTop.isSelected = config.getBoolean(ConfigKeys.onTop)
+        if (clickTransparencyEnabled) {
+            clickTransparency.isSelected = config.getBoolean(ConfigKeys.clickTransparency)
+        }
         showViewers.isSelected = config.getBoolean(ConfigKeys.showViewers)
         showImages.isSelected = config.getBoolean(ConfigKeys.showImages)
-        onTop.isSelected = config.getBoolean(ConfigKeys.onTop)
+
         showOriginBadges.isSelected = config.getBoolean(ConfigKeys.showOriginBadges)
         showUserBadges.isSelected = config.getBoolean(ConfigKeys.showUserBadges)
         hideDeletedMessages.isSelected = config.getBoolean(ConfigKeys.hideDeletedMessages)
@@ -288,6 +297,9 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.skin, skin.value.name)
         config.setProperty(ConfigKeys.frame, frame.isSelected)
         config.setProperty(ConfigKeys.onTop, onTop.isSelected)
+        if (clickTransparencyEnabled) {
+            config.setProperty(ConfigKeys.clickTransparency, clickTransparency.isSelected)
+        }
         config.setProperty(ConfigKeys.showViewers, showViewers.isSelected)
         config.setProperty(ConfigKeys.showImages, showImages.isSelected)
 
