@@ -35,14 +35,15 @@ class ChatFrame(
         private val app: Application,
         private val config: Configuration,
         private val skins: List<Skin>,
-        private val guiEventHandler: Lazy<GuiEventHandler>
+        private val guiEventHandler: Lazy<GuiEventHandler>,
+        private val ctConfigurator: ClickTransparencyConfigurator?
 ) {
 
     private companion object : KLogging()
 
-    private val decoratedChatStage: Stage = buildChatStage(StageType.DECORATED)
-    private val undecoratedChatStage: Stage = buildChatStage(StageType.UNDECORATED) //for opaque background color
-    private val transparentChatStage: Stage = buildChatStage(StageType.TRANSPARENT) //for transparent background color
+    private val decoratedChatStage: ChatStage = buildChatStage(StageType.DECORATED)
+    private val undecoratedChatStage: ChatStage = buildChatStage(StageType.UNDECORATED) //for opaque background color
+    private val transparentChatStage: ChatStage = buildChatStage(StageType.TRANSPARENT) //for transparent background color
     private val webView: WebView = WebView()
     private val webEngine: WebEngine = webView.engine
     private val chatScene: Scene = buildChatScene()
@@ -50,12 +51,13 @@ class ChatFrame(
     //context menu
     private val switchDecorationsItem: CheckMenuItem = CheckMenuItem("Show frame")
     private val onTopItem: CheckMenuItem = CheckMenuItem("On top")
+    private val clickTransparencyItem: CheckMenuItem = CheckMenuItem("Click transparency")
     private val viewersItem: CheckMenuItem = CheckMenuItem("Show viewers")
     private val zoomValueText = Text("???")
     private val zoomValues = listOf(25, 33, 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500) //chrome-alike
     private val showHiddenMessages: CheckMenuItem = CheckMenuItem("Show hidden messages")
 
-    private var currentChatStage: Stage = decoratedChatStage
+    private var currentChatStage: ChatStage = decoratedChatStage
     private var lastOpenedSkinUrl: String? = null
 
     init {
@@ -79,10 +81,15 @@ class ChatFrame(
             }
         }
 
-        currentChatStage.scene = chatScene
-        configureChatStage(currentChatStage)
+        configureChatStage(currentChatStage.stage)
         updateContextMenu()
 
+        loadSkin()
+
+        showChatStage(currentChatStage)
+    }
+
+    private fun loadSkin() {
         val skinName = config.getString(ConfigKeys.skin)
         try {
             val skin = skins.find { it.name == skinName } ?: skins.first()
@@ -99,13 +106,11 @@ class ChatFrame(
         } catch (e: MalformedURLException) {
             logger.error("Failed to load skin '{}'", skinName, e)
         }
-
-        currentChatStage.show()
     }
 
     fun hide() {
-        saveChatPosition(currentChatStage)
-        currentChatStage.hide()
+        saveChatPosition(currentChatStage.stage)
+        hideChatStage(currentChatStage)
         clearWebContent()
     }
 
@@ -113,7 +118,7 @@ class ChatFrame(
         webEngine.loadContent("")
     }
 
-    private fun buildChatStage(type: StageType): Stage {
+    private fun buildChatStage(type: StageType): ChatStage {
         val stage = Stage()
         when (type) {
             StageType.DECORATED -> {
@@ -133,10 +138,15 @@ class ChatFrame(
             guiEventHandler.value.handleShutDown()
         }
         stage.icons.setAll(Images.appIcon)
-        return stage
+
+        return ChatStage(type, stage)
     }
 
     private fun buildContextMenu() {
+        if (ctConfigurator == null) {
+            clickTransparencyItem.isDisable = true
+        }
+
         fun Button.configureZoomButton(): Button = this.apply {
             minHeight = 20.0
             maxHeight = 20.0
@@ -157,7 +167,7 @@ class ChatFrame(
         val closeChatItem = MenuItem("Close chat")
 
         val contextMenu = ContextMenu(
-                switchDecorationsItem, onTopItem, viewersItem, zoomItem, SeparatorMenuItem(),
+                switchDecorationsItem, onTopItem, clickTransparencyItem, viewersItem, zoomItem, SeparatorMenuItem(),
                 clearChatItem, showHiddenMessages, SeparatorMenuItem(),
                 closeChatItem
         )
@@ -176,8 +186,12 @@ class ChatFrame(
         onTopItem.setOnAction {
             val newValue = !config.getBoolean(ConfigKeys.onTop)
             config.setProperty(ConfigKeys.onTop, newValue)
-            currentChatStage.isAlwaysOnTop = newValue
+            currentChatStage.stage.isAlwaysOnTop = newValue
         }
+        clickTransparencyItem.setOnAction {
+            toggleClickTransparency()
+        }
+
         closeChatItem.setOnAction { guiEventHandler.value.handleStopChat() }
         viewersItem.setOnAction {
             toggleShowViewersBar()
@@ -251,6 +265,12 @@ class ChatFrame(
             when (key.code) {
                 KeyCode.ESCAPE -> guiEventHandler.value.handleStopChat()
                 KeyCode.SPACE -> switchDecorations()
+                KeyCode.T -> {
+                    if (ctConfigurator != null) {
+                        val newValue = toggleClickTransparency()
+                        clickTransparencyItem.isSelected = newValue
+                    }
+                }
                 KeyCode.H -> {
                     val newValue = toggleShowHiddenMessages()
                     showHiddenMessages.isSelected = newValue
@@ -302,13 +322,14 @@ class ChatFrame(
             }
         }
 
-        saveChatPosition(fromChatStage)
-        configureChatStage(toChatStage)
-        fromChatStage.hide()
-        toChatStage.scene = chatScene
-        toChatStage.show()
+        saveChatPosition(fromChatStage.stage)
+        hideChatStage(fromChatStage)
+
+        configureChatStage(toChatStage.stage)
+        showChatStage(toChatStage)
         currentChatStage = toChatStage
-        logger.debug("Chat stage switched. Decorated: {}", toDecorated)
+
+        logger.debug("Chat stage was switched from {} to {}", fromChatStage.type, toChatStage.type)
     }
 
     private fun configureChatStage(stage: Stage) {
@@ -322,6 +343,19 @@ class ChatFrame(
             stage.x = x
             stage.y = y
         }
+    }
+
+    private fun hideChatStage(chatStage: ChatStage) {
+        ctConfigurator?.removeClickTransparency(chatStage)
+        chatStage.stage.hide()
+    }
+
+    private fun showChatStage(chatStage: ChatStage) {
+        chatStage.stage.scene = chatScene
+        chatStage.stage.show()
+
+        // handle can be accessed only after a window is shown for the first time
+        ctConfigurator?.configureClickTransparency(chatStage)
     }
 
     private fun saveChatPosition(stage: Stage) {
@@ -341,6 +375,19 @@ class ChatFrame(
         viewersItem.isSelected = config.getBoolean(ConfigKeys.showViewers)
         zoomValueText.text = config.getString(ConfigKeys.zoomPercent)
         showHiddenMessages.isSelected = config.getBoolean(ConfigKeys.showHiddenMessages)
+    }
+
+    private fun toggleClickTransparency(): Boolean {
+        val clickTransparencyEnabled = !config.getBoolean(ConfigKeys.clickTransparency)
+        config.setProperty(ConfigKeys.clickTransparency, clickTransparencyEnabled)
+
+        if (clickTransparencyEnabled) {
+            ctConfigurator?.configureClickTransparency(currentChatStage)
+        } else {
+            ctConfigurator?.removeClickTransparency(currentChatStage)
+        }
+
+        return clickTransparencyEnabled
     }
 
     private fun toggleShowViewersBar(): Boolean {

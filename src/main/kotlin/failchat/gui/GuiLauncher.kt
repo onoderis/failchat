@@ -4,6 +4,7 @@ import com.github.salomonbrys.kodein.instance
 import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.github.ReleaseChecker
 import failchat.kodein
+import failchat.platform.windows.WindowsCtConfigurator
 import failchat.skin.Skin
 import failchat.util.executeWithCatch
 import javafx.application.Application
@@ -30,12 +31,16 @@ class GuiLauncher : Application() {
     override fun start(primaryStage: Stage) {
         val startTime = Instant.now()
 
+        val config = kodein.instance<Configuration>()
+        val isWindows = com.sun.jna.Platform.isWindows()
+
         val settings = SettingsFrame(
                 this,
                 primaryStage,
-                kodein.instance<Configuration>(),
+                config,
                 kodein.instance<List<Skin>>(),
                 kodein.instance<Path>("failchatEmoticonsDirectory"),
+                isWindows,
                 lazy { kodein.instance<GuiEventHandler>() },
                 lazy { kodein.instance<GlobalEmoticonUpdater>() }
         )
@@ -46,12 +51,19 @@ class GuiLauncher : Application() {
         logger.debug { "Settings frame showed in ${Duration.between(startTime, showTime).toMillis()} ms" }
 
 
+        val ctConfigurator: ClickTransparencyConfigurator? = if (isWindows) {
+            WindowsCtConfigurator(config)
+        } else {
+            null
+        }
+
         Platform.runLater {
             val chat = ChatFrame(
                     this,
                     kodein.instance<Configuration>(),
                     kodein.instance<List<Skin>>(),
-                    lazy { kodein.instance<GuiEventHandler>() }
+                    lazy { kodein.instance<GuiEventHandler>() },
+                    ctConfigurator
             )
 
             val backgroundExecutor = kodein.instance<ScheduledExecutorService>("background")
