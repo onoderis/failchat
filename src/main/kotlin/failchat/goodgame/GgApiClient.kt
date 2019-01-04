@@ -62,6 +62,7 @@ class GgApiClient(
         )
     }
 
+    /** @return viewers count on all players. */
     suspend fun requestViewersCount(channelName: String): Int {
         // https://github.com/GoodGame/API/blob/master/Streams/stream_api.md
         val response = requestChannelStatus(channelName)

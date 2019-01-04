@@ -41,6 +41,7 @@ import failchat.emoticon.MapdbFactory
 import failchat.emoticon.TwitchEmoticonFactory
 import failchat.github.GithubClient
 import failchat.github.ReleaseChecker
+import failchat.goodgame.GgApi2Client
 import failchat.goodgame.GgApiClient
 import failchat.goodgame.GgBadgeHandler
 import failchat.goodgame.GgChannel
@@ -440,7 +441,7 @@ val kodein = Kodein {
     }
     bind<GgViewersCountLoader>() with factory { channelName: String ->
         GgViewersCountLoader(
-                instance<GgApiClient>(),
+                instance<GgApi2Client>(),
                 channelName
         )
     }
@@ -449,6 +450,12 @@ val kodein = Kodein {
                 httpClient = instance<OkHttpClient>(),
                 apiUrl = instance<Configuration>().getString("goodgame.api-url"),
                 emoticonsJsUrl = instance<Configuration>().getString("goodgame.emoticon-js-url")
+        )
+    }
+    bind<GgApi2Client>() with singleton {
+        GgApi2Client(
+                httpClient = instance<OkHttpClient>(),
+                apiUrl = instance<Configuration>().getString("goodgame.api2-url")
         )
     }
     bind<GgEmoticonBulkLoader>() with singleton { GgEmoticonBulkLoader(instance<GgApiClient>()) }
