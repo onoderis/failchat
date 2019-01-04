@@ -4,23 +4,26 @@ import failchat.emoticon.ReplaceDecision
 import failchat.emoticon.SemicolonCodeProcessor
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 
 class SemicolonCodeProcessorTest {
 
     @Test
     fun emptyString() {
-        val processedString = SemicolonCodeProcessor.process("") {
+        val initialString = ""
+        val processedString = SemicolonCodeProcessor.process(initialString) {
             error("shouldn't be invoked")
         }
-        assertEquals("", processedString)
+        assertSame(initialString, processedString)
     }
 
     @Test
     fun justSemicolons() {
-        val processedString = SemicolonCodeProcessor.process(":::::::::") {
+        val initialString = ":::::::::"
+        val processedString = SemicolonCodeProcessor.process(initialString) {
             error("shouldn't be invoked")
         }
-        assertEquals(":::::::::", processedString)
+        assertSame(initialString, processedString)
     }
 
     @Test
@@ -46,12 +49,14 @@ class SemicolonCodeProcessorTest {
 
     @Test
     fun skipSingleCode() {
-        val processedString = SemicolonCodeProcessor.process(":code:") {
+        val initialString = ":code:"
+
+        val processedString = SemicolonCodeProcessor.process(initialString) {
             assertEquals("code", it)
             ReplaceDecision.Skip
         }
 
-        assertEquals(":code:", processedString)
+        assertSame(initialString, processedString)
     }
 
     @Test

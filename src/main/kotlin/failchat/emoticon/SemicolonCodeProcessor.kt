@@ -9,7 +9,7 @@ object SemicolonCodeProcessor {
     fun process(initialString: String, decisionMaker: (code: String) -> ReplaceDecision): String {
         // Can't use Matcher.appendReplacement() because it resets position when Matcher.find(start) invoked
         val matcher = emoticonCodePattern.matcher(initialString)
-        val sb = StringBuilder()
+        val sb = lazy(LazyThreadSafetyMode.NONE) { StringBuilder() }
         var cursor = 0
 
         while (matcher.find(cursor)) {
@@ -19,21 +19,25 @@ object SemicolonCodeProcessor {
             val end = matcher.end()
             when (decision) {
                 is ReplaceDecision.Replace -> {
-                    sb.append(initialString, cursor, matcher.start())
-                    sb.append(decision.replacement)
+                    val appendFrom = if (sb.isInitialized()) cursor else 0
+                    sb.value.append(initialString, appendFrom, matcher.start())
+                    sb.value.append(decision.replacement)
                     cursor = end
                 }
                 is ReplaceDecision.Skip -> {
                     val lastSemicolonPosition = if (end > 0) end - 1 else end
-                    sb.append(initialString, cursor, lastSemicolonPosition)
+                    if (sb.isInitialized()) {
+                        sb.value.append(initialString, cursor, lastSemicolonPosition)
+                    }
                     cursor = lastSemicolonPosition
                 }
             }
         }
 
-        sb.append(initialString, cursor, initialString.length)
+        if (!sb.isInitialized()) return initialString
 
-        return sb.toString()
+        sb.value.append(initialString, cursor, initialString.length)
+        return sb.value.toString()
     }
 
 }
