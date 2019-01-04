@@ -1,41 +1,26 @@
 package failchat.goodgame
 
-import failchat.Origin
+import failchat.Origin.GOODGAME
 import failchat.chat.MessageHandler
 import failchat.emoticon.EmoticonFinder
-import java.util.regex.Pattern
+import failchat.emoticon.ReplaceDecision
+import failchat.emoticon.SemicolonCodeProcessor
 
 class GgEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHandler<GgMessage> {
 
-    private companion object {
-        val emoticonCodePattern: Pattern = Pattern.compile("""((?<=:)(\w+)(?=:))""")
-    }
-
     override fun handleMessage(message: GgMessage) {
-        //todo refactor
-        var matcher = emoticonCodePattern.matcher(message.text)
-        var position = 0 // чтобы не начинать искать сначала, если :something: найдено, но это не смайл
-        while (matcher.find(position)) {
-            val code = matcher.group()
-            var smile = emoticonFinder.findByCode(Origin.GOODGAME, code) as? GgEmoticon
-            if (smile != null) {
-                if (message.authorHasPremium && smile.animatedInstance != null) {
-                    smile = smile.animatedInstance!!
-                }
-                val num = message.addElement(smile)
+        message.text = SemicolonCodeProcessor.process(message.text) { code ->
+            val emoticon = emoticonFinder.findByCode(GOODGAME, code) as? GgEmoticon
+                    ?: return@process ReplaceDecision.Skip
 
-                //replace smile text for object
-                val start = matcher.start()
-                val end = matcher.end()
-                val sb = StringBuilder(message.text)
-                sb.delete(start - 1, end + 1) // for ':'
-                sb.insert(start - 1, num)
-                message.text = sb.toString()
-                matcher = emoticonCodePattern.matcher(message.text)
-                position = start
+            val emoticonToAdd = if (message.authorHasPremium && emoticon.animatedInstance != null) {
+                emoticon.animatedInstance!!
             } else {
-                position = matcher.end()
+                emoticon
             }
+
+            val label = message.addElement(emoticonToAdd)
+            return@process ReplaceDecision.Replace(label)
         }
     }
 
