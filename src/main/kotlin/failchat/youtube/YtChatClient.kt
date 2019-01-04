@@ -138,7 +138,7 @@ class YtChatClient(
                     ?: throw YtChannelNotFoundException(channelId)
             logger.debug("Got channelTitle: '{}'", channelTitle)
 
-            highlightHandler.channelTitle.value = channelTitle //todo refactor
+            highlightHandler.channelTitle.set(channelTitle)
             this.liveBroadcastId.value = liveBroadcastId
             this.channelId.value = channelId
             this.liveChatId.value = liveChatId

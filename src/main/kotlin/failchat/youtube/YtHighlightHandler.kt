@@ -1,15 +1,14 @@
 package failchat.youtube
 
 import failchat.chat.MessageHandler
-import failchat.util.value
-import java.util.concurrent.atomic.AtomicReference
+import failchat.util.LateinitVal
 
 class YtHighlightHandler: MessageHandler<YtMessage> {
 
-    val channelTitle: AtomicReference<String?> = AtomicReference(null)
+    val channelTitle = LateinitVal<String>()
 
     override fun handleMessage(message: YtMessage) {
-        channelTitle.value?.let {
+        channelTitle.get()?.let {
             if (message.text.contains(it)) message.highlighted = true
         }
     }
