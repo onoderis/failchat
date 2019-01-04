@@ -14,6 +14,8 @@ class TwitchEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messag
         * Message example:
         * emotes tag = "25:0-4,10-14/1902:16-20"
         * text = "Kappa 123 Kappa Keepo"
+        *
+        * If there is not emotes, emotesTag == null
         * */
         val emotesTag = message.emotesTag ?: return
 
@@ -26,8 +28,8 @@ class TwitchEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messag
     }
 
     fun replaceEmoteCodes(emotesTag: String, message: TwitchMessage) {
-        var offset: Int = 0
-        val textBuilder = StringBuilder(message.text)
+        var offset = 0
+        val sb = StringBuilder(message.text)
 
         emotesTag
                 .split("/")
@@ -54,12 +56,12 @@ class TwitchEmoticonHandler(private val emoticonFinder: EmoticonFinder) : Messag
                     val labelLength = elementLabel.length
                     val position = item.position
 
-                    textBuilder.replace(position.start + offset, position.endInclusive + 1 + offset, elementLabel)
+                    sb.replace(position.start + offset, position.endInclusive + 1 + offset, elementLabel)
                     // positive - to the right, negative - to the left
                     offset += labelLength - (position.endInclusive - position.start + 1)
                 }
 
-        message.text = textBuilder.toString()
+        message.text = sb.toString()
 
     }
 

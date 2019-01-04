@@ -7,7 +7,7 @@ import kotlinx.coroutines.future.future
 import java.util.concurrent.CompletableFuture
 
 class GgViewersCountLoader(
-        private val ggApiClient: GgApiClient,
+        private val ggApi2Client: GgApi2Client,
         private val channelName: String
 ) : ViewersCountLoader {
 
@@ -15,7 +15,7 @@ class GgViewersCountLoader(
 
     override fun loadViewersCount(): CompletableFuture<Int> {
         return GlobalScope.future {
-            ggApiClient.requestViewersCount(channelName)
+            ggApi2Client.requestViewersCount(channelName)
         }
     }
 }
