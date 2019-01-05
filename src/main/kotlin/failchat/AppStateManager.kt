@@ -13,7 +13,9 @@ import failchat.Origin.GOODGAME
 import failchat.Origin.PEKA2TV
 import failchat.Origin.TWITCH
 import failchat.Origin.YOUTUBE
+import failchat.chat.AppConfiguration
 import failchat.chat.ChatClient
+import failchat.chat.ChatMessageSender
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OriginStatusManager
 import failchat.chat.badge.BadgeManager
@@ -23,6 +25,7 @@ import failchat.cybergame.CgApiClient
 import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.ChannelEmoticonUpdater
+import failchat.emoticon.DeletedMessagePlaceholderFactory
 import failchat.emoticon.EmoticonStorage
 import failchat.emoticon.FailchatEmoticonUpdater
 import failchat.exception.InvalidConfigurationException
@@ -47,6 +50,7 @@ import failchat.youtube.YtChatClient
 import javafx.application.Platform
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
@@ -79,8 +83,11 @@ class AppStateManager(private val kodein: Kodein) {
     private val badgeManager: BadgeManager = kodein.instance()
     private val backgroundExecutorDispatcher = kodein.instance<ScheduledExecutorService>("background").asCoroutineDispatcher()
     private val originStatusManager: OriginStatusManager = kodein.instance()
+    private val deletedMessagePlaceholderFactory: DeletedMessagePlaceholderFactory = kodein.instance()
+    private val messageSender: ChatMessageSender = kodein.instance()
 
     private val lock: Lock = ReentrantLock()
+    private val appConfig: AppConfiguration = kodein.instance()
     private val config: Configuration = kodein.instance()
 
     private var chatClients: Map<Origin, ChatClient> = emptyMap()
@@ -93,7 +100,7 @@ class AppStateManager(private val kodein: Kodein) {
 
         val viewersCountLoaders: MutableList<ViewersCountLoader> = ArrayList()
         val initializedChatClients: MutableMap<Origin, ChatClient> = enumMap()
-
+        val channelEmoticonsJobs: MutableList<Job> = ArrayList()
 
         // Peka2tv chat client initialization
         checkEnabled(PEKA2TV)?.let { channelName ->
@@ -127,7 +134,21 @@ class AppStateManager(private val kodein: Kodein) {
             }
 
             // load BTTV and FFZ channel emoticons in background
-            channelEmoticonUpdater.update(channelName)
+            channelEmoticonsJobs += CoroutineScope(backgroundExecutorDispatcher).launch {
+                try {
+                    channelEmoticonUpdater.updateBttvEmoticons(channelName)
+                } catch (t: Throwable) {
+                    logger.error("Failed to load BTTV emoticons for channel '{}'", channelName, t)
+                }
+            }
+
+            channelEmoticonsJobs += CoroutineScope(backgroundExecutorDispatcher).launch {
+                try {
+                    channelEmoticonUpdater.updateFfzEmoticons(channelName)
+                } catch (t: Throwable) {
+                    logger.error("Failed to load FrankerFaceZ emoticons for channel '{}'", channelName, t)
+                }
+            }
         }
 
 
@@ -209,7 +230,7 @@ class AppStateManager(private val kodein: Kodein) {
         // Save config
         configLoader.save()
 
-        failchatEmoticonUpdater.update()
+        updateDeletedMessagePlaceholder(channelEmoticonsJobs)
     }
 
     fun stopChat(): Unit = lock.withLock {
@@ -279,6 +300,20 @@ class AppStateManager(private val kodein: Kodein) {
         if (channel.isEmpty()) return null
 
         return channel
+    }
+
+    private fun updateDeletedMessagePlaceholder(channelEmoticonsJobs: List<Job>) {
+        CoroutineScope(backgroundExecutorDispatcher + CoroutineExceptionLogger).launch {
+            try {
+                failchatEmoticonUpdater.update()
+                channelEmoticonsJobs.forEach { it.join() }
+            } catch (t: Throwable) {
+                logger.error("Error while waiting for channel emoticons to update", t)
+            }
+
+            appConfig.deletedMessagePlaceholder = deletedMessagePlaceholderFactory.create()
+            messageSender.sendClientConfiguration()
+        }
     }
 
 }

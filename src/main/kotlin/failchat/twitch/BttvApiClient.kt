@@ -37,6 +37,7 @@ class BttvApiClient(
 
     /**
      * @param channel is case insensitive.
+     * @throws [BttvChannelNotFoundException].
      * */
     fun loadChannelEmoticons(channel: String): CompletableFuture<List<BttvEmoticon>> {
         val globalEmoticonsUrl = apiUrl.withSuffix("/") + "2/channels/" + channel

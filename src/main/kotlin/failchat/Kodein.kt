@@ -8,6 +8,7 @@ import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.singleton
 import com.google.api.services.youtube.YouTube
 import either.Either
+import failchat.chat.AppConfiguration
 import failchat.chat.ChatClientCallbacks
 import failchat.chat.ChatMessageHistory
 import failchat.chat.ChatMessageRemover
@@ -29,6 +30,7 @@ import failchat.cybergame.CgApiClient
 import failchat.cybergame.CgChatClient
 import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.ChannelEmoticonUpdater
+import failchat.emoticon.DeletedMessagePlaceholderFactory
 import failchat.emoticon.Emoticon
 import failchat.emoticon.EmoticonFinder
 import failchat.emoticon.EmoticonLoadConfiguration
@@ -129,6 +131,7 @@ val kodein = Kodein {
 
     // Core dependencies
     bind<AppStateManager>() with singleton { AppStateManager(kodein) }
+    bind<AppConfiguration>() with singleton { AppConfiguration(instance<Configuration>()) }
     bind<OriginStatusManager>() with singleton {
         OriginStatusManager(instance<ChatMessageSender>())
     }
@@ -137,7 +140,7 @@ val kodein = Kodein {
     bind<ChatMessageSender>() with singleton {
         ChatMessageSender(
                 instance<WsFrameSender>(),
-                instance<Configuration>()
+                instance<AppConfiguration>()
         )
     }
     bind<ChatMessageRemover>() with singleton {
@@ -157,6 +160,12 @@ val kodein = Kodein {
         )
     }
     bind<ChatMessageHistory>() with singleton { ChatMessageHistory(50) }
+    bind<DeletedMessagePlaceholderFactory>() with singleton {
+        DeletedMessagePlaceholderFactory(
+                instance<EmoticonFinder>(),
+                instance<Configuration>()
+        )
+    }
 
     // Emoticons
     bind<DB>("emoticons") with singleton { MapdbFactory.create(instance<Path>("emoticonDbFile")) }
@@ -192,16 +201,14 @@ val kodein = Kodein {
         ChannelEmoticonUpdater(
                 instance<EmoticonStorage>(),
                 instance<BttvApiClient>(),
-                instance<FfzApiClient>(),
-                instance<ScheduledExecutorService>("background")
+                instance<FfzApiClient>()
         )
     }
 
     bind<FailchatEmoticonUpdater>() with singleton {
         FailchatEmoticonUpdater(
                 instance<EmoticonStorage>(),
-                instance<FailchatEmoticonScanner>(),
-                instance<ScheduledExecutorService>("background")
+                instance<FailchatEmoticonScanner>()
         )
     }
     bind<FailchatEmoticonScanner>() with singleton {
