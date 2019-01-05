@@ -51,7 +51,7 @@ class ChatFrame(
     //context menu
     private val switchDecorationsItem: CheckMenuItem = CheckMenuItem("Show frame")
     private val onTopItem: CheckMenuItem = CheckMenuItem("On top")
-    private val clickTransparencyItem: CheckMenuItem = CheckMenuItem("Click transparency")
+    private val clickTransparencyItem: CheckMenuItem = CheckMenuItem("Click through the window")
     private val viewersItem: CheckMenuItem = CheckMenuItem("Show viewers")
     private val zoomValueText = Text("???")
     private val zoomValues = listOf(25, 33, 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500) //chrome-alike
