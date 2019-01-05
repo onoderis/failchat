@@ -13,3 +13,8 @@ fun Collection<*>?.isNullOrEmpty(): Boolean {
     if (this.isEmpty()) return true
     return false
 }
+
+/** Useful for `when` statement with sealed classes. */
+object Do {
+    inline infix fun <reified T> exhaustive(any: T?) = any
+}

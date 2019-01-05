@@ -15,6 +15,7 @@ class FfzApiClient(
 
     private val apiUrl = apiUrl.withSuffix("/")
 
+    /** @throws [FfzChannelNotFoundException]. */
     suspend fun requestEmoticons(roomName: String): List<FfzEmoticon> {
         val request = Request.Builder()
                 .url(apiUrl + "room/" + roomName)
@@ -22,6 +23,7 @@ class FfzApiClient(
                 .build()
 
         val parsedBody = httpClient.newCall(request).await().use {
+            if (it.code() == 404) throw FfzChannelNotFoundException(roomName)
             val bodyText = it.validateResponseCode(200).nonNullBody.string()
             objectMapper.readTree(bodyText)
         }

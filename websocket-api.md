@@ -63,7 +63,6 @@
         "showOriginBadges": true,
         "showUserBadges": true,
         "zoomPercent": 100,
-        "deletedMessagePlaceholder": "message deleted",
         "hideDeletedMessages" : false,
         "showHiddenMessages": false,
         "nativeClient": {
@@ -84,6 +83,17 @@
             "goodgame": true,
             "youtube": false,
             "cybergame": false
+        },
+        "deletedMessagePlaceholder": {
+            "text": "message deleted {!0}",
+            "elements": [
+                {
+                    "type": "emoticon",
+                    "code": "Kappa",
+                    "url": "https://static-cdn.jtvnw.net/emoticons/v1/25/2.0",
+                    "format": "raster"
+                }
+            ]
         }
     }
 }
@@ -97,7 +107,7 @@
     "content": {
         "twitch": "connected",
         "youtube": "disconnected",
-        "peka2tv":  "connected",
+        "peka2tv": "connected",
         "goodgame": "disconnected",
         "cybergame": "disconnected"
     }

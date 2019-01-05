@@ -50,8 +50,11 @@ function initializeFailchat() {
     let hideMessages = false;
     let hideMessagesAfter = 60;
     let showHiddenMessages = false;
-    let deletedMessagePlaceholder = "message deleted";
     let hideDeletedMessages = false;
+    let deletedMessagePlaceholder = {
+        text: "message deleted",
+        elements: []
+    };
 
     // dom elements
     const messageContainer = $("#message-container");
@@ -162,10 +165,17 @@ function initializeFailchat() {
     failchat.handleMessage = handleMessage;
 
     function handleChatMessage(chatMessage) {
-        const elementsArray = chatMessage.elements;
+        chatMessage.text = renderElements(chatMessage.text, chatMessage.elements);
+        chatMessage.iconsPath = failchat.iconsPath;
 
-        for (let i = 0; i < elementsArray.length; i++) {
-            const element = elementsArray[i];
+        const messageHtml = templates.message.render(chatMessage);
+
+        appendMessage(chatMessage, messageHtml)
+    }
+
+    /** @return text with rendered elements. */
+    function renderElements(text, elements) {
+        elements.forEach((element, index) => {
             let elementHtml;
             switch(element.type) {
                 case "emoticon":
@@ -183,14 +193,10 @@ function initializeFailchat() {
                     break;
             }
 
-            chatMessage.text = chatMessage.text.replace("{!" + i + "}", elementHtml);
-        }
+            text = text.replace("{!" + index + "}", elementHtml);
+        });
 
-        chatMessage.iconsPath = failchat.iconsPath;
-
-        const messageHtml = templates.message.render(chatMessage);
-
-        appendMessage(chatMessage, messageHtml)
+        return text;
     }
 
     function appendStatusMessage(message) {
@@ -289,7 +295,7 @@ function initializeFailchat() {
 
         message.addClass("deleted-message");
         messageText.removeClass("highlighted");
-        messageText.text(deletedMessagePlaceholder);
+        messageText.html(renderElements(deletedMessagePlaceholder.text, deletedMessagePlaceholder.elements));
 
         if (hideDeletedMessages) {
             const foundNode = activeMessages.findFirstBy(function (m) {
