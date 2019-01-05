@@ -267,7 +267,7 @@
                                                                           <Font size="12.0" />
                                                                       </font>
                                                                       <VBox.margin>
-                                                                          <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                                                          <Insets bottom="6.0" top="6.0" />
                                                                       </VBox.margin>
                                                                   </CheckBox>
                                                                   <CheckBox fx:id="show_user_badges" mnemonicParsing="false" text="Show user badges">
@@ -275,7 +275,7 @@
                                                                           <Font size="12.0" />
                                                                       </font>
                                                                       <VBox.margin>
-                                                                          <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                                                          <Insets bottom="6.0" top="6.0" />
                                                                       </VBox.margin>
                                                                   </CheckBox>
                                                       <CheckBox fx:id="hide_deleted_messages" layoutX="12.0" layoutY="45.0" mnemonicParsing="false" text="Hide deleted messages">
@@ -283,12 +283,12 @@
                                                             <Font size="12.0" />
                                                          </font>
                                                          <VBox.margin>
-                                                            <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                                            <Insets bottom="6.0" top="6.0" />
                                                          </VBox.margin>
                                                       </CheckBox>
                                                               </children>
                                                               <HBox.margin>
-                                                                  <Insets left="38.0" />
+                                                                  <Insets left="30.0" right="40.0" />
                                                               </HBox.margin>
                                                           </VBox>
                                                           <VBox>
@@ -321,12 +321,12 @@
                                                                           </Text>
                                                                       </children>
                                                                       <VBox.margin>
-                                                                          <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                                                          <Insets bottom="6.0" top="6.0" />
                                                                       </VBox.margin>
                                                                   </HBox>
                                                                   <HBox>
                                                                       <VBox.margin>
-                                                                          <Insets left="2.0" right="2.0" top="6.0" />
+                                                                          <Insets top="6.0" />
                                                                       </VBox.margin>
                                                                       <children>
                                                                           <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Window opacity: ">
@@ -351,12 +351,12 @@
                                                                   </HBox>
                                                                   <Slider fx:id="opacity" blockIncrement="1.0" maxWidth="150.0" prefHeight="20.0">
                                                                       <VBox.margin>
-                                                                          <Insets bottom="6.0" left="2.0" right="2.0" />
+                                                                          <Insets bottom="6.0" />
                                                                       </VBox.margin>
                                                                   </Slider>
                                                               </children>
                                                               <HBox.margin>
-                                                                  <Insets left="30.0" />
+                                                                  <Insets />
                                                               </HBox.margin>
                                                           </VBox>
                                                       </children>
@@ -370,7 +370,7 @@
                                                 <TextField fx:id="deleted_message_placeholder" prefWidth="160.0" text="message deleted" />
                                              </children>
                                              <VBox.margin>
-                                                <Insets bottom="6.0" left="38.0" />
+                                                <Insets bottom="6.0" left="30.0" />
                                              </VBox.margin>
                                           </HBox>
                                           <Separator />
@@ -380,7 +380,7 @@
                                                    <children>
                                                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Native client settings">
                                                          <VBox.margin>
-                                                            <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                                            <Insets bottom="6.0" top="6.0" />
                                                          </VBox.margin>
                                                          <font>
                                                             <Font name="System Bold" size="12.0" />
@@ -391,7 +391,7 @@
                                                                           <Font size="12.0" />
                                                                       </font>
                                                                       <VBox.margin>
-                                                                          <Insets left="2.0" right="2.0" top="6.0" />
+                                                                          <Insets top="6.0" />
                                                                       </VBox.margin>
                                                                   </Text>
                                                                   <ColorPicker fx:id="bgcolor_native">
@@ -399,7 +399,7 @@
                                                                           <Insets />
                                                                       </opaqueInsets>
                                                                       <VBox.margin>
-                                                                          <Insets bottom="6.0" left="2.0" right="2.0" />
+                                                                          <Insets bottom="6.0" />
                                                                       </VBox.margin>
                                                                   </ColorPicker>
                                                       <CheckBox fx:id="show_status_messages_native" mnemonicParsing="false" text="Show status messages">
@@ -407,7 +407,7 @@
                                                             <Font size="12.0" />
                                                          </font>
                                                          <VBox.margin>
-                                                            <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                                            <Insets bottom="6.0" top="6.0" />
                                                          </VBox.margin>
                                                       </CheckBox>
                                                       <CheckBox fx:id="hide_messages_native" alignment="CENTER" mnemonicParsing="false">
@@ -415,7 +415,7 @@
                                                             <FlowPane fx:id="fp" prefWidth="0.0">
                                                                <children>
                                                                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hide messages after" />
-                                                                  <TextField fx:id="hide_messages_native_after" maxWidth="38.0" minHeight="-Infinity" prefHeight="18.0" />
+                                                                  <TextField fx:id="hide_messages_native_after" maxWidth="38.0" minHeight="-Infinity" />
                                                                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="seconds" />
                                                                </children>
                                                             </FlowPane>
@@ -426,7 +426,7 @@
                                                       <Insets top="6.0" />
                                                    </padding>
                                                    <HBox.margin>
-                                                      <Insets left="38.0" right="6.0" />
+                                                      <Insets left="30.0" right="20.0" />
                                                    </HBox.margin>
                                                 </VBox>
                                                 <Separator orientation="VERTICAL" prefHeight="167.0" />
@@ -434,7 +434,7 @@
                                                    <children>
                                                       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="External clients settings">
                                                          <VBox.margin>
-                                                            <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                                            <Insets bottom="6.0" top="6.0" />
                                                          </VBox.margin>
                                                          <font>
                                                             <Font name="System Bold" size="12.0" />
@@ -445,7 +445,7 @@
                                                                           <Font size="12.0" />
                                                                       </font>
                                                                       <VBox.margin>
-                                                                          <Insets left="2.0" right="2.0" top="6.0" />
+                                                                          <Insets top="6.0" />
                                                                       </VBox.margin>
                                                                   </Text>
                                                                   <ColorPicker fx:id="bgcolor_external">
@@ -461,7 +461,7 @@
                                                             <Font size="12.0" />
                                                          </font>
                                                          <VBox.margin>
-                                                            <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
+                                                            <Insets bottom="6.0" top="6.0" />
                                                          </VBox.margin>
                                                       </CheckBox>
                                                       <CheckBox fx:id="hide_messages_external" alignment="CENTER" mnemonicParsing="false">
@@ -469,7 +469,7 @@
                                                             <FlowPane fx:id="fp" prefWidth="0.0">
                                                                <children>
                                                                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hide messages after" />
-                                                                  <TextField fx:id="hide_messages_external_after" maxWidth="38.0" minHeight="-Infinity" prefHeight="18.0" />
+                                                                  <TextField fx:id="hide_messages_external_after" maxWidth="38.0" minHeight="-Infinity" />
                                                                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="seconds" />
                                                                </children>
                                                             </FlowPane>
