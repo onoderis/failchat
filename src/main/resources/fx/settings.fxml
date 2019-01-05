@@ -198,7 +198,7 @@
                                                         <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                                     </VBox.margin>
                                                 </CheckBox>
-                                                <CheckBox fx:id="click_transparency" layoutX="12.0" layoutY="65.0" mnemonicParsing="false" text="Click transparency">
+                                                <CheckBox fx:id="click_transparency" layoutX="12.0" layoutY="65.0" mnemonicParsing="false" text="Click through the window">
                                                     <font>
                                                         <Font size="12.0" />
                                                     </font>
