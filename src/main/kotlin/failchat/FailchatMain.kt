@@ -297,5 +297,5 @@ private fun scheduleReportTasks(executor: ScheduledExecutorService) {
                 logger.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.HEARTBEAT, t)
             }
         }
-    }, 5, 5, TimeUnit.MINUTES)
+    }, 2, 2, TimeUnit.MINUTES)
 }
