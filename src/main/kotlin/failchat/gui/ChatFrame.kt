@@ -383,8 +383,15 @@ class ChatFrame(
 
         if (clickTransparencyEnabled) {
             ctConfigurator?.configureClickTransparency(currentChatStage)
+
+            // don't override configuration value for onTop option
+            currentChatStage.stage.isAlwaysOnTop = true
+            onTopItem.isDisable = true
         } else {
             ctConfigurator?.removeClickTransparency(currentChatStage)
+
+            currentChatStage.stage.isAlwaysOnTop = config.getBoolean(ConfigKeys.onTop)
+            onTopItem.isDisable = false
         }
 
         return clickTransparencyEnabled
