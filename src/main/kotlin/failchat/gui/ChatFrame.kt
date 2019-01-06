@@ -41,9 +41,8 @@ class ChatFrame(
 
     private companion object : KLogging()
 
-    private val decoratedChatStage: ChatStage = buildChatStage(StageType.DECORATED)
-    private val undecoratedChatStage: ChatStage = buildChatStage(StageType.UNDECORATED) //for opaque background color
-    private val transparentChatStage: ChatStage = buildChatStage(StageType.TRANSPARENT) //for transparent background color
+    private val decoratedStage: Stage = buildChatStage(StageStyle.DECORATED)
+    private val transparentStage: Stage = buildChatStage(StageStyle.TRANSPARENT)
     private val webView: WebView = WebView()
     private val webEngine: WebEngine = webView.engine
     private val chatScene: Scene = buildChatScene()
@@ -57,7 +56,7 @@ class ChatFrame(
     private val zoomValues = listOf(25, 33, 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500) //chrome-alike
     private val showHiddenMessages: CheckMenuItem = CheckMenuItem("Show hidden messages")
 
-    private var currentChatStage: ChatStage = decoratedChatStage
+    private var currentStage: Stage = decoratedStage
     private var lastOpenedSkinUrl: String? = null
 
     init {
@@ -66,27 +65,20 @@ class ChatFrame(
     }
 
     fun show() {
-        val nativeBgColor = Color.web(config.getString(ConfigKeys.nativeClient.backgroundColor))
-
         if (config.getBoolean(ConfigKeys.frame)) {
-            currentChatStage = decoratedChatStage
+            currentStage = decoratedStage
             chatScene.fill = Color.BLACK
         } else {
-            if (nativeBgColor.isOpaque) {
-                currentChatStage = undecoratedChatStage
-                chatScene.fill = Color.BLACK
-            } else {
-                currentChatStage = transparentChatStage
-                chatScene.fill = Color.TRANSPARENT
-            }
+            currentStage = transparentStage
+            chatScene.fill = Color.TRANSPARENT
         }
 
-        configureChatStage(currentChatStage.stage)
+        configureChatStage(currentStage)
         updateContextMenu()
 
         loadSkin()
 
-        showChatStage(currentChatStage)
+        showChatStage(currentStage)
     }
 
     private fun loadSkin() {
@@ -109,8 +101,8 @@ class ChatFrame(
     }
 
     fun hide() {
-        saveChatPosition(currentChatStage.stage)
-        hideChatStage(currentChatStage)
+        saveChatPosition(currentStage)
+        hideChatStage(currentStage)
         clearWebContent()
     }
 
@@ -118,28 +110,18 @@ class ChatFrame(
         webEngine.loadContent("")
     }
 
-    private fun buildChatStage(type: StageType): ChatStage {
+    private fun buildChatStage(style: StageStyle): Stage {
         val stage = Stage()
-        when (type) {
-            StageType.DECORATED -> {
-                stage.title = "failchat"
-            }
-            StageType.UNDECORATED -> {
-                stage.title = "failchat u"
-                stage.initStyle(StageStyle.UNDECORATED)
-            }
-            StageType.TRANSPARENT -> {
-                stage.title = "failchat t"
-                stage.initStyle(StageStyle.TRANSPARENT)
-            }
-        }
+        stage.title = "failchat"
+        stage.initStyle(style)
+
         stage.setOnCloseRequest {
             saveChatPosition(stage)
             guiEventHandler.value.handleShutDown()
         }
         stage.icons.setAll(Images.appIcon)
 
-        return ChatStage(type, stage)
+        return stage
     }
 
     private fun buildContextMenu() {
@@ -186,7 +168,7 @@ class ChatFrame(
         onTopItem.setOnAction {
             val newValue = !config.getBoolean(ConfigKeys.onTop)
             config.setProperty(ConfigKeys.onTop, newValue)
-            currentChatStage.stage.isAlwaysOnTop = newValue
+            currentStage.isAlwaysOnTop = newValue
         }
         clickTransparencyItem.setOnAction {
             toggleClickTransparency()
@@ -303,33 +285,25 @@ class ChatFrame(
     }
 
     private fun switchDecorations() {
-        val toDecorated = currentChatStage === undecoratedChatStage || currentChatStage === transparentChatStage
-        val fromChatStage = currentChatStage
-
-        val bgColor = Color.web(config.getString(ConfigKeys.nativeClient.backgroundColor))
-        val toChatStage = if (toDecorated) {
+        val fromStage = currentStage
+        val toStage = if (fromStage === decoratedStage) {
+            config.setProperty(ConfigKeys.frame, false)
+            chatScene.fill = Color.TRANSPARENT
+            transparentStage
+        } else {
             config.setProperty(ConfigKeys.frame, true)
             chatScene.fill = Color.BLACK
-            decoratedChatStage
-        } else {
-            config.setProperty(ConfigKeys.frame, false)
-            if (bgColor.isOpaque) {
-                chatScene.fill = Color.BLACK
-                undecoratedChatStage
-            } else {
-                chatScene.fill = Color.TRANSPARENT
-                transparentChatStage
-            }
+            decoratedStage
         }
 
-        saveChatPosition(fromChatStage.stage)
-        hideChatStage(fromChatStage)
+        saveChatPosition(fromStage)
+        hideChatStage(fromStage)
 
-        configureChatStage(toChatStage.stage)
-        showChatStage(toChatStage)
-        currentChatStage = toChatStage
+        configureChatStage(toStage)
+        showChatStage(toStage)
+        currentStage = toStage
 
-        logger.debug("Chat stage was switched from {} to {}", fromChatStage.type, toChatStage.type)
+        logger.debug("Chat stage was switched from {} to {}", fromStage.style, toStage.style)
     }
 
     private fun configureChatStage(stage: Stage) {
@@ -348,17 +322,17 @@ class ChatFrame(
         }
     }
 
-    private fun hideChatStage(chatStage: ChatStage) {
-        ctConfigurator?.removeClickTransparency(chatStage)
-        chatStage.stage.hide()
+    private fun hideChatStage(stage: Stage) {
+        ctConfigurator?.removeClickTransparency(stage)
+        stage.hide()
     }
 
-    private fun showChatStage(chatStage: ChatStage) {
-        chatStage.stage.scene = chatScene
-        chatStage.stage.show()
+    private fun showChatStage(stage: Stage) {
+        stage.scene = chatScene
+        stage.show()
 
         // handle can be accessed only after a window is shown for the first time
-        ctConfigurator?.configureClickTransparency(chatStage)
+        ctConfigurator?.configureClickTransparency(stage)
     }
 
     private fun saveChatPosition(stage: Stage) {
@@ -386,15 +360,15 @@ class ChatFrame(
 
         if (clickTransparencyEnabled) {
             // don't override configuration value for onTop option
-            currentChatStage.stage.isAlwaysOnTop = true
+            currentStage.isAlwaysOnTop = true
             onTopItem.isDisable = true
 
-            ctConfigurator?.configureClickTransparency(currentChatStage)
+            ctConfigurator?.configureClickTransparency(currentStage)
         } else {
-            currentChatStage.stage.isAlwaysOnTop = config.getBoolean(ConfigKeys.onTop)
+            currentStage.isAlwaysOnTop = config.getBoolean(ConfigKeys.onTop)
             onTopItem.isDisable = false
 
-            ctConfigurator?.removeClickTransparency(currentChatStage)
+            ctConfigurator?.removeClickTransparency(currentStage)
         }
 
         return clickTransparencyEnabled

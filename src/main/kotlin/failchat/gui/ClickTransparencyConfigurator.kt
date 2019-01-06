@@ -1,8 +1,10 @@
 package failchat.gui
 
+import javafx.stage.Stage
+
 interface ClickTransparencyConfigurator {
 
-    fun configureClickTransparency(chatStage: ChatStage)
+    fun configureClickTransparency(stage: Stage)
 
-    fun removeClickTransparency(chatStage: ChatStage)
+    fun removeClickTransparency(stage: Stage)
 }

@@ -2,9 +2,10 @@ package failchat.platform.windows
 
 import com.sun.jna.platform.win32.WinDef.HWND
 import failchat.ConfigKeys
-import failchat.gui.ChatStage
 import failchat.gui.ClickTransparencyConfigurator
-import failchat.gui.StageType.TRANSPARENT
+import javafx.stage.Stage
+import javafx.stage.StageStyle.DECORATED
+import javafx.stage.StageStyle.TRANSPARENT
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
 
@@ -12,38 +13,39 @@ class WindowsCtConfigurator(private val config: Configuration) : ClickTransparen
 
     private companion object : KLogging()
 
-    override fun configureClickTransparency(chatStage: ChatStage) {
+    override fun configureClickTransparency(stage: Stage) {
         if (!config.getBoolean(ConfigKeys.clickTransparency)) return
 
-        val handle = getWindowHandle(chatStage) ?: return
+        val handle = getWindowHandle(stage) ?: return
 
         try {
             Windows.makeWindowClickTransparent(handle)
         } catch (t: Throwable) {
-            logger.error("Failed to make clicks transparent for {} frame", chatStage.type, t)
+            logger.error("Failed to make clicks transparent for {} frame", stage.style, t)
         }
     }
 
-    override fun removeClickTransparency(chatStage: ChatStage) {
-        val handle = getWindowHandle(chatStage) ?: return
+    override fun removeClickTransparency(stage: Stage) {
+        val handle = getWindowHandle(stage) ?: return
 
         try {
-            val removeLayeredStyle = when (chatStage.type) {
+            val removeLayeredStyle = when (stage.style) {
+                DECORATED -> true
                 TRANSPARENT -> false
-                else -> true
+                else -> throw IllegalArgumentException("StageStyle: ${stage.style}")
             }
 
             Windows.makeWindowClickOpaque(handle, removeLayeredStyle)
         } catch (t: Throwable) {
-            logger.error("Failed to make clicks opaque for {} frame", chatStage.type, t)
+            logger.error("Failed to make clicks opaque for {} frame", stage.style, t)
         }
     }
 
-    private fun getWindowHandle(chatStage: ChatStage): HWND? {
+    private fun getWindowHandle(stage: Stage): HWND? {
         return try {
-            Windows.getWindowHandle(chatStage.stage)
+            Windows.getWindowHandle(stage)
         } catch (t: Throwable) {
-            logger.error("Failed to get handle for {} window", chatStage.type, t)
+            logger.error("Failed to get handle for {} window", stage.style, t)
             null
         }
     }
