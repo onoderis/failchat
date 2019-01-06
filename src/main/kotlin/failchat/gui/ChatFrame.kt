@@ -3,6 +3,7 @@ package failchat.gui
 import failchat.ConfigKeys
 import failchat.FcServerInfo
 import failchat.skin.Skin
+import failchat.util.invertBoolean
 import failchat.util.urlPattern
 import javafx.application.Application
 import javafx.application.Platform
@@ -17,6 +18,7 @@ import javafx.scene.control.CustomMenuItem
 import javafx.scene.control.MenuItem
 import javafx.scene.control.SeparatorMenuItem
 import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyCombination
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
@@ -47,7 +49,7 @@ class ChatFrame(
     private val webEngine: WebEngine = webView.engine
     private val chatScene: Scene = buildChatScene()
 
-    //context menu
+    // context menu
     private val switchDecorationsItem: CheckMenuItem = CheckMenuItem("Show frame")
     private val onTopItem: CheckMenuItem = CheckMenuItem("On top")
     private val clickTransparencyItem: CheckMenuItem = CheckMenuItem("Click through the window")
@@ -55,6 +57,15 @@ class ChatFrame(
     private val zoomValueText = Text("???")
     private val zoomValues = listOf(25, 33, 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500) //chrome-alike
     private val showHiddenMessages: CheckMenuItem = CheckMenuItem("Show hidden messages")
+
+    // hot keys
+    private val switchDecorationsKey = KeyCode.F
+    private val onTopKey = KeyCode.O
+    private val clickTransparencyKey = KeyCode.T
+    private val viewersKey = KeyCode.V
+    private val showHiddenMessagesKey = KeyCode.H
+    private val clearChatKey = KeyCode.C
+    private val closeChatKey = KeyCode.ESCAPE
 
     private var currentStage: Stage = decoratedStage
     private var lastOpenedSkinUrl: String? = null
@@ -129,6 +140,7 @@ class ChatFrame(
             clickTransparencyItem.isDisable = true
         }
 
+        // Build items
         fun Button.configureZoomButton(): Button = this.apply {
             minHeight = 20.0
             maxHeight = 20.0
@@ -148,6 +160,17 @@ class ChatFrame(
         val clearChatItem = MenuItem("Clear chat")
         val closeChatItem = MenuItem("Close chat")
 
+
+        // Shortcuts
+        switchDecorationsItem.accelerator = KeyCombination.valueOf(switchDecorationsKey.name)
+        onTopItem.accelerator = KeyCombination.valueOf(onTopKey.name)
+        clickTransparencyItem.accelerator = KeyCombination.valueOf(clickTransparencyKey.name)
+        viewersItem.accelerator = KeyCombination.valueOf(viewersKey.name)
+        clearChatItem.accelerator = KeyCombination.valueOf(clearChatKey.name)
+        showHiddenMessages.accelerator = KeyCombination.valueOf(showHiddenMessagesKey.name)
+        closeChatItem.accelerator = KeyCombination.valueOf(closeChatKey.name)
+
+        // Build context menu
         val contextMenu = ContextMenu(
                 switchDecorationsItem, onTopItem, clickTransparencyItem, viewersItem, zoomItem, SeparatorMenuItem(),
                 clearChatItem, showHiddenMessages, SeparatorMenuItem(),
@@ -165,29 +188,18 @@ class ChatFrame(
 
         // Menu items callbacks
         switchDecorationsItem.setOnAction { switchDecorations() }
-        onTopItem.setOnAction {
-            val newValue = !config.getBoolean(ConfigKeys.onTop)
-            config.setProperty(ConfigKeys.onTop, newValue)
-            currentStage.isAlwaysOnTop = newValue
-        }
+        onTopItem.setOnAction { toggleOnTop() }
         clickTransparencyItem.setOnAction {
-            toggleClickTransparency()
+            ctConfigurator?.let { ctf ->
+                toggleClickTransparency(ctf)
+            }
         }
-
+        viewersItem.setOnAction { toggleShowViewersBar() }
+        clearChatItem.setOnAction { guiEventHandler.value.handleClearChat() }
+        showHiddenMessages.setOnAction { toggleShowHiddenMessages() }
         closeChatItem.setOnAction { guiEventHandler.value.handleStopChat() }
-        viewersItem.setOnAction {
-            toggleShowViewersBar()
-        }
 
-        clearChatItem.setOnAction {
-            guiEventHandler.value.handleClearChat()
-        }
-
-        showHiddenMessages.setOnAction {
-            toggleShowHiddenMessages()
-        }
-
-        // zoom item callbacks
+        // Zoom item callbacks
         fun Button.configureZoomButtonCallback(elementNumberToGet: Int, filter: (Int, List<Int>) -> Boolean) = this.setOnAction {
             val oldValue = config.getInt(ConfigKeys.zoomPercent)
             val newValue = zoomValues.asSequence().windowed(2, 1)
@@ -245,22 +257,17 @@ class ChatFrame(
         // hot keys
         chatScene.setOnKeyReleased { key ->
             when (key.code) {
-                KeyCode.ESCAPE -> guiEventHandler.value.handleStopChat()
-                KeyCode.SPACE -> switchDecorations()
-                KeyCode.T -> {
-                    if (ctConfigurator != null) {
-                        val newValue = toggleClickTransparency()
-                        clickTransparencyItem.isSelected = newValue
+                switchDecorationsKey -> switchDecorations()
+                onTopKey -> onTopItem.isSelected = toggleOnTop()
+                clickTransparencyKey -> {
+                    ctConfigurator?.let {
+                        clickTransparencyItem.isSelected = toggleClickTransparency(it)
                     }
                 }
-                KeyCode.H -> {
-                    val newValue = toggleShowHiddenMessages()
-                    showHiddenMessages.isSelected = newValue
-                }
-                KeyCode.V -> {
-                    val newValue = toggleShowViewersBar()
-                    viewersItem.isSelected = newValue
-                }
+                viewersKey -> viewersItem.isSelected = toggleShowViewersBar()
+                clearChatKey -> guiEventHandler.value.handleClearChat()
+                showHiddenMessagesKey -> showHiddenMessages.isSelected = toggleShowHiddenMessages()
+                closeChatKey -> guiEventHandler.value.handleStopChat()
                 else -> {}
             }
         }
@@ -288,10 +295,12 @@ class ChatFrame(
         val fromStage = currentStage
         val toStage = if (fromStage === decoratedStage) {
             config.setProperty(ConfigKeys.frame, false)
+            switchDecorationsItem.isSelected = false
             chatScene.fill = Color.TRANSPARENT
             transparentStage
         } else {
             config.setProperty(ConfigKeys.frame, true)
+            switchDecorationsItem.isSelected = true
             chatScene.fill = Color.BLACK
             decoratedStage
         }
@@ -354,39 +363,41 @@ class ChatFrame(
         showHiddenMessages.isSelected = config.getBoolean(ConfigKeys.showHiddenMessages)
     }
 
-    private fun toggleClickTransparency(): Boolean {
-        val clickTransparencyEnabled = !config.getBoolean(ConfigKeys.clickTransparency)
-        config.setProperty(ConfigKeys.clickTransparency, clickTransparencyEnabled)
+    private fun toggleOnTop(): Boolean {
+        val newValue = config.invertBoolean(ConfigKeys.onTop)
+        currentStage.isAlwaysOnTop = newValue
+        return newValue
+    }
+
+    private fun toggleClickTransparency(ctf: ClickTransparencyConfigurator): Boolean {
+        val clickTransparencyEnabled = config.invertBoolean(ConfigKeys.clickTransparency)
 
         if (clickTransparencyEnabled) {
             // don't override configuration value for onTop option
             currentStage.isAlwaysOnTop = true
             onTopItem.isDisable = true
 
-            ctConfigurator?.configureClickTransparency(currentStage)
+            ctf.configureClickTransparency(currentStage)
         } else {
             currentStage.isAlwaysOnTop = config.getBoolean(ConfigKeys.onTop)
             onTopItem.isDisable = false
 
-            ctConfigurator?.removeClickTransparency(currentStage)
+            ctf.removeClickTransparency(currentStage)
         }
 
         return clickTransparencyEnabled
     }
 
     private fun toggleShowViewersBar(): Boolean {
-        return toggleCheckMenuItem(ConfigKeys.showViewers)
+        val newValue = config.invertBoolean(ConfigKeys.showViewers)
+        guiEventHandler.value.handleConfigurationChange()
+        return newValue
+
     }
 
     private fun toggleShowHiddenMessages(): Boolean {
-        return toggleCheckMenuItem(ConfigKeys.showHiddenMessages)
-    }
-
-    private fun toggleCheckMenuItem(configKey: String): Boolean {
-        val newValue = !config.getBoolean(configKey)
-        config.setProperty(configKey, newValue)
+        val newValue = config.invertBoolean(ConfigKeys.showHiddenMessages)
         guiEventHandler.value.handleConfigurationChange()
-
         return newValue
     }
 
