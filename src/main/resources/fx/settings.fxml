@@ -524,7 +524,7 @@
                      <children>
                         <VBox>
                            <children>
-                                          <Button fx:id="failchat_emoticons" mnemonicParsing="false" text="Open directory with failchat emoticons">
+                                          <Button fx:id="failchat_emoticons" mnemonicParsing="false" text="Open directory with custom emoticons">
                                               <VBox.margin>
                                                   <Insets bottom="6.0" left="2.0" right="2.0" top="6.0" />
                                               </VBox.margin>
