@@ -335,6 +335,9 @@ class ChatFrame(
     private fun configureChatStage(stage: Stage) {
         stage.opacity = config.getDouble(ConfigKeys.opacity) / 100
         stage.isAlwaysOnTop = config.getBoolean(ConfigKeys.onTop)
+        if (config.getBoolean(ConfigKeys.clickTransparency)) {
+            stage.isAlwaysOnTop = true
+        }
         stage.width = config.getDouble("chat.width")
         stage.height = config.getDouble("chat.height")
         val x = config.getDouble("chat.x")
@@ -382,16 +385,16 @@ class ChatFrame(
         config.setProperty(ConfigKeys.clickTransparency, clickTransparencyEnabled)
 
         if (clickTransparencyEnabled) {
-            ctConfigurator?.configureClickTransparency(currentChatStage)
-
             // don't override configuration value for onTop option
             currentChatStage.stage.isAlwaysOnTop = true
             onTopItem.isDisable = true
-        } else {
-            ctConfigurator?.removeClickTransparency(currentChatStage)
 
+            ctConfigurator?.configureClickTransparency(currentChatStage)
+        } else {
             currentChatStage.stage.isAlwaysOnTop = config.getBoolean(ConfigKeys.onTop)
             onTopItem.isDisable = false
+
+            ctConfigurator?.removeClickTransparency(currentChatStage)
         }
 
         return clickTransparencyEnabled

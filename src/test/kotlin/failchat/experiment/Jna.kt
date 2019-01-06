@@ -5,8 +5,8 @@ import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef.HWND
 import javafx.application.Application
 import javafx.stage.Stage
+import javafx.stage.StageStyle
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit.SECONDS
 
 
 fun main(args: Array<String>) {
@@ -16,24 +16,53 @@ fun main(args: Array<String>) {
 private val user32 = User32.INSTANCE
 private val executorService = Executors.newSingleThreadScheduledExecutor()
 
-private class App: Application() {
+class App: Application() {
     override fun start(primaryStage: Stage) {
-        primaryStage.height = 300.0
-        primaryStage.width = 300.0
-        primaryStage.isAlwaysOnTop = true
-        primaryStage.show()
+//        primaryStage.height = 300.0
+//        primaryStage.width = 300.0
+//        primaryStage.isAlwaysOnTop = true
+//        primaryStage.show()
 
-        val hWnd = HWND(getWindowPointer(primaryStage))
+//        val hWnd = HWND(getWindowPointer(primaryStage))
 
-        makeWindowClickTransparent(hWnd)
+//        makeWindowClickTransparent(hWnd)
 
-        executorService.schedule({
-            makeWindowClickNonTransparent(hWnd)
-            executorService.shutdown()
-        }, 5, SECONDS)
+//        executorService.schedule({
+//            makeWindowClickNonTransparent(hWnd)
+//            executorService.shutdown()
+//        }, 5, SECONDS)
+
+        val stages = buildStages()
+
+        stages.forEach {
+            it.show()
+            val hWnd = HWND(getWindowPointer(it))
+            val style = getWindowStyle(hWnd)
+            println("style for ${it.style} stage: $style")
+
+            it.isAlwaysOnTop = true
+            val styleOnTop = getWindowStyle(hWnd)
+            println("style with onTop option for ${it.style} stage: $styleOnTop")
+        }
+
+    }
+
+    private fun buildStages(): List<Stage> {
+        return listOf(StageStyle.DECORATED, StageStyle.UNDECORATED, StageStyle.TRANSPARENT)
+                .map {
+                    val stage = Stage(it)
+                    stage.height = 300.0
+                    stage.width = 300.0
+                    stage.show()
+                    stage
+                }
     }
 }
 
+
+private fun getWindowStyle(hWnd: HWND): Int {
+    return user32.GetWindowLong(hWnd, User32.GWL_EXSTYLE)
+}
 
 private fun makeWindowClickTransparent(hWnd: HWND) {
     val mask = user32.GetWindowLong(hWnd, User32.GWL_EXSTYLE)
