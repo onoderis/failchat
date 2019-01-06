@@ -20,14 +20,19 @@ object Windows {
     }
 
     /** @throws [NativeCallException] */
-    fun makeWindowClickOpaque(windowHandle: HWND) {
+    fun makeWindowClickOpaque(windowHandle: HWND, removeLayeredStyle: Boolean) {
         changeWindowStyle(windowHandle) { currentStyle ->
-            currentStyle and User32.WS_EX_LAYERED.inv() and User32.WS_EX_TRANSPARENT.inv()
+            val notTransparentStyle = currentStyle and User32.WS_EX_TRANSPARENT.inv()
+            if (removeLayeredStyle) {
+                notTransparentStyle and User32.WS_EX_LAYERED.inv()
+            } else {
+                notTransparentStyle
+            }
         }
     }
 
     /** @throws [NativeCallException] */
-    private fun changeWindowStyle(windowHandle: HWND, changeOperation: (Int)-> Int) {
+    private fun changeWindowStyle(windowHandle: HWND, changeOperation: (Int) -> Int) {
         val currentStyle = User32.INSTANCE.GetWindowLong(windowHandle, User32.GWL_EXSTYLE)
                 .ifError { errorCode ->
                     throw NativeCallException("Failed to get window style, error code: $errorCode, handle: $windowHandle")
