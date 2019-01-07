@@ -1,6 +1,7 @@
 package failchat.chat
 
 import failchat.Origin
+import javafx.scene.paint.Color
 
 data class Author(
         /** Author's name. */
@@ -10,5 +11,8 @@ data class Author(
         val origin: Origin,
 
         /** Origin specific id. */
-        val id: String = name
+        val id: String = name,
+
+        /** Author's nickname color. */
+        var color: Color? = null
 )

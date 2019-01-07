@@ -11,6 +11,7 @@ import failchat.emoticon.Emoticon
 import failchat.util.Do
 import failchat.util.nodeFactory
 import failchat.util.objectMapper
+import failchat.util.toHexFormat
 import failchat.viewers.COUNTABLE_ORIGINS
 import failchat.ws.server.WsFrameSender
 import mu.KLogging
@@ -33,6 +34,7 @@ class ChatMessageSender(
                 putObject("author").apply {
                     put("name", message.author.name)
                     put("id", message.author.id)
+                    put("color", message.author.color?.toHexFormat())
                 }
                 put("text", message.text)
                 put("timestamp", message.timestamp.toEpochMilli())
@@ -98,7 +100,7 @@ class ChatMessageSender(
                     is CharacterBadge -> {
                         put("type", "character")
                         put("htmlEntity", badge.characterEntity)
-                        put("color", badge.color)
+                        put("color", badge.color.toHexFormat())
                     }
                 }
             }

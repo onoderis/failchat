@@ -16,6 +16,7 @@ import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.emoticon.EmoticonFinder
 import failchat.util.notEmptyOrNull
+import javafx.scene.paint.Color
 import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.pircbotx.Configuration
@@ -182,17 +183,20 @@ class TwitchChatClient(
                 author = author,
                 text = event.message,
                 emotesTag = event.v3Tags.get("emotes").notEmptyOrNull(), //if message has no emoticons - tag is empty, not null
-                badgesTag = event.v3Tags.get("badges").notEmptyOrNull()
+                badgesTag = event.v3Tags.get("badges").notEmptyOrNull(),
+                authorColor = event.v3Tags.get("color").notEmptyOrNull()?.let { Color.web(it) }
         )
     }
 
     private fun parseMeMessage(event: ActionEvent): TwitchMessage {
+        // todo emoticons, color
         return TwitchMessage(
                 id = messageIdGenerator.generate(),
                 author = event.userHostmask.nick,
                 text = event.message,
                 emotesTag = null,
-                badgesTag = null
+                badgesTag = null,
+                authorColor = null
         )
     }
 

@@ -5,6 +5,7 @@ import failchat.chat.MessageHandler
 import failchat.chat.badge.Badge
 import failchat.chat.badge.CharacterBadge
 import failchat.chat.badge.ImageBadge
+import javafx.scene.paint.Color
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
 
@@ -14,20 +15,6 @@ class GgBadgeHandler(
 ) : MessageHandler<GgMessage> {
 
     private companion object : KLogging() {
-        const val defaultColor = "#73adff"
-        val colorMap: Map<String, String> = mapOf(
-                "bronze" to "#e7820a",
-                "silver" to "#b4b4b4",
-                "gold" to "#eefc08",
-                "diamond" to "#8781bd",
-                "king" to "#30d5c8",
-                "top-one" to "#3BCBFF",
-                "premium" to "#BD70D7",
-                "premium-personal" to "#31a93a",
-                "moderator" to "#ec4058",
-                "streamer" to "#e8bb00",
-                "streamer-helper" to "#e8bb00"
-        )
         /* Following html entities should be displayed in icomoon font. */
         const val starBadge = "&#59730;"
         val badgeNameToCharEntity: Map<String, String> = mapOf(
@@ -55,7 +42,7 @@ class GgBadgeHandler(
                 6 to "&#59725;"
         )
 
-        val helperBadgeEntity = "&#59710;"
+        const val helperBadgeEntity = "&#59710;"
     }
 
     private val badgeUrl: String = config.getString("goodgame.badge-url").removeSuffix("/")
@@ -67,7 +54,7 @@ class GgBadgeHandler(
         if (!channel.premium) {
             if (badgeName == "star") {
                 // premium user in non-premium channel (most likely the streamer himself)
-                val color = colorMap.get(message.authorColorName) ?: defaultColor
+                val color = findColorOrDefault(message.authorColorName)
                 message.addBadge(CharacterBadge(starBadge, color))
             }
             return
@@ -119,7 +106,7 @@ class GgBadgeHandler(
                 if (message.authorRights == 10) {
                     message.addBadge(CharacterBadge(
                             helperBadgeEntity,
-                            colorMap.get(message.authorColorName) ?: findColorOrDefault("streamer-helper")
+                            GgColors.byRole.get(message.authorColorName) ?: findColorOrDefault("streamer-helper")
                     ))
                 }
             }
@@ -135,8 +122,9 @@ class GgBadgeHandler(
         }
     }
 
-    /** @return hex color string. */
-    private fun findColorOrDefault(ggColorName: String): String = colorMap.get(ggColorName) ?: defaultColor
+    private fun findColorOrDefault(ggColorName: String): Color {
+        return GgColors.byRole.get(ggColorName) ?: GgColors.defaultColor
+    }
 
     private enum class Premium {
         GLOBAL, CHANNEL
