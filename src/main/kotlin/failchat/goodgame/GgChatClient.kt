@@ -48,7 +48,8 @@ class GgChatClient(
             HtmlUrlCleaner(),
             emoticonHandler,
             CommaHighlightHandler(channel.name),
-            badgeHandler
+            badgeHandler,
+            GgAuthorColorHandler()
     )
 
 

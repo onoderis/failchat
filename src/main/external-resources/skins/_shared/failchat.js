@@ -47,6 +47,7 @@ function initializeFailchat() {
     let lastSystemMessageId = -1; //goes down
     let autoScroll = true;
     let showStatusMessages = true; // show if origin-status message received before client-configuration message
+    let coloredNicknames = true;
     let hideMessages = false;
     let hideMessagesAfter = 60;
     let showHiddenMessages = false;
@@ -167,6 +168,7 @@ function initializeFailchat() {
     function handleChatMessage(chatMessage) {
         chatMessage.text = renderElements(chatMessage.text, chatMessage.elements);
         chatMessage.iconsPath = failchat.iconsPath;
+        chatMessage.author.coloredNicknames = coloredNicknames;
 
         const messageHtml = templates.message.render(chatMessage);
 
@@ -234,8 +236,7 @@ function initializeFailchat() {
             userBadgesStyle = ".message .user-badges { display: none; }"
         }
 
-        const rgbaBackgroundColor = hexToRgba(clientConfig.backgroundColor.substring(1));
-        let bgColorStyle = "#body-wrapper { background-color: rgba(" + rgbaBackgroundColor + ") }";
+        let bgColorStyle = "#body-wrapper { background-color: " + clientConfig.backgroundColor + "; }";
 
         let hiddenMessageStyle = ".hidden { display: none; }";
         if (showHiddenMessages) {
@@ -476,16 +477,6 @@ function toggleModButtonsDisplay(messageId) {
     } else {
         modButtons.style.display = ""
     }
-}
-
-function hexToRgba(hex) {
-    const int = parseInt(hex, 16);
-    const r = (int >> 24) & 255;
-    const g = (int >> 16) & 255;
-    const b = (int >> 8) & 255;
-    const a = (int & 255) / 255;
-
-    return r + "," + g + "," + b + "," + a;
 }
 
 $.views.converters("time", val => {

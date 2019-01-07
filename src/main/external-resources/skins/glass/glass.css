@@ -87,7 +87,6 @@ span.nick, span.origin-name {
     display: inline-block;
     margin-bottom: 5px;
     color: #DCF6FF;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 }
 
 span.highlighted {

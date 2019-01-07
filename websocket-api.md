@@ -2,8 +2,9 @@
 
 #### Chat message 
 Сообщение из чата   
+`content.author.color: String (hex color) | null (default skin color)`
 `content.badges.type: "image" | "character"`  
-`content.badges.format: "raster" | "vector" | undefined`
+`content.badges.format: "raster" | "vector" | undefined (for character badge type)`
 `content.badges.description: String | null`  
 ```json
 {
@@ -13,7 +14,8 @@
         "timestamp": 1499789037199,
         "author": {
             "name": "theauthor",
-            "id": "abc123"
+            "id": "abc123",
+            "color": "#ffffff"
         },
         "text": "@someuser emoticon {!0} / link {!1} / image {!2}",
         "origin": "twitch",
