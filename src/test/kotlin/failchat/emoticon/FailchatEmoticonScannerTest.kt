@@ -66,8 +66,8 @@ class FailchatEmoticonScannerTest {
     }
 
     @Test
-    fun ignoreCase() {
-        assertNotNull(scanResult.find { it.code == "uppercase" })
+    fun upperCase() {
+        assertNotNull(scanResult.find { it.code == "UPPERCASE" })
     }
 
 }
