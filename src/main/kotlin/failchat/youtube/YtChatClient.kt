@@ -224,14 +224,25 @@ class YtChatClient(
                 this.snippet.displayMessage
         )
 
+        // badges
         if (this.authorDetails.isVerified)
             message.addBadge(verifiedBadge)
+
         if (this.authorDetails.isChatOwner)
             message.addBadge(streamerBadge)
         else if (this.authorDetails.isChatModerator)
             message.addBadge(moderatorBadge)
+
         if (this.authorDetails.isChatSponsor)
             message.addBadge(sponsorBadge)
+
+        // nickname color
+        message.author.color = when {
+            this.authorDetails.isChatOwner -> YtColors.owner
+            this.authorDetails.isChatModerator -> YtColors.moderator
+            this.authorDetails.isChatSponsor -> YtColors.sponsor
+            else -> null
+        }
 
         return message
     }
