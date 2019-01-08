@@ -69,12 +69,14 @@
         "showHiddenMessages": false,
         "nativeClient": {
             "backgroundColor": "#000000ff",
+            "coloredNicknames": false,
             "hideMessages" : false,
             "hideMessagesAfter" : 60,
             "showStatusMessages" : true
         },
         "externalClient": {
             "backgroundColor": "#00000000",
+            "coloredNicknames": true,
             "hideMessages" : true,
             "hideMessagesAfter" : 20,
             "showStatusMessages" : false

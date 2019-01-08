@@ -125,12 +125,14 @@ class ChatMessageSender(
                 put("showHiddenMessages", config.getBoolean(ConfigKeys.showHiddenMessages))
                 putObject("nativeClient").apply {
                     put("backgroundColor", config.getString(ConfigKeys.nativeClient.backgroundColor))
+                    put("coloredNicknames", config.getBoolean(ConfigKeys.nativeClient.coloredNicknames))
                     put("hideMessages", config.getBoolean(ConfigKeys.nativeClient.hideMessages))
                     put("hideMessagesAfter", config.getInt(ConfigKeys.nativeClient.hideMessagesAfter))
                     put("showStatusMessages", config.getBoolean(ConfigKeys.nativeClient.showStatusMessages))
                 }
                 putObject("externalClient").apply {
                     put("backgroundColor", config.getString(ConfigKeys.externalClient.backgroundColor))
+                    put("coloredNicknames", config.getBoolean(ConfigKeys.externalClient.coloredNicknames))
                     put("hideMessages", config.getBoolean(ConfigKeys.externalClient.hideMessages))
                     put("hideMessagesAfter", config.getInt(ConfigKeys.externalClient.hideMessagesAfter))
                     put("showStatusMessages", config.getBoolean(ConfigKeys.externalClient.showStatusMessages))

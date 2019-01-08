@@ -79,12 +79,14 @@ class SettingsFrame(
 
     // native client
     private val nativeBgColorPicker = namespace["bgcolor_native"] as ColorPicker
+    private val coloredNicknamesNative = namespace["colored_nicknames_native"] as CheckBox
     private val hideMessagesNative = namespace["hide_messages_native"] as CheckBox
     private val hideMessagesNativeAfter = namespace["hide_messages_native_after"] as TextField
     private val showStatusMessagesNative = namespace["show_status_messages_native"] as CheckBox
 
     // external client
     private val externalBgColorPicker = namespace["bgcolor_external"] as ColorPicker
+    private val coloredNicknamesExternal = namespace["colored_nicknames_external"] as CheckBox
     private val hideMessagesExternal = namespace["hide_messages_external"] as CheckBox
     private val hideMessagesExternalAfter = namespace["hide_messages_external_after"] as TextField
     private val showStatusMessagesExternal = namespace["show_status_messages_external"] as CheckBox
@@ -260,15 +262,17 @@ class SettingsFrame(
         zoomPercent.text = config.getInt(ConfigKeys.zoomPercent).toString()
         deletedMessagePlaceholder.text = config.getString(ConfigKeys.deletedMessagePlaceholder)
 
+        nativeBgColorPicker.value = Color.web(config.getString(ConfigKeys.nativeClient.backgroundColor))
+        coloredNicknamesNative.isSelected = config.getBoolean(ConfigKeys.nativeClient.coloredNicknames)
         hideMessagesNative.isSelected = config.getBoolean(ConfigKeys.nativeClient.hideMessages)
         hideMessagesNativeAfter.text = config.getInt(ConfigKeys.nativeClient.hideMessagesAfter).toString()
         showStatusMessagesNative.isSelected = config.getBoolean(ConfigKeys.nativeClient.showStatusMessages)
-        nativeBgColorPicker.value = Color.web(config.getString(ConfigKeys.nativeClient.backgroundColor))
 
+        externalBgColorPicker.value = Color.web(config.getString(ConfigKeys.externalClient.backgroundColor))
+        coloredNicknamesExternal.isSelected = config.getBoolean(ConfigKeys.externalClient.coloredNicknames)
         hideMessagesExternal.isSelected = config.getBoolean(ConfigKeys.externalClient.hideMessages)
         hideMessagesExternalAfter.text = config.getInt(ConfigKeys.externalClient.hideMessagesAfter).toString()
         showStatusMessagesExternal.isSelected = config.getBoolean(ConfigKeys.externalClient.showStatusMessages)
-        externalBgColorPicker.value = Color.web(config.getString(ConfigKeys.externalClient.backgroundColor))
 
         opacitySlider.value = config.getDouble(ConfigKeys.opacity)
 
@@ -311,11 +315,13 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.deletedMessagePlaceholder, deletedMessagePlaceholder.text)
 
         config.setProperty(ConfigKeys.nativeClient.backgroundColor, nativeBgColorPicker.value.toHexFormat())
+        config.setProperty(ConfigKeys.nativeClient.coloredNicknames, coloredNicknamesNative.isSelected)
         config.setProperty(ConfigKeys.nativeClient.hideMessages, hideMessagesNative.isSelected)
         config.setProperty(ConfigKeys.nativeClient.hideMessagesAfter, parseHideMessagesAfter(hideMessagesNativeAfter.text))
         config.setProperty(ConfigKeys.nativeClient.showStatusMessages, showStatusMessagesNative.isSelected)
 
         config.setProperty(ConfigKeys.externalClient.backgroundColor, externalBgColorPicker.value.toHexFormat())
+        config.setProperty(ConfigKeys.externalClient.coloredNicknames, coloredNicknamesExternal.isSelected)
         config.setProperty(ConfigKeys.externalClient.hideMessages, hideMessagesExternal.isSelected)
         config.setProperty(ConfigKeys.externalClient.hideMessagesAfter, parseHideMessagesAfter(hideMessagesExternalAfter.text))
         config.setProperty(ConfigKeys.externalClient.showStatusMessages, showStatusMessagesExternal.isSelected)
