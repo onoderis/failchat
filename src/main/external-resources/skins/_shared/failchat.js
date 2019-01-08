@@ -252,6 +252,8 @@ function initializeFailchat() {
             resetHideMessageTasks();
         }
 
+        configureColoredNicknames(clientConfig);
+
 
         // ---------- native client configuration ----------
         if (!failchat.nativeClient) return;
@@ -274,8 +276,25 @@ function initializeFailchat() {
         });
     }
 
+    function configureColoredNicknames(clientConfig) {
+        if (clientConfig.coloredNicknames === coloredNicknames) return;
+
+        coloredNicknames = clientConfig.coloredNicknames;
+        const nickElements = document.getElementsByClassName("nick");
+        for (const nickElement of nickElements) {
+            if (coloredNicknames) {
+                const newColor = nickElement.getAttribute("color");
+                if (newColor !== null) {
+                    nickElement.setAttribute("style", "color: " + newColor + ";");
+                }
+            } else {
+                nickElement.removeAttribute("style");
+            }
+        }
+    }
+
     function resetHideMessageTasks() {
-        for (let [message] of activeMessages) {
+        for (const message of activeMessages) {
             cancelHideMessageTask(message);
             createHideMessageTaskIfRequired(message);
         }
@@ -309,7 +328,7 @@ function initializeFailchat() {
     }
 
     function handleClearChatMessage() {
-        for (let [message] of activeMessages) {
+        for (const message of activeMessages) {
             hideMessage(message);
         }
     }
@@ -513,7 +532,7 @@ function Template(name) {
         };
         xhr.onerror = () => {
             console.error("Error during '" + name + "'template request. " + JSON.stringify(xhr));
-            resolve();
+            reject();
         }
     });
 

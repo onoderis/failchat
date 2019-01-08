@@ -33,6 +33,7 @@ object ConfigKeys {
     object nativeClient {
         private const val prefix = "native-client"
         const val backgroundColor = "$prefix.background-color"
+        const val coloredNicknames = "$prefix.colored-nicknames"
         const val hideMessages = "$prefix.hide-messages"
         const val hideMessagesAfter = "$prefix.hide-messages-after"
         const val showStatusMessages = "$prefix.show-status-messages"
@@ -41,6 +42,7 @@ object ConfigKeys {
     object externalClient {
         private const val prefix = "external-client"
         const val backgroundColor = "$prefix.background-color"
+        const val coloredNicknames = "$prefix.colored-nicknames"
         const val hideMessages = "$prefix.hide-messages"
         const val hideMessagesAfter = "$prefix.hide-messages-after"
         const val showStatusMessages = "$prefix.show-status-messages"

@@ -12,7 +12,7 @@
         </div>
     </div>
     <div class="message-content">
-        <span class="nick" color="{{:author.color}}" {{if author.color !==  null && author.coloredNicknames}}style="color: {{:author.color}};" {{/if}}title="{{time:timestamp}}" onclick="toggleModButtonsDisplay({{:id}})">{{:author.name}}</span>
+        <span class="nick" title="{{time:timestamp}}" onclick="toggleModButtonsDisplay({{:id}})"{{if author.color !==  null }} color="{{:author.color}}"{{if author.coloredNicknames}} style="color: {{:author.color}};"{{/if}}{{/if}}>{{:author.name}}</span>
         <div class="mod-buttons">
             <span title="delete" onclick="deleteMessage(this.parentNode.parentNode.parentNode);toggleModButtonsDisplay({{:id}})">&#10060;</span>
             <span title="ignore" onclick="ignore(this.parentNode.parentNode.parentNode);toggleModButtonsDisplay({{:id}})">&#128683;</span>
