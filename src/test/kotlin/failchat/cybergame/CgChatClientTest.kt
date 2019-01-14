@@ -8,7 +8,6 @@ import failchat.chat.StatusUpdate
 import failchat.config
 import failchat.doAwhile
 import failchat.ms
-import failchat.privateConfig
 import failchat.util.value
 import org.junit.After
 import org.junit.Ignore
@@ -16,6 +15,7 @@ import org.junit.Test
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.assertTrue
 
+@Ignore
 class CgChatClientTest {
 
     private val history = ChatMessageHistory(10)
@@ -40,7 +40,6 @@ class CgChatClientTest {
         history.stop()
     }
 
-    @Ignore
     @Test
     fun connectionTest() {
         val connected = AtomicBoolean(false)
@@ -68,8 +67,8 @@ class CgChatClientTest {
                 { println("Message deleted: $it") }
         )
         initChatClient(
-                privateConfig.getString("test.cybergame.channel-name"),
-                privateConfig.getLong("test.cybergame.channel-id"),
+                "scatman",
+                10946,
                 callbacks
         )
 
