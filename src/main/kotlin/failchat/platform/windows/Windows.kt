@@ -5,6 +5,7 @@ import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef.HWND
 import failchat.exception.NativeCallException
+import failchat.util.binary
 import javafx.stage.Stage
 import mu.KotlinLogging
 
@@ -39,7 +40,7 @@ object Windows {
                 }
 
         val newStyle = changeOperation.invoke(currentStyle)
-        logger.debug("Changing window style, current: {}, new: {}; window: {}", currentStyle, newStyle, windowHandle)
+        logger.debug { "Changing window style, current: ${currentStyle.binary()}, new: ${newStyle.binary()}; window: $windowHandle" }
 
         User32.INSTANCE.SetWindowLong(windowHandle, User32.GWL_EXSTYLE, newStyle)
                 .ifError { errorCode ->
