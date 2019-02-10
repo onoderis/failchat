@@ -379,10 +379,10 @@ class ChatFrame(
 
             ctf.configureClickTransparency(currentStage)
         } else {
+            ctf.removeClickTransparency(currentStage)
+
             currentStage.isAlwaysOnTop = config.getBoolean(ConfigKeys.onTop)
             onTopItem.isDisable = false
-
-            ctf.removeClickTransparency(currentStage)
         }
 
         guiEventHandler.value.handleConfigurationChange()
