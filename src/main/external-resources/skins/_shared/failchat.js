@@ -294,7 +294,7 @@ function initializeFailchat() {
     }
 
     function resetHideMessageTasks() {
-        for (const message of activeMessages) {
+        for (const message of activeMessages.values()) {
             cancelHideMessageTask(message);
             createHideMessageTaskIfRequired(message);
         }
@@ -328,7 +328,7 @@ function initializeFailchat() {
     }
 
     function handleClearChatMessage() {
-        for (const message of activeMessages) {
+        for (const message of activeMessages.values()) {
             hideMessage(message);
         }
     }
