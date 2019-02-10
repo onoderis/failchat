@@ -364,15 +364,42 @@
                                                 <Insets bottom="6.0" />
                                              </VBox.margin>
                                                   </HBox>
-                                          <HBox alignment="CENTER_LEFT">
-                                             <children>
-                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Deleted message placeholder: " />
-                                                <TextField fx:id="deleted_message_placeholder" prefWidth="160.0" text="message deleted" />
-                                             </children>
+                                          <VBox>
                                              <VBox.margin>
                                                 <Insets bottom="6.0" left="30.0" />
                                              </VBox.margin>
-                                          </HBox>
+                                             <children>
+                                                <HBox alignment="CENTER_LEFT">
+                                                   <children>
+                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Deleted message placeholder: " />
+                                                      <TextField fx:id="deleted_message_placeholder" prefWidth="160.0" text="message deleted" />
+                                                   </children>
+                                                </HBox>
+                                                 <CheckBox fx:id="show_click_transparency_icon" mnemonicParsing="false" text="Show icon in 'click through' mode">
+                                                     <font>
+                                                         <Font size="12.0" />
+                                                     </font>
+                                                     <VBox.margin>
+                                                         <Insets />
+                                                     </VBox.margin>
+                                                   <graphic>
+                                                      <FlowPane>
+                                                         <children>
+                                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Show icon" />
+                                                            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                               <image>
+                                                                  <Image url="@/icons/click-transparency-mode.png" />
+                                                               </image>
+                                                               <FlowPane.margin>
+                                                                  <Insets left="3.0" right="3.0" />
+                                                               </FlowPane.margin></ImageView>
+                                                            <Text layoutX="10.0" layoutY="90.0" strokeType="OUTSIDE" strokeWidth="0.0" text="in 'click through' mode" />
+                                                         </children>
+                                                      </FlowPane>
+                                                   </graphic>
+                                                 </CheckBox>
+                                             </children>
+                                          </VBox>
                                           <Separator />
                                           <HBox fillHeight="false">
                                              <children>

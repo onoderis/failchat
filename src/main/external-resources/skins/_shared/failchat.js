@@ -61,6 +61,7 @@ function initializeFailchat() {
     const messageContainer = $("#message-container");
     const scroller = $(failchat.baronParams.scroller);
     const scrollBar = $(failchat.baronParams.bar);
+    const clickTransparencyIcon = $("#click-transparency-icon");
 
     // viewers bar
     const viewersBar = $(".viewers-bar");
@@ -274,6 +275,12 @@ function initializeFailchat() {
                 viewersCountItems[origin].bar.removeClass("on");
             }
         });
+
+        if (config.clickTransparency && config.showClickTransparencyIcon) {
+            clickTransparencyIcon.addClass("on");
+        } else {
+            clickTransparencyIcon.removeClass("on");
+        }
     }
 
     function configureColoredNicknames(clientConfig) {

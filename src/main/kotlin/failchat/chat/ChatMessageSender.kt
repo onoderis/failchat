@@ -123,6 +123,8 @@ class ChatMessageSender(
                 put("deletedMessagePlaceholder", config.getString(ConfigKeys.deletedMessagePlaceholder))
                 put("hideDeletedMessages", config.getBoolean(ConfigKeys.hideDeletedMessages))
                 put("showHiddenMessages", config.getBoolean(ConfigKeys.showHiddenMessages))
+                put("clickTransparency", config.getBoolean(ConfigKeys.clickTransparency))
+                put("showClickTransparencyIcon", config.getBoolean(ConfigKeys.showClickTransparencyIcon))
                 putObject("nativeClient").apply {
                     put("backgroundColor", config.getString(ConfigKeys.nativeClient.backgroundColor))
                     put("coloredNicknames", config.getBoolean(ConfigKeys.nativeClient.coloredNicknames))
