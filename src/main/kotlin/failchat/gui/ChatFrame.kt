@@ -385,6 +385,8 @@ class ChatFrame(
             ctf.removeClickTransparency(currentStage)
         }
 
+        guiEventHandler.value.handleConfigurationChange()
+
         return clickTransparencyEnabled
     }
 

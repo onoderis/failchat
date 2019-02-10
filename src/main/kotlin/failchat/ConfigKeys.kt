@@ -54,6 +54,7 @@ object ConfigKeys {
     const val showViewers = "show-viewers"
     const val showImages = "show-images"
     const val clickTransparency = "click-transparency"
+    const val showClickTransparencyIcon = "show-click-transparency-icon"
 
     const val opacity = "opacity"
     const val showOriginBadges = "show-origin-badges"

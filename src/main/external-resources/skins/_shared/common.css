@@ -197,3 +197,20 @@ img.image {
     color: red;
     cursor: pointer;
 }
+
+#mode-icons {
+    position: absolute;
+    right: 3px;
+    top: 3px;
+    z-index: 110;
+}
+
+#click-transparency-icon {
+    display: none;
+    width: 20px;
+    height: 20px;
+}
+
+#click-transparency-icon.on {
+    display: inline;
+}

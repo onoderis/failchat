@@ -67,6 +67,8 @@
         "zoomPercent": 100,
         "hideDeletedMessages" : false,
         "showHiddenMessages": false,
+        "clickTransparency": false,
+        "showClickTransparencyIcon": false,
         "nativeClient": {
             "backgroundColor": "#000000ff",
             "coloredNicknames": false,

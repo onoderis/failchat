@@ -76,6 +76,7 @@ class SettingsFrame(
     private val hideDeletedMessages = namespace["hide_deleted_messages"] as CheckBox
     private val zoomPercent = namespace["zoom_percent"] as TextField
     private val deletedMessagePlaceholder = namespace["deleted_message_placeholder"] as TextField
+    private val showClickTransparencyIcon = namespace["show_click_transparency_icon"] as CheckBox
 
     // native client
     private val nativeBgColorPicker = namespace["bgcolor_native"] as ColorPicker
@@ -131,7 +132,7 @@ class SettingsFrame(
         skin.items = FXCollections.observableArrayList(skinList)
 
         clickTransparency.isDisable = !clickTransparencyEnabled
-
+        showClickTransparencyIcon.isDisable = !clickTransparencyEnabled
 
         stage.setOnCloseRequest {
             saveSettingsValues()
@@ -252,6 +253,7 @@ class SettingsFrame(
         onTop.isSelected = config.getBoolean(ConfigKeys.onTop)
         if (clickTransparencyEnabled) {
             clickTransparency.isSelected = config.getBoolean(ConfigKeys.clickTransparency)
+            showClickTransparencyIcon.isSelected = config.getBoolean(ConfigKeys.showClickTransparencyIcon)
         }
         showViewers.isSelected = config.getBoolean(ConfigKeys.showViewers)
         showImages.isSelected = config.getBoolean(ConfigKeys.showImages)
@@ -303,6 +305,8 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.onTop, onTop.isSelected)
         if (clickTransparencyEnabled) {
             config.setProperty(ConfigKeys.clickTransparency, clickTransparency.isSelected)
+            config.setProperty(ConfigKeys.showClickTransparencyIcon, showClickTransparencyIcon.isSelected)
+
         }
         config.setProperty(ConfigKeys.showViewers, showViewers.isSelected)
         config.setProperty(ConfigKeys.showImages, showImages.isSelected)
