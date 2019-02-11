@@ -256,6 +256,10 @@ class ChatFrame(
 
         // hot keys
         chatScene.setOnKeyReleased { key ->
+            if (key.isControlDown || key.isAltDown || key.isShiftDown || key.isMetaDown) {
+                return@setOnKeyReleased
+            }
+
             when (key.code) {
                 switchDecorationsKey -> switchDecorations()
                 onTopKey -> onTopItem.isSelected = toggleOnTop()
