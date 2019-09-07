@@ -120,7 +120,7 @@ class GgApiClient(
                 ggId = id
         )
 
-        if (node.get("animated").asBoolean()) {
+        if (node.get("animated").asText() == "1") { // "1" for animated, "" for static
             emoticon.animatedInstance = GgEmoticon(
                     code = code,
                     url = node.get("img_gif").asText(),
