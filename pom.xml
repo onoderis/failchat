@@ -15,7 +15,7 @@
         <kotlinx-coroutines.version>1.0.1</kotlinx-coroutines.version>
 
         <kodein.version>4.0.0</kodein.version>
-        <jackson.version>2.9.8</jackson.version>
+        <jackson.version>2.9.9.3</jackson.version>
         <slf4j.version>1.7.25</slf4j.version>
         <commons-configuration.version>2.1.1</commons-configuration.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
