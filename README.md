@@ -1,5 +1,5 @@
 ### Description
-Cross-platform chat message aggregator for twitch, youtube, goodgame, peka2tv, cybergame.tv 
+Cross-platform chat message aggregator for twitch, youtube, goodgame, peka2tv 
 
 ### Features
 * Emoteicons (including BetterTTV, FrankerFaceZ)

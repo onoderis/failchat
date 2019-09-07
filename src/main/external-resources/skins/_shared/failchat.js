@@ -4,7 +4,7 @@ const failchat = {
     maxMessages: 50,
     iconsPath: "../_shared/icons/",
     hideMessageAnimationClass: null,
-    origins: ["peka2tv", "twitch", "goodgame", "youtube", "cybergame"],
+    origins: ["peka2tv", "twitch", "goodgame", "youtube"],
     nativeClient: false
 };
 

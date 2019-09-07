@@ -11,7 +11,6 @@ enum class Origin(val commonName: String) { //todo rename to MessageOrigin, remo
     BTTV_CHANNEL("bttvChannel"),
     FRANKERFASEZ("frankerfacez"),
     YOUTUBE("youtube"),
-    CYBERGAME("cybergame"),
     FAILCHAT("failchat");
 
 
@@ -30,6 +29,5 @@ val chatOrigins = listOf(
         Origin.PEKA2TV,
         Origin.GOODGAME,
         Origin.TWITCH,
-        Origin.YOUTUBE,
-        Origin.CYBERGAME
+        Origin.YOUTUBE
 )
