@@ -36,8 +36,7 @@ function sendExampleMessages() {
                 "peka2tv": false,
                 "twitch": true,
                 "goodgame": true,
-                "youtube": false,
-                "cybergame": false
+                "youtube": false
             },
             "deletedMessagePlaceholder": {
                 "text": "message deleted {!0}",
@@ -59,8 +58,7 @@ function sendExampleMessages() {
             "peka2tv": 5,
             "goodgame": 25,
             "twitch": 250,
-            "youtube": 2514,
-            "cybergame": null
+            "youtube": 2514
         }
     });
 
@@ -238,25 +236,6 @@ const exampleMessages = [
                 "url": "http://static-cdn.jtvnw.net/emoticons/v1/25/1.0",
                 "format": "raster"
             }]
-        }
-    },
-
-    {
-        "type": "message",
-        "content": {
-            "id": 4,
-            "origin": "cybergame",
-            "author": {"name": "fail0001", "id": "fail0001", "color": null},
-            "text": "{!0}",
-            "timestamp": 1529402443689,
-            "highlighted": false,
-            "badges": [{
-                "type": "image",
-                "format": "raster",
-                "url": "https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2",
-                "description": "Broadcaster"
-            }],
-            "elements": [{"type": "image", "url": "https://i.imgur.com/tCGN8Zj.png"}]
         }
     },
 

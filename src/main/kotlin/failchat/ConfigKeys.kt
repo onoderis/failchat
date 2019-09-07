@@ -25,11 +25,6 @@ object ConfigKeys {
         const val channel = "youtube.channel"
     }
 
-    object cybergame {
-        const val enabled = "cybergame.enabled"
-        const val channel = "cybergame.channel"
-    }
-
     object nativeClient {
         private const val prefix = "native-client"
         const val backgroundColor = "$prefix.background-color"

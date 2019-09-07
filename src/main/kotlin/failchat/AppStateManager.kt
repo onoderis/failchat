@@ -7,7 +7,6 @@ import either.Either
 import failchat.AppState.CHAT
 import failchat.AppState.SETTINGS
 import failchat.Origin.BTTV_CHANNEL
-import failchat.Origin.CYBERGAME
 import failchat.Origin.FRANKERFASEZ
 import failchat.Origin.GOODGAME
 import failchat.Origin.PEKA2TV
@@ -21,9 +20,6 @@ import failchat.chat.OriginStatusManager
 import failchat.chat.badge.BadgeManager
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
-import failchat.cybergame.CgApiClient
-import failchat.cybergame.CgChatClient
-import failchat.cybergame.CgViewersCountLoader
 import failchat.emoticon.ChannelEmoticonUpdater
 import failchat.emoticon.DeletedMessagePlaceholderFactory
 import failchat.emoticon.EmoticonStorage
@@ -71,7 +67,6 @@ class AppStateManager(private val kodein: Kodein) {
     private val peka2tvApiClient: Peka2tvApiClient = kodein.instance()
     private val twitchApiClient: TwitchApiClient = kodein.instance()
     private val goodgameApiClient: GgApiClient = kodein.instance()
-    private val cybergameApiClient: CgApiClient = kodein.instance()
     private val configLoader: ConfigLoader = kodein.instance()
     private val ignoreFilter: IgnoreFilter = kodein.instance()
     private val imageLinkHandler: ImageLinkHandler = kodein.instance()
@@ -181,23 +176,6 @@ class AppStateManager(private val kodein: Kodein) {
 
             initializedChatClients.put(YOUTUBE, chatClient)
             viewersCountLoaders.add(chatClient)
-        }
-
-        // Cybergame
-        checkEnabled(CYBERGAME)?.let { channelName ->
-            // get channel id by channel name
-            val channelId = try {
-                runBlocking { cybergameApiClient.requestChannelId(channelName) }
-            } catch (e: Exception) {
-                logger.warn("Failed to get cybergame channel id. channel name: {}", channelName, e)
-                return@let
-            }
-
-            val chatClient = kodein.factory<Pair<String, Long>, CgChatClient>()
-                    .invoke(channelName to channelId)
-
-            initializedChatClients.put(CYBERGAME, chatClient)
-            viewersCountLoaders.add(kodein.factory<String, CgViewersCountLoader>().invoke(channelName))
         }
 
 

@@ -51,14 +51,12 @@ class SettingsFrame(
     private val goodgameChannel = namespace["goodgame_channel"] as TextField
     private val twitchChannel = namespace["twitch_channel"] as TextField
     private val youtubeChannel = namespace["youtube_channel"] as TextField
-    private val cybergameChannel = namespace["cybergame_channel"] as TextField
 
     //channels checkboxes
     private val peka2tvEnabled = namespace["peka2tv_enabled"] as CheckBox
     private val goodgameEnabled = namespace["goodgame_enabled"] as CheckBox
     private val twitchEnabled = namespace["twitch_enabled"] as CheckBox
     private val youtubeEnabled = namespace["youtube_enabled"] as CheckBox
-    private val cybergameEnabled = namespace["cybergame_enabled"] as CheckBox
 
     @Suppress("UNCHECKED_CAST")
     private val skin = namespace["skin"] as ChoiceBox<Skin>
@@ -123,9 +121,6 @@ class SettingsFrame(
         }
         youtubeEnabled.selectedProperty().addListener { _, _, newValue ->
             youtubeChannel.configureChannelField(newValue)
-        }
-        cybergameEnabled.selectedProperty().addListener { _, _, newValue ->
-            cybergameChannel.configureChannelField(newValue)
         }
 
         skin.converter = SkinConverter(skinList)
@@ -225,7 +220,6 @@ class SettingsFrame(
         goodgameChannel.text = config.getString(ConfigKeys.goodgame.channel)
         twitchChannel.text = config.getString(ConfigKeys.twitch.channel)
         youtubeChannel.text = config.getString(ConfigKeys.youtube.channel)
-        cybergameChannel.text = config.getString(ConfigKeys.cybergame.channel)
 
         config.getBoolean(ConfigKeys.peka2tv.enabled).let {
             peka2tvEnabled.isSelected = it
@@ -242,10 +236,6 @@ class SettingsFrame(
         config.getBoolean(ConfigKeys.youtube.enabled).let {
             youtubeEnabled.isSelected = it
             youtubeChannel.configureChannelField(it)
-        }
-        config.getBoolean(ConfigKeys.cybergame.enabled).let {
-            cybergameEnabled.isSelected = it
-            cybergameChannel.configureChannelField(it)
         }
 
         skin.value = skin.converter.fromString(config.getString(ConfigKeys.skin))
@@ -292,13 +282,11 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.goodgame.channel, goodgameChannel.text)
         config.setProperty(ConfigKeys.twitch.channel, twitchChannel.text)
         config.setProperty(ConfigKeys.youtube.channel, youtubeChannel.text)
-        config.setProperty(ConfigKeys.cybergame.channel, cybergameChannel.text)
 
         config.setProperty(ConfigKeys.peka2tv.enabled, peka2tvEnabled.isSelected)
         config.setProperty(ConfigKeys.goodgame.enabled, goodgameEnabled.isSelected)
         config.setProperty(ConfigKeys.twitch.enabled, twitchEnabled.isSelected)
         config.setProperty(ConfigKeys.youtube.enabled, youtubeEnabled.isSelected)
-        config.setProperty(ConfigKeys.cybergame.enabled, cybergameEnabled.isSelected)
 
         config.setProperty(ConfigKeys.skin, skin.value.name)
         config.setProperty(ConfigKeys.frame, frame.isSelected)
