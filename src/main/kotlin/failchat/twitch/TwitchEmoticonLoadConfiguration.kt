@@ -6,10 +6,9 @@ import failchat.emoticon.EmoticonLoadConfiguration
 import failchat.emoticon.EmoticonLoadConfiguration.LoadType
 
 class TwitchEmoticonLoadConfiguration(
-        twitchLoader: TwitchEmoticonStreamLoader,
-        twitchemotesLoader: TwitchemotesStreamLoader
+        twitchLoader: TwitchEmoticonStreamLoader
 ) : EmoticonLoadConfiguration<TwitchEmoticon> {
-    override val streamLoaders = listOf(twitchemotesLoader, twitchLoader) //twitchemotes is faster and more stable than official api
+    override val streamLoaders = listOf(twitchLoader)
     override val origin = Origin.TWITCH
     override val loadType = LoadType.STREAM
     override val bulkLoaders: List<EmoticonBulkLoader<TwitchEmoticon>> = emptyList()
