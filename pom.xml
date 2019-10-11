@@ -481,25 +481,43 @@
                 <version>3.0.0</version>
                 <executions>
                     <execution>
+                        <id>executable-jar</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
+                        <configuration>
+                            <finalName>failchat-${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <archive>
+                                <manifest>
+                                    <mainClass>failchat.FailchatMainKt</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <outputDirectory>${project.build.directory}/failchat-v${project.version}</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>zip</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>failchat-v${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <archiverConfig>
+                                <compress>false</compress>
+                            </archiverConfig>
+                            <descriptors>
+                                <descriptor>src/main/assembly/zip.xml</descriptor>
+                            </descriptors>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <finalName>failchat-${project.version}</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <archive>
-                        <manifest>
-                            <mainClass>failchat.FailchatMainKt</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <outputDirectory>${basedir}/target/failchat-v${project.version}</outputDirectory>
-                </configuration>
             </plugin>
 
             <plugin>
