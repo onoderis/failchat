@@ -23,8 +23,7 @@ Cross-platform chat message aggregator for twitch, youtube, goodgame, peka2tv
 * Skin customization via html/css/js
 
 ### Requirements
-Java 8 (recommended u191 and newer)
+Java 8 (recommended update 1.8.0_202)
 
 ### Screenshots
 [Imgur album](https://imgur.com/a/AVYzrmo)
-
