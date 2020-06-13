@@ -45,6 +45,9 @@
                                                             </image>
                                                         </ImageView>
                                                         <CheckBox fx:id="twitch_enabled" mnemonicParsing="false">
+                                                            <HBox.margin>
+                                                                <Insets right="5.0" />
+                                                            </HBox.margin>
                                                             <font>
                                                                 <Font size="12.0" />
                                                             </font>
@@ -70,6 +73,9 @@
                                                             </image>
                                                         </ImageView>
                                                         <CheckBox fx:id="youtube_enabled" mnemonicParsing="false">
+                                                            <HBox.margin>
+                                                                <Insets right="5.0" />
+                                                            </HBox.margin>
                                                             <font>
                                                                 <Font size="12.0" />
                                                             </font>
@@ -95,6 +101,9 @@
                                                             </image>
                                                         </ImageView>
                                                         <CheckBox fx:id="goodgame_enabled" mnemonicParsing="false">
+                                                            <HBox.margin>
+                                                                <Insets right="5.0" />
+                                                            </HBox.margin>
                                                             <font>
                                                                 <Font size="12.0" />
                                                             </font>
@@ -120,6 +129,9 @@
                                                             </image>
                                                         </ImageView>
                                                         <CheckBox fx:id="peka2tv_enabled" mnemonicParsing="false">
+                                                            <HBox.margin>
+                                                                <Insets right="5.0" />
+                                                            </HBox.margin>
                                                             <font>
                                                                 <Font size="12.0" />
                                                             </font>

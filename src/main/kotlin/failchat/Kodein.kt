@@ -1,11 +1,6 @@
 package failchat
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.salomonbrys.kodein.Kodein
-import com.github.salomonbrys.kodein.bind
-import com.github.salomonbrys.kodein.factory
-import com.github.salomonbrys.kodein.instance
-import com.github.salomonbrys.kodein.singleton
 import com.google.api.services.youtube.YouTube
 import either.Either
 import failchat.chat.AppConfiguration
@@ -91,6 +86,11 @@ import failchat.youtube.YtChatClient
 import io.ktor.server.engine.ApplicationEngine
 import okhttp3.OkHttpClient
 import org.apache.commons.configuration2.Configuration
+import org.kodein.di.Kodein
+import org.kodein.di.generic.bind
+import org.kodein.di.generic.factory
+import org.kodein.di.generic.instance
+import org.kodein.di.generic.singleton
 import org.mapdb.DB
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -99,7 +99,7 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.atomic.AtomicInteger
 
 @Suppress("RemoveExplicitTypeArguments")
-val kodein = Kodein {
+val kodein = Kodein.direct {
 
     // Http/websocket server
     bind<ApplicationEngine>() with singleton { createHttpServer() }
@@ -125,7 +125,7 @@ val kodein = Kodein {
     }
 
     // Core dependencies
-    bind<AppStateManager>() with singleton { AppStateManager(kodein) }
+    bind<AppStateManager>() with singleton { AppStateManager(dkodein) }
     bind<AppConfiguration>() with singleton { AppConfiguration(instance<Configuration>()) }
     bind<OriginStatusManager>() with singleton {
         OriginStatusManager(instance<ChatMessageSender>())
@@ -241,9 +241,9 @@ val kodein = Kodein {
     // Chat client callbacks
     bind<ChatClientCallbacks>() with singleton {
         ChatClientCallbacks(
-                kodein.instance<OnChatMessageCallback>(),
-                kodein.instance<OnStatusUpdateCallback>(),
-                kodein.instance<OnChatMessageDeletedCallback>()
+                instance<OnChatMessageCallback>(),
+                instance<OnStatusUpdateCallback>(),
+                instance<OnChatMessageDeletedCallback>()
         )
     }
     bind<OnChatMessageCallback>() with singleton {

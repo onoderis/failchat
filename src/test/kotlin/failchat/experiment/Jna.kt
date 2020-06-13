@@ -1,6 +1,5 @@
 package failchat.experiment
 
-import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef.HWND
 import javafx.application.Application
@@ -36,13 +35,14 @@ class App: Application() {
 
         stages.forEach {
             it.show()
-            val hWnd = HWND(getWindowPointer(it))
-            val style = getWindowStyle(hWnd)
-            println("style for ${it.style} stage: $style")
+            // broken after java 11
+//            val hWnd = HWND(getWindowPointer(it))
+//            val style = getWindowStyle(hWnd)
+//            println("style for ${it.style} stage: $style")
 
-            it.isAlwaysOnTop = true
-            val styleOnTop = getWindowStyle(hWnd)
-            println("style with onTop option for ${it.style} stage: $styleOnTop")
+//            it.isAlwaysOnTop = true
+//            val styleOnTop = getWindowStyle(hWnd)
+//            println("style with onTop option for ${it.style} stage: $styleOnTop")
         }
 
     }
@@ -86,23 +86,23 @@ private fun makeWindowClickNonTransparent(hWnd: HWND) {
 
 
 
-private fun getWindowPointer(stage: Stage): Pointer? {
-    try {
-        @Suppress("DEPRECATION")
-        val tkStage = stage.impl_getPeer()
-
-        val getPlatformWindow = tkStage.javaClass.getDeclaredMethod("getPlatformWindow")
-        getPlatformWindow.isAccessible = true
-        val platformWindow = getPlatformWindow.invoke(tkStage)
-
-        val getNativeHandle = platformWindow.javaClass.getMethod("getNativeHandle")
-        getNativeHandle.isAccessible = true
-        val nativeHandle = getNativeHandle.invoke(platformWindow)
-
-        return Pointer(nativeHandle as Long)
-    } catch (t: Throwable) {
-        System.err.println("Error getting Window Pointer. $t")
-        return null
-    }
-
-}
+//private fun getWindowPointer(stage: Stage): Pointer? {
+//    try {
+//        @Suppress("DEPRECATION")
+//        val tkStage = stage.impl_getPeer()
+//
+//        val getPlatformWindow = tkStage.javaClass.getDeclaredMethod("getPlatformWindow")
+//        getPlatformWindow.isAccessible = true
+//        val platformWindow = getPlatformWindow.invoke(tkStage)
+//
+//        val getNativeHandle = platformWindow.javaClass.getMethod("getNativeHandle")
+//        getNativeHandle.isAccessible = true
+//        val nativeHandle = getNativeHandle.invoke(platformWindow)
+//
+//        return Pointer(nativeHandle as Long)
+//    } catch (t: Throwable) {
+//        System.err.println("Error getting Window Pointer. $t")
+//        return null
+//    }
+//
+//}

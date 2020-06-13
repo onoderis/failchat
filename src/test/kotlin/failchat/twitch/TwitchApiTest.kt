@@ -22,7 +22,6 @@ class TwitchApiTest {
                 "lirik" to 23161357L,
                 "Doublelift" to 40017619L,
                 "TSM_Dyrus" to 6356773L,
-                "C9Sneaky" to 24538518L,
                 "aimbotcalvin" to 84574550L
         )
     }
