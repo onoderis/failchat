@@ -1,8 +1,5 @@
 package failchat
 
-import com.github.salomonbrys.kodein.Kodein
-import com.github.salomonbrys.kodein.factory
-import com.github.salomonbrys.kodein.instance
 import either.Either
 import failchat.AppState.CHAT
 import failchat.AppState.SETTINGS
@@ -53,13 +50,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
+import org.kodein.di.DKodein
+import org.kodein.di.generic.factory
+import org.kodein.di.generic.instance
 import org.mapdb.DB
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-class AppStateManager(private val kodein: Kodein) {
+class AppStateManager(private val kodein: DKodein) {
 
     private companion object : KLogging()
 

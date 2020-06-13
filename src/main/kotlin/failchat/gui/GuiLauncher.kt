@@ -1,6 +1,5 @@
 package failchat.gui
 
-import com.github.salomonbrys.kodein.instance
 import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.github.ReleaseChecker
 import failchat.kodein
@@ -17,6 +16,7 @@ import javafx.scene.control.ButtonType
 import javafx.stage.Stage
 import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
+import org.kodein.di.generic.instance
 import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant

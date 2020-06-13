@@ -57,17 +57,18 @@ object Windows {
 
 
     fun getWindowHandle(stage: Stage): HWND {
-        @Suppress("DEPRECATION")
-        val tkStage = stage.impl_getPeer()
+        val peerField = stage.javaClass.superclass.getDeclaredField("peer")
+        peerField.isAccessible = true
+        val windowStage = peerField.get(stage)
 
-        val getPlatformWindow = tkStage.javaClass.getDeclaredMethod("getPlatformWindow")
-        getPlatformWindow.isAccessible = true
-        val platformWindow = getPlatformWindow.invoke(tkStage)
+        val platformWindowField = windowStage.javaClass.getDeclaredField("platformWindow")
+        platformWindowField.isAccessible = true
+        val platformWindow = platformWindowField.get(windowStage)
 
-        val getNativeHandle = platformWindow.javaClass.getMethod("getNativeHandle")
-        getNativeHandle.isAccessible = true
-        val nativeHandle = getNativeHandle.invoke(platformWindow)
+        val getNativeHandleMethod = platformWindow.javaClass.superclass.getDeclaredMethod("getNativeHandle")
+        getNativeHandleMethod.isAccessible = true
+        val handle = getNativeHandleMethod.invoke(platformWindow) as Long
 
-        return HWND(Pointer(nativeHandle as Long))
+        return HWND(Pointer(handle))
     }
 }

@@ -242,18 +242,6 @@ class ChatFrame(
             """.trimIndent())
         }
 
-        // web engine transparency hack
-        webEngine.documentProperty().addListener { _, _, _ ->
-            try {
-                val f = webEngine.javaClass.getDeclaredField("page")
-                f.isAccessible = true
-                val page = f.get(webEngine) as com.sun.webkit.WebPage
-                page.setBackgroundColor(0) //fully transparent
-            } catch (e: Exception) {
-                logger.warn("Exception during setting of the transparency hack", e)
-            }
-        }
-
         // hot keys
         chatScene.setOnKeyReleased { key ->
             if (key.isControlDown || key.isAltDown || key.isShiftDown || key.isMetaDown) {
