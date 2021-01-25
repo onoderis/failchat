@@ -1,4 +1,4 @@
-package failchat.youtube2
+package failchat.youtube
 
 import failchat.chat.MessageHandler
 import failchat.util.LateinitVal

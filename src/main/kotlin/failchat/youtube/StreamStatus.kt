@@ -1,4 +1,4 @@
-package failchat.youtube2
+package failchat.youtube
 
 enum class StreamStatus {
     NOT_STARTED,

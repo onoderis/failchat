@@ -1,5 +1,6 @@
 package failchat.youtube2
 
+import failchat.youtube.YoutubeViewCountParser
 import io.kotest.matchers.shouldBe
 import org.junit.Test
 

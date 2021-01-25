@@ -1,4 +1,4 @@
-package failchat.youtube2
+package failchat.youtube
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
