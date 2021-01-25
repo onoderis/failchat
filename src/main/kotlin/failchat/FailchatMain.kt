@@ -6,7 +6,9 @@ import failchat.emoticon.EmoticonStorage
 import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.emoticon.OriginEmoticonStorageFactory
 import failchat.emoticon.TwitchEmoticonFactory
+import failchat.gui.ChatFrameLauncher
 import failchat.gui.GuiLauncher
+import failchat.gui.GuiMode
 import failchat.gui.PortBindAlert
 import failchat.reporter.EventAction
 import failchat.reporter.EventCategory
@@ -50,6 +52,7 @@ import java.time.ZoneOffset
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
+import kotlin.reflect.KClass
 import io.ktor.application.Application as KtorApplication
 import javafx.application.Application as JfxApplication
 
@@ -79,13 +82,11 @@ fun main0(args: Array<String>) {
 
     handleResetConfigurationOption()
 
-    val guiEnabled = !cmd.hasOption("no-gui")
-    if (guiEnabled) {
-        runGui()
-    }
-
     val config: Configuration = kodein.instance()
     handleProgramArguments(cmd, config)
+
+    val guiMode = GuiMode.valueOf(config.getString("gui-mode"))
+    runGui(guiMode)
 
     logSystemInfo()
 
@@ -138,16 +139,18 @@ fun main0(args: Array<String>) {
     // Create directory for failchat emoticons if required
     Files.createDirectories(kodein.instance<Path>("failchatEmoticonsDirectory"))
 
-    if (!guiEnabled) {
+    if (guiMode == GuiMode.CHAT_ONLY || guiMode == GuiMode.NO_GUI) {
         // start app with current configuration
         val appStateManager = kodein.instance<AppStateManager>()
         appStateManager.startChat()
 
-        // add shutdown hook
-        val hookThread = Thread({
-            appStateManager.shutDown(false)
-        }, "ShutdownHookThread")
-        Runtime.getRuntime().addShutdownHook(hookThread)
+        if (guiMode == GuiMode.NO_GUI) {
+            // add shutdown hook
+            val hookThread = Thread({
+                appStateManager.shutDown(false)
+            }, "ShutdownHookThread")
+            Runtime.getRuntime().addShutdownHook(hookThread)
+        }
     }
 
     logger.info("Application started")
@@ -185,11 +188,20 @@ private fun handleResetConfigurationOption() {
     }
 }
 
-private fun runGui() {
+private fun runGui(guiMode: GuiMode) {
+    if (guiMode == GuiMode.NO_GUI) {
+        return
+    }
+
+    val guiClass: KClass<out JfxApplication> = when (guiMode) {
+        GuiMode.FULL_GUI -> GuiLauncher::class
+        GuiMode.CHAT_ONLY -> ChatFrameLauncher::class
+        else -> error("Unexpected gui mode: $guiMode")
+    }
     // Javafx starts earlier for responsiveness. Thread will be blocked
     thread(name = "GuiLauncher", priority = Thread.MAX_PRIORITY) {
         logger.info("Launching javafx application")
-        JfxApplication.launch(GuiLauncher::class.java)
+        JfxApplication.launch(guiClass.java)
     }
 }
 
@@ -201,7 +213,7 @@ private fun parseArguments(args: Array<String>): CommandLine {
         addOption(Option("f", "logger-failchat-level",  true,  "Logging level for failchat package"))
         addOption(Option("o", "enable-console-logging", false, "Enable logging into the console"))
         addOption(Option("p", "port",                   true,  "Server port"))
-        addOption(Option("g", "no-gui",                 false, "Run application without GUI"))
+        addOption(Option("g", "gui-mode",               true, "Possible modes: NO_GUI, ONLY_CHAT, FULL_GUI"))
     }
 
     return DefaultParser().parse(options, args)
@@ -234,6 +246,11 @@ private fun handleProgramArguments(cmd: CommandLine, config: Configuration) {
     }
     if (cmd.hasOption("disable-reporter")) {
         config.setProperty("reporter.enabled", false)
+    }
+    if (cmd.hasOption("gui-mode")) {
+        config.setProperty("gui-mode", cmd.getOptionValue("gui-mode"))
+    } else {
+        config.setProperty("gui-mode", GuiMode.FULL_GUI.name)
     }
 }
 

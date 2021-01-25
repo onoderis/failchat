@@ -443,6 +443,20 @@ const exampleMessages = [
             ],
             "badges": []
         }
-    }
+    },
+
+    {
+        "type": "message",
+        "content": {
+            "id": 12,
+            "origin": "twitch",
+            "author": {"name": "fail0001", "id": "fail0001", "color": "#00ff00"},
+            "text": "message with emoji 🥰 🥰 🥰",
+            "timestamp": 1529402393228,
+            "highlighted": false,
+            "badges": [],
+            "elements": []
+        }
+    },
 
 ];

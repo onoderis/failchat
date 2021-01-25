@@ -1,10 +1,11 @@
 package failchat.youtube
 
 import failchat.Origin.YOUTUBE
-import failchat.chat.ImageFormat.VECTOR
+import failchat.chat.ImageFormat
 import failchat.emoticon.Emoticon
 
 class YtEmoticon(
         code: String,
-        override val url: String
-) : Emoticon(YOUTUBE, code, VECTOR)
+        override val url: String,
+        format: ImageFormat
+) : Emoticon(YOUTUBE, code, format)

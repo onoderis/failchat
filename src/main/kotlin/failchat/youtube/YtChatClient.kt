@@ -23,6 +23,7 @@ import failchat.chat.badge.ImageBadge
 import failchat.chat.findFirstTyped
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
+import failchat.chat.handlers.EmojiHandler
 import failchat.exception.ChannelOfflineException
 import failchat.util.any
 import failchat.util.executeWithCatch
@@ -56,7 +57,6 @@ class YtChatClient(
         val verifiedBadge = ImageBadge("../_shared/icons/youtube-verified.svg", VECTOR, "Verified")
         val streamerBadge = ImageBadge("../_shared/icons/youtube-streamer.svg", VECTOR, "Streamer")
         val moderatorBadge = ImageBadge("../_shared/icons/youtube-moderator.svg", VECTOR, "Moderator")
-        val sponsorBadge = ImageBadge("../_shared/icons/youtube-sponsor.svg", VECTOR, "Sponsor")
     }
 
     override val origin = Origin.YOUTUBE
@@ -66,7 +66,7 @@ class YtChatClient(
     private val messageHandlers: List<MessageHandler<YtMessage>> = listOf(
             ElementLabelEscaper(),
             BraceEscaper(), // символы < и > приходят неэкранированными
-            YtEmojiHandler(),
+            EmojiHandler(),
             highlightHandler
     )
 
@@ -233,14 +233,10 @@ class YtChatClient(
         else if (this.authorDetails.isChatModerator)
             message.addBadge(moderatorBadge)
 
-        if (this.authorDetails.isChatSponsor)
-            message.addBadge(sponsorBadge)
-
         // nickname color
         message.author.color = when {
-            this.authorDetails.isChatOwner -> YtColors.owner
+            this.authorDetails.isChatOwner -> YtColors.streamer
             this.authorDetails.isChatModerator -> YtColors.moderator
-            this.authorDetails.isChatSponsor -> YtColors.sponsor
             else -> null
         }
 

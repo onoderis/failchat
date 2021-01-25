@@ -5,6 +5,7 @@ import failchat.chat.MessageHandler
 import failchat.emoticon.EmoticonFinder
 import mu.KLogging
 
+//todo don't use EmoticonFinder
 class TwitchEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHandler<TwitchMessage> {
 
     private companion object : KLogging()

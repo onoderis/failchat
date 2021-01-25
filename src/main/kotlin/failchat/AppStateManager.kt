@@ -1,6 +1,5 @@
 package failchat
 
-import either.Either
 import failchat.AppState.CHAT
 import failchat.AppState.SETTINGS
 import failchat.Origin.BTTV_CHANNEL
@@ -36,10 +35,8 @@ import failchat.util.enumMap
 import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
-import failchat.youtube.ChannelId
-import failchat.youtube.VideoId
-import failchat.youtube.YoutubeUtils
-import failchat.youtube.YtChatClient
+import failchat.youtube2.Youtube2ChatClient
+import failchat.youtube2.YoutubeViewersCountLoader
 import javafx.application.Platform
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -91,7 +88,7 @@ class AppStateManager(private val kodein: DKodein) {
     private var state: AppState = SETTINGS
 
     fun startChat(): Unit = lock.withLock {
-        if (state != SETTINGS) IllegalStateException("Expected: $SETTINGS, actual: $state")
+        if (state != SETTINGS) throw IllegalStateException("Expected: $SETTINGS, actual: $state")
 
         val viewersCountLoaders: MutableList<ViewersCountLoader> = ArrayList()
         val initializedChatClients: MutableMap<Origin, ChatClient> = enumMap()
@@ -169,13 +166,10 @@ class AppStateManager(private val kodein: DKodein) {
 
 
         // Youtube
-        checkEnabled(YOUTUBE)?.let { channelIdOrVideoId ->
-            val eitherId = YoutubeUtils.determineId(channelIdOrVideoId)
-            val chatClient = kodein.factory<Either<ChannelId, VideoId>, YtChatClient>()
-                    .invoke(eitherId)
-
+        checkEnabled(YOUTUBE)?.let { videoId ->
+            val chatClient = kodein.factory<String, Youtube2ChatClient>().invoke(videoId)
             initializedChatClients.put(YOUTUBE, chatClient)
-            viewersCountLoaders.add(chatClient)
+            viewersCountLoaders.add(YoutubeViewersCountLoader(videoId, kodein.instance()))
         }
 
 
@@ -212,7 +206,7 @@ class AppStateManager(private val kodein: DKodein) {
     }
 
     fun stopChat(): Unit = lock.withLock {
-        if (state != CHAT) IllegalStateException("Expected: $CHAT, actual: $state")
+        if (state != CHAT) throw IllegalStateException("Expected: $CHAT, actual: $state")
         reset()
 
         // Save config
