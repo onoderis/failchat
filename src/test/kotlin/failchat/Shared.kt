@@ -1,9 +1,8 @@
 package failchat
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import failchat.twitch.TwitchEmoticonUrlFactory
+import failchat.util.objectMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import okhttp3.OkHttpClient
@@ -21,9 +20,7 @@ val ktorClient = HttpClient(OkHttp) {
 
 val config: Configuration by lazy { loadConfig() }
 val privateConfig: Configuration by lazy { loadPrivateConfig() }
-val objectMapper: ObjectMapper = ObjectMapper()
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .registerModule(KotlinModule())
+val testObjectMapper: ObjectMapper = objectMapper()
 
 val twitchEmoticonUrlFactory = TwitchEmoticonUrlFactory(
         config.getString("twitch.emoticon-url-prefix"),

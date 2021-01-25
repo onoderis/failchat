@@ -1,6 +1,7 @@
 package failchat.goodgame
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.Origin
 import failchat.Origin.GOODGAME
 import failchat.chat.ChatClient
@@ -16,7 +17,6 @@ import failchat.chat.StatusUpdate
 import failchat.chat.findFirstTyped
 import failchat.chat.handlers.CommaHighlightHandler
 import failchat.chat.handlers.ElementLabelEscaper
-import failchat.util.objectMapper
 import failchat.ws.client.WsClient
 import kotlinx.coroutines.runBlocking
 import mu.KLogging
@@ -31,7 +31,8 @@ class GgChatClient(
         emoticonHandler: MessageHandler<GgMessage>,
         badgeHandler: GgBadgeHandler,
         private val history: ChatMessageHistory,
-        override val callbacks: ChatClientCallbacks
+        override val callbacks: ChatClientCallbacks,
+        private val objectMapper: ObjectMapper
 ) : ChatClient {
 
     private companion object : KLogging()

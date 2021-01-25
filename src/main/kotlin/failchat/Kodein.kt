@@ -1,8 +1,6 @@
 package failchat
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import failchat.chat.AppConfiguration
 import failchat.chat.ChatClientCallbacks
 import failchat.chat.ChatMessageHistory
@@ -75,6 +73,7 @@ import failchat.twitch.TwitchEmoticonStreamLoader
 import failchat.twitch.TwitchEmoticonUrlFactory
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.util.OkHttpLogger
+import failchat.util.objectMapper
 import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
@@ -110,13 +109,16 @@ val kodein = Kodein.direct {
     // Http/websocket server
     bind<ApplicationEngine>() with singleton { createHttpServer() }
     bind<WsMessageDispatcher>() with singleton {
-        WsMessageDispatcher(listOf(
-                ClientConfigurationWsHandler(instance<ChatMessageSender>()),
-                instance<ViewersCountWsHandler>(),
-                DeleteWsMessageHandler(instance<ChatMessageRemover>()),
-                IgnoreWsMessageHandler(instance<IgnoreFilter>(), instance<Configuration>()),
-                instance<OriginsStatusHandler>()
-        ))
+        WsMessageDispatcher(
+                instance<ObjectMapper>(),
+                listOf(
+                        ClientConfigurationWsHandler(instance<ChatMessageSender>()),
+                        instance<ViewersCountWsHandler>(),
+                        DeleteWsMessageHandler(instance<ChatMessageRemover>()),
+                        IgnoreWsMessageHandler(instance<IgnoreFilter>(), instance<Configuration>()),
+                        instance<OriginsStatusHandler>()
+                )
+        )
     }
     bind<WsFrameSender>() with singleton { WsFrameSender() }
     bind<OriginsStatusHandler>() with singleton {
@@ -141,7 +143,8 @@ val kodein = Kodein.direct {
     bind<ChatMessageSender>() with singleton {
         ChatMessageSender(
                 instance<WsFrameSender>(),
-                instance<AppConfiguration>()
+                instance<AppConfiguration>(),
+                instance<ObjectMapper>()
         )
     }
     bind<ChatMessageRemover>() with singleton {
@@ -242,15 +245,13 @@ val kodein = Kodein.direct {
 
     // General purpose dependencies
     bind<ObjectMapper>() with singleton {
-        ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .registerModule(KotlinModule())
+        objectMapper()
     }
     bind<OkHttpClient>() with singleton {
         OkHttpClient.Builder()
                 // todo OOM on loading twitch emoticons
                 .addInterceptor(HttpLoggingInterceptor(OkHttpLogger).also {
-                    it.level = HttpLoggingInterceptor.Level.BODY
+//                    it.level = HttpLoggingInterceptor.Level.BODY
                 })
                 .build()
     }
@@ -345,6 +346,7 @@ val kodein = Kodein.direct {
     bind<Peka2tvApiClient>() with singleton {
         Peka2tvApiClient(
                 instance<OkHttpClient>(),
+                instance<ObjectMapper>(),
                 instance<Configuration>().getString("peka2tv.api-url")
         )
     }
@@ -374,6 +376,7 @@ val kodein = Kodein.direct {
         val config = instance<Configuration>()
         TwitchApiClient(
                 httpClient = instance<OkHttpClient>(),
+                objectMapper = instance<ObjectMapper>(),
                 mainApiUrl = config.getString("twitch.api-url"),
                 badgeApiUrl = config.getString("twitch.badge-api-url"),
                 token = config.getString("twitch.api-token"),
@@ -439,7 +442,8 @@ val kodein = Kodein.direct {
     bind<FfzApiClient>() with singleton {
         FfzApiClient(
                 httpClient = instance<OkHttpClient>(),
-                apiUrl = instance<Configuration>().getString(ConfigKeys.frankerfacezApiUrl)
+                apiUrl = instance<Configuration>().getString(ConfigKeys.frankerfacezApiUrl),
+                objectMapper = instance<ObjectMapper>()
         )
     }
     bind<FfzEmoticonHandler>() with singleton {
@@ -455,7 +459,8 @@ val kodein = Kodein.direct {
                 emoticonHandler = instance<GgEmoticonHandler>(),
                 badgeHandler = factory<GgChannel, GgBadgeHandler>().invoke(channel),
                 history = instance<ChatMessageHistory>(),
-                callbacks = instance<ChatClientCallbacks>()
+                callbacks = instance<ChatClientCallbacks>(),
+                objectMapper = instance<ObjectMapper>()
         )
     }
     bind<GgViewersCountLoader>() with factory { channelName: String ->
@@ -468,12 +473,14 @@ val kodein = Kodein.direct {
         GgApiClient(
                 httpClient = instance<OkHttpClient>(),
                 apiUrl = instance<Configuration>().getString("goodgame.api-url"),
-                emoticonsJsUrl = instance<Configuration>().getString("goodgame.emoticon-js-url")
+                emoticonsJsUrl = instance<Configuration>().getString("goodgame.emoticon-js-url"),
+                objectMapper = instance<ObjectMapper>()
         )
     }
     bind<GgApi2Client>() with singleton {
         GgApi2Client(
                 httpClient = instance<OkHttpClient>(),
+                objectMapper = instance<ObjectMapper>(),
                 apiUrl = instance<Configuration>().getString("goodgame.api2-url")
         )
     }
@@ -514,21 +521,5 @@ val kodein = Kodein.direct {
                 videoId
         )
     }
-
-//    bind<YouTube>() with singleton { YouTubeFactory.create(instance<Configuration>()) }
-//    bind<YtApiClient>() with singleton { YtApiClient(instance<YouTube>()) }
-//    bind<ScheduledExecutorService>("youtube") with singleton {
-//        Executors.newSingleThreadScheduledExecutor { Thread(it, "YoutubeExecutor") }
-//    }
-//    bind<YtChatClient>() with factory { channelIdOrVideoId: Either<ChannelId, VideoId> ->
-//        YtChatClient(
-//                channelIdOrVideoId,
-//                instance<YtApiClient>(),
-//                instance<ScheduledExecutorService>("youtube"),
-//                instance<MessageIdGenerator>(),
-//                instance<ChatMessageHistory>(),
-//                instance<ChatClientCallbacks>()
-//        )
-//    }
 
 }

@@ -4,6 +4,7 @@ import failchat.Origin
 import failchat.config
 import failchat.okHttpClient
 import failchat.privateConfig
+import failchat.testObjectMapper
 import failchat.twitch.TwitchApiClient
 import failchat.twitch.TwitchEmoticon
 import failchat.twitch.TwitchEmoticonUrlFactory
@@ -48,7 +49,8 @@ class MapDbTests {
             emoticonUrlFactory = TwitchEmoticonUrlFactory(
                     config.getString("twitch.emoticon-url-prefix"),
                     config.getString("twitch.emoticon-url-suffix")
-            )
+            ),
+            objectMapper = testObjectMapper
     )
 
     /*

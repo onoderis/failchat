@@ -3,6 +3,7 @@ package failchat.twitch
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.Origin
 import failchat.chat.ImageFormat.RASTER
 import failchat.chat.badge.ImageBadge
@@ -14,7 +15,6 @@ import failchat.util.expect
 import failchat.util.isEmpty
 import failchat.util.nextNonNullToken
 import failchat.util.nonNullBody
-import failchat.util.objectMapper
 import failchat.util.thenUse
 import failchat.util.toFuture
 import failchat.util.validateResponseCode
@@ -32,6 +32,7 @@ import java.util.concurrent.CompletableFuture
 
 class TwitchApiClient(
         private val httpClient: OkHttpClient,
+        private val objectMapper: ObjectMapper,
         mainApiUrl: String,
         badgeApiUrl: String,
         private val token: String,

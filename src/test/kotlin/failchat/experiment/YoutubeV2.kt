@@ -1,7 +1,7 @@
 package failchat.experiment
 
 
-class YoutubeV2Test {
+class YoutubeTest {
 /*
     @Test
     fun test() = runBlocking<Unit> {

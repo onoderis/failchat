@@ -1,7 +1,7 @@
 package failchat.youtube2
 
 import failchat.readResourceAsString
-import failchat.util.objectMapper
+import failchat.testObjectMapper
 import failchat.youtube.YoutubeClientException
 import failchat.youtube.YoutubeHtmlParser
 import io.kotest.matchers.shouldBe
@@ -9,7 +9,7 @@ import org.junit.Test
 
 class YoutubeHtmlParserTest {
 
-    private val youtubeHtmlParser = YoutubeHtmlParser(objectMapper)
+    private val youtubeHtmlParser = YoutubeHtmlParser(testObjectMapper)
 
     @Test
     fun `extractSessionId should extract from innertube context that is set as separate statement`() {

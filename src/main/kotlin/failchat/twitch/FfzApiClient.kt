@@ -1,8 +1,8 @@
 package failchat.twitch
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.util.await
 import failchat.util.nonNullBody
-import failchat.util.objectMapper
 import failchat.util.validateResponseCode
 import failchat.util.withSuffix
 import okhttp3.OkHttpClient
@@ -10,6 +10,7 @@ import okhttp3.Request
 
 class FfzApiClient(
         private val httpClient: OkHttpClient,
+        private val objectMapper: ObjectMapper,
         apiUrl: String
 ) {
 

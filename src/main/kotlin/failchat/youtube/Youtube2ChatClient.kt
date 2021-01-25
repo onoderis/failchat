@@ -39,8 +39,8 @@ class Youtube2ChatClient(
 
         )
         val roleBadgeToColorMap = mapOf(
-                RoleBadges.streamer to YtColors.streamer,
-                RoleBadges.moderator to YtColors.moderator
+                RoleBadges.streamer to YoutubeColors.streamer,
+                RoleBadges.moderator to YoutubeColors.moderator
         )
     }
 
@@ -141,7 +141,7 @@ class Youtube2ChatClient(
                         logger.warn { "Null image url for emoji: ${run.emoji} " }
                         return@fold acc
                     }
-                    val label = youtubeMessage.addElement(YtEmoticon(
+                    val label = youtubeMessage.addElement(YoutubeEmoticon(
                             code = run.emoji.image.accessibility.accessibilityData.label,
                             url = imageUrl.url,
                             format = ImageFormat.RASTER
@@ -169,7 +169,7 @@ class Youtube2ChatClient(
                     // verified author has no special color, do nothing
                 }
                 else -> {
-                    youtubeMessage.author.color = YtColors.member
+                    youtubeMessage.author.color = YoutubeColors.member
                     break@loop
                 }
             }

@@ -1,16 +1,17 @@
 package failchat.goodgame
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.Origin.GOODGAME
 import failchat.exception.ChannelOfflineException
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.await
-import failchat.util.objectMapper
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
 class GgApi2Client(
         private val httpClient: OkHttpClient,
+        private val objectMapper: ObjectMapper,
         apiUrl: String
 ) {
 
