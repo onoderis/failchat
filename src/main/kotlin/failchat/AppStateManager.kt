@@ -35,7 +35,7 @@ import failchat.util.enumMap
 import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
-import failchat.youtube.Youtube2ChatClient
+import failchat.youtube.YoutubeChatClient
 import failchat.youtube.YoutubeViewersCountLoader
 import javafx.application.Platform
 import kotlinx.coroutines.CoroutineName
@@ -167,7 +167,7 @@ class AppStateManager(private val kodein: DKodein) {
 
         // Youtube
         checkEnabled(YOUTUBE)?.let { videoId ->
-            val chatClient = kodein.factory<String, Youtube2ChatClient>().invoke(videoId)
+            val chatClient = kodein.factory<String, YoutubeChatClient>().invoke(videoId)
             initializedChatClients.put(YOUTUBE, chatClient)
             viewersCountLoaders.add(YoutubeViewersCountLoader(videoId, kodein.instance()))
         }

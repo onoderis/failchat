@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import mu.KLogging
 
 //todo logging
-class YoutubeClient2(
+class YoutubeClient(
         private val httpClient: HttpClient,
         private val objectMapper: ObjectMapper,
         private val youtubeHtmlParser: YoutubeHtmlParser

@@ -2,7 +2,7 @@ package failchat.youtube2
 
 import failchat.ktorClient
 import failchat.testObjectMapper
-import failchat.youtube.YoutubeClient2
+import failchat.youtube.YoutubeClient
 import failchat.youtube.YoutubeHtmlParser
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import kotlinx.coroutines.runBlocking
@@ -12,7 +12,7 @@ import org.junit.Test
 @Ignore
 class YoutubeClientTest {
 
-    private val client = YoutubeClient2(
+    private val client = YoutubeClient(
             httpClient = ktorClient,
             objectMapper = testObjectMapper,
             youtubeHtmlParser = YoutubeHtmlParser(objectMapper = testObjectMapper)
