@@ -18,11 +18,8 @@ import org.slf4j.bridge.SLF4JBridgeHandler
 import ch.qos.logback.classic.Logger as LogbackLogger
 
 fun configureLogging(cmd: CommandLine) {
-    val rootLevelStr = cmd.getOptionValue("logger-root-level", "INFO")
-    val rootLevel = Level.toLevel(rootLevelStr, Level.WARN)
-
-    val failchatLevelStr = cmd.getOptionValue("logger-failchat-level", "INFO")
-    val failchatLevel = Level.toLevel(failchatLevelStr, Level.WARN)
+    val rootLevel = Level.toLevel(cmd.getOptionValue("logger-root-level"), Level.WARN)
+    val failchatLevel = Level.toLevel(cmd.getOptionValue("logger-failchat-level"), Level.INFO)
 
     val consoleEnabled = cmd.hasOption("enable-console-logging")
 

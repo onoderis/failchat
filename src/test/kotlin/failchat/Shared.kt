@@ -9,7 +9,7 @@ import okhttp3.OkHttpClient
 import org.apache.commons.configuration2.Configuration
 
 val okHttpClient: OkHttpClient = OkHttpClient.Builder()
-//        .addInterceptor(okhttp3.logging.HttpLoggingInterceptor().also { it.level = okhttp3.logging.HttpLoggingInterceptor.Level.BODY })
+//        .addInterceptor(HttpLoggingInterceptor().also { it.level = HttpLoggingInterceptor.Level.BODY })
         .build()
 
 val ktorClient = HttpClient(OkHttp) {

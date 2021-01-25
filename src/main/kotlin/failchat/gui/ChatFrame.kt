@@ -1,7 +1,7 @@
 package failchat.gui
 
 import failchat.ConfigKeys
-import failchat.FcServerInfo
+import failchat.FailchatServerInfo
 import failchat.skin.Skin
 import failchat.util.invertBoolean
 import failchat.util.urlPattern
@@ -96,12 +96,12 @@ class ChatFrame(
         val skinName = config.getString(ConfigKeys.skin)
         try {
             val skin = skins.find { it.name == skinName } ?: skins.first()
-            val optionalPortParam = if (FcServerInfo.port != FcServerInfo.defaultPort) {
-                "?port=${FcServerInfo.port}"
+            val optionalPortParam = if (FailchatServerInfo.port != FailchatServerInfo.defaultPort) {
+                "?port=${FailchatServerInfo.port}"
             } else {
                 ""
             }
-            val url = "http://${FcServerInfo.host.hostAddress}:${FcServerInfo.port}/chat/${skin.name}" +
+            val url = "http://${FailchatServerInfo.host.hostAddress}:${FailchatServerInfo.port}/chat/${skin.name}" +
                     optionalPortParam
 
             lastOpenedSkinUrl = url

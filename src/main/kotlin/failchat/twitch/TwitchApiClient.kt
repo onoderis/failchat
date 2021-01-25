@@ -116,7 +116,7 @@ class TwitchApiClient(
         val id = node.get("id").asLong()
         return TwitchEmoticon(
                 twitchId = id,
-                regex = node.get("code").asText(),
+                code = node.get("code").asText(),
                 urlFactory = emoticonUrlFactory
         )
     }

@@ -14,7 +14,6 @@ import failchat.chat.StatusUpdate
 import failchat.chat.findTyped
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
-import failchat.emoticon.EmoticonFinder
 import failchat.util.notEmptyOrNull
 import javafx.scene.paint.Color
 import kotlinx.coroutines.runBlocking
@@ -40,7 +39,7 @@ class TwitchChatClient(
         ircPort: Int,
         botName: String,
         botPassword: String,
-        emoticonFinder: EmoticonFinder,
+        twitchEmoticonHandler: TwitchEmoticonHandler,
         private val messageIdGenerator: MessageIdGenerator,
         bttvEmoticonHandler: BttvEmoticonHandler,
         ffzEmoticonHandler: FfzEmoticonHandler,
@@ -63,7 +62,7 @@ class TwitchChatClient(
     private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.READY)
     private val messageHandlers: List<MessageHandler<TwitchMessage>> = listOf(
             ElementLabelEscaper(),
-            TwitchEmoticonHandler(emoticonFinder),
+            twitchEmoticonHandler,
             bttvEmoticonHandler,
             ffzEmoticonHandler,
             BraceEscaper(),
