@@ -23,9 +23,9 @@ import kotlinx.coroutines.launch
 import mu.KLogging
 import java.util.concurrent.atomic.AtomicReference
 
-class Youtube2ChatClient(
+class YoutubeChatClient(
         override val callbacks: ChatClientCallbacks,
-        private val youtubeClient: YoutubeClient2,
+        private val youtubeClient: YoutubeClient,
         private val messageIdGenerator: MessageIdGenerator,
         private val history: ChatMessageHistory,
         private val videoId: String

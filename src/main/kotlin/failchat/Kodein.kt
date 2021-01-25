@@ -82,8 +82,8 @@ import failchat.ws.server.DeleteWsMessageHandler
 import failchat.ws.server.IgnoreWsMessageHandler
 import failchat.ws.server.WsFrameSender
 import failchat.ws.server.WsMessageDispatcher
-import failchat.youtube.Youtube2ChatClient
-import failchat.youtube.YoutubeClient2
+import failchat.youtube.YoutubeChatClient
+import failchat.youtube.YoutubeClient
 import failchat.youtube.YoutubeHtmlParser
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -502,8 +502,8 @@ val kodein = Kodein.direct {
     }
 
     // Youtube
-    bind<YoutubeClient2>() with singleton {
-        YoutubeClient2(
+    bind<YoutubeClient>() with singleton {
+        YoutubeClient(
                 instance<HttpClient>(),
                 instance<ObjectMapper>(),
                 instance<YoutubeHtmlParser>()
@@ -512,10 +512,10 @@ val kodein = Kodein.direct {
     bind<YoutubeHtmlParser>() with singleton {
         YoutubeHtmlParser(instance<ObjectMapper>())
     }
-    bind<Youtube2ChatClient>() with factory { videoId: String ->
-        Youtube2ChatClient(
+    bind<YoutubeChatClient>() with factory { videoId: String ->
+        YoutubeChatClient(
                 instance<ChatClientCallbacks>(),
-                instance<YoutubeClient2>(),
+                instance<YoutubeClient>(),
                 instance<MessageIdGenerator>(),
                 instance<ChatMessageHistory>(),
                 videoId

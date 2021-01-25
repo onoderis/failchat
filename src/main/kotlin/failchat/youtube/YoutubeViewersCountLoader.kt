@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture
 
 class YoutubeViewersCountLoader(
         private val videoId: String,
-        private val youtubeClient: YoutubeClient2
+        private val youtubeClient: YoutubeClient
 ) : ViewersCountLoader {
 
     private val lazyInnertubeApiKey = LateinitVal<String>()
