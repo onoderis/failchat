@@ -4,7 +4,7 @@ import failchat.Origin
 import failchat.chat.Author
 import failchat.emoticon.Emoticon
 import failchat.okHttpClient
-import failchat.youtube.YtMessage
+import failchat.youtube.YoutubeMessage
 import okhttp3.Request
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -26,14 +26,14 @@ class EmojiHandlerTest {
     fun fourCharacterEmojiTest()  = testYtEmojiHandler("👦\uD83C\uDFFD")
 
     private fun testYtEmojiHandler(text: String) {
-        val message = YtMessage(0, "mid", Author("author", Origin.YOUTUBE, "aid"), text)
+        val message = YoutubeMessage(0, Author("author", Origin.YOUTUBE, "aid"), text)
 
         emojiHandler.handleMessage(message)
 
         assertEmojiFound(message)
     }
 
-    private fun assertEmojiFound(message: YtMessage) {
+    private fun assertEmojiFound(message: YoutubeMessage) {
         val request = Request.Builder()
                 .get()
                 .url((message.elements[0] as Emoticon).url)

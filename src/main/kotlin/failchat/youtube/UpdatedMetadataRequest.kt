@@ -1,4 +1,4 @@
-package failchat.youtube2
+package failchat.youtube
 
 data class UpdatedMetadataRequest(
         val context: Context,

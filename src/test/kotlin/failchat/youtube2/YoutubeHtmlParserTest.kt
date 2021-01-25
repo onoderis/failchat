@@ -2,6 +2,8 @@ package failchat.youtube2
 
 import failchat.readResourceAsString
 import failchat.util.objectMapper
+import failchat.youtube.YoutubeClientException
+import failchat.youtube.YoutubeHtmlParser
 import io.kotest.matchers.shouldBe
 import org.junit.Test
 

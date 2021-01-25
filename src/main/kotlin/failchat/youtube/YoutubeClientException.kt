@@ -1,4 +1,4 @@
-package failchat.youtube2
+package failchat.youtube
 
 class YoutubeClientException(
         override val message: String? = null,

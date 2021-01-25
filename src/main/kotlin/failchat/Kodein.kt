@@ -83,9 +83,9 @@ import failchat.ws.server.DeleteWsMessageHandler
 import failchat.ws.server.IgnoreWsMessageHandler
 import failchat.ws.server.WsFrameSender
 import failchat.ws.server.WsMessageDispatcher
-import failchat.youtube2.Youtube2ChatClient
-import failchat.youtube2.YoutubeClient2
-import failchat.youtube2.YoutubeHtmlParser
+import failchat.youtube.Youtube2ChatClient
+import failchat.youtube.YoutubeClient2
+import failchat.youtube.YoutubeHtmlParser
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.server.engine.ApplicationEngine

@@ -35,8 +35,8 @@ import failchat.util.enumMap
 import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
-import failchat.youtube2.Youtube2ChatClient
-import failchat.youtube2.YoutubeViewersCountLoader
+import failchat.youtube.Youtube2ChatClient
+import failchat.youtube.YoutubeViewersCountLoader
 import javafx.application.Platform
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope

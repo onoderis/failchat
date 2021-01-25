@@ -1,4 +1,4 @@
-package failchat.youtube2
+package failchat.youtube
 
 import failchat.Origin
 import failchat.chat.Author
@@ -17,8 +17,6 @@ import failchat.chat.findTyped
 import failchat.chat.handlers.BraceEscaper
 import failchat.util.LateinitVal
 import failchat.util.value
-import failchat.youtube.YtColors
-import failchat.youtube.YtEmoticon
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
