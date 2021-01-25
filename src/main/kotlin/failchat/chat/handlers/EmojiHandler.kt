@@ -2,11 +2,10 @@ package failchat.chat.handlers
 
 import com.vdurmont.emoji.EmojiParser
 import failchat.chat.ChatMessage
-import failchat.chat.ImageFormat
 import failchat.chat.MessageHandler
+import failchat.emoticon.EmojiEmoticon
 import failchat.util.toCodePoint
 import failchat.util.toHexString
-import failchat.youtube.YtEmoticon
 
 /**
  * Searches for unicode emojis in message and replaces them with svg images.
@@ -27,7 +26,7 @@ class EmojiHandler : MessageHandler<ChatMessage> {
             }
 
             val emoticonUrl = "https://cdnjs.cloudflare.com/ajax/libs/twemoji/13.0.1/svg/$emojiHexSequence.svg"
-            val emoticon = YtEmoticon(it.emoji.description ?: "emoji", emoticonUrl, ImageFormat.VECTOR) //todo remove origin? emoji emoticon?
+            val emoticon = EmojiEmoticon(it.emoji.description ?: "emoji", emoticonUrl)
 
             message.addElement(emoticon)
         }

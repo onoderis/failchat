@@ -4,6 +4,7 @@ import failchat.config
 import failchat.exception.ChannelOfflineException
 import failchat.okHttpClient
 import failchat.privateConfig
+import failchat.testObjectMapper
 import failchat.twitchEmoticonUrlFactory
 import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
@@ -28,6 +29,7 @@ class TwitchApiTest {
 
     private val apiClient = TwitchApiClient(
             okHttpClient,
+            testObjectMapper,
             config.getString("twitch.api-url"),
             config.getString("twitch.badge-api-url"),
             privateConfig.getString("twitch.api-token"),

@@ -3,6 +3,7 @@ package failchat.goodgame
 import failchat.config
 import failchat.exception.ChannelOfflineException
 import failchat.okHttpClient
+import failchat.testObjectMapper
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.slf4j.Logger
@@ -17,6 +18,7 @@ class GgApiTest {
 
     private val apiClient = GgApiClient(
             okHttpClient,
+            testObjectMapper,
             config.getString("goodgame.api-url"),
             config.getString("goodgame.emoticon-js-url")
     )

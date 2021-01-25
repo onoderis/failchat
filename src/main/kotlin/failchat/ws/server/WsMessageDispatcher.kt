@@ -1,7 +1,7 @@
 package failchat.ws.server
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.util.enumMap
-import failchat.util.objectMapper
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.readText
 import io.ktor.websocket.DefaultWebSocketServerSession
@@ -9,6 +9,7 @@ import kotlinx.coroutines.channels.consumeEach
 import mu.KLogging
 
 class WsMessageDispatcher(
+        private val objectMapper: ObjectMapper,
         handlers: List<WsMessageHandler>
 ) {
 

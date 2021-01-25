@@ -1,13 +1,13 @@
 package failchat.peka2tv
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.chat.ImageFormat.RASTER
 import failchat.chat.badge.ImageBadge
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.emptyBody
 import failchat.util.jsonMediaType
-import failchat.util.objectMapper
 import failchat.util.thenUse
 import failchat.util.toFuture
 import failchat.util.withSuffix
@@ -18,6 +18,7 @@ import java.util.concurrent.CompletableFuture
 
 class Peka2tvApiClient(
         private val httpClient: OkHttpClient,
+        private val objectMapper: ObjectMapper,
         apiUrl: String
 ) {
 

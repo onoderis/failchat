@@ -1,6 +1,7 @@
 package failchat.chat
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import failchat.ConfigKeys
 import failchat.Origin
@@ -9,8 +10,6 @@ import failchat.chat.badge.CharacterBadge
 import failchat.chat.badge.ImageBadge
 import failchat.emoticon.Emoticon
 import failchat.util.Do
-import failchat.util.nodeFactory
-import failchat.util.objectMapper
 import failchat.util.toHexFormat
 import failchat.viewers.COUNTABLE_ORIGINS
 import failchat.ws.server.WsFrameSender
@@ -18,7 +17,8 @@ import mu.KLogging
 
 class ChatMessageSender(
         private val wsFrameSender: WsFrameSender,
-        private val appConfiguration: AppConfiguration
+        private val appConfiguration: AppConfiguration,
+        private val objectMapper: ObjectMapper
 ) {
 
     private companion object : KLogging()
@@ -26,7 +26,7 @@ class ChatMessageSender(
     private val config = appConfiguration.config
 
     fun send(message: ChatMessage) {
-        val messageNode = nodeFactory.objectNode().apply {
+        val messageNode = objectMapper.nodeFactory.objectNode().apply {
             put("type", "message")
             with("content").apply {
                 put("id", message.id)
@@ -113,7 +113,7 @@ class ChatMessageSender(
     fun sendClientConfiguration() {
         val deletedMessagePlaceholder = appConfiguration.deletedMessagePlaceholder
 
-        val messageNode = nodeFactory.objectNode().apply {
+        val messageNode = objectMapper.nodeFactory.objectNode().apply {
             put("type", "client-configuration")
             putObject("content").apply {
                 put("showViewersCount", config.getBoolean(ConfigKeys.showViewers))
@@ -155,7 +155,7 @@ class ChatMessageSender(
     }
 
     fun sendClearChat() {
-        val clearChatNode = nodeFactory.objectNode().apply {
+        val clearChatNode = objectMapper.nodeFactory.objectNode().apply {
             put("type", "clear-chat")
             putObject("content")
         }
