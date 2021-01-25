@@ -69,7 +69,9 @@ class GuiLauncher : Application() {
             val backgroundExecutor = kodein.instance<ScheduledExecutorService>("background")
             backgroundExecutor.executeWithCatch {
                 val eventHandler = kodein.instance<GuiEventHandler>()
-                eventHandler.guiFrames.set(GuiFrames(settings, chat))
+                if (eventHandler is FullGuiEventHandler) {
+                    eventHandler.guiFrames.set(GuiFrames(settings, chat))
+                }
             }
 
             // init web engine (fixes flickering)

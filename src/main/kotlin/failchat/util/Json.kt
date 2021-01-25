@@ -2,10 +2,15 @@ package failchat.util
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 
-val objectMapper = ObjectMapper()
+//todo remove duplication
+val objectMapper: ObjectMapper = ObjectMapper()
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .registerModule(KotlinModule())
 val nodeFactory: JsonNodeFactory = JsonNodeFactory.instance
 
 /**

@@ -13,17 +13,17 @@ import java.util.concurrent.CompletionStage
 import java.util.concurrent.Executors
 import java.util.function.BiConsumer
 
-class GuiEventHandler(
+class FullGuiEventHandler(
         private val appStateManager: AppStateManager,
         private val messageSender: ChatMessageSender,
         private val config: Configuration
-) {
+) : GuiEventHandler {
 
     private val executor = Executors.newSingleThreadExecutor()
 
     val guiFrames = LateinitVal<GuiFrames>()
 
-    fun handleStartChat() {
+    override fun handleStartChat() {
         val guiTransitionFuture = makeGuiTransition {
             it.settingsFrame.hide()
             it.chatFrame.show()
@@ -34,7 +34,7 @@ class GuiEventHandler(
         }, executor)
     }
 
-    fun handleStopChat() {
+    override fun handleStopChat() {
         val guiTransitionFuture = makeGuiTransition {
             it.chatFrame.hide()
             it.settingsFrame.show()
@@ -45,14 +45,14 @@ class GuiEventHandler(
         }, executor)
     }
 
-    fun handleShutDown() {
+    override fun handleShutDown() {
         executor.executeWithCatch {
             appStateManager.shutDown(true)
         }
         executor.shutdown()
     }
 
-    fun handleResetUserConfiguration() {
+    override fun handleResetUserConfiguration() {
         val settingsFrame = guiFrames.get()?.settingsFrame ?: return
 
         Platform.runLater {
@@ -64,19 +64,19 @@ class GuiEventHandler(
         }
     }
 
-    fun handleConfigurationChange() {
+    override fun handleConfigurationChange() {
         executor.executeWithCatch {
             messageSender.sendClientConfiguration()
         }
     }
 
-    fun handleClearChat() {
+    override fun handleClearChat() {
         executor.executeWithCatch {
             messageSender.sendClearChat()
         }
     }
 
-    fun notifyEmoticonsAreLoading() {
+    override fun notifyEmoticonsAreLoading() {
         val settingsFrame = guiFrames.get()?.settingsFrame ?: return
 
         Platform.runLater {
@@ -84,7 +84,7 @@ class GuiEventHandler(
         }
     }
 
-    fun notifyEmoticonsLoaded() {
+    override fun notifyEmoticonsLoaded() {
         val settingsFrame = guiFrames.get()?.settingsFrame ?: return
 
         Platform.runLater {

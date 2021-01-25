@@ -1,8 +1,8 @@
 package failchat
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.api.services.youtube.YouTube
-import either.Either
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import failchat.chat.AppConfiguration
 import failchat.chat.ChatClientCallbacks
 import failchat.chat.ChatMessageHistory
@@ -16,6 +16,7 @@ import failchat.chat.OriginStatusManager
 import failchat.chat.badge.BadgeFinder
 import failchat.chat.badge.BadgeManager
 import failchat.chat.badge.BadgeStorage
+import failchat.chat.handlers.EmojiHandler
 import failchat.chat.handlers.FailchatEmoticonHandler
 import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
@@ -44,7 +45,10 @@ import failchat.goodgame.GgEmoticonBulkLoader
 import failchat.goodgame.GgEmoticonHandler
 import failchat.goodgame.GgEmoticonLoadConfiguration
 import failchat.goodgame.GgViewersCountLoader
+import failchat.gui.ChatGuiEventHandler
+import failchat.gui.FullGuiEventHandler
 import failchat.gui.GuiEventHandler
+import failchat.gui.GuiMode
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvBadgeHandler
 import failchat.peka2tv.Peka2tvChatClient
@@ -70,6 +74,7 @@ import failchat.twitch.TwitchEmoticonLoadConfiguration
 import failchat.twitch.TwitchEmoticonStreamLoader
 import failchat.twitch.TwitchEmoticonUrlFactory
 import failchat.twitch.TwitchViewersCountLoader
+import failchat.util.OkHttpLogger
 import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
@@ -78,13 +83,14 @@ import failchat.ws.server.DeleteWsMessageHandler
 import failchat.ws.server.IgnoreWsMessageHandler
 import failchat.ws.server.WsFrameSender
 import failchat.ws.server.WsMessageDispatcher
-import failchat.youtube.ChannelId
-import failchat.youtube.VideoId
-import failchat.youtube.YouTubeFactory
-import failchat.youtube.YtApiClient
-import failchat.youtube.YtChatClient
+import failchat.youtube2.Youtube2ChatClient
+import failchat.youtube2.YoutubeClient2
+import failchat.youtube2.YoutubeHtmlParser
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.server.engine.ApplicationEngine
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.apache.commons.configuration2.Configuration
 import org.kodein.di.Kodein
 import org.kodein.di.generic.bind
@@ -148,11 +154,20 @@ val kodein = Kodein.direct {
         )
     }
     bind<GuiEventHandler>() with singleton {
-        GuiEventHandler(
-                instance<AppStateManager>(),
-                instance<ChatMessageSender>(),
-                instance<Configuration>()
-        )
+        val guiMode = GuiMode.valueOf(instance<Configuration>().getString("gui-mode"))
+
+        when (guiMode) {
+            GuiMode.CHAT_ONLY -> ChatGuiEventHandler(
+                    instance<AppStateManager>(),
+                    instance<ChatMessageSender>()
+            )
+            GuiMode.FULL_GUI -> FullGuiEventHandler(
+                    instance<AppStateManager>(),
+                    instance<ChatMessageSender>(),
+                    instance<Configuration>()
+            )
+            else -> error("Unexpected gui mode: $guiMode")
+        }
     }
     bind<ChatMessageHistory>() with singleton { ChatMessageHistory(50) }
     bind<DeletedMessagePlaceholderFactory>() with singleton {
@@ -226,8 +241,19 @@ val kodein = Kodein.direct {
     }
 
     // General purpose dependencies
-    bind<ObjectMapper>() with singleton { ObjectMapper() }
-    bind<OkHttpClient>() with singleton { OkHttpClient() }
+    bind<ObjectMapper>() with singleton {
+        ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .registerModule(KotlinModule())
+    }
+    bind<OkHttpClient>() with singleton {
+        OkHttpClient.Builder()
+                // todo OOM on loading twitch emoticons
+                .addInterceptor(HttpLoggingInterceptor(OkHttpLogger).also {
+                    it.level = HttpLoggingInterceptor.Level.BODY
+                })
+                .build()
+    }
 
 
     // Message handlers and filters
@@ -249,7 +275,7 @@ val kodein = Kodein.direct {
     bind<OnChatMessageCallback>() with singleton {
         OnChatMessageCallback(
                 listOf(instance<IgnoreFilter>()),
-                listOf(LinkHandler(), instance<ImageLinkHandler>(), instance<FailchatEmoticonHandler>()),
+                listOf(LinkHandler(), instance<ImageLinkHandler>(), EmojiHandler(), instance<FailchatEmoticonHandler>()),
                 instance<ChatMessageHistory>(),
                 instance<ChatMessageSender>()
         )
@@ -459,21 +485,50 @@ val kodein = Kodein.direct {
     }
 
 
-    // Youtube
-    bind<YouTube>() with singleton { YouTubeFactory.create(instance<Configuration>()) }
-    bind<YtApiClient>() with singleton { YtApiClient(instance<YouTube>()) }
-    bind<ScheduledExecutorService>("youtube") with singleton {
-        Executors.newSingleThreadScheduledExecutor { Thread(it, "YoutubeExecutor") }
+    //todo move
+    bind<HttpClient>() with singleton {
+        HttpClient(OkHttp) {
+            engine {
+                preconfigured = instance<OkHttpClient>()
+            }
+        }
     }
-    bind<YtChatClient>() with factory { channelIdOrVideoId: Either<ChannelId, VideoId> ->
-        YtChatClient(
-                channelIdOrVideoId,
-                instance<YtApiClient>(),
-                instance<ScheduledExecutorService>("youtube"),
-                instance<MessageIdGenerator>(),
-                instance<ChatMessageHistory>(),
-                instance<ChatClientCallbacks>()
+
+    // Youtube
+    bind<YoutubeClient2>() with singleton {
+        YoutubeClient2(
+                instance<HttpClient>(),
+                instance<ObjectMapper>(),
+                instance<YoutubeHtmlParser>()
         )
     }
+    bind<YoutubeHtmlParser>() with singleton {
+        YoutubeHtmlParser(instance<ObjectMapper>())
+    }
+    bind<Youtube2ChatClient>() with factory { videoId: String ->
+        Youtube2ChatClient(
+                instance<ChatClientCallbacks>(),
+                instance<YoutubeClient2>(),
+                instance<MessageIdGenerator>(),
+                instance<ChatMessageHistory>(),
+                videoId
+        )
+    }
+
+//    bind<YouTube>() with singleton { YouTubeFactory.create(instance<Configuration>()) }
+//    bind<YtApiClient>() with singleton { YtApiClient(instance<YouTube>()) }
+//    bind<ScheduledExecutorService>("youtube") with singleton {
+//        Executors.newSingleThreadScheduledExecutor { Thread(it, "YoutubeExecutor") }
+//    }
+//    bind<YtChatClient>() with factory { channelIdOrVideoId: Either<ChannelId, VideoId> ->
+//        YtChatClient(
+//                channelIdOrVideoId,
+//                instance<YtApiClient>(),
+//                instance<ScheduledExecutorService>("youtube"),
+//                instance<MessageIdGenerator>(),
+//                instance<ChatMessageHistory>(),
+//                instance<ChatClientCallbacks>()
+//        )
+//    }
 
 }

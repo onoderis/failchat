@@ -1,16 +1,17 @@
-package failchat.youtube
+package failchat.chat.handlers
 
 import failchat.Origin
 import failchat.chat.Author
 import failchat.emoticon.Emoticon
 import failchat.okHttpClient
+import failchat.youtube.YtMessage
 import okhttp3.Request
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class YtEmojiHandlerTest {
+class EmojiHandlerTest {
 
-    private val emojiHandler = YtEmojiHandler()
+    private val emojiHandler = EmojiHandler()
 
     @Test
     fun oneCharacterEmojiTest()  = testYtEmojiHandler("""☕""")

@@ -23,3 +23,10 @@ fun Int.s(): Duration = Duration.ofSeconds(this.toLong())
 
 fun Long.ms(): Duration = Duration.ofMillis(this)
 fun Int.ms(): Duration = Duration.ofMillis(this.toLong())
+
+object Utils
+
+fun readResourceAsString(resource: String): String {
+    val bytes = Utils::class.java.getResourceAsStream(resource)?.readBytes() ?: error("No resource $resource")
+    return String(bytes)
+}
