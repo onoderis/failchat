@@ -2,10 +2,10 @@
 
 #### Chat message 
 Сообщение из чата   
-`content.author.color: String (hex color) | null (default skin color)`
+`content.author.color: String (hex color) | null (default skin color)`  
 `content.badges.type: "image" | "character"`  
-`content.badges.format: "raster" | "vector" | undefined (for character badge type)`
-`content.badges.description: String | null`  
+`content.badges.format: "raster" | "vector" | undefined (for character badge type)`  
+`content.badges.description: String | null` 
 ```json
 {
     "type": "message",
