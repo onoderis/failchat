@@ -97,7 +97,7 @@ fun main0(args: Array<String>) {
 
     val httpServer: ApplicationEngine = kodein.instance()
     httpServer.start()
-    logger.info("Http/websocket server started at {}:{}", FcServerInfo.host.hostAddress, FcServerInfo.port)
+    logger.info("Http/websocket server started at {}:{}", FailchatServerInfo.host.hostAddress, FailchatServerInfo.port)
 
 
     // Reporter
@@ -158,11 +158,11 @@ fun main0(args: Array<String>) {
 
 private fun checkForAnotherInstance() {
     try {
-        val serverSocket = ServerSocket(FcServerInfo.port, 10, FcServerInfo.host)
+        val serverSocket = ServerSocket(FailchatServerInfo.port, 10, FailchatServerInfo.host)
         serverSocket.close()
         return
     } catch (e: Exception) {
-        System.err.println("Another instance is running at ${FcServerInfo.host}:${FcServerInfo.port}. Exception: $e")
+        System.err.println("Another instance is running at ${FailchatServerInfo.host}:${FailchatServerInfo.port}. Exception: $e")
     }
 
     JfxApplication.launch(PortBindAlert::class.java)
@@ -236,7 +236,7 @@ private fun logSystemInfo() {
 
 private fun handlePortArgument(cmd: CommandLine) {
     if (cmd.hasOption("port")) {
-        FcServerInfo.port = cmd.getOptionValue("port")!!.toInt()
+        FailchatServerInfo.port = cmd.getOptionValue("port")!!.toInt()
     }
 }
 
@@ -257,8 +257,8 @@ private fun handleProgramArguments(cmd: CommandLine, config: Configuration) {
 fun createHttpServer(): ApplicationEngine {
     return embeddedServer(
             Netty,
-            host = FcServerInfo.host.hostAddress,
-            port = FcServerInfo.port,
+            host = FailchatServerInfo.host.hostAddress,
+            port = FailchatServerInfo.port,
             module = KtorApplication::failchat
     )
 }

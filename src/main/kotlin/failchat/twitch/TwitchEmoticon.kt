@@ -6,9 +6,9 @@ import failchat.emoticon.Emoticon
 
 class TwitchEmoticon(
         val twitchId: Long,
-        regex: String,
+        code: String,
         private val urlFactory: TwitchEmoticonUrlFactory
-) : Emoticon(Origin.TWITCH, regex, RASTER) {
+) : Emoticon(Origin.TWITCH, code, RASTER) {
 
     override val url: String
         get() = urlFactory.create(twitchId)

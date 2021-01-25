@@ -68,11 +68,12 @@ import failchat.twitch.FfzEmoticonHandler
 import failchat.twitch.TwitchApiClient
 import failchat.twitch.TwitchBadgeHandler
 import failchat.twitch.TwitchChatClient
+import failchat.twitch.TwitchEmotesTagParser
+import failchat.twitch.TwitchEmoticonHandler
 import failchat.twitch.TwitchEmoticonLoadConfiguration
 import failchat.twitch.TwitchEmoticonStreamLoader
 import failchat.twitch.TwitchEmoticonUrlFactory
 import failchat.twitch.TwitchViewersCountLoader
-import failchat.util.OkHttpLogger
 import failchat.util.objectMapper
 import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCountWsHandler
@@ -89,7 +90,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.server.engine.ApplicationEngine
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.apache.commons.configuration2.Configuration
 import org.kodein.di.Kodein
 import org.kodein.di.generic.bind
@@ -248,12 +248,7 @@ val kodein = Kodein.direct {
         objectMapper()
     }
     bind<OkHttpClient>() with singleton {
-        OkHttpClient.Builder()
-                // todo OOM on loading twitch emoticons
-                .addInterceptor(HttpLoggingInterceptor(OkHttpLogger).also {
-//                    it.level = HttpLoggingInterceptor.Level.BODY
-                })
-                .build()
+        OkHttpClient()
     }
 
 
@@ -297,7 +292,7 @@ val kodein = Kodein.direct {
     bind<Path>("failchatEmoticonsDirectory") with singleton { instance<Path>("homeDirectory").resolve("failchat-emoticons") }
     bind<Path>("emoticonCacheDirectory") with singleton { instance<Path>("workingDirectory").resolve("emoticons") }
     bind<Path>("emoticonDbFile") with singleton { instance<Path>("emoticonCacheDirectory").resolve("emoticons.db") }
-    bind<String>("failchatEmoticonsUrl") with singleton { "http://${FcServerInfo.host.hostAddress}:${FcServerInfo.port}/emoticons/" }
+    bind<String>("failchatEmoticonsUrl") with singleton { "http://${FailchatServerInfo.host.hostAddress}:${FailchatServerInfo.port}/emoticons/" }
     bind<String>("userId") with singleton { instance<UserIdManager>().getUserId() }
 
     bind<MessageIdGenerator>() with singleton { MessageIdGenerator(instance<Configuration>().getLong("lastMessageId")) }
@@ -383,17 +378,6 @@ val kodein = Kodein.direct {
                 emoticonUrlFactory = instance<TwitchEmoticonUrlFactory>()
         )
     }
-    bind<TwitchEmoticonFactory>() with singleton {
-        TwitchEmoticonFactory(instance<TwitchEmoticonUrlFactory>())
-    }
-    bind<TwitchEmoticonUrlFactory>() with singleton {
-        with(instance<Configuration>()) {
-            TwitchEmoticonUrlFactory(
-                    getString("twitch.emoticon-url-prefix"),
-                    getString("twitch.emoticon-url-suffix")
-            )
-        }
-    }
     bind<TwitchEmoticonStreamLoader>() with singleton { TwitchEmoticonStreamLoader(instance<TwitchApiClient>()) }
     bind<TwitchEmoticonLoadConfiguration>() with singleton {
         TwitchEmoticonLoadConfiguration(
@@ -408,7 +392,7 @@ val kodein = Kodein.direct {
                 ircPort = config.getInt("twitch.irc-port"),
                 botName = config.getString("twitch.bot-name"),
                 botPassword = config.getString("twitch.bot-password"),
-                emoticonFinder = instance<EmoticonFinder>(),
+                twitchEmoticonHandler = instance<TwitchEmoticonHandler>(),
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 bttvEmoticonHandler = instance<BttvEmoticonHandler>(),
                 ffzEmoticonHandler = instance<FfzEmoticonHandler>(),
@@ -422,6 +406,23 @@ val kodein = Kodein.direct {
     }
     bind<TwitchBadgeHandler>() with singleton {
         TwitchBadgeHandler(instance<BadgeFinder>())
+    }
+    bind<TwitchEmoticonHandler>() with singleton {
+        TwitchEmoticonHandler(instance<TwitchEmotesTagParser>())
+    }
+    bind<TwitchEmotesTagParser>() with singleton {
+        TwitchEmotesTagParser(instance<TwitchEmoticonUrlFactory>())
+    }
+    bind<TwitchEmoticonFactory>() with singleton {
+        TwitchEmoticonFactory(instance<TwitchEmoticonUrlFactory>())
+    }
+    bind<TwitchEmoticonUrlFactory>() with singleton {
+        with(instance<Configuration>()) {
+            TwitchEmoticonUrlFactory(
+                    getString("twitch.emoticon-url-prefix"),
+                    getString("twitch.emoticon-url-suffix")
+            )
+        }
     }
 
     // BTTV
@@ -492,7 +493,6 @@ val kodein = Kodein.direct {
     }
 
 
-    //todo move
     bind<HttpClient>() with singleton {
         HttpClient(OkHttp) {
             engine {
