@@ -1,9 +1,7 @@
-package failchat.youtube2
+package failchat.youtube
 
 import failchat.readResourceAsString
 import failchat.testObjectMapper
-import failchat.youtube.YoutubeClientException
-import failchat.youtube.YoutubeHtmlParser
 import io.kotest.matchers.shouldBe
 import org.junit.Test
 
