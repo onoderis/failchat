@@ -1,9 +1,7 @@
-package failchat.youtube2
+package failchat.youtube
 
 import failchat.ktorClient
 import failchat.testObjectMapper
-import failchat.youtube.YoutubeClient
-import failchat.youtube.YoutubeHtmlParser
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
