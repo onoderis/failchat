@@ -6,19 +6,18 @@ import failchat.okHttpClient
 import failchat.privateConfig
 import failchat.testObjectMapper
 import failchat.twitchEmoticonUrlFactory
+import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletionException
-import kotlin.system.measureTimeMillis
 import kotlin.test.assertEquals
 
-class TwitchApiTest {
+class TwitchApiClientTest {
 
     private companion object {
-        val log: Logger = LoggerFactory.getLogger(TwitchApiTest::class.java)
+        val log: Logger = LoggerFactory.getLogger(TwitchApiClientTest::class.java)
         val userNameToId: Map<String, Long> = mapOf(
                 "lirik" to 23161357L,
                 "Doublelift" to 40017619L,
@@ -39,7 +38,7 @@ class TwitchApiTest {
     @Test
     fun requestUserIdTest() {
         userNameToId.forEach { (name, expectedId) ->
-            val actualId = apiClient.requestUserId(name).join()
+            val actualId = apiClient.getUserId(name).join()
             assertEquals(expectedId, actualId)
         }
     }
@@ -48,7 +47,7 @@ class TwitchApiTest {
     fun requestViewersCountTest() {
         userNameToId.forEach { (_, id) ->
             try {
-                apiClient.requestViewersCount(id).join()
+                apiClient.getViewersCount(id).join()
             } catch (e: CompletionException) {
                 if (e.cause !is ChannelOfflineException) throw e
             }
@@ -56,14 +55,9 @@ class TwitchApiTest {
     }
 
     @Test
-    @Ignore //because of read timeout
-    fun requestEmoticonsTest() {
-        var size: Int? = null
-        val time = measureTimeMillis {
-            size = apiClient.requestEmoticons().join().size
-            log.debug("emoticons: {}", size)
-        }
-        log.debug("emoticons loaded in {} ms. size: {}", time, size)
+    fun getCommonEmoticonsTest() {
+        val emoticons = apiClient.getCommonEmoticons().join()
+        emoticons shouldNotBe 0
     }
 
     @Test

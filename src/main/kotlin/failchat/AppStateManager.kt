@@ -121,7 +121,7 @@ class AppStateManager(private val kodein: DKodein) {
 
             // load channel badges in background
             CoroutineScope(backgroundExecutorDispatcher + CoroutineName("TwitchBadgeLoader") + CoroutineExceptionLogger).launch {
-                val channelId: Long = twitchApiClient.requestUserId(channelName).await()
+                val channelId: Long = twitchApiClient.getUserId(channelName).await()
                 badgeManager.loadTwitchChannelBadges(channelId)
             }
 

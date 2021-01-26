@@ -1,20 +1,14 @@
 package failchat.experiment
 
-import failchat.Origin
 import failchat.config
 import failchat.okHttpClient
 import failchat.privateConfig
 import failchat.testObjectMapper
 import failchat.twitch.TwitchApiClient
-import failchat.twitch.TwitchEmoticon
 import failchat.twitch.TwitchEmoticonUrlFactory
 import org.junit.After
-import org.junit.Test
 import org.mapdb.DBMaker
-import org.mapdb.Serializer
-import java.nio.file.Files
 import java.nio.file.Paths
-import kotlin.system.measureTimeMillis
 
 
 class MapDbTests {
@@ -139,7 +133,7 @@ class MapDbTests {
         println("Size of db file: ${Files.size(dbFile)}")
     }
 */
-
+/*
     @Test
     fun putJustIds() {
         val map = db
@@ -149,7 +143,7 @@ class MapDbTests {
 
         lateinit var emoticons: List<TwitchEmoticon>
         val et = measureTimeMillis {
-            emoticons = twitchApiClient.requestEmoticons().join()
+            emoticons = twitchApiClient.getAllEmoticons().join()
         }
         println("Emoticons was loaded in $et ms")
 
@@ -165,6 +159,7 @@ class MapDbTests {
         println("Size of db file: ${Files.size(dbFile)}")
 
     }
+*/
 }
 
 

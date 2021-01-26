@@ -1,30 +1,20 @@
 package failchat.twitch
 
-import com.fasterxml.jackson.core.JsonFactory
-import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import failchat.Origin
 import failchat.chat.ImageFormat.RASTER
 import failchat.chat.badge.ImageBadge
 import failchat.exception.ChannelOfflineException
 import failchat.exception.DataNotFoundException
 import failchat.util.await
-import failchat.util.completionCause
-import failchat.util.expect
+import failchat.util.getBodyIfStatusIs
 import failchat.util.isEmpty
-import failchat.util.nextNonNullToken
 import failchat.util.nonNullBody
 import failchat.util.thenUse
 import failchat.util.toFuture
-import failchat.util.validateResponseCode
 import failchat.util.withSuffix
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.sendBlocking
-import kotlinx.coroutines.channels.toList
-import kotlinx.coroutines.future.future
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -43,7 +33,7 @@ class TwitchApiClient(
     private val badgeApiUrl: String = badgeApiUrl.withSuffix("/")
 
 
-    fun requestUserId(userName: String): CompletableFuture<Long> {
+    fun getUserId(userName: String): CompletableFuture<Long> {
         // https://dev.twitch.tv/docs/v5/reference/users/#get-users
         return request("/users", mapOf("login" to userName))
                 .parseResponse()
@@ -54,7 +44,7 @@ class TwitchApiClient(
                 }
     }
 
-    fun requestViewersCount(userId: Long): CompletableFuture<Int> {
+    fun getViewersCount(userId: Long): CompletableFuture<Int> {
         // https://dev.twitch.tv/docs/v5/reference/streams/#get-stream-by-user
         return request("/streams/$userId")
                 .parseResponse()
@@ -65,62 +55,23 @@ class TwitchApiClient(
                 }
     }
 
-    fun requestEmoticons(): CompletableFuture<List<TwitchEmoticon>> {
-        // https://dev.twitch.tv/docs/v5/reference/chat/#get-chat-emoticons-by-set !! Формат ответа без setId не по доке
-        // https://dev.twitch.tv/docs/v5/guides/irc/#privmsg-twitch-tags формат ссылки на смайл
-
-        return GlobalScope.future {
-            requestEmoticonsToChannel().toList()
-        }
-    }
-
-    fun requestEmoticonsToChannel(): ReceiveChannel<TwitchEmoticon> {
-        // https://dev.twitch.tv/docs/v5/reference/chat/#get-chat-emoticons-by-set !! Формат ответа без setId не по доке
-        // https://dev.twitch.tv/docs/v5/guides/irc/#privmsg-twitch-tags формат ссылки на смайл
-
-        val channel = Channel<TwitchEmoticon>(2000)
-
-        request("/chat/emoticon_images")
+    fun getCommonEmoticons(): CompletableFuture<List<TwitchEmoticon>> {
+        return request("/chat/emoticon_images", mapOf("emotesets" to "0"))
                 .thenUse {
-                    val body = it.validateResponseCode(200).nonNullBody
+                    val bodyText = it.getBodyIfStatusIs(200).nonNullBody.string()
+                    val response = objectMapper.readValue<EmoticonSetsResponse>(bodyText)
 
-                    val jsonFactory = JsonFactory().apply {
-                        codec = objectMapper
-                    }
-                    val bodyInputStream = body.source().inputStream()
-                    val parser = jsonFactory.createParser(bodyInputStream)
-
-                    // parse response. okio thread blocks here
-                    parser.expect(JsonToken.START_OBJECT) // root object
-                    parser.expect(JsonToken.FIELD_NAME) // 'emoticons' field
-                    parser.expect(JsonToken.START_ARRAY) // 'emoticons' array
-
-                    var token = parser.expect(JsonToken.START_OBJECT) // emoticon object
-
-                    while (token != JsonToken.END_ARRAY) {
-                        val node: JsonNode = parser.readValueAsTree()
-                        channel.sendBlocking(parseEmoticon(node))
-                        token = parser.nextNonNullToken()
-                    }
-
-                    channel.close()
+                    response.emoticonSets
+                            .flatMap { it.value }
+                            .map {
+                                TwitchEmoticon(
+                                        twitchId = it.id,
+                                        code = it.code,
+                                        urlFactory = emoticonUrlFactory
+                                )
+                            }
                 }
-                .exceptionally { e ->
-                    channel.close(e.completionCause())
-                }
-
-        return channel
     }
-
-    private fun parseEmoticon(node: JsonNode): TwitchEmoticon {
-        val id = node.get("id").asLong()
-        return TwitchEmoticon(
-                twitchId = id,
-                code = node.get("code").asText(),
-                urlFactory = emoticonUrlFactory
-        )
-    }
-
 
     private fun request(path: String, parameters: Map<String, String> = emptyMap()): CompletableFuture<Response> {
         val formattedParameters = if (parameters.isEmpty()) {
@@ -144,7 +95,7 @@ class TwitchApiClient(
 
     private fun CompletableFuture<Response>.parseResponse(): CompletableFuture<JsonNode> {
         return this.thenUse {
-            val bodyText = it.validateResponseCode(200).nonNullBody.string()
+            val bodyText = it.getBodyIfStatusIs(200).nonNullBody.string()
             objectMapper.readTree(bodyText)
         }
     }
@@ -167,7 +118,7 @@ class TwitchApiClient(
                 .build()
 
         val parsedBody = httpClient.newCall(request).await().use {
-            val bodyText = it.validateResponseCode(200).nonNullBody.string()
+            val bodyText = it.getBodyIfStatusIs(200).nonNullBody.string()
             objectMapper.readTree(bodyText)
         }
 

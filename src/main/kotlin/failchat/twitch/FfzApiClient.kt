@@ -2,8 +2,8 @@ package failchat.twitch
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.util.await
+import failchat.util.getBodyIfStatusIs
 import failchat.util.nonNullBody
-import failchat.util.validateResponseCode
 import failchat.util.withSuffix
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -25,7 +25,7 @@ class FfzApiClient(
 
         val parsedBody = httpClient.newCall(request).await().use {
             if (it.code() == 404) throw FfzChannelNotFoundException(roomName)
-            val bodyText = it.validateResponseCode(200).nonNullBody.string()
+            val bodyText = it.getBodyIfStatusIs(200).nonNullBody.string()
             objectMapper.readTree(bodyText)
         }
 
