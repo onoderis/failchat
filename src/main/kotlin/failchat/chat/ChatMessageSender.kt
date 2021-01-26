@@ -3,6 +3,7 @@ package failchat.chat
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import failchat.ConfigKeys
 import failchat.Origin
 import failchat.chat.badge.Badge
@@ -15,6 +16,7 @@ import failchat.viewers.COUNTABLE_ORIGINS
 import failchat.ws.server.WsFrameSender
 import mu.KLogging
 
+//todo use dto
 class ChatMessageSender(
         private val wsFrameSender: WsFrameSender,
         private val appConfiguration: AppConfiguration,
@@ -26,7 +28,7 @@ class ChatMessageSender(
     private val config = appConfiguration.config
 
     fun send(message: ChatMessage) {
-        val messageNode = objectMapper.nodeFactory.objectNode().apply {
+        val messageNode: ObjectNode = objectMapper.nodeFactory.objectNode().apply {
             put("type", "message")
             with("content").apply {
                 put("id", message.id)
@@ -40,9 +42,9 @@ class ChatMessageSender(
                 put("timestamp", message.timestamp.toEpochMilli())
                 put("highlighted", message.highlighted)
 
-                set("elements", serializeElements(message.elements))
+                set<ObjectNode>("elements", serializeElements(message.elements))
 
-                set("badges", serializeBadges(message.badges))
+                set<ObjectNode>("badges", serializeBadges(message.badges))
             }
         }
 
@@ -146,7 +148,7 @@ class ChatMessageSender(
                 }
                 putObject("deletedMessagePlaceholder").apply {
                     put("text", deletedMessagePlaceholder.text)
-                    set("elements", serializeElements(deletedMessagePlaceholder.emoticons))
+                    set<ObjectNode>("elements", serializeElements(deletedMessagePlaceholder.emoticons))
                 }
             }
         }
