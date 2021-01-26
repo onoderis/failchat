@@ -71,7 +71,7 @@ import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchEmotesTagParser
 import failchat.twitch.TwitchEmoticonHandler
 import failchat.twitch.TwitchEmoticonLoadConfiguration
-import failchat.twitch.TwitchEmoticonStreamLoader
+import failchat.twitch.TwitchEmoticonLoader
 import failchat.twitch.TwitchEmoticonUrlFactory
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.util.objectMapper
@@ -378,10 +378,10 @@ val kodein = Kodein.direct {
                 emoticonUrlFactory = instance<TwitchEmoticonUrlFactory>()
         )
     }
-    bind<TwitchEmoticonStreamLoader>() with singleton { TwitchEmoticonStreamLoader(instance<TwitchApiClient>()) }
+    bind<TwitchEmoticonLoader>() with singleton { TwitchEmoticonLoader(instance<TwitchApiClient>()) }
     bind<TwitchEmoticonLoadConfiguration>() with singleton {
         TwitchEmoticonLoadConfiguration(
-                instance<TwitchEmoticonStreamLoader>()
+                instance<TwitchEmoticonLoader>()
         )
     }
     bind<TwitchChatClient>() with factory { channelName: String ->

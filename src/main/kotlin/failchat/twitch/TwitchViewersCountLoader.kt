@@ -17,10 +17,10 @@ class TwitchViewersCountLoader(
     override fun loadViewersCount(): CompletableFuture<Int> {
         val userIdFuture: CompletableFuture<Long> = lazyUserId.get()
                 ?.let { CompletableFuture.completedFuture(it) }
-                ?: twitchClient.requestUserId(userName).whenComplete { id, _ -> id?.let { lazyUserId.set(it) } }
+                ?: twitchClient.getUserId(userName).whenComplete { id, _ -> id?.let { lazyUserId.set(it) } }
 
         return userIdFuture
-                .thenCompose { userId -> twitchClient.requestViewersCount(userId) }
+                .thenCompose { userId -> twitchClient.getViewersCount(userId) }
     }
 
 }
