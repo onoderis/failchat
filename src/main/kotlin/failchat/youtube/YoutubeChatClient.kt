@@ -126,7 +126,7 @@ class YoutubeChatClient(
         val youtubeMessage = YoutubeMessage(
                 failchatId = messageIdGenerator.generate(),
                 author = Author(
-                        name = textMessageDto.authorName.simpleText,
+                        name = textMessageDto.authorName?.simpleText ?: textMessageDto.authorExternalChannelId,
                         origin = Origin.YOUTUBE,
                         id = textMessageDto.authorExternalChannelId
                 ),
