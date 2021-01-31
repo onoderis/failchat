@@ -55,7 +55,7 @@ data class LiveChatResponse(
 
     data class LiveChatTextMessageRenderer(
             val message: Message,
-            val authorName: AuthorName,
+            val authorName: AuthorName?,
             val authorExternalChannelId: String,
             val authorBadges: List<AuthorBadge> = listOf()
     )
