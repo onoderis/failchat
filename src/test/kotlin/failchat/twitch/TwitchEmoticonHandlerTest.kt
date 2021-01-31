@@ -17,9 +17,7 @@ class TwitchEmoticonHandlerTest {
                 id = 0,
                 author = "",
                 text = "Kappa 123 Kappa Keepo he",
-                emotesTag = "25:0-4,10-14/1902:16-20",
-                badgesTag = null,
-                authorColor = null
+                tags = mapOf(TwitchIrcTags.emotes to "25:0-4,10-14/1902:16-20")
         )
 
         // When
@@ -34,6 +32,23 @@ class TwitchEmoticonHandlerTest {
         (message.elements[1] as TwitchEmoticon).code shouldBe "Kappa"
         (message.elements[2] as TwitchEmoticon).twitchId shouldBe 1902
         (message.elements[2] as TwitchEmoticon).code shouldBe "Keepo"
+    }
+
+    @Test
+    fun noEmoticonsTest() {
+        // Given
+        val message = TwitchMessage(
+                id = 0,
+                author = "",
+                text = "message",
+                tags = mapOf(TwitchIrcTags.emotes to "")
+        )
+        // When
+        handler.handleMessage(message)
+
+        // Then
+        message.elements.size shouldBe 0
+        message.text shouldBe "message"
     }
 
 }

@@ -41,6 +41,7 @@ class ChatMessageSender(
                 put("text", message.text)
                 put("timestamp", message.timestamp.toEpochMilli())
                 put("highlighted", message.highlighted)
+                put("highlightedBackground", message.highlightedBackground)
 
                 set<ObjectNode>("elements", serializeElements(message.elements))
 

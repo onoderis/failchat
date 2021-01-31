@@ -1,6 +1,7 @@
 package failchat.twitch
 
 import failchat.chat.MessageHandler
+import failchat.util.notEmptyOrNull
 import mu.KLogging
 
 class TwitchEmoticonHandler(
@@ -10,7 +11,7 @@ class TwitchEmoticonHandler(
     private companion object : KLogging()
 
     override fun handleMessage(message: TwitchMessage) {
-        val emotesTag = message.emotesTag ?: return
+        val emotesTag = message.tags.get(TwitchIrcTags.emotes).notEmptyOrNull() ?: return
 
         try {
             replaceEmoteCodes(emotesTag, message)

@@ -5,6 +5,7 @@ import failchat.chat.badge.Badge
 import failchat.chat.badge.BadgeFinder
 import failchat.chat.badge.BadgeOrigin.TWITCH_CHANNEL
 import failchat.chat.badge.BadgeOrigin.TWITCH_GLOBAL
+import failchat.util.notEmptyOrNull
 import mu.KLogging
 
 class TwitchBadgeHandler(
@@ -14,7 +15,7 @@ class TwitchBadgeHandler(
     private companion object : KLogging()
 
     override fun handleMessage(message: TwitchMessage) {
-        val badgesTag = message.badgesTag ?: return
+        val badgesTag = message.tags.get(TwitchIrcTags.badges).notEmptyOrNull() ?: return
 
         val messageBadgeIds = parseBadgesTag(badgesTag)
 
