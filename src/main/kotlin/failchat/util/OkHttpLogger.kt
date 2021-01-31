@@ -8,6 +8,6 @@ object OkHttpLogger : HttpLoggingInterceptor.Logger {
     private val logger = KotlinLogging.logger { }
 
     override fun log(message: String) {
-        logger.info(message)
+        logger.debug(message)
     }
 }

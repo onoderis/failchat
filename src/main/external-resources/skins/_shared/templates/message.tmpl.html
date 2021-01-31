@@ -17,6 +17,6 @@
             <span title="delete" onclick="deleteMessage(this.parentNode.parentNode.parentNode);toggleModButtonsDisplay({{:id}})">&#10060;</span>
             <span title="ignore" onclick="ignore(this.parentNode.parentNode.parentNode);toggleModButtonsDisplay({{:id}})">&#128683;</span>
         </div>
-        <span class="message-text{{if highlighted}} highlighted{{/if}}">{{:text}}</span>
+        <span class="message-text{{if highlighted}} highlighted{{/if}}{{if highlightedBackground}} highlighted-background{{/if}}">{{:text}}</span>
     </div>
 </div>

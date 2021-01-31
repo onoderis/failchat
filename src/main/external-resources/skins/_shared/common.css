@@ -131,6 +131,10 @@ span.highlighted {
     color: #f36223;
 }
 
+span.highlighted-background {
+    background-color: rgb(117, 94, 188)
+}
+
 span.origin-name {
     font-weight: bolder;
     color: #567197;

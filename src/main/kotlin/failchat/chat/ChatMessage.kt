@@ -40,7 +40,8 @@ open class ChatMessage(
         get() = mutableBadges
     private val mutableBadges: MutableList<Badge> = ArrayList(3)
 
-    var highlighted = false
+    var highlighted: Boolean = false
+    var highlightedBackground: Boolean = false
 
     /**
      * @return formatted string for added element.
@@ -60,7 +61,8 @@ open class ChatMessage(
 
     override fun toString(): String {
         return "ChatMessage(id=$id, origin=$origin, author=$author, text='$text', timestamp=$timestamp, " +
-                "badges=$badges, mutableElements=$mutableElements, highlighted=$highlighted)"
+                "badges=$badges, mutableElements=$mutableElements, highlighted=$highlighted, " +
+                "highlightedBackground=$highlightedBackground)"
     }
 
 }

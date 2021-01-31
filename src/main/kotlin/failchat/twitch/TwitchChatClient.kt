@@ -14,8 +14,6 @@ import failchat.chat.StatusUpdate
 import failchat.chat.findTyped
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
-import failchat.util.notEmptyOrNull
-import javafx.scene.paint.Color
 import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.pircbotx.Configuration
@@ -43,7 +41,7 @@ class TwitchChatClient(
         private val messageIdGenerator: MessageIdGenerator,
         bttvEmoticonHandler: BttvEmoticonHandler,
         ffzEmoticonHandler: FfzEmoticonHandler,
-        twitchBadgeHandler: MessageHandler<TwitchMessage>,
+        twitchBadgeHandler: TwitchBadgeHandler,
         private val history: ChatMessageHistory,
         override val callbacks: ChatClientCallbacks
 ) : ChatClient {
@@ -67,7 +65,10 @@ class TwitchChatClient(
             ffzEmoticonHandler,
             BraceEscaper(),
             TwitchHighlightHandler(userName),
-            twitchBadgeHandler
+            TwitchRewardHandler(),
+            TwitchHighlightByPointsHandler(),
+            twitchBadgeHandler,
+            TwitchAuthorColorHandler()
     )
 
 
@@ -169,7 +170,7 @@ class TwitchChatClient(
     }
 
     private fun parseOrdinaryMessage(event: MessageEvent): TwitchMessage {
-        val displayedName = event.v3Tags.get("display-name") //could return null (e.g. from twitchnotify)
+        val displayedName = event.v3Tags.get(TwitchIrcTags.displayName) //could return null (e.g. from twitchnotify)
         // Если пользователь не менял ник, то в v3tags пусто, ник capitalized
         val author: String = if (displayedName.isNullOrEmpty()) {
             event.userHostmask.nick.capitalize()
@@ -181,9 +182,7 @@ class TwitchChatClient(
                 id = messageIdGenerator.generate(),
                 author = author,
                 text = event.message,
-                emotesTag = event.v3Tags.get("emotes").notEmptyOrNull(), //if message has no emoticons - tag is empty, not null
-                badgesTag = event.v3Tags.get("badges").notEmptyOrNull(),
-                authorColor = event.v3Tags.get("color").notEmptyOrNull()?.let { Color.web(it) }
+                tags = event.v3Tags
         )
     }
 
@@ -193,9 +192,7 @@ class TwitchChatClient(
                 id = messageIdGenerator.generate(),
                 author = event.userHostmask.nick,
                 text = event.message,
-                emotesTag = null,
-                badgesTag = null,
-                authorColor = null
+                tags = mapOf()
         )
     }
 

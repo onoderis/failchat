@@ -20,6 +20,7 @@
         "text": "@someuser emoticon {!0} / link {!1} / image {!2}",
         "origin": "twitch",
         "highlighted": true,
+        "highlightedBackground": false,
         "elements": [
             {
                 "type": "emoticon",

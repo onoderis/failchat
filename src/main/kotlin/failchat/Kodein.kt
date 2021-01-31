@@ -248,7 +248,9 @@ val kodein = Kodein.direct {
         objectMapper()
     }
     bind<OkHttpClient>() with singleton {
-        OkHttpClient()
+        OkHttpClient.Builder()
+//                .addInterceptor(HttpLoggingInterceptor(OkHttpLogger).also { it.level = HttpLoggingInterceptor.Level.BODY })
+                .build()
     }
 
 

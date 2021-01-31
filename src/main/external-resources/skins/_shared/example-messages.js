@@ -63,14 +63,14 @@ function sendExampleMessages() {
     });
 
 
-    sendMessageAfterTimeout()
-
+    // sendMessagesWithDelayLoop()
+    sendAllMessages()
 }
 
 let lastMessageIndex = 0;
 let lastId = 1;
 
-function sendMessageAfterTimeout() {
+function sendMessagesWithDelayLoop() {
     setTimeout(() => {
         if (lastMessageIndex >= exampleMessages.length) {
             lastMessageIndex = 0
@@ -82,8 +82,14 @@ function sendMessageAfterTimeout() {
         lastMessageIndex++;
         lastId++;
 
-        sendMessageAfterTimeout();
+        sendMessagesWithDelayLoop();
     }, 1500)
+}
+
+function sendAllMessages() {
+    exampleMessages.forEach(message => {
+        failchat.handleMessage(message);
+    });
 }
 
 const exampleMessages = [
@@ -92,10 +98,11 @@ const exampleMessages = [
         "content": {
             "id": 1,
             "origin": "twitch",
-            "author": {"name": "fail0001", "id": "fail0001", "color": "#00ff00"},
+            "author": {"name": "cooluser", "id": "cooluser", "color": "#00ff00"},
             "text": "hello",
             "timestamp": 1529402393227,
             "highlighted": false,
+            "highlightedBackground": false,
             "badges": [{
                 "type": "image",
                 "format": "raster",
@@ -111,10 +118,11 @@ const exampleMessages = [
         "content": {
             "id": 2,
             "origin": "peka2tv",
-            "author": {"name": "fail0001", "id": "fail0001", "color": null},
+            "author": {"name": "cooluser", "id": "cooluser", "color": null},
             "text": "{!0}",
             "timestamp": 1529402395322,
             "highlighted": false,
+            "highlightedBackground": false,
             "badges": [{
                 "type": "image",
                 "format": "raster",
@@ -135,10 +143,11 @@ const exampleMessages = [
         "content": {
             "id": 3,
             "origin": "youtube",
-            "author": {"name": "fail0001", "id": "fail0001", "color": null},
+            "author": {"name": "cooluser", "id": "cooluser", "color": null},
             "text": "123 {!0} 123 {!1} 123 {!2} 123 {!3} 123 {!4} 123 {!5} 123 {!6} 123 {!7} 123 {!8} 123 {!9} 123 {!10} 123 {!11} 123 {!12} 123 {!13} 123 {!14} 123 {!15} 123 {!16} 123 {!17}",
             "timestamp": 1529402406269,
             "highlighted": false,
+            "highlightedBackground": false,
             "badges": [{
                 "type": "image",
                 "format": "raster",
@@ -244,10 +253,11 @@ const exampleMessages = [
         "content": {
             "id": 5,
             "origin": "goodgame",
-            "author": {"name": "fail0001", "id": "fail0001", "color": null},
+            "author": {"name": "cooluser", "id": "cooluser", "color": null},
             "text": "test image {!1} 123ffff {!0}",
             "timestamp": 1529402450519,
             "highlighted": false,
+            "highlightedBackground": false,
             "badges": [{
                 "type": "image",
                 "format": "raster",
@@ -268,10 +278,11 @@ const exampleMessages = [
         "content": {
             "id": 6,
             "origin": "twitch",
-            "author": {"name": "fail0001", "id": "fail0001", "color": null},
+            "author": {"name": "cooluser", "id": "cooluser", "color": null},
             "text": "hello Kappa",
             "timestamp": 1529402475110,
             "highlighted": false,
+            "highlightedBackground": false,
             "badges": [
                 {
                     "type": "character",
@@ -288,7 +299,7 @@ const exampleMessages = [
         "content": {
             "id": 7,
             "origin": "peka2tv",
-            "author": {"name": "fail0001", "id": "fail0001", "color": null},
+            "author": {"name": "cooluser", "id": "cooluser", "color": null},
             "text": "should be deleted!",
             "timestamp": 1529402475110,
             "highlighted": true,
@@ -309,10 +320,11 @@ const exampleMessages = [
         "content": {
             "id": 8,
             "origin": "peka2tv",
-            "author": {"name": "fail0001", "id": "fail0001", "color": null},
+            "author": {"name": "cooluser", "id": "cooluser", "color": null},
             "text": "so many badges!",
             "timestamp": 1529402475110,
             "highlighted": false,
+            "highlightedBackground": false,
             "badges": [
                 {
                     "type": "character",
@@ -340,10 +352,11 @@ const exampleMessages = [
         "content": {
             "id": 9,
             "origin": "goodgame",
-            "author": {"name": "fail0001", "id": "fail0001", "color": null},
+            "author": {"name": "cooluser", "id": "cooluser", "color": null},
             "text": "badges test",
             "timestamp": 1529402475110,
             "highlighted": false,
+            "highlightedBackground": false,
             "badges": [
                 {
                     "type": "character",
@@ -397,10 +410,11 @@ const exampleMessages = [
         "content": {
             "id": 10,
             "origin": "peka2tv",
-            "author": {"name": "fail0001", "id": "fail0001", "color": null},
+            "author": {"name": "cooluser", "id": "cooluser", "color": null},
             "text": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
             "timestamp": 1529402475110,
             "highlighted": false,
+            "highlightedBackground": false,
             "badges": [],
             "elements": []
         }
@@ -411,7 +425,7 @@ const exampleMessages = [
         "content": {
             "id": 11,
             "origin": "peka2tv",
-            "author": {"name": "fail0001", "id": "fail0001", "color": null},
+            "author": {"name": "cooluser", "id": "cooluser", "color": null},
             "text": "highlighted message! one two three",
             "timestamp": 1529402475110,
             "highlighted": true,
@@ -433,6 +447,7 @@ const exampleMessages = [
             "text": "link test {!0} 1223",
             "origin": "twitch",
             "highlighted": false,
+            "highlightedBackground": false,
             "elements": [
                 {
                     "type": "link",
@@ -448,12 +463,43 @@ const exampleMessages = [
     {
         "type": "message",
         "content": {
-            "id": 12,
+            "id": 13,
             "origin": "twitch",
-            "author": {"name": "fail0001", "id": "fail0001", "color": "#00ff00"},
+            "author": {"name": "cooluser", "id": "cooluser", "color": "#00ff00"},
             "text": "message with emoji 🥰 🥰 🥰",
             "timestamp": 1529402393228,
             "highlighted": false,
+            "highlightedBackground": false,
+            "badges": [],
+            "elements": []
+        }
+    },
+
+    {
+        "type": "message",
+        "content": {
+            "id": 14,
+            "origin": "twitch",
+            "author": {"name": "cooluser", "id": "cooluser", "color": "#00ff00"},
+            "text": "message with highlighted background",
+            "timestamp": 1529402393228,
+            "highlighted": false,
+            "highlightedBackground": true,
+            "badges": [],
+            "elements": []
+        }
+    },
+
+    {
+        "type": "message",
+        "content": {
+            "id": 15,
+            "origin": "twitch",
+            "author": {"name": "cooluser", "id": "cooluser", "color": "#00ff00"},
+            "text": "highlighted message with highlighted background",
+            "timestamp": 1529402393228,
+            "highlighted": true,
+            "highlightedBackground": true,
             "badges": [],
             "elements": []
         }
