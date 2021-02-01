@@ -188,7 +188,6 @@ val kodein = Kodein.direct {
     bind<EmoticonFinder>() with singleton { instance<EmoticonStorage>() }
     bind<EmoticonManager>() with singleton {
         EmoticonManager(
-                instance<Configuration>(),
                 instance<EmoticonStorage>(),
                 instance<ScheduledExecutorService>("background")
         )
