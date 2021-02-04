@@ -15,10 +15,10 @@ import failchat.chat.StatusUpdate
 import failchat.chat.badge.ImageBadge
 import failchat.chat.findTyped
 import failchat.chat.handlers.BraceEscaper
-import failchat.util.LateinitVal
 import failchat.util.value
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import mu.KLogging
 import java.util.concurrent.atomic.AtomicReference
@@ -29,7 +29,7 @@ class YoutubeChatClient(
         private val messageIdGenerator: MessageIdGenerator,
         private val history: ChatMessageHistory,
         private val videoId: String
-) : ChatClient {
+) : ChatClient, CoroutineScope by CoroutineScope(Dispatchers.Default) {
 
     private companion object : KLogging() {
         val roleToBadgeMap = mapOf(
@@ -49,7 +49,6 @@ class YoutubeChatClient(
         get() = atomicStatus.get()
 
     private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.READY)
-    private val pollJob = LateinitVal<Job>()
 
     private val highlightHandler = YoutubeHighlightHandler()
 
@@ -64,8 +63,7 @@ class YoutubeChatClient(
             error("Chat client status: ${atomicStatus.value}")
         }
 
-        //todo coroutine dispatcher
-        val job = GlobalScope.launch {
+        val job = launch {
             val initialParameters = youtubeClient.getNewLiveChatSessionData(videoId)
             logger.info { "Initial youtube parameters: $initialParameters" }
 
@@ -108,12 +106,10 @@ class YoutubeChatClient(
             }
             callbacks.onStatusUpdate(StatusUpdate(Origin.YOUTUBE, OriginStatus.DISCONNECTED))
         }
-
-        pollJob.set(job)
     }
 
     override fun stop() {
-        pollJob.get()?.cancel() ?: error("Chat client is not started")
+        cancel()
         atomicStatus.value = ChatClientStatus.OFFLINE
     }
 

@@ -3,7 +3,8 @@ package failchat.youtube
 import failchat.Origin
 import failchat.util.LateinitVal
 import failchat.viewers.ViewersCountLoader
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
 import java.util.concurrent.CompletableFuture
 
@@ -17,8 +18,7 @@ class YoutubeViewersCountLoader(
     override val origin = Origin.YOUTUBE
 
     override fun loadViewersCount(): CompletableFuture<Int> {
-        //todo scope
-        return GlobalScope.future {
+        return CoroutineScope(Dispatchers.Default).future {
             val key = lazyInnertubeApiKey.get() ?: run {
                 val newKey = youtubeClient.getNewLiveChatSessionData(videoId).innertubeApiKey
                 lazyInnertubeApiKey.set(newKey)
