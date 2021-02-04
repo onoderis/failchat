@@ -17,7 +17,7 @@ data class MetadataResponse(
     )
 
     data class VideoViewCountRenderer(
-            val viewCount: ViewCountRendered
+            val viewCount: ViewCountRendered? // is null on 0 viewers
     )
 
     data class ViewCountRendered(

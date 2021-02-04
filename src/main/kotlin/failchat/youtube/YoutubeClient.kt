@@ -161,7 +161,8 @@ class YoutubeClient(
         val updateViewershipAction = metadataResponse.actions.firstOrNull { it.updateViewershipAction != null }
                 ?: throw YoutubeClientException("updateViewershipAction was not found in actions")
 
-        val viewCountText = updateViewershipAction.updateViewershipAction!!.viewCount.videoViewCountRenderer.viewCount.simpleText
+        val viewCountText = updateViewershipAction.updateViewershipAction!!.viewCount.videoViewCountRenderer.viewCount?.simpleText
+                ?: return 0
 
         try {
             return viewCountParser.parse(viewCountText)
