@@ -25,16 +25,20 @@
         <socket.io-client.version>1.0.0</socket.io-client.version>
         <okhttp.version>3.14.9</okhttp.version>
         <pircbotx.version>2.1</pircbotx.version>
-        <youtube.version>v3-rev183-1.22.0</youtube.version>
         <kotlin-either.version>2.0.1</kotlin-either.version>
         <guava.version>23.0</guava.version>
         <kotlin-logging.version>1.5.4</kotlin-logging.version>
-        <mockito-kotlin.version>2.2.0</mockito-kotlin.version>
         <commons-cli.version>1.4</commons-cli.version>
         <ktor.version>1.3.2</ktor.version>
         <mapdb.version>3.0.7</mapdb.version>
         <jna.version>5.2.0</jna.version>
         <javassist.version>3.23.1-GA</javassist.version>
+        <emoji-java.version>5.1.1</emoji-java.version>
+
+        <mockito-kotlin.version>2.2.0</mockito-kotlin.version>
+        <wiremock.version>2.27.2</wiremock.version>
+        <kotest.version>4.3.2</kotest.version>
+        <mockk.version>1.10.5</mockk.version>
     </properties>
 
 
@@ -230,18 +234,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-youtube</artifactId>
-            <version>${youtube.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava-jdk5</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>io.github.microutils</groupId>
             <artifactId>kotlin-logging</artifactId>
             <version>${kotlin-logging.version}</version>
@@ -262,7 +254,7 @@
         <dependency>
             <groupId>com.vdurmont</groupId>
             <artifactId>emoji-java</artifactId>
-            <version>5.1.1</version>
+            <version>${emoji-java.version}</version>
         </dependency>
 
 
@@ -287,11 +279,10 @@
             <version>${mockito-kotlin.version}</version>
             <scope>test</scope>
         </dependency>
-        <!--todo move versions-->
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-jre8</artifactId>
-            <version>2.27.2</version>
+            <version>${wiremock.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -303,13 +294,13 @@
         <dependency>
             <groupId>io.kotest</groupId>
             <artifactId>kotest-assertions-core-jvm</artifactId>
-            <version>4.3.2</version>
+            <version>${kotest.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.mockk</groupId>
             <artifactId>mockk</artifactId>
-            <version>1.10.5</version>
+            <version>${mockk.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -558,10 +549,10 @@
                         <argument>--compress=2</argument>
                         <argument>--strip-debug</argument>
                         <argument>--add-modules</argument>
-                        <!--TODO dynamically generate the required list of modules-->
-                        <!--for now to get the module list you should run:-->
-                        <!--jdeps - -list-deps target/failchat-v2.6.4-SNAPSHOT/failchat-2.6.4-SNAPSHOT.jar-->
-                        <!--(remove space between '-', thanks to xml)-->
+                        <!-- TODO dynamically generate the required list of modules -->
+                        <!-- for now to get the module list you should run: -->
+                        <!-- jdeps - -list-deps target/failchat-v2.6.4-SNAPSHOT/failchat-2.6.4-SNAPSHOT.jar -->
+                        <!-- (remove space between '-', thanks to xml) -->
                         <argument>java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.naming,java.security.jgss,java.sql,java.xml,javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.web,jdk.attach,jdk.jdi,jdk.jsobject,jdk.unsupported,jdk.crypto.ec</argument>
                         <argument>--output</argument>
                         <argument>${failchat.distribution.directory}/runtime</argument>
