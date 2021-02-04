@@ -102,7 +102,7 @@ fun main0(args: Array<String>) {
 
     // Reporter
     val backgroundExecutor = kodein.instance<ScheduledExecutorService>("background")
-    scheduleReportTasks(backgroundExecutor)
+    runReporterIfEnabled(backgroundExecutor, config)
 
     // If emoticon db file not exists, reset 'last-updated' config values
     val dbPath = kodein.instance<Path>("emoticonDbFile")
@@ -294,7 +294,12 @@ fun KtorApplication.failchat() {
 /**
  * Send General.AppLaunch event and schedule General.Heartbeat events.
  * */
-private fun scheduleReportTasks(executor: ScheduledExecutorService) {
+private fun runReporterIfEnabled(executor: ScheduledExecutorService, config: Configuration) {
+    if (!config.getBoolean("reporter.enabled")) {
+        logger.info("Event reporter is disabled and won't be running")
+        return
+    }
+
     val reporter = kodein.instance<EventReporter>()
     val dispatcher = executor.asCoroutineDispatcher()
 

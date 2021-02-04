@@ -55,7 +55,6 @@ import failchat.peka2tv.Peka2tvEmoticonHandler
 import failchat.peka2tv.Peka2tvEmoticonLoadConfiguration
 import failchat.reporter.EventReporter
 import failchat.reporter.GAEventReporter
-import failchat.reporter.ToggleEventReporter
 import failchat.reporter.UserIdManager
 import failchat.skin.Skin
 import failchat.skin.SkinScanner
@@ -301,14 +300,11 @@ val kodein = Kodein.direct {
     bind<UserIdManager>() with singleton { UserIdManager(instance<Path>("homeDirectory")) }
     bind<EventReporter>() with singleton {
         val config = instance<Configuration>()
-        ToggleEventReporter(
-                GAEventReporter(
-                        instance<OkHttpClient>(),
-                        instance<String>("userId"),
-                        config.getString("version"),
-                        config.getString("reporter.tracking-id")
-                ),
-                config.getBoolean("reporter.enabled")
+        GAEventReporter(
+                instance<OkHttpClient>(),
+                instance<String>("userId"),
+                config.getString("version"),
+                config.getString("reporter.tracking-id")
         )
     }
 
