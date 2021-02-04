@@ -30,6 +30,4 @@ class YoutubeViewCountParserTest {
         actual shouldBe 609
     }
 
-    //todo zero viewers
-
 }
