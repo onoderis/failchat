@@ -35,11 +35,15 @@ class EmojiHandler : MessageHandler<ChatMessage> {
     }
 
     private fun toHex(emojiCharacters: String): String {
-        return when (emojiCharacters.length) {
-            1 -> emojiCharacters[0].toInt().toHexString()
-            2 -> toCodePoint(emojiCharacters[0], emojiCharacters[1]).toHexString()
-            else -> error("Unexpected emoji characters: '$emojiCharacters'")
-        }
+        return emojiCharacters
+                .windowed(2, 2, true) {
+                    when (it.length) {
+                        1 -> it[0].toInt().toHexString()
+                        2 -> toCodePoint(it[0], it[1]).toHexString()
+                        else -> error("Expected windows of 1..2 characters: '$emojiCharacters'")
+                    }
+                }
+                .joinToString(separator = "-")
     }
 
 }

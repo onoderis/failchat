@@ -14,16 +14,19 @@ class EmojiHandlerTest {
     private val emojiHandler = EmojiHandler()
 
     @Test
-    fun oneCharacterEmojiTest()  = testYtEmojiHandler("""☕""")
+    fun oneCharacterEmojiTest() = testYtEmojiHandler("""☕""")
 
     @Test
-    fun twoCharacterEmojiTest()  = testYtEmojiHandler("""😀""")
+    fun twoCharacterEmojiTest() = testYtEmojiHandler("""😀""")
 
     @Test
     fun threeCharacterEmojiTest() = testYtEmojiHandler("☝\uD83C\uDFFD")
 
     @Test
-    fun fourCharacterEmojiTest()  = testYtEmojiHandler("👦\uD83C\uDFFD")
+    fun fourCharacterEmojiTest() = testYtEmojiHandler("👦\uD83C\uDFFD")
+
+    @Test
+    fun flagTest() = testYtEmojiHandler("🇦🇩")
 
     private fun testYtEmojiHandler(text: String) {
         val message = YoutubeMessage(0, Author("author", Origin.YOUTUBE, "aid"), text)
