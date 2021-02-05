@@ -6,6 +6,7 @@ import failchat.chat.ChatMessageSender
 import failchat.util.LateinitVal
 import failchat.util.completedFuture
 import failchat.util.executeWithCatch
+import failchat.util.logException
 import javafx.application.Platform
 import org.apache.commons.configuration2.Configuration
 import java.util.concurrent.CompletableFuture
@@ -29,9 +30,11 @@ class FullGuiEventHandler(
             it.chatFrame.show()
         }
 
-        guiTransitionFuture.whenCompleteAsync(BiConsumer { _, _ ->
-            appStateManager.startChat()
-        }, executor)
+        guiTransitionFuture
+                .whenCompleteAsync(BiConsumer { _, _ ->
+                    appStateManager.startChat()
+                }, executor)
+                .logException()
     }
 
     override fun handleStopChat() {
@@ -40,9 +43,11 @@ class FullGuiEventHandler(
             it.settingsFrame.show()
         }
 
-        guiTransitionFuture.whenCompleteAsync(BiConsumer { _, _ ->
-            appStateManager.stopChat()
-        }, executor)
+        guiTransitionFuture
+                .whenCompleteAsync(BiConsumer { _, _ ->
+                    appStateManager.stopChat()
+                }, executor)
+                .logException()
     }
 
     override fun handleShutDown() {

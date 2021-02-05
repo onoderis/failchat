@@ -88,7 +88,10 @@ class AppStateManager(private val kodein: DKodein) {
     private var state: AppState = SETTINGS
 
     fun startChat(): Unit = lock.withLock {
-        if (state != SETTINGS) throw IllegalStateException("Expected: $SETTINGS, actual: $state")
+        if (state != SETTINGS) {
+            throw IllegalStateException("Expected: $SETTINGS, actual: $state")
+        }
+        state = CHAT
 
         val viewersCountLoaders: MutableList<ViewersCountLoader> = ArrayList()
         val initializedChatClients: MutableMap<Origin, ChatClient> = enumMap()
@@ -206,7 +209,11 @@ class AppStateManager(private val kodein: DKodein) {
     }
 
     fun stopChat(): Unit = lock.withLock {
-        if (state != CHAT) throw IllegalStateException("Expected: $CHAT, actual: $state")
+        if (state != CHAT) {
+            throw IllegalStateException("Expected: $CHAT, actual: $state")
+        }
+        state = SETTINGS
+
         reset()
 
         // Save config

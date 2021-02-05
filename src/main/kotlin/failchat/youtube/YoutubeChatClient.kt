@@ -62,6 +62,7 @@ class YoutubeChatClient(
         if (!statusChanged) {
             error("Chat client status: ${atomicStatus.value}")
         }
+        logger.info { "Starting youtube client" }
 
         val job = launch {
             val initialParameters = youtubeClient.getNewLiveChatSessionData(videoId)
@@ -109,6 +110,7 @@ class YoutubeChatClient(
     }
 
     override fun stop() {
+        logger.info { "Stopping youtube client" }
         cancel()
         atomicStatus.value = ChatClientStatus.OFFLINE
     }
