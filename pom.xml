@@ -361,8 +361,7 @@
                                     <directory>${basedir}/src/main/external-resources</directory>
                                     <excludes>
                                         <exclude>failchat.bat</exclude>
-                                        <exclude>failchat-no-gui.bat</exclude>
-                                        <exclude>failchat-debug.bat</exclude>
+                                        <exclude>failchat.sh</exclude>
                                     </excludes>
                                 </resource>
                             </resources>
@@ -382,19 +381,17 @@
                                     <directory>${basedir}/src/main/external-resources</directory>
                                     <excludes>
                                         <exclude>failchat.bat</exclude>
-                                        <exclude>failchat-no-gui.bat</exclude>
-                                        <exclude>failchat-debug.bat</exclude>
+                                        <exclude>failchat.sh</exclude>
                                         <exclude>skins/_shared/example-messages.js</exclude>
                                     </excludes>
                                 </resource>
                                 <resource>
-                                    <!-- .bat files with filtering -->
+                                    <!-- .bat/.sh files with filtering -->
                                     <directory>${basedir}/src/main/external-resources</directory>
                                     <filtering>true</filtering>
                                     <includes>
                                         <include>failchat.bat</include>
-                                        <include>failchat-no-gui.bat</include>
-                                        <include>failchat-debug.bat</include>
+                                        <include>failchat.sh</include>
                                     </includes>
                                 </resource>
                             </resources>
