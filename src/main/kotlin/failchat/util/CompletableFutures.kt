@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
+import java.util.concurrent.CompletionStage
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
@@ -36,9 +37,9 @@ fun Throwable.completionCause(): Throwable {
 
 private class NullCompletionCauseException(e: CompletionException) : Exception(e)
 
-fun <T> CompletableFuture<T>.logException() {
+fun <T> CompletionStage<T>.logException() {
     whenComplete { _, t ->
-        if (t !== null) logger.error("Unhandled exception from CompletableFuture", t)
+        if (t !== null) logger.error("Unhandled exception from CompletionStage", t)
     }
 }
 
