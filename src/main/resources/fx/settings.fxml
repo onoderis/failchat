@@ -385,6 +385,11 @@
                                                       </FlowPane>
                                                    </graphic>
                                                  </CheckBox>
+                                                 <CheckBox fx:id="save_message_history" mnemonicParsing="false" text="Save message history">
+                                                     <font>
+                                                         <Font size="12.0"/>
+                                                     </font>
+                                                 </CheckBox>
                                              </children>
                                           </VBox>
                                           <Separator />

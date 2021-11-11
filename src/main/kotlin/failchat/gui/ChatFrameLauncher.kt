@@ -6,7 +6,7 @@ import failchat.skin.Skin
 import javafx.application.Application
 import javafx.stage.Stage
 import org.apache.commons.configuration2.Configuration
-import org.kodein.di.generic.instance
+import org.kodein.di.instance
 
 class ChatFrameLauncher : Application() {
 

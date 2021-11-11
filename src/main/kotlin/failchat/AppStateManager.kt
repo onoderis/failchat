@@ -47,16 +47,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.apache.commons.configuration2.Configuration
-import org.kodein.di.DKodein
-import org.kodein.di.generic.factory
-import org.kodein.di.generic.instance
+import org.kodein.di.DirectDI
+import org.kodein.di.factory
+import org.kodein.di.instance
 import org.mapdb.DB
+import java.io.BufferedWriter
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-class AppStateManager(private val kodein: DKodein) {
+class AppStateManager(private val kodein: DirectDI) {
 
     private companion object : KLogging()
 
@@ -235,6 +236,12 @@ class AppStateManager(private val kodein: DKodein) {
             configLoader.save()
         } catch (t: Throwable) {
             logger.error("Failed to save config during a shutdown", t)
+        }
+
+        try {
+            kodein.instance<BufferedWriter>(tag = "chatHistoryWriter").close()
+        } catch (t: Throwable) {
+            logger.error("Failed to close chat history writer", t)
         }
 
         // prevent shutdown hook from locking on System.exit()

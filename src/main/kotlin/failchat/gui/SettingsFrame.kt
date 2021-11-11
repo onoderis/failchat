@@ -75,6 +75,7 @@ class SettingsFrame(
     private val zoomPercent = namespace["zoom_percent"] as TextField
     private val deletedMessagePlaceholder = namespace["deleted_message_placeholder"] as TextField
     private val showClickTransparencyIcon = namespace["show_click_transparency_icon"] as CheckBox
+    private val saveMessageHistory = namespace["save_message_history"] as CheckBox
 
     // native client
     private val nativeBgColorPicker = namespace["bgcolor_native"] as ColorPicker
@@ -251,6 +252,7 @@ class SettingsFrame(
         showOriginBadges.isSelected = config.getBoolean(ConfigKeys.showOriginBadges)
         showUserBadges.isSelected = config.getBoolean(ConfigKeys.showUserBadges)
         hideDeletedMessages.isSelected = config.getBoolean(ConfigKeys.hideDeletedMessages)
+        saveMessageHistory.isSelected = config.getBoolean(ConfigKeys.saveMessageHistory)
         zoomPercent.text = config.getInt(ConfigKeys.zoomPercent).toString()
         deletedMessagePlaceholder.text = config.getString(ConfigKeys.deletedMessagePlaceholder)
 
@@ -303,6 +305,7 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.showOriginBadges, showOriginBadges.isSelected)
         config.setProperty(ConfigKeys.showUserBadges, showUserBadges.isSelected)
         config.setProperty(ConfigKeys.hideDeletedMessages, hideDeletedMessages.isSelected)
+        config.setProperty(ConfigKeys.saveMessageHistory, saveMessageHistory.isSelected)
         config.setProperty(ConfigKeys.zoomPercent, parseZoomPercent(zoomPercent.text))
         config.setProperty(ConfigKeys.deletedMessagePlaceholder, deletedMessagePlaceholder.text)
 

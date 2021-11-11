@@ -1,3 +1,5 @@
+@file:Suppress("RemoveExplicitTypeArguments")
+
 package failchat
 
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -14,6 +16,7 @@ import failchat.chat.OriginStatusManager
 import failchat.chat.badge.BadgeFinder
 import failchat.chat.badge.BadgeManager
 import failchat.chat.badge.BadgeStorage
+import failchat.chat.handlers.ChatHistoryLogger
 import failchat.chat.handlers.EmojiHandler
 import failchat.chat.handlers.FailchatEmoticonHandler
 import failchat.chat.handlers.IgnoreFilter
@@ -90,20 +93,23 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.server.engine.ApplicationEngine
 import okhttp3.OkHttpClient
 import org.apache.commons.configuration2.Configuration
-import org.kodein.di.Kodein
-import org.kodein.di.generic.bind
-import org.kodein.di.generic.factory
-import org.kodein.di.generic.instance
-import org.kodein.di.generic.singleton
+import org.kodein.di.DI
+import org.kodein.di.DirectDI
+import org.kodein.di.bind
+import org.kodein.di.factory
+import org.kodein.di.instance
+import org.kodein.di.singleton
 import org.mapdb.DB
+import java.io.BufferedWriter
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.atomic.AtomicInteger
 
-@Suppress("RemoveExplicitTypeArguments")
-val kodein = Kodein.direct {
+val kodein = DI.direct {
 
     // Http/websocket server
     bind<ApplicationEngine>() with singleton { createHttpServer() }
@@ -132,7 +138,7 @@ val kodein = Kodein.direct {
     }
 
     // Core dependencies
-    bind<AppStateManager>() with singleton { AppStateManager(dkodein) }
+    bind<AppStateManager>() with singleton { AppStateManager(directDI) }
     bind<AppConfiguration>() with singleton { AppConfiguration(instance<Configuration>()) }
     bind<OriginStatusManager>() with singleton {
         OriginStatusManager(instance<ChatMessageSender>())
@@ -247,7 +253,7 @@ val kodein = Kodein.direct {
     }
     bind<OkHttpClient>() with singleton {
         OkHttpClient.Builder()
-//                .addInterceptor(HttpLoggingInterceptor(OkHttpLogger).also { it.level = HttpLoggingInterceptor.Level.BODY })
+//                .addInterceptor(okhttp3.logging.HttpLoggingInterceptor(failchat.util.OkHttpLogger).also { it.level = okhttp3.logging.HttpLoggingInterceptor.Level.BODY })
                 .build()
     }
 
@@ -259,22 +265,27 @@ val kodein = Kodein.direct {
         FailchatEmoticonHandler(instance<EmoticonFinder>())
     }
 
+    // Chat history logger
+    bind<BufferedWriter>(tag = "chatHistoryWriter") with singleton {
+        val chatHistoryFilePath = instance<Path>("workingDirectory").resolve("history").resolve("history.txt")
+        Files.createDirectories(chatHistoryFilePath.parent)
+        Files.newBufferedWriter(chatHistoryFilePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
+    }
+    bind<ChatHistoryLogger>() with singleton {
+        ChatHistoryLogger(instance<BufferedWriter>(tag = "chatHistoryWriter"))
+    }
+
 
     // Chat client callbacks
-    bind<ChatClientCallbacks>() with singleton {
+    bind<ChatClientCallbacks>() with factory {
         ChatClientCallbacks(
-                instance<OnChatMessageCallback>(),
+                factory<Unit, OnChatMessageCallback>().invoke(Unit),
                 instance<OnStatusUpdateCallback>(),
                 instance<OnChatMessageDeletedCallback>()
         )
     }
-    bind<OnChatMessageCallback>() with singleton {
-        OnChatMessageCallback(
-                listOf(instance<IgnoreFilter>()),
-                listOf(LinkHandler(), instance<ImageLinkHandler>(), EmojiHandler(), instance<FailchatEmoticonHandler>()),
-                instance<ChatMessageHistory>(),
-                instance<ChatMessageSender>()
-        )
+    bind<OnChatMessageCallback>() with factory {
+        initMessagePipeline(directDI)
     }
     bind<OnStatusUpdateCallback>() with singleton {
         OnStatusUpdateCallback(
@@ -358,7 +369,7 @@ val kodein = Kodein.direct {
                 emoticonHandler = instance<Peka2tvEmoticonHandler>(),
                 badgeHandler = instance<Peka2tvBadgeHandler>(),
                 history = instance<ChatMessageHistory>(),
-                callbacks = instance<ChatClientCallbacks>()
+                callbacks = factory<Unit, ChatClientCallbacks>().invoke(Unit)
         )
     }
 
@@ -395,7 +406,7 @@ val kodein = Kodein.direct {
                 ffzEmoticonHandler = instance<FfzEmoticonHandler>(),
                 twitchBadgeHandler = instance<TwitchBadgeHandler>(),
                 history = instance<ChatMessageHistory>(),
-                callbacks = instance<ChatClientCallbacks>()
+                callbacks = factory<Unit, ChatClientCallbacks>().invoke(Unit)
         )
     }
     bind<TwitchViewersCountLoader>() with factory { channelName: String ->
@@ -457,7 +468,7 @@ val kodein = Kodein.direct {
                 emoticonHandler = instance<GgEmoticonHandler>(),
                 badgeHandler = factory<GgChannel, GgBadgeHandler>().invoke(channel),
                 history = instance<ChatMessageHistory>(),
-                callbacks = instance<ChatClientCallbacks>(),
+                callbacks = factory<Unit, ChatClientCallbacks>().invoke(Unit),
                 objectMapper = instance<ObjectMapper>()
         )
     }
@@ -511,7 +522,7 @@ val kodein = Kodein.direct {
     }
     bind<YoutubeChatClient>() with factory { videoId: String ->
         YoutubeChatClient(
-                instance<ChatClientCallbacks>(),
+                factory<Unit, ChatClientCallbacks>().invoke(Unit),
                 instance<YoutubeClient>(),
                 instance<MessageIdGenerator>(),
                 instance<ChatMessageHistory>(),
@@ -519,4 +530,26 @@ val kodein = Kodein.direct {
         )
     }
 
+}
+
+fun initMessagePipeline(kodein: DirectDI): OnChatMessageCallback {
+    //todo build handler pipeline for each start
+    val config = kodein.instance<Configuration>()
+
+    val handlers = mutableListOf(
+            LinkHandler(),
+            kodein.instance<ImageLinkHandler>(),
+            EmojiHandler(),
+            kodein.instance<FailchatEmoticonHandler>()
+    )
+    if (config.getBoolean(ConfigKeys.saveMessageHistory)) {
+        handlers += kodein.instance<ChatHistoryLogger>()
+    }
+
+    return OnChatMessageCallback(
+            listOf(kodein.instance<IgnoreFilter>()),
+            handlers,
+            kodein.instance<ChatMessageHistory>(),
+            kodein.instance<ChatMessageSender>()
+    )
 }

@@ -42,7 +42,7 @@ import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
 import org.apache.commons.configuration2.Configuration
-import org.kodein.di.generic.instance
+import org.kodein.di.instance
 import org.mapdb.DB
 import java.net.ServerSocket
 import java.nio.file.Files

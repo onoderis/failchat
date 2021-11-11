@@ -8,7 +8,7 @@ import javafx.stage.StageStyle
 import java.util.concurrent.Executors
 
 
-fun main(args: Array<String>) {
+fun main() {
     Application.launch(App::class.java)
 }
 
