@@ -21,8 +21,8 @@ class GgApiClient(
 ) {
 
     private companion object {
-        val globalEmoticonsPattern: Pattern = Pattern.compile("""Smiles : (\[.+?\]),""")
-        val channelEmoticonsPattern: Pattern = Pattern.compile("""Channel_Smiles : (\{.+?\}\]\}),""")
+        val globalEmoticonsPattern: Pattern = Pattern.compile("""Smiles ?: ?(\[.+?\]),""")
+        val channelEmoticonsPattern: Pattern = Pattern.compile("""Channel_Smiles ?: ?(\{.+?\}\]\}),""")
     }
 
     private val apiUrl = apiUrl.withSuffix("/")
