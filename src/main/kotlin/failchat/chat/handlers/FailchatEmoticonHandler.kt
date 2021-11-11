@@ -6,13 +6,10 @@ import failchat.chat.MessageHandler
 import failchat.emoticon.EmoticonFinder
 import failchat.emoticon.ReplaceDecision
 import failchat.emoticon.SemicolonCodeProcessor
-import mu.KLogging
 
 class FailchatEmoticonHandler(
         private val finder: EmoticonFinder
 ) : MessageHandler<ChatMessage> {
-
-    private companion object : KLogging()
 
     override fun handleMessage(message: ChatMessage) {
         message.text = SemicolonCodeProcessor.process(message.text) { code ->
