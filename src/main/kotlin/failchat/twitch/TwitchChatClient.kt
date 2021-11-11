@@ -5,6 +5,7 @@ import failchat.Origin.TWITCH
 import failchat.chat.ChatClient
 import failchat.chat.ChatClientCallbacks
 import failchat.chat.ChatClientStatus
+import failchat.chat.ChatMessage
 import failchat.chat.ChatMessageHistory
 import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
@@ -41,6 +42,8 @@ class TwitchChatClient(
         private val messageIdGenerator: MessageIdGenerator,
         bttvEmoticonHandler: BttvEmoticonHandler,
         ffzEmoticonHandler: FfzEmoticonHandler,
+        sevenTvGlobalEmoticonHandler: MessageHandler<ChatMessage>,
+        sevenTvChannelEmoticonHandler: MessageHandler<ChatMessage>,
         twitchBadgeHandler: TwitchBadgeHandler,
         private val history: ChatMessageHistory,
         override val callbacks: ChatClientCallbacks
@@ -63,6 +66,8 @@ class TwitchChatClient(
             twitchEmoticonHandler,
             bttvEmoticonHandler,
             ffzEmoticonHandler,
+            sevenTvGlobalEmoticonHandler,
+            sevenTvChannelEmoticonHandler,
             BraceEscaper(),
             TwitchHighlightHandler(userName),
             TwitchRewardHandler(),

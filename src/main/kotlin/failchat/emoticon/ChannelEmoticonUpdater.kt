@@ -6,13 +6,16 @@ import failchat.twitch.BttvApiClient
 import failchat.twitch.BttvChannelNotFoundException
 import failchat.twitch.FfzApiClient
 import failchat.twitch.FfzChannelNotFoundException
+import failchat.twitch.SevenTvApiClient
+import failchat.twitch.SevenTvChannelNotFoundException
 import kotlinx.coroutines.future.await
 import mu.KLogging
 
 class ChannelEmoticonUpdater(
         private val emoticonStorage: EmoticonStorage,
         private val bttvApiClient: BttvApiClient,
-        private val ffzApiClient: FfzApiClient
+        private val ffzApiClient: FfzApiClient,
+        private val sevenTvApiClient: SevenTvApiClient
 ) {
 
     private companion object : KLogging()
@@ -42,4 +45,18 @@ class ChannelEmoticonUpdater(
         emoticonStorage.putMapping(Origin.FRANKERFASEZ, emoticonToId)
         logger.info("FrankerFaceZ emoticons loaded for channel '{}'", channelName)
     }
+
+    suspend fun update7tvEmoticons(channelName: String) {
+        val emoticons = try {
+            sevenTvApiClient.loadChannelEmoticons(channelName)
+        } catch (e: SevenTvChannelNotFoundException) {
+            logger.info("7tv emoticons not found for channel '{}'", channelName)
+            return
+        }
+
+        val emoticonToId = emoticons.map { EmoticonAndId(it, it.code) }
+        emoticonStorage.putMapping(Origin.SEVEN_TV_CHANNEL, emoticonToId)
+        logger.info("7tv emoticons loaded for channel '{}'", channelName)
+    }
+
 }

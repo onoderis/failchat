@@ -129,7 +129,7 @@ class AppStateManager(private val kodein: DirectDI) {
                 badgeManager.loadTwitchChannelBadges(channelId)
             }
 
-            // load BTTV and FFZ channel emoticons in background
+            // load BTTV/FFZ/7tv channel emoticons in background
             channelEmoticonsJobs += CoroutineScope(backgroundExecutorDispatcher).launch {
                 try {
                     channelEmoticonUpdater.updateBttvEmoticons(channelName)
@@ -143,6 +143,14 @@ class AppStateManager(private val kodein: DirectDI) {
                     channelEmoticonUpdater.updateFfzEmoticons(channelName)
                 } catch (t: Throwable) {
                     logger.error("Failed to load FrankerFaceZ emoticons for channel '{}'", channelName, t)
+                }
+            }
+
+            channelEmoticonsJobs += CoroutineScope(backgroundExecutorDispatcher).launch {
+                try {
+                    channelEmoticonUpdater.update7tvEmoticons(channelName)
+                } catch (t: Throwable) {
+                    logger.error("Failed to load 7tv emoticons for channel '{}'", channelName, t)
                 }
             }
         }

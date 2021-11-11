@@ -5,9 +5,11 @@ package failchat
 import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.chat.AppConfiguration
 import failchat.chat.ChatClientCallbacks
+import failchat.chat.ChatMessage
 import failchat.chat.ChatMessageHistory
 import failchat.chat.ChatMessageRemover
 import failchat.chat.ChatMessageSender
+import failchat.chat.MessageHandler
 import failchat.chat.MessageIdGenerator
 import failchat.chat.OnChatMessageCallback
 import failchat.chat.OnChatMessageDeletedCallback
@@ -23,6 +25,7 @@ import failchat.chat.handlers.IgnoreFilter
 import failchat.chat.handlers.ImageLinkHandler
 import failchat.chat.handlers.LinkHandler
 import failchat.chat.handlers.OriginsStatusHandler
+import failchat.chat.handlers.SpaceSeparatedEmoticonHandler
 import failchat.emoticon.ChannelEmoticonUpdater
 import failchat.emoticon.DeletedMessagePlaceholderFactory
 import failchat.emoticon.Emoticon
@@ -67,6 +70,9 @@ import failchat.twitch.BttvGlobalEmoticonBulkLoader
 import failchat.twitch.BttvGlobalEmoticonLoadConfiguration
 import failchat.twitch.FfzApiClient
 import failchat.twitch.FfzEmoticonHandler
+import failchat.twitch.SevenTvApiClient
+import failchat.twitch.SevenTvGlobalEmoticonLoadConfiguration
+import failchat.twitch.SevenTvGlobalEmoticonLoader
 import failchat.twitch.TwitchApiClient
 import failchat.twitch.TwitchBadgeHandler
 import failchat.twitch.TwitchChatClient
@@ -201,8 +207,9 @@ val kodein = DI.direct {
         listOf(
                 instance<Peka2tvEmoticonLoadConfiguration>(),
                 instance<GgEmoticonLoadConfiguration>(),
+                instance<TwitchEmoticonLoadConfiguration>(),
                 instance<BttvGlobalEmoticonLoadConfiguration>(),
-                instance<TwitchEmoticonLoadConfiguration>()
+                instance<SevenTvGlobalEmoticonLoadConfiguration>()
         )
     }
     bind<GlobalEmoticonUpdater>() with singleton {
@@ -218,7 +225,8 @@ val kodein = DI.direct {
         ChannelEmoticonUpdater(
                 instance<EmoticonStorage>(),
                 instance<BttvApiClient>(),
-                instance<FfzApiClient>()
+                instance<FfzApiClient>(),
+                instance<SevenTvApiClient>()
         )
     }
 
@@ -404,6 +412,8 @@ val kodein = DI.direct {
                 messageIdGenerator = instance<MessageIdGenerator>(),
                 bttvEmoticonHandler = instance<BttvEmoticonHandler>(),
                 ffzEmoticonHandler = instance<FfzEmoticonHandler>(),
+                sevenTvGlobalEmoticonHandler = instance<MessageHandler<ChatMessage>>(tag = "7tvGlobal"),
+                sevenTvChannelEmoticonHandler = instance<MessageHandler<ChatMessage>>(tag = "7tvChannel"),
                 twitchBadgeHandler = instance<TwitchBadgeHandler>(),
                 history = instance<ChatMessageHistory>(),
                 callbacks = factory<Unit, ChatClientCallbacks>().invoke(Unit)
@@ -457,6 +467,25 @@ val kodein = DI.direct {
     }
     bind<FfzEmoticonHandler>() with singleton {
         FfzEmoticonHandler(instance<EmoticonFinder>())
+    }
+
+    // 7tv
+    bind<SevenTvApiClient>() with singleton {
+        SevenTvApiClient(
+                httpClient = instance<OkHttpClient>(),
+                apiUrl = instance<Configuration>().getString(ConfigKeys.sevenTvApiUrl),
+                objectMapper = instance<ObjectMapper>()
+        )
+    }
+    bind<MessageHandler<ChatMessage>>(tag = "7tvGlobal") with singleton {
+        SpaceSeparatedEmoticonHandler(Origin.SEVEN_TV_GLOBAL, instance<EmoticonFinder>())
+    }
+    bind<MessageHandler<ChatMessage>>(tag = "7tvChannel") with singleton {
+        SpaceSeparatedEmoticonHandler(Origin.SEVEN_TV_CHANNEL, instance<EmoticonFinder>())
+    }
+    bind<SevenTvGlobalEmoticonLoader>() with singleton { SevenTvGlobalEmoticonLoader(instance<SevenTvApiClient>()) }
+    bind<SevenTvGlobalEmoticonLoadConfiguration>() with singleton {
+        SevenTvGlobalEmoticonLoadConfiguration(instance<SevenTvGlobalEmoticonLoader>())
     }
 
     // Goodgame
