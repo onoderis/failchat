@@ -1,7 +1,7 @@
 package failchat.emoticon
 
 import failchat.Origin
-import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.flow.Flow
 import mu.KLogging
 
 class EmptyEmoticonStorage(override val origin: Origin) : OriginEmoticonStorage {
@@ -12,7 +12,7 @@ class EmptyEmoticonStorage(override val origin: Origin) : OriginEmoticonStorage 
     override fun getAll(): Collection<Emoticon> = emptyList()
     override fun count(): Int = 0
     override fun putAll(emoticons: Collection<EmoticonAndId>) = warnOnPut()
-    override fun putAll(emoticons: ReceiveChannel<EmoticonAndId>) = warnOnPut()
+    override fun putAll(emoticons: Flow<EmoticonAndId>) = warnOnPut()
     override fun clear() {}
     private fun warnOnPut() {
         logger.warn("Put operation in not supported by EmptyEmoticonStorage. origin: {}", origin)

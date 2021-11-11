@@ -2,7 +2,7 @@ package failchat.emoticon
 
 import failchat.Origin
 import failchat.util.enumMap
-import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.flow.Flow
 import mu.KLogging
 
 class EmoticonStorage : EmoticonFinder {
@@ -48,7 +48,7 @@ class EmoticonStorage : EmoticonFinder {
                 .putAll(emoticons)
     }
 
-    fun putChannel(origin: Origin, emoticons: ReceiveChannel<EmoticonAndId>) {
+    fun putChannel(origin: Origin, emoticons: Flow<EmoticonAndId>) {
         originStorages.get(origin)!!.putAll(emoticons)
     }
 

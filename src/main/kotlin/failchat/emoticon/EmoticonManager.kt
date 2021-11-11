@@ -2,7 +2,8 @@ package failchat.emoticon
 
 import failchat.emoticon.EmoticonLoadConfiguration.LoadType.BULK
 import failchat.emoticon.EmoticonLoadConfiguration.LoadType.STREAM
-import kotlinx.coroutines.channels.map
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.map
 import mu.KLogging
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -93,13 +94,14 @@ class EmoticonManager(
             }, 5, 5, TimeUnit.SECONDS)
 
             try {
-                val emoticonsChannel = streamLoader.loadEmoticons()
+                val emoticonsFlow = streamLoader.loadEmoticons()
+                        .consumeAsFlow()
                         .map {
                             count.incrementAndGet()
                             EmoticonAndId(it, idExtractor.extractId(it))
                         }
 
-                storage.putChannel(origin, emoticonsChannel)
+                storage.putChannel(origin, emoticonsFlow)
                 loadedSuccessfully = true
                 break
             } catch (e: Exception) {

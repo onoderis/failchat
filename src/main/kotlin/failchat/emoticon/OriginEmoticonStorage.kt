@@ -1,7 +1,7 @@
 package failchat.emoticon
 
 import failchat.Origin
-import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.flow.Flow
 
 interface OriginEmoticonStorage {
 
@@ -18,7 +18,7 @@ interface OriginEmoticonStorage {
     fun putAll(emoticons: Collection<EmoticonAndId>)
 
     /** Put all emoticons in storage from the channel. Blocking call. */
-    fun putAll(emoticons: ReceiveChannel<EmoticonAndId>)
+    fun putAll(emoticons: Flow<EmoticonAndId>)
 
     fun clear()
 }

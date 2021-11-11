@@ -1,7 +1,8 @@
 package failchat.emoticon
 
 import failchat.Origin
-import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.mapdb.DB
 import org.mapdb.HTreeMap
@@ -50,10 +51,10 @@ class EmoticonCodeIdDbStorage(
         }
     }
 
-    override fun putAll(emoticons: ReceiveChannel<EmoticonAndId>) {
+    override fun putAll(emoticons: Flow<EmoticonAndId>) {
         runBlocking {
-            for (emoticonAndId in emoticons) {
-                putEmoticon(emoticonAndId)
+            emoticons.collect {
+                putEmoticon(it)
             }
         }
     }

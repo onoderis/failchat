@@ -1,7 +1,8 @@
 package failchat.emoticon
 
 import failchat.Origin
-import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ConcurrentHashMap
 
@@ -32,10 +33,10 @@ class EmoticonCodeIdMemoryStorage(override val origin: Origin) : OriginEmoticonS
         }
     }
 
-    override fun putAll(emoticons: ReceiveChannel<EmoticonAndId>) {
+    override fun putAll(emoticons: Flow<EmoticonAndId>) {
         runBlocking {
-            for (emoticon in emoticons) {
-                putEmoticon(emoticon)
+            emoticons.collect {
+                putEmoticon(it)
             }
         }
     }

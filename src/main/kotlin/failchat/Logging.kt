@@ -88,7 +88,7 @@ private fun configureConsoleAppender(logbackContext: LoggerContext): ConsoleAppe
 private fun configureFileAppender(logbackContext: LoggerContext): FileAppender<ILoggingEvent> {
     val fileEncoder = PatternLayoutEncoder().apply {
         context = logbackContext
-        pattern = """%date %level [%thread] %logger \(%file:%line\) %msg%n"""
+        pattern = """%date %level [%thread] %logger \(%file:%line\) %msg%n""" //todo time zone
     }
 
     val fileAppender = RollingFileAppender<ILoggingEvent>().apply {
