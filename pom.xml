@@ -26,7 +26,7 @@
         <okhttp.version>4.6.0</okhttp.version> <!-- version is aligned to ktor-client -->
         <pircbotx.version>2.1</pircbotx.version>
         <kotlin-either.version>2.0.1</kotlin-either.version>
-        <guava.version>25.1-jre</guava.version>
+        <guava.version>31.1-jre</guava.version>
         <kotlin-logging.version>1.5.4</kotlin-logging.version>
         <commons-cli.version>1.4</commons-cli.version>
         <ktor.version>1.6.3</ktor.version>
