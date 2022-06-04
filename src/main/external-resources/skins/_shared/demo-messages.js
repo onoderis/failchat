@@ -9,6 +9,7 @@ function sendExampleMessages() {
 
     failchat.nativeClient = true;
 
+    //todo add emoticon origin
     failchat.handleMessage({
         "type": "client-configuration",
         "content": {
