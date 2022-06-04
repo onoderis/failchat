@@ -28,8 +28,8 @@ class BttvApiClient(
         return httpClient.newCall(request)
                 .toFuture()
                 .thenUse {
-                    if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
-                    val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
+                    if (it.code != 200) throw UnexpectedResponseCodeException(it.code)
+                    val responseBody = it.body ?: throw UnexpectedResponseException("null body")
                     val bodyString = responseBody.string()
                     return@thenUse parseEmoticons(bodyString, Origin.BTTV_GLOBAL)
                 }
@@ -50,12 +50,12 @@ class BttvApiClient(
         return httpClient.newCall(request)
                 .toFuture()
                 .thenUse {
-                    when (it.code()) {
+                    when (it.code) {
                         200 -> {}
                         404 -> throw BttvChannelNotFoundException(channel)
-                        else -> throw UnexpectedResponseCodeException(it.code())
+                        else -> throw UnexpectedResponseCodeException(it.code)
                     }
-                    val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
+                    val responseBody = it.body ?: throw UnexpectedResponseException("null body")
                     val bodyString = responseBody.string()
                     return@thenUse parseEmoticons(bodyString, Origin.BTTV_CHANNEL)
                 }

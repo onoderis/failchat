@@ -42,9 +42,9 @@ class EmojiHandlerTest {
                 .url((message.elements[0] as Emoticon).url)
                 .build()
 
-        val response = okHttpClient.newCall(request).execute()
-
-        assertEquals(200, response.code())
+        okHttpClient.newCall(request).execute().use { response ->
+            assertEquals(200, response.code)
+        }
     }
 
 }

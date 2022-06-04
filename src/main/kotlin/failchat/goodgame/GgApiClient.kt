@@ -36,8 +36,8 @@ class GgApiClient(
         return httpClient.newCall(request)
                 .await()
                 .use {
-                    if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
-                    val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
+                    if (it.code != 200) throw UnexpectedResponseCodeException(it.code)
+                    val responseBody = it.body ?: throw UnexpectedResponseException("null body")
                     val jsContent = responseBody.string()
                     parseGlobalEmoticons(jsContent) + parseChannelEmoticons(jsContent)
                 }
@@ -84,8 +84,8 @@ class GgApiClient(
         return httpClient.newCall(request)
                 .await()
                 .use {
-                    if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
-                    val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
+                    if (it.code != 200) throw UnexpectedResponseCodeException(it.code)
+                    val responseBody = it.body ?: throw UnexpectedResponseException("null body")
                     objectMapper.readTree(responseBody.string())
                 }
     }

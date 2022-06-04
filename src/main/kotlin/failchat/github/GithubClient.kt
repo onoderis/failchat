@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
-import failchat.util.isEmpty
 import failchat.util.thenUse
 import failchat.util.toFuture
 import mu.KLogging
@@ -29,8 +28,8 @@ class GithubClient(
         return httpClient.newCall(request)
                 .toFuture()
                 .thenUse {
-                    if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
-                    val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
+                    if (it.code != 200) throw UnexpectedResponseCodeException(it.code)
+                    val responseBody = it.body ?: throw UnexpectedResponseException("null body")
                     val releasesNode = objectMapper.readTree(responseBody.string())
                     findLatestRelease(releasesNode) ?: throw NoReleasesFoundException()
                 }

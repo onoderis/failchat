@@ -53,7 +53,7 @@ class GAEventReporter(
                 .newCall(request)
                 .await()
                 .use { response ->
-                    val code = response.code()
+                    val code = response.code
                     if (code !in 200..299) throw UnexpectedResponseCodeException(code)
                     logger.info("Event successfully reported: {}.{}", category, action)
                 }
