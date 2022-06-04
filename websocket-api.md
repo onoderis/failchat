@@ -24,6 +24,7 @@
         "elements": [
             {
                 "type": "emoticon",
+                "origin": "7tvChannel",
                 "code": "peka",
                 "url": "http://peka2.tv/img/peka.png",
                 "format": "raster"

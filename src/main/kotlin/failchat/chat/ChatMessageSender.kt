@@ -60,6 +60,7 @@ class ChatMessageSender(
                     when (element) {
                         is Emoticon -> objectMapper.createObjectNode()
                                 .put("type", "emoticon") //todo enum
+                                .put("origin", element.origin.commonName)
                                 .put("code", element.code)
                                 .put("url", element.url)
                                 .put("format", element.format.jsonValue)
