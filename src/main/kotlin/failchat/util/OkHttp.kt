@@ -5,6 +5,7 @@ import failchat.exception.UnexpectedResponseException
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.Response
 import okhttp3.ResponseBody
@@ -14,8 +15,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-val jsonMediaType: MediaType = MediaType.parse("application/json")!!
-val textMediaType: MediaType = MediaType.parse("text/plain")!!
+val jsonMediaType: MediaType = "application/json".toMediaTypeOrNull()!!
+val textMediaType: MediaType = "text/plain".toMediaTypeOrNull()!!
 val emptyBody: RequestBody = RequestBody.create(textMediaType, "")
 
 fun Call.toFuture(): CompletableFuture<Response> {
@@ -47,11 +48,11 @@ suspend fun Call.await(): Response {
 }
 
 fun Response.getBodyIfStatusIs(expectedStatus: Int): Response {
-    if (this.code() != expectedStatus) {
-        throw UnexpectedResponseCodeException(this.code(), request().url().toString())
+    if (this.code != expectedStatus) {
+        throw UnexpectedResponseCodeException(this.code, request.url.toString())
     }
     return this
 }
 
 val Response.nonNullBody: ResponseBody
-    get() = this.body() ?: throw UnexpectedResponseException("null body")
+    get() = this.body ?: throw UnexpectedResponseException("null body")

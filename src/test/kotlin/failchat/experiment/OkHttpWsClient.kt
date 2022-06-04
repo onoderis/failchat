@@ -45,15 +45,15 @@ class OkHttpWsClient {
             webSocket.send(joinMessage.toString())
         }
 
-        override fun onFailure(webSocket: WebSocket?, t: Throwable?, response: Response?) = response.use { println("onFailure $t") }
+        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) = response.use { println("onFailure $t") }
 
-        override fun onClosing(webSocket: WebSocket?, code: Int, reason: String?) = println("onClosing $code, $reason")
+        override fun onClosing(webSocket: WebSocket, code: Int, reason: String) = println("onClosing $code, $reason")
 
-        override fun onMessage(webSocket: WebSocket?, text: String?) = println("onMessage: $text")
+        override fun onMessage(webSocket: WebSocket, text: String) = println("onMessage: $text")
 
-        override fun onMessage(webSocket: WebSocket?, bytes: ByteString?) = println("onMessage bytes")
+        override fun onMessage(webSocket: WebSocket, bytes: ByteString) = println("onMessage bytes")
 
-        override fun onClosed(webSocket: WebSocket?, code: Int, reason: String?) = println("onClosed $code $reason")
+        override fun onClosed(webSocket: WebSocket, code: Int, reason: String) = println("onClosed $code $reason")
     }
 
 }

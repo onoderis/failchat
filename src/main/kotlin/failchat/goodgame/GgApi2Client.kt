@@ -29,8 +29,8 @@ class GgApi2Client(
 
         val response = httpClient.newCall(request).await()
 
-        if (response.code() != 200) throw UnexpectedResponseCodeException(response.code())
-        val responseBody = response.body() ?: throw UnexpectedResponseException("null body")
+        if (response.code != 200) throw UnexpectedResponseCodeException(response.code)
+        val responseBody = response.body ?: throw UnexpectedResponseException("null body")
         val responseNode = objectMapper.readTree(responseBody.string())
 
 

@@ -26,8 +26,8 @@ class SevenTvApiClient(
         return httpClient.newCall(request)
                 .await()
                 .use {
-                    if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
-                    val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
+                    if (it.code != 200) throw UnexpectedResponseCodeException(it.code)
+                    val responseBody = it.body ?: throw UnexpectedResponseException("null body")
                     val bodyString = responseBody.string()
                     parseEmoticons(bodyString, Origin.SEVEN_TV_GLOBAL)
                 }
@@ -48,9 +48,9 @@ class SevenTvApiClient(
         return httpClient.newCall(request)
                 .await()
                 .use {
-                    if (it.code() == 404) throw SevenTvChannelNotFoundException(channelName)
-                    if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
-                    val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
+                    if (it.code == 404) throw SevenTvChannelNotFoundException(channelName)
+                    if (it.code != 200) throw UnexpectedResponseCodeException(it.code)
+                    val responseBody = it.body ?: throw UnexpectedResponseException("null body")
                     val bodyString = responseBody.string()
                     parseEmoticons(bodyString, Origin.SEVEN_TV_CHANNEL)
                 }

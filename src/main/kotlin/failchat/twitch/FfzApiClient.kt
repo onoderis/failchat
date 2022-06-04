@@ -24,7 +24,7 @@ class FfzApiClient(
                 .build()
 
         val parsedBody = httpClient.newCall(request).await().use {
-            if (it.code() == 404) throw FfzChannelNotFoundException(roomName)
+            if (it.code == 404) throw FfzChannelNotFoundException(roomName)
             val bodyText = it.getBodyIfStatusIs(200).nonNullBody.string()
             objectMapper.readTree(bodyText)
         }

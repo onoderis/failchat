@@ -72,8 +72,8 @@ class Peka2tvApiClient(
         return httpClient.newCall(request)
                 .toFuture()
                 .thenUse {
-                    if (it.code() != 200) throw UnexpectedResponseCodeException(it.code())
-                    val responseBody = it.body() ?: throw UnexpectedResponseException("null body")
+                    if (it.code != 200) throw UnexpectedResponseCodeException(it.code)
+                    val responseBody = it.body ?: throw UnexpectedResponseException("null body")
                     return@thenUse objectMapper.readTree(responseBody.string())
                 }
     }
