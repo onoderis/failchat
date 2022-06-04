@@ -8,6 +8,7 @@ import failchat.testObjectMapper
 import failchat.twitchEmoticonUrlFactory
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -36,6 +37,7 @@ class TwitchApiClientTest {
     )
 
     @Test
+    @Ignore
     fun requestUserIdTest() {
         userNameToId.forEach { (name, expectedId) ->
             val actualId = apiClient.getUserId(name).join()
@@ -44,6 +46,7 @@ class TwitchApiClientTest {
     }
 
     @Test
+    @Ignore
     fun requestViewersCountTest() {
         userNameToId.forEach { (_, id) ->
             try {
@@ -55,6 +58,7 @@ class TwitchApiClientTest {
     }
 
     @Test
+    @Ignore
     fun getCommonEmoticonsTest() {
         val emoticons = apiClient.getCommonEmoticons().join()
         emoticons shouldNotBe 0
