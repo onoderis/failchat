@@ -48,8 +48,7 @@ class GgApiClient(
         return requestChannelStatus(channelName)
                 .first()
                 .get("stream_id")
-                .textValue()
-                .toLong()
+                .longValue()
     }
 
     suspend fun requestChannelInfo(channelName: String): GgChannel {
@@ -58,7 +57,7 @@ class GgApiClient(
 
         return GgChannel(
                 channelName,
-                channelNode.get("stream_id").textValue().toLong(),
+                channelNode.get("stream_id").longValue(),
                 channelNode.get("premium").textValue()!!.toBoolean()
         )
     }
