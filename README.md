@@ -9,5 +9,6 @@ Create file `src/main/resources/config/private.properties` with the following pr
 ```properties
 twitch.bot-name = BOT_NAME
 twitch.bot-password = BOT_PASSWORD (has prefix "oauth:")
-twitch.api-token = API_TOKEN
+twitch.client-id = API_TOKEN
+twitch.client-secret = CLIENT_SECRET
 ```

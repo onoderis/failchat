@@ -1,13 +1,13 @@
 package failchat.goodgame
 
-import failchat.config
+import failchat.defaultConfig
 import failchat.okHttpClient
 import failchat.testObjectMapper
 import kotlinx.coroutines.runBlocking
 
 class GgApi2ClientTest {
 
-    private val client = GgApi2Client(okHttpClient, testObjectMapper, config.getString("goodgame.api2-url"))
+    private val client = GgApi2Client(okHttpClient, testObjectMapper, defaultConfig.getString("goodgame.api2-url"))
 
 //    todo
 //    @Test

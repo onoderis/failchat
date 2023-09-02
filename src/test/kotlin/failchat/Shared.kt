@@ -18,11 +18,12 @@ val ktorClient = HttpClient(OkHttp) {
     }
 }
 
-val config: Configuration by lazy { loadConfig() }
-val privateConfig: Configuration by lazy { loadPrivateConfig() }
+
+val userHomeConfig: Configuration by lazy { ConfigLoader(getFailchatHomePath()).load() }
+val defaultConfig: Configuration by lazy { loadDefaultConfig() }
 val testObjectMapper: ObjectMapper = objectMapper()
 
 val twitchEmoticonUrlFactory = TwitchEmoticonUrlFactory(
-        config.getString("twitch.emoticon-url-prefix"),
-        config.getString("twitch.emoticon-url-suffix")
+        defaultConfig.getString("twitch.emoticon-url-prefix"),
+        defaultConfig.getString("twitch.emoticon-url-suffix")
 )

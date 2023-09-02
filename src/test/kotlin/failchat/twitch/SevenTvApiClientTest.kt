@@ -1,7 +1,7 @@
 package failchat.twitch
 
 import failchat.ConfigKeys
-import failchat.config
+import failchat.defaultConfig
 import failchat.okHttpClient
 import failchat.testObjectMapper
 import kotlinx.coroutines.runBlocking
@@ -14,7 +14,7 @@ class SevenTvApiClientTest {
 
     private val apiClient = SevenTvApiClient(
             okHttpClient,
-            config.getString(ConfigKeys.sevenTvApiUrl),
+            defaultConfig.getString(ConfigKeys.sevenTvApiUrl),
             testObjectMapper
     )
 

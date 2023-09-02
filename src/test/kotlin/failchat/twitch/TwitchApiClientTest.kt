@@ -1,11 +1,10 @@
 package failchat.twitch
 
-import failchat.config
 import failchat.exception.ChannelOfflineException
 import failchat.okHttpClient
-import failchat.privateConfig
 import failchat.testObjectMapper
 import failchat.twitchEmoticonUrlFactory
+import failchat.userHomeConfig
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
@@ -30,10 +29,10 @@ class TwitchApiClientTest {
     private val apiClient = TwitchApiClient(
             okHttpClient,
             testObjectMapper,
-            config.getString("twitch.api-url"),
-            config.getString("twitch.badge-api-url"),
-            privateConfig.getString("twitch.api-token"),
-            twitchEmoticonUrlFactory
+            userHomeConfig.getString("twitch.client-id"),
+            userHomeConfig.getString("twitch.client-secret"),
+            twitchEmoticonUrlFactory,
+            ConfigurationTokenContainer(userHomeConfig)
     )
 
     @Test
@@ -66,15 +65,16 @@ class TwitchApiClientTest {
 
     @Test
     fun globalBadgesTest() = runBlocking {
-        val badges = apiClient.requestGlobalBadges()
+        val badges = apiClient.getGlobalBadges()
+        assert(badges.isNotEmpty())
         log.debug("{} global badges was loaded", badges.size)
     }
 
     @Test
     fun channelBadgesTest() = runBlocking {
         val channelId = userNameToId.values.first()
-        val badges = apiClient.requestChannelBadges(channelId)
+        val badges = apiClient.getChannelBadges(channelId)
+        assert(badges.isNotEmpty())
         log.debug("{} channel badges was loaded for channel '{}'", badges.size, channelId)
     }
-
 }
