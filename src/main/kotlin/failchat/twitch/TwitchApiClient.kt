@@ -4,34 +4,41 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import failchat.Origin
-import failchat.chat.ImageFormat.RASTER
+import failchat.chat.ImageFormat
 import failchat.chat.badge.ImageBadge
 import failchat.exception.ChannelOfflineException
 import failchat.exception.DataNotFoundException
+import failchat.exception.UnexpectedResponseCodeException
 import failchat.util.await
 import failchat.util.getBodyIfStatusIs
-import failchat.util.isEmpty
 import failchat.util.nonNullBody
 import failchat.util.thenUse
 import failchat.util.toFuture
-import failchat.util.withSuffix
+import mu.KLogging
+import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.CompletableFuture
 
 class TwitchApiClient(
         private val httpClient: OkHttpClient,
         private val objectMapper: ObjectMapper,
-        mainApiUrl: String,
-        badgeApiUrl: String,
-        private val token: String,
-        private val emoticonUrlFactory: TwitchEmoticonUrlFactory
+        private val clientId: String,
+        private val clientSecret: String,
+        private val emoticonUrlFactory: TwitchEmoticonUrlFactory,
+        private val tokenContainer: HelixTokenContainer
 ) {
 
-    private val mainApiUrl: String = mainApiUrl.withSuffix("/")
-    private val badgeApiUrl: String = badgeApiUrl.withSuffix("/")
-
+    private companion object : KLogging() {
+        const val oauthUrl = "https://id.twitch.tv/oauth2/token"
+        const val krakenApiUrl = "https://api.twitch.tv/kraken"
+        const val helixApiUrl = "https://api.twitch.tv/helix"
+        const val globalBadgesUrl = "$helixApiUrl/chat/badges/global"
+        const val channelBadgesUrl = "$helixApiUrl/chat/badges"
+    }
 
     fun getUserId(userName: String): CompletableFuture<Long> {
         // https://dev.twitch.tv/docs/v5/reference/users/#get-users
@@ -81,13 +88,13 @@ class TwitchApiClient(
                     .map { (key, value) -> "$key=$value" }
                     .joinToString(separator = "&", prefix = "?")
         }
-        val url = mainApiUrl + path.removePrefix("/") + formattedParameters
+        val url = krakenApiUrl + path.removePrefix("/") + formattedParameters
 
         val request = Request.Builder()
                 .url(url)
                 .get()
                 .header("Accept", "application/vnd.twitchtv.v5+json")
-                .header("Client-ID", token)
+                .header("Client-ID", clientId)
                 .build()
 
         return httpClient.newCall(request).toFuture()
@@ -101,45 +108,80 @@ class TwitchApiClient(
     }
 
 
-    suspend fun requestGlobalBadges(): Map<TwitchBadgeId, ImageBadge> {
-        return requestBadges("/global/display")
+    suspend fun getGlobalBadges(): Map<TwitchBadgeId, ImageBadge> {
+        return getBadges(globalBadgesUrl)
     }
 
-    suspend fun requestChannelBadges(channelId: Long): Map<TwitchBadgeId, ImageBadge> {
-        return requestBadges("/channels/$channelId/display")
+    suspend fun getChannelBadges(channelId: Long): Map<TwitchBadgeId, ImageBadge> {
+        return getBadges("$channelBadgesUrl?broadcaster_id=$channelId")
     }
 
-    private suspend fun requestBadges(pathSegment: String): Map<TwitchBadgeId, ImageBadge> {
-        val url = badgeApiUrl + pathSegment.removePrefix("/")
+    private suspend fun getBadges(url: String): Map<TwitchBadgeId, ImageBadge> {
+        val token = getOrGenerateToken()
 
         val request = Request.Builder()
-                .url(url)
                 .get()
+                .url(url)
+                .header("Authorization", "Bearer $token")
+                .header("Client-Id", clientId)
                 .build()
 
-        val parsedBody = httpClient.newCall(request).await().use {
-            val bodyText = it.getBodyIfStatusIs(200).nonNullBody.string()
-            objectMapper.readTree(bodyText)
+        val response = httpClient.newCall(request).await()
+        if (!response.isSuccessful) {
+            throw UnexpectedResponseCodeException(response.code, url)
         }
 
+        val badgesResponse = objectMapper.readValue(response.nonNullBody.string(), BadgesResponse::class.java)
 
-        val badges: MutableMap<TwitchBadgeId, ImageBadge> = HashMap()
-
-        val setsNode = parsedBody.get("badge_sets")
-        setsNode.fields().forEach { (setId, setNode) ->
-            setNode.get("versions").fields().forEach { (version, versionNode) ->
-                badges.put(
-                        TwitchBadgeId(setId, version),
-                        ImageBadge(
-                                versionNode.get("image_url_2x").textValue(),
-                                RASTER,
-                                versionNode.get("title").textValue()
-                        )
-                )
-            }
-        }
-
-        return badges
+        return badgesResponse.data
+                .flatMap { data ->
+                    data.versions.map { data.setId to it }
+                }
+                .associate { (setId, version) ->
+                    val tbi = TwitchBadgeId(setId, version.id)
+                    val ib = ImageBadge(version.imageUrl1x, ImageFormat.RASTER, version.description)
+                    tbi to ib
+                }
     }
 
+    private suspend fun getOrGenerateToken(): String {
+        val token = tokenContainer.getToken()
+
+        if (token == null) {
+            val newToken = generateAccessToken()
+            tokenContainer.setToken(newToken)
+            return newToken.value
+        }
+
+        logger.info("Helix token was retrieved from configuration")
+        return token.value
+    }
+
+    private suspend fun generateAccessToken(): HelixApiToken {
+        val request = Request.Builder()
+                .url(oauthUrl)
+                .post(FormBody.Builder()
+                        .add("client_id", clientId)
+                        .add("client_secret", clientSecret)
+                        .add("grant_type", "client_credentials")
+                        .build()
+                )
+                .addHeader("Accept", "application/json")
+                .build()
+
+        val response = httpClient.newCall(request).await()
+        if (!response.isSuccessful) {
+            throw UnexpectedResponseCodeException(200, oauthUrl)
+        }
+
+        val body = response.nonNullBody.string()
+        val bodyNode = objectMapper.readTree(body)
+
+        val token = HelixApiToken(
+                value = bodyNode.get("access_token").textValue(),
+                ttl = Instant.now() + Duration.ofSeconds(bodyNode.get("expires_in").longValue()) - Duration.ofSeconds(60)
+        )
+        logger.info("New helix token was generated")
+        return token
+    }
 }

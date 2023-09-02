@@ -25,7 +25,7 @@ class BadgeManager(
         val jobsList: MutableList<Deferred<Unit>> = ArrayList()
 
         jobsList += CoroutineScope(Dispatchers.Default + CoroutineExceptionLogger).async {
-            val twitchBadges = twitchApiClient.requestGlobalBadges()
+            val twitchBadges = twitchApiClient.getGlobalBadges()
             logger.info("Global twitch badges was loaded. Count: {}", twitchBadges.size)
             badgeStorage.putBadges(TWITCH_GLOBAL, twitchBadges)
         }
@@ -40,7 +40,7 @@ class BadgeManager(
     }
 
     suspend fun loadTwitchChannelBadges(channelId: Long) {
-        val twitchBadges = twitchApiClient.requestChannelBadges(channelId)
+        val twitchBadges = twitchApiClient.getChannelBadges(channelId)
         logger.info("Channel badges was received for twitch channel '{}'. Count: {}", channelId, twitchBadges.size)
 
         badgeStorage.putBadges(TWITCH_CHANNEL, twitchBadges)

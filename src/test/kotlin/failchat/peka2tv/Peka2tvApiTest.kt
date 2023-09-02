@@ -1,6 +1,6 @@
 package failchat.peka2tv
 
-import failchat.config
+import failchat.defaultConfig
 import failchat.okHttpClient
 import failchat.testObjectMapper
 import org.junit.Test
@@ -13,7 +13,7 @@ class Peka2tvApiTest {
         val log: Logger = LoggerFactory.getLogger(Peka2tvApiTest::class.java)
     }
 
-    private val apiClient = Peka2tvApiClient(okHttpClient, testObjectMapper, config.getString("peka2tv.api-url"))
+    private val apiClient = Peka2tvApiClient(okHttpClient, testObjectMapper, defaultConfig.getString("peka2tv.api-url"))
 
     @Test
     fun emoticonApiTest() {

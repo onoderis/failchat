@@ -7,9 +7,7 @@ import org.apache.commons.configuration2.builder.fluent.Parameters
 
 object Configs
 
-fun loadConfig() = loadConfig("/config/default.properties")
-
-fun loadPrivateConfig() = loadConfig("/config/private.properties")
+fun loadDefaultConfig() = loadConfig("/config/default.properties")
 
 private fun loadConfig(resource: String): Configuration {
     return FileBasedConfigurationBuilder(PropertiesConfiguration::class.java)

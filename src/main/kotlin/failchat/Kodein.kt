@@ -68,6 +68,7 @@ import failchat.twitch.BttvApiClient
 import failchat.twitch.BttvEmoticonHandler
 import failchat.twitch.BttvGlobalEmoticonBulkLoader
 import failchat.twitch.BttvGlobalEmoticonLoadConfiguration
+import failchat.twitch.ConfigurationTokenContainer
 import failchat.twitch.FfzApiClient
 import failchat.twitch.FfzEmoticonHandler
 import failchat.twitch.SevenTvApiClient
@@ -307,7 +308,7 @@ val kodein = DI.direct {
 
     // Etc
     bind<Path>("workingDirectory") with singleton { Paths.get("") }
-    bind<Path>("homeDirectory") with singleton { Paths.get(System.getProperty("user.home")).resolve(".failchat") }
+    bind<Path>("homeDirectory") with singleton { getFailchatHomePath() }
     bind<Path>("failchatEmoticonsDirectory") with singleton { instance<Path>("homeDirectory").resolve("failchat-emoticons") }
     bind<Path>("emoticonCacheDirectory") with singleton { instance<Path>("workingDirectory").resolve("emoticons") }
     bind<Path>("emoticonDbFile") with singleton { instance<Path>("emoticonCacheDirectory").resolve("emoticons.db") }
@@ -388,10 +389,10 @@ val kodein = DI.direct {
         TwitchApiClient(
                 httpClient = instance<OkHttpClient>(),
                 objectMapper = instance<ObjectMapper>(),
-                mainApiUrl = config.getString("twitch.api-url"),
-                badgeApiUrl = config.getString("twitch.badge-api-url"),
-                token = config.getString("twitch.api-token"),
-                emoticonUrlFactory = instance<TwitchEmoticonUrlFactory>()
+                clientId = config.getString("twitch.client-id"),
+                clientSecret = config.getString("twitch.client-secret"),
+                emoticonUrlFactory = instance<TwitchEmoticonUrlFactory>(),
+                tokenContainer = ConfigurationTokenContainer(instance<Configuration>())
         )
     }
     bind<TwitchEmoticonLoader>() with singleton { TwitchEmoticonLoader(instance<TwitchApiClient>()) }
