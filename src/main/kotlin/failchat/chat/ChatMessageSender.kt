@@ -130,18 +130,18 @@ class ChatMessageSender(
                 put("clickTransparency", config.getBoolean(ConfigKeys.clickTransparency))
                 put("showClickTransparencyIcon", config.getBoolean(ConfigKeys.showClickTransparencyIcon))
                 putObject("nativeClient").apply {
-                    put("backgroundColor", config.getString(ConfigKeys.nativeClient.backgroundColor))
-                    put("coloredNicknames", config.getBoolean(ConfigKeys.nativeClient.coloredNicknames))
-                    put("hideMessages", config.getBoolean(ConfigKeys.nativeClient.hideMessages))
-                    put("hideMessagesAfter", config.getInt(ConfigKeys.nativeClient.hideMessagesAfter))
-                    put("showStatusMessages", config.getBoolean(ConfigKeys.nativeClient.showStatusMessages))
+                    put("backgroundColor", config.getString(ConfigKeys.NativeClient.backgroundColor))
+                    put("coloredNicknames", config.getBoolean(ConfigKeys.NativeClient.coloredNicknames))
+                    put("hideMessages", config.getBoolean(ConfigKeys.NativeClient.hideMessages))
+                    put("hideMessagesAfter", config.getInt(ConfigKeys.NativeClient.hideMessagesAfter))
+                    put("showStatusMessages", config.getBoolean(ConfigKeys.NativeClient.showStatusMessages))
                 }
                 putObject("externalClient").apply {
-                    put("backgroundColor", config.getString(ConfigKeys.externalClient.backgroundColor))
-                    put("coloredNicknames", config.getBoolean(ConfigKeys.externalClient.coloredNicknames))
-                    put("hideMessages", config.getBoolean(ConfigKeys.externalClient.hideMessages))
-                    put("hideMessagesAfter", config.getInt(ConfigKeys.externalClient.hideMessagesAfter))
-                    put("showStatusMessages", config.getBoolean(ConfigKeys.externalClient.showStatusMessages))
+                    put("backgroundColor", config.getString(ConfigKeys.ExternalClient.backgroundColor))
+                    put("coloredNicknames", config.getBoolean(ConfigKeys.ExternalClient.coloredNicknames))
+                    put("hideMessages", config.getBoolean(ConfigKeys.ExternalClient.hideMessages))
+                    put("hideMessagesAfter", config.getInt(ConfigKeys.ExternalClient.hideMessagesAfter))
+                    put("showStatusMessages", config.getBoolean(ConfigKeys.ExternalClient.showStatusMessages))
                 }
                 putObject("enabledOrigins").apply {
                     COUNTABLE_ORIGINS.forEach { origin ->
