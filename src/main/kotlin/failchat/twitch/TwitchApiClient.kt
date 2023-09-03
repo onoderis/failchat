@@ -16,12 +16,15 @@ import failchat.util.thenUse
 import failchat.util.toFuture
 import mu.KLogging
 import okhttp3.FormBody
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.CompletableFuture
+import kotlin.reflect.KClass
 
 class TwitchApiClient(
         private val httpClient: OkHttpClient,
@@ -36,19 +39,21 @@ class TwitchApiClient(
         const val oauthUrl = "https://id.twitch.tv/oauth2/token"
         const val krakenApiUrl = "https://api.twitch.tv/kraken"
         const val helixApiUrl = "https://api.twitch.tv/helix"
-        const val globalBadgesUrl = "$helixApiUrl/chat/badges/global"
-        const val channelBadgesUrl = "$helixApiUrl/chat/badges"
+        val usersUrl = "$helixApiUrl/users".toHttpUrl()
+        val globalBadgesUrl = "$helixApiUrl/chat/badges/global".toHttpUrl()
+        val channelBadgesUrl = "$helixApiUrl/chat/badges".toHttpUrl()
     }
 
-    fun getUserId(userName: String): CompletableFuture<Long> {
-        // https://dev.twitch.tv/docs/v5/reference/users/#get-users
-        return request("/users", mapOf("login" to userName))
-                .parseResponse()
-                .thenApply {
-                    val usersArray: JsonNode = it.get("users")
-                    if (usersArray.isEmpty()) throw DataNotFoundException("Twitch user $userName not found")
-                    return@thenApply usersArray.get(0).get("_id").asLong()
-                }
+    // https://dev.twitch.tv/docs/api/reference/#get-users
+    suspend fun getUserId(userName: String): Long {
+        val url = usersUrl.newBuilder().addQueryParameter("login", userName).build()
+        val response = doRequest(url, UsersResponse::class)
+
+        if (response.data.isEmpty()) {
+            throw DataNotFoundException("Twitch user $userName not found")
+        }
+
+        return response.data.first().id
     }
 
     fun getViewersCount(userId: Long): CompletableFuture<Int> {
@@ -107,31 +112,19 @@ class TwitchApiClient(
         }
     }
 
-
     suspend fun getGlobalBadges(): Map<TwitchBadgeId, ImageBadge> {
+        // https://dev.twitch.tv/docs/api/reference/#get-global-chat-badges
         return getBadges(globalBadgesUrl)
     }
 
     suspend fun getChannelBadges(channelId: Long): Map<TwitchBadgeId, ImageBadge> {
-        return getBadges("$channelBadgesUrl?broadcaster_id=$channelId")
+        // https://dev.twitch.tv/docs/api/reference/#get-channel-chat-badges
+        val url = channelBadgesUrl.newBuilder().addQueryParameter("broadcaster_id", channelId.toString()).build()
+        return getBadges(url)
     }
 
-    private suspend fun getBadges(url: String): Map<TwitchBadgeId, ImageBadge> {
-        val token = getOrGenerateToken()
-
-        val request = Request.Builder()
-                .get()
-                .url(url)
-                .header("Authorization", "Bearer $token")
-                .header("Client-Id", clientId)
-                .build()
-
-        val response = httpClient.newCall(request).await()
-        if (!response.isSuccessful) {
-            throw UnexpectedResponseCodeException(response.code, url)
-        }
-
-        val badgesResponse = objectMapper.readValue(response.nonNullBody.string(), BadgesResponse::class.java)
+    private suspend fun getBadges(url: HttpUrl): Map<TwitchBadgeId, ImageBadge> {
+        val badgesResponse = doRequest(url, BadgesResponse::class)
 
         return badgesResponse.data
                 .flatMap { data ->
@@ -144,11 +137,29 @@ class TwitchApiClient(
                 }
     }
 
+    private suspend fun <T : Any> doRequest(url: HttpUrl, responseType: KClass<T>): T {
+        val token = getOrGenerateToken()
+
+        val request = Request.Builder()
+                .get()
+                .url(url)
+                .header("Authorization", "Bearer $token")
+                .header("Client-Id", clientId)
+                .build()
+
+        return httpClient.newCall(request).await().use { response ->
+            if (!response.isSuccessful) {
+                throw UnexpectedResponseCodeException(response.code, url.toString())
+            }
+            objectMapper.readValue(response.nonNullBody.charStream(), responseType.java)
+        }
+    }
+
     private suspend fun getOrGenerateToken(): String {
         val token = tokenContainer.getToken()
 
         if (token == null) {
-            val newToken = generateAccessToken()
+            val newToken = generateToken()
             tokenContainer.setToken(newToken)
             return newToken.value
         }
@@ -157,7 +168,7 @@ class TwitchApiClient(
         return token.value
     }
 
-    private suspend fun generateAccessToken(): HelixApiToken {
+    private suspend fun generateToken(): HelixApiToken {
         val request = Request.Builder()
                 .url(oauthUrl)
                 .post(FormBody.Builder()
@@ -175,11 +186,11 @@ class TwitchApiClient(
         }
 
         val body = response.nonNullBody.string()
-        val bodyNode = objectMapper.readTree(body)
+        val authResponse = objectMapper.readValue<AuthResponse>(body)
 
         val token = HelixApiToken(
-                value = bodyNode.get("access_token").textValue(),
-                ttl = Instant.now() + Duration.ofSeconds(bodyNode.get("expires_in").longValue()) - Duration.ofSeconds(60)
+                value = authResponse.accessToken,
+                ttl = Instant.now() + Duration.ofSeconds(authResponse.expiresIn) - Duration.ofSeconds(60)
         )
         logger.info("New helix token was generated")
         return token

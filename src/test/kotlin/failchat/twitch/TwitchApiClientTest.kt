@@ -36,10 +36,9 @@ class TwitchApiClientTest {
     )
 
     @Test
-    @Ignore
-    fun requestUserIdTest() {
+    fun requestUserIdTest() = runBlocking {
         userNameToId.forEach { (name, expectedId) ->
-            val actualId = apiClient.getUserId(name).join()
+            val actualId = apiClient.getUserId(name)
             assertEquals(expectedId, actualId)
         }
     }

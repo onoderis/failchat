@@ -2,6 +2,9 @@ package failchat.twitch
 
 import failchat.Origin
 import failchat.viewers.ViewersCountLoader
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.future.future
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 
@@ -17,7 +20,8 @@ class TwitchViewersCountLoader(
     override fun loadViewersCount(): CompletableFuture<Int> {
         val userIdFuture: CompletableFuture<Long> = lazyUserId.get()
                 ?.let { CompletableFuture.completedFuture(it) }
-                ?: twitchClient.getUserId(userName).whenComplete { id, _ -> id?.let { lazyUserId.set(it) } }
+                ?: CoroutineScope(Dispatchers.Default).future { twitchClient.getUserId(userName) }
+                        .whenComplete { id, _ -> lazyUserId.set(id) }
 
         return userIdFuture
                 .thenCompose { userId -> twitchClient.getViewersCount(userId) }
