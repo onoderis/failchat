@@ -1,13 +1,12 @@
 package failchat.twitch
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import failchat.Origin
 import failchat.chat.ImageFormat
 import failchat.chat.badge.ImageBadge
+import failchat.exception.ChannelNotFoundException
 import failchat.exception.ChannelOfflineException
-import failchat.exception.DataNotFoundException
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.util.await
 import failchat.util.getBodyIfStatusIs
@@ -40,6 +39,7 @@ class TwitchApiClient(
         const val krakenApiUrl = "https://api.twitch.tv/kraken"
         const val helixApiUrl = "https://api.twitch.tv/helix"
         val usersUrl = "$helixApiUrl/users".toHttpUrl()
+        val streamsUrl = "$helixApiUrl/streams".toHttpUrl()
         val globalBadgesUrl = "$helixApiUrl/chat/badges/global".toHttpUrl()
         val channelBadgesUrl = "$helixApiUrl/chat/badges".toHttpUrl()
     }
@@ -50,21 +50,22 @@ class TwitchApiClient(
         val response = doRequest(url, UsersResponse::class)
 
         if (response.data.isEmpty()) {
-            throw DataNotFoundException("Twitch user $userName not found")
+            throw ChannelNotFoundException("Twitch user $userName not found")
         }
 
         return response.data.first().id
     }
 
-    fun getViewersCount(userId: Long): CompletableFuture<Int> {
-        // https://dev.twitch.tv/docs/v5/reference/streams/#get-stream-by-user
-        return request("/streams/$userId")
-                .parseResponse()
-                .thenApply {
-                    val streamNode = it.get("stream")
-                    if (streamNode.isNull) throw ChannelOfflineException(Origin.TWITCH, userId.toString())
-                    return@thenApply streamNode.get("viewers").asInt()
-                }
+    // https://dev.twitch.tv/docs/api/reference/#get-streams
+    suspend fun getViewersCount(userName: String): Int {
+        val url = streamsUrl.newBuilder().addQueryParameter("user_login", userName).build()
+        val response = doRequest(url, StreamsResponse::class)
+
+        if (response.data.isEmpty()) {
+            throw ChannelOfflineException(Origin.TWITCH, userName)
+        }
+
+        return response.data.first().viewerCount
     }
 
     fun getCommonEmoticons(): CompletableFuture<List<TwitchEmoticon>> {
@@ -105,11 +106,13 @@ class TwitchApiClient(
         return httpClient.newCall(request).toFuture()
     }
 
-    private fun CompletableFuture<Response>.parseResponse(): CompletableFuture<JsonNode> {
-        return this.thenUse {
-            val bodyText = it.getBodyIfStatusIs(200).nonNullBody.string()
-            objectMapper.readTree(bodyText)
-        }
+    suspend fun getFirstLiveChannelName(): String {
+        val url = streamsUrl.newBuilder()
+                .addQueryParameter("type", "live")
+                .addQueryParameter("first", "1")
+                .build()
+        val response = doRequest(url, StreamsResponse::class)
+        return response.data.first().userLogin
     }
 
     suspend fun getGlobalBadges(): Map<TwitchBadgeId, ImageBadge> {
