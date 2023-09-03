@@ -42,7 +42,6 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mu.KLogging
@@ -125,7 +124,7 @@ class AppStateManager(private val kodein: DirectDI) {
 
             // load channel badges in background
             CoroutineScope(backgroundExecutorDispatcher + CoroutineName("TwitchBadgeLoader") + CoroutineExceptionLogger).launch {
-                val channelId: Long = twitchApiClient.getUserId(channelName).await()
+                val channelId = twitchApiClient.getUserId(channelName)
                 badgeManager.loadTwitchChannelBadges(channelId)
             }
 
