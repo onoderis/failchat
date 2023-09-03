@@ -1,6 +1,8 @@
 package failchat.twitch
 
+import failchat.exception.ChannelNotFoundException
 import failchat.exception.ChannelOfflineException
+import failchat.exception.UnexpectedResponseCodeException
 import failchat.okHttpClient
 import failchat.testObjectMapper
 import failchat.twitchEmoticonUrlFactory
@@ -11,19 +13,17 @@ import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.concurrent.CompletionException
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
+import kotlin.test.assertIs
 
 class TwitchApiClientTest {
 
     private companion object {
         val log: Logger = LoggerFactory.getLogger(TwitchApiClientTest::class.java)
-        val userNameToId: Map<String, Long> = mapOf(
-                "lirik" to 23161357L,
-                "Doublelift" to 40017619L,
-                "TSM_Dyrus" to 6356773L,
-                "aimbotcalvin" to 84574550L
-        )
+        const val userName = "fail_chatbot"
+        const val userId = 90826142L
+        const val nonExistingUserName = "fail_chatbot2"
     }
 
     private val apiClient = TwitchApiClient(
@@ -36,23 +36,35 @@ class TwitchApiClientTest {
     )
 
     @Test
-    fun requestUserIdTest() = runBlocking {
-        userNameToId.forEach { (name, expectedId) ->
-            val actualId = apiClient.getUserId(name)
-            assertEquals(expectedId, actualId)
-        }
+    fun getUserIdTest() = runBlocking {
+        val actualId = apiClient.getUserId(userName)
+        assertEquals(userId, actualId)
     }
 
     @Test
-    @Ignore
-    fun requestViewersCountTest() {
-        userNameToId.forEach { (_, id) ->
-            try {
-                apiClient.getViewersCount(id).join()
-            } catch (e: CompletionException) {
-                if (e.cause !is ChannelOfflineException) throw e
-            }
-        }
+    fun getUserIdNotFoundTest() = runBlocking<Unit> {
+        val e = assertFails { apiClient.getUserId(nonExistingUserName) }
+        assertIs<ChannelNotFoundException>(e)
+    }
+
+    @Test
+    fun getFirstLiveChannelName() = runBlocking {
+        val userName = apiClient.getFirstLiveChannelName()
+        val viewersCount = apiClient.getViewersCount(userName)
+        assert(viewersCount >= 0)
+    }
+
+    @Test
+    fun getViewersCountOfflineTest() = runBlocking<Unit> {
+        val e = assertFails { apiClient.getViewersCount(userName) }
+        assertIs<ChannelOfflineException>(e)
+    }
+
+    @Test
+    fun getViewersCountChannelNotFoundTest() = runBlocking<Unit> {
+        // if channel is not found the api returns 400 Bad request
+        val e = assertFails { apiClient.getViewersCount(nonExistingUserName) }
+        assertIs<UnexpectedResponseCodeException>(e)
     }
 
     @Test
@@ -71,7 +83,7 @@ class TwitchApiClientTest {
 
     @Test
     fun channelBadgesTest() = runBlocking {
-        val channelId = userNameToId.values.first()
+        val channelId = 23161357L  // lirik
         val badges = apiClient.getChannelBadges(channelId)
         assert(badges.isNotEmpty())
         log.debug("{} channel badges was loaded for channel '{}'", badges.size, channelId)

@@ -6,25 +6,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.atomic.AtomicReference
 
 class TwitchViewersCountLoader(
         private val userName: String,
         private val twitchClient: TwitchApiClient
 ) : ViewersCountLoader {
 
-    private val lazyUserId: AtomicReference<Long?> = AtomicReference(null)
-
     override val origin = Origin.TWITCH
 
     override fun loadViewersCount(): CompletableFuture<Int> {
-        val userIdFuture: CompletableFuture<Long> = lazyUserId.get()
-                ?.let { CompletableFuture.completedFuture(it) }
-                ?: CoroutineScope(Dispatchers.Default).future { twitchClient.getUserId(userName) }
-                        .whenComplete { id, _ -> lazyUserId.set(id) }
-
-        return userIdFuture
-                .thenCompose { userId -> twitchClient.getViewersCount(userId) }
+        return CoroutineScope(Dispatchers.Default).future { twitchClient.getViewersCount(userName) }
     }
-
 }
