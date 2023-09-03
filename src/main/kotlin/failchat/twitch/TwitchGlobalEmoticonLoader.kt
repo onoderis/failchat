@@ -2,17 +2,19 @@ package failchat.twitch
 
 import failchat.Origin
 import failchat.emoticon.EmoticonBulkLoader
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.future.future
 import java.util.concurrent.CompletableFuture
 
 /** Uses official twitch API. */
-class TwitchEmoticonLoader(
+class TwitchGlobalEmoticonLoader(
         private val twitchClient: TwitchApiClient
 ) : EmoticonBulkLoader<TwitchEmoticon> {
 
     override val origin = Origin.TWITCH
 
     override fun loadEmoticons(): CompletableFuture<List<TwitchEmoticon>> {
-        return twitchClient.getCommonEmoticons()
+        return CoroutineScope(Dispatchers.Default).future { twitchClient.getGlobalEmoticons() }
     }
-
 }

@@ -1,9 +1,7 @@
 package failchat.twitch
 
-class TwitchEmoticonUrlFactory(
-        private val prefix: String,
-        private val suffix: String
-) {
-
-    fun create(id: Long) = prefix + id + suffix
+object TwitchEmoticonUrlFactory {
+    fun create(id: String): String {
+        return "https://static-cdn.jtvnw.net/emoticons/v2/$id/static/light/1.0"
+    }
 }

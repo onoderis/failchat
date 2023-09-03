@@ -9,20 +9,15 @@ import failchat.exception.ChannelNotFoundException
 import failchat.exception.ChannelOfflineException
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.util.await
-import failchat.util.getBodyIfStatusIs
 import failchat.util.nonNullBody
-import failchat.util.thenUse
-import failchat.util.toFuture
 import mu.KLogging
 import okhttp3.FormBody
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
 import java.time.Duration
 import java.time.Instant
-import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KClass
 
 class TwitchApiClient(
@@ -30,16 +25,15 @@ class TwitchApiClient(
         private val objectMapper: ObjectMapper,
         private val clientId: String,
         private val clientSecret: String,
-        private val emoticonUrlFactory: TwitchEmoticonUrlFactory,
         private val tokenContainer: HelixTokenContainer
 ) {
 
     private companion object : KLogging() {
         const val oauthUrl = "https://id.twitch.tv/oauth2/token"
-        const val krakenApiUrl = "https://api.twitch.tv/kraken"
         const val helixApiUrl = "https://api.twitch.tv/helix"
         val usersUrl = "$helixApiUrl/users".toHttpUrl()
         val streamsUrl = "$helixApiUrl/streams".toHttpUrl()
+        val globalEmotesUrl = "$helixApiUrl/chat/emotes/global".toHttpUrl()
         val globalBadgesUrl = "$helixApiUrl/chat/badges/global".toHttpUrl()
         val channelBadgesUrl = "$helixApiUrl/chat/badges".toHttpUrl()
     }
@@ -68,44 +62,18 @@ class TwitchApiClient(
         return response.data.first().viewerCount
     }
 
-    fun getCommonEmoticons(): CompletableFuture<List<TwitchEmoticon>> {
-        return request("/chat/emoticon_images", mapOf("emotesets" to "0"))
-                .thenUse {
-                    val bodyText = it.getBodyIfStatusIs(200).nonNullBody.string()
-                    val response = objectMapper.readValue<EmoticonSetsResponse>(bodyText)
-
-                    response.emoticonSets
-                            .flatMap { it.value }
-                            .map {
-                                TwitchEmoticon(
-                                        twitchId = it.id,
-                                        code = it.code,
-                                        urlFactory = emoticonUrlFactory
-                                )
-                            }
-                }
-    }
-
-    private fun request(path: String, parameters: Map<String, String> = emptyMap()): CompletableFuture<Response> {
-        val formattedParameters = if (parameters.isEmpty()) {
-            ""
-        } else {
-            parameters
-                    .map { (key, value) -> "$key=$value" }
-                    .joinToString(separator = "&", prefix = "?")
+    // https://dev.twitch.tv/docs/api/reference/#get-global-emotes
+    suspend fun getGlobalEmoticons(): List<TwitchEmoticon> {
+        val response = doRequest(globalEmotesUrl, EmotesResponse::class)
+        return response.data.map {
+            TwitchEmoticon(
+                    twitchId = it.id,
+                    code = it.name
+            )
         }
-        val url = krakenApiUrl + path.removePrefix("/") + formattedParameters
-
-        val request = Request.Builder()
-                .url(url)
-                .get()
-                .header("Accept", "application/vnd.twitchtv.v5+json")
-                .header("Client-ID", clientId)
-                .build()
-
-        return httpClient.newCall(request).toFuture()
     }
 
+    // https://dev.twitch.tv/docs/api/reference/#get-streams
     suspend fun getFirstLiveChannelName(): String {
         val url = streamsUrl.newBuilder()
                 .addQueryParameter("type", "live")

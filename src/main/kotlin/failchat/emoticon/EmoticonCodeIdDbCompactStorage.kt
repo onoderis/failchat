@@ -16,28 +16,27 @@ class EmoticonCodeIdDbCompactStorage(
         private val emoticonFactory: EmoticonFactory
 ) : OriginEmoticonStorage, Closeable {
 
-    private val lowerCaseCodeToId: HTreeMap<String, Long>
-    private val idToNormalCaseCode: HTreeMap<Long, String>
+    private val lowerCaseCodeToId: HTreeMap<String, String>
+    private val idToNormalCaseCode: HTreeMap<String, String>
 
     init {
         lowerCaseCodeToId = db
-                .hashMap(origin.commonName + "-lowerCaseCodeToId", Serializer.STRING, Serializer.LONG)
+                .hashMap(origin.commonName + "-lowerCaseCodeToId", Serializer.STRING, Serializer.STRING)
                 .createOrOpen()
         idToNormalCaseCode = db
-                .hashMap(origin.commonName + "-idToNormalCaseCode", Serializer.LONG, Serializer.STRING)
+                .hashMap(origin.commonName + "-idToNormalCaseCode", Serializer.STRING, Serializer.STRING)
                 .createOrOpen()
     }
 
     override fun findByCode(code: String): Emoticon? {
-        val id = lowerCaseCodeToId.get(code.toLowerCase()) ?: return null
+        val id = lowerCaseCodeToId.get(code.lowercase()) ?: return null
         val normalCaseCode = idToNormalCaseCode.get(id) ?: return null
         return emoticonFactory.create(id, normalCaseCode)
     }
 
     override fun findById(id: String): Emoticon? {
-        val idLong = id.toLong()
-        val normalCaseCode = idToNormalCaseCode.get(idLong) ?: return null
-        return emoticonFactory.create(idLong, normalCaseCode)
+        val normalCaseCode = idToNormalCaseCode.get(id) ?: return null
+        return emoticonFactory.create(id, normalCaseCode)
     }
 
     override fun getAll(): Collection<Emoticon> {
@@ -63,8 +62,8 @@ class EmoticonCodeIdDbCompactStorage(
     }
 
     private fun putEmoticon(emoticonAndId: EmoticonAndId) {
-        idToNormalCaseCode.put(emoticonAndId.id.toLong(), emoticonAndId.emoticon.code)
-        lowerCaseCodeToId.putIfAbsent(emoticonAndId.emoticon.code.toLowerCase(), emoticonAndId.id.toLong())
+        idToNormalCaseCode.put(emoticonAndId.id, emoticonAndId.emoticon.code)
+        lowerCaseCodeToId.putIfAbsent(emoticonAndId.emoticon.code.lowercase(), emoticonAndId.id)
     }
 
     override fun clear() {

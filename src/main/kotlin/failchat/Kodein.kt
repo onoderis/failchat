@@ -80,8 +80,7 @@ import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchEmotesTagParser
 import failchat.twitch.TwitchEmoticonHandler
 import failchat.twitch.TwitchEmoticonLoadConfiguration
-import failchat.twitch.TwitchEmoticonLoader
-import failchat.twitch.TwitchEmoticonUrlFactory
+import failchat.twitch.TwitchGlobalEmoticonLoader
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.util.objectMapper
 import failchat.viewers.ViewersCountLoader
@@ -391,14 +390,13 @@ val kodein = DI.direct {
                 objectMapper = instance<ObjectMapper>(),
                 clientId = config.getString("twitch.client-id"),
                 clientSecret = config.getString("twitch.client-secret"),
-                emoticonUrlFactory = instance<TwitchEmoticonUrlFactory>(),
                 tokenContainer = ConfigurationTokenContainer(instance<Configuration>())
         )
     }
-    bind<TwitchEmoticonLoader>() with singleton { TwitchEmoticonLoader(instance<TwitchApiClient>()) }
+    bind<TwitchGlobalEmoticonLoader>() with singleton { TwitchGlobalEmoticonLoader(instance<TwitchApiClient>()) }
     bind<TwitchEmoticonLoadConfiguration>() with singleton {
         TwitchEmoticonLoadConfiguration(
-                instance<TwitchEmoticonLoader>()
+                instance<TwitchGlobalEmoticonLoader>()
         )
     }
     bind<TwitchChatClient>() with factory { channelName: String ->
@@ -430,18 +428,10 @@ val kodein = DI.direct {
         TwitchEmoticonHandler(instance<TwitchEmotesTagParser>())
     }
     bind<TwitchEmotesTagParser>() with singleton {
-        TwitchEmotesTagParser(instance<TwitchEmoticonUrlFactory>())
+        TwitchEmotesTagParser()
     }
     bind<TwitchEmoticonFactory>() with singleton {
-        TwitchEmoticonFactory(instance<TwitchEmoticonUrlFactory>())
-    }
-    bind<TwitchEmoticonUrlFactory>() with singleton {
-        with(instance<Configuration>()) {
-            TwitchEmoticonUrlFactory(
-                    getString("twitch.emoticon-url-prefix"),
-                    getString("twitch.emoticon-url-suffix")
-            )
-        }
+        TwitchEmoticonFactory()
     }
 
     // BTTV
