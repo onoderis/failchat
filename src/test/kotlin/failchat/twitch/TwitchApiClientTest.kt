@@ -78,7 +78,7 @@ class TwitchApiClientTest {
 
     @Test
     fun channelBadgesTest() = runBlocking {
-        val channelId = 23161357L  // lirik
+        val channelId = 23161357L // lirik
         val badges = apiClient.getChannelBadges(channelId)
         assert(badges.isNotEmpty())
         log.debug("{} channel badges was loaded for channel '{}'", badges.size, channelId)
