@@ -11,6 +11,4 @@ fun Configuration.resetEmoticonsUpdatedTime() {
     }
 }
 
-fun getFailchatHomePath(): Path {
-    return Paths.get(System.getProperty("user.home")).resolve(".failchat")
-}
+val failchatHomePath: Path = Paths.get(System.getProperty("user.home")).resolve(".failchat")

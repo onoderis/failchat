@@ -307,7 +307,7 @@ val kodein = DI.direct {
 
     // Etc
     bind<Path>("workingDirectory") with singleton { Paths.get("") }
-    bind<Path>("homeDirectory") with singleton { getFailchatHomePath() }
+    bind<Path>("homeDirectory") with singleton { failchatHomePath }
     bind<Path>("failchatEmoticonsDirectory") with singleton { instance<Path>("homeDirectory").resolve("failchat-emoticons") }
     bind<Path>("emoticonCacheDirectory") with singleton { instance<Path>("workingDirectory").resolve("emoticons") }
     bind<Path>("emoticonDbFile") with singleton { instance<Path>("emoticonCacheDirectory").resolve("emoticons.db") }

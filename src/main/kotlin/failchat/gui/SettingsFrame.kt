@@ -217,24 +217,24 @@ class SettingsFrame(
     }
 
     fun updateSettingsValues() {
-        peka2tvChannel.text = config.getString(ConfigKeys.peka2tv.channel)
-        goodgameChannel.text = config.getString(ConfigKeys.goodgame.channel)
-        twitchChannel.text = config.getString(ConfigKeys.twitch.channel)
-        youtubeChannel.text = config.getString(ConfigKeys.youtube.channel)
+        peka2tvChannel.text = config.getString(ConfigKeys.Peka2tv.channel)
+        goodgameChannel.text = config.getString(ConfigKeys.Goodgame.channel)
+        twitchChannel.text = config.getString(ConfigKeys.Twitch.channel)
+        youtubeChannel.text = config.getString(ConfigKeys.Youtube.channel)
 
-        config.getBoolean(ConfigKeys.peka2tv.enabled).let {
+        config.getBoolean(ConfigKeys.Peka2tv.enabled).let {
             peka2tvEnabled.isSelected = it
             peka2tvChannel.configureChannelField(it)
         }
-        config.getBoolean(ConfigKeys.goodgame.enabled).let {
+        config.getBoolean(ConfigKeys.Goodgame.enabled).let {
             goodgameEnabled.isSelected = it
             goodgameChannel.configureChannelField(it)
         }
-        config.getBoolean(ConfigKeys.twitch.enabled).let {
+        config.getBoolean(ConfigKeys.Twitch.enabled).let {
             twitchEnabled.isSelected = it
             twitchChannel.configureChannelField(it)
         }
-        config.getBoolean(ConfigKeys.youtube.enabled).let {
+        config.getBoolean(ConfigKeys.Youtube.enabled).let {
             youtubeEnabled.isSelected = it
             youtubeChannel.configureChannelField(it)
         }
@@ -256,17 +256,17 @@ class SettingsFrame(
         zoomPercent.text = config.getInt(ConfigKeys.zoomPercent).toString()
         deletedMessagePlaceholder.text = config.getString(ConfigKeys.deletedMessagePlaceholder)
 
-        nativeBgColorPicker.value = Color.web(config.getString(ConfigKeys.nativeClient.backgroundColor))
-        coloredNicknamesNative.isSelected = config.getBoolean(ConfigKeys.nativeClient.coloredNicknames)
-        hideMessagesNative.isSelected = config.getBoolean(ConfigKeys.nativeClient.hideMessages)
-        hideMessagesNativeAfter.text = config.getInt(ConfigKeys.nativeClient.hideMessagesAfter).toString()
-        showStatusMessagesNative.isSelected = config.getBoolean(ConfigKeys.nativeClient.showStatusMessages)
+        nativeBgColorPicker.value = Color.web(config.getString(ConfigKeys.NativeClient.backgroundColor))
+        coloredNicknamesNative.isSelected = config.getBoolean(ConfigKeys.NativeClient.coloredNicknames)
+        hideMessagesNative.isSelected = config.getBoolean(ConfigKeys.NativeClient.hideMessages)
+        hideMessagesNativeAfter.text = config.getInt(ConfigKeys.NativeClient.hideMessagesAfter).toString()
+        showStatusMessagesNative.isSelected = config.getBoolean(ConfigKeys.NativeClient.showStatusMessages)
 
-        externalBgColorPicker.value = Color.web(config.getString(ConfigKeys.externalClient.backgroundColor))
-        coloredNicknamesExternal.isSelected = config.getBoolean(ConfigKeys.externalClient.coloredNicknames)
-        hideMessagesExternal.isSelected = config.getBoolean(ConfigKeys.externalClient.hideMessages)
-        hideMessagesExternalAfter.text = config.getInt(ConfigKeys.externalClient.hideMessagesAfter).toString()
-        showStatusMessagesExternal.isSelected = config.getBoolean(ConfigKeys.externalClient.showStatusMessages)
+        externalBgColorPicker.value = Color.web(config.getString(ConfigKeys.ExternalClient.backgroundColor))
+        coloredNicknamesExternal.isSelected = config.getBoolean(ConfigKeys.ExternalClient.coloredNicknames)
+        hideMessagesExternal.isSelected = config.getBoolean(ConfigKeys.ExternalClient.hideMessages)
+        hideMessagesExternalAfter.text = config.getInt(ConfigKeys.ExternalClient.hideMessagesAfter).toString()
+        showStatusMessagesExternal.isSelected = config.getBoolean(ConfigKeys.ExternalClient.showStatusMessages)
 
         opacitySlider.value = config.getDouble(ConfigKeys.opacity)
 
@@ -280,15 +280,15 @@ class SettingsFrame(
 
     private fun saveSettingsValues() {
         //todo use loop for origins
-        config.setProperty(ConfigKeys.peka2tv.channel, peka2tvChannel.text)
-        config.setProperty(ConfigKeys.goodgame.channel, goodgameChannel.text)
-        config.setProperty(ConfigKeys.twitch.channel, twitchChannel.text)
-        config.setProperty(ConfigKeys.youtube.channel, youtubeChannel.text)
+        config.setProperty(ConfigKeys.Peka2tv.channel, peka2tvChannel.text)
+        config.setProperty(ConfigKeys.Goodgame.channel, goodgameChannel.text)
+        config.setProperty(ConfigKeys.Twitch.channel, twitchChannel.text)
+        config.setProperty(ConfigKeys.Youtube.channel, youtubeChannel.text)
 
-        config.setProperty(ConfigKeys.peka2tv.enabled, peka2tvEnabled.isSelected)
-        config.setProperty(ConfigKeys.goodgame.enabled, goodgameEnabled.isSelected)
-        config.setProperty(ConfigKeys.twitch.enabled, twitchEnabled.isSelected)
-        config.setProperty(ConfigKeys.youtube.enabled, youtubeEnabled.isSelected)
+        config.setProperty(ConfigKeys.Peka2tv.enabled, peka2tvEnabled.isSelected)
+        config.setProperty(ConfigKeys.Goodgame.enabled, goodgameEnabled.isSelected)
+        config.setProperty(ConfigKeys.Twitch.enabled, twitchEnabled.isSelected)
+        config.setProperty(ConfigKeys.Youtube.enabled, youtubeEnabled.isSelected)
 
         config.setProperty(ConfigKeys.skin, skin.value.name)
         config.setProperty(ConfigKeys.frame, frame.isSelected)
@@ -309,17 +309,17 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.zoomPercent, parseZoomPercent(zoomPercent.text))
         config.setProperty(ConfigKeys.deletedMessagePlaceholder, deletedMessagePlaceholder.text)
 
-        config.setProperty(ConfigKeys.nativeClient.backgroundColor, nativeBgColorPicker.value.toHexFormat())
-        config.setProperty(ConfigKeys.nativeClient.coloredNicknames, coloredNicknamesNative.isSelected)
-        config.setProperty(ConfigKeys.nativeClient.hideMessages, hideMessagesNative.isSelected)
-        config.setProperty(ConfigKeys.nativeClient.hideMessagesAfter, parseHideMessagesAfter(hideMessagesNativeAfter.text))
-        config.setProperty(ConfigKeys.nativeClient.showStatusMessages, showStatusMessagesNative.isSelected)
+        config.setProperty(ConfigKeys.NativeClient.backgroundColor, nativeBgColorPicker.value.toHexFormat())
+        config.setProperty(ConfigKeys.NativeClient.coloredNicknames, coloredNicknamesNative.isSelected)
+        config.setProperty(ConfigKeys.NativeClient.hideMessages, hideMessagesNative.isSelected)
+        config.setProperty(ConfigKeys.NativeClient.hideMessagesAfter, parseHideMessagesAfter(hideMessagesNativeAfter.text))
+        config.setProperty(ConfigKeys.NativeClient.showStatusMessages, showStatusMessagesNative.isSelected)
 
-        config.setProperty(ConfigKeys.externalClient.backgroundColor, externalBgColorPicker.value.toHexFormat())
-        config.setProperty(ConfigKeys.externalClient.coloredNicknames, coloredNicknamesExternal.isSelected)
-        config.setProperty(ConfigKeys.externalClient.hideMessages, hideMessagesExternal.isSelected)
-        config.setProperty(ConfigKeys.externalClient.hideMessagesAfter, parseHideMessagesAfter(hideMessagesExternalAfter.text))
-        config.setProperty(ConfigKeys.externalClient.showStatusMessages, showStatusMessagesExternal.isSelected)
+        config.setProperty(ConfigKeys.ExternalClient.backgroundColor, externalBgColorPicker.value.toHexFormat())
+        config.setProperty(ConfigKeys.ExternalClient.coloredNicknames, coloredNicknamesExternal.isSelected)
+        config.setProperty(ConfigKeys.ExternalClient.hideMessages, hideMessagesExternal.isSelected)
+        config.setProperty(ConfigKeys.ExternalClient.hideMessagesAfter, parseHideMessagesAfter(hideMessagesExternalAfter.text))
+        config.setProperty(ConfigKeys.ExternalClient.showStatusMessages, showStatusMessagesExternal.isSelected)
 
         config.setProperty(ConfigKeys.ignore, ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
     }

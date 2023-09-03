@@ -18,6 +18,6 @@ val ktorClient = HttpClient(OkHttp) {
 }
 
 
-val userHomeConfig: Configuration by lazy { ConfigLoader(getFailchatHomePath()).load() }
+val userHomeConfig: Configuration by lazy { ConfigLoader(failchatHomePath).load() }
 val defaultConfig: Configuration by lazy { loadDefaultConfig() }
 val testObjectMapper: ObjectMapper = objectMapper()

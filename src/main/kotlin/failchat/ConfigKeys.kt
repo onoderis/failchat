@@ -1,31 +1,32 @@
 package failchat
 
-@Suppress("ClassName")
 object ConfigKeys {
 
     //todo use properties from here
 
-    object peka2tv {
+    object Peka2tv {
         const val enabled = "peka2tv.enabled"
         const val channel = "peka2tv.channel"
     }
 
-    object goodgame {
+    object Goodgame {
         const val enabled = "goodgame.enabled"
         const val channel = "goodgame.channel"
     }
 
-    object twitch {
+    object Twitch {
         const val enabled = "twitch.enabled"
         const val channel = "twitch.channel"
+        const val expiresAt = "twitch.bearer-token-expires-at"
+        const val token = "twitch.bearer-token"
     }
 
-    object youtube {
+    object Youtube {
         const val enabled = "youtube.enabled"
         const val channel = "youtube.channel"
     }
 
-    object nativeClient {
+    object NativeClient {
         private const val prefix = "native-client"
         const val backgroundColor = "$prefix.background-color"
         const val coloredNicknames = "$prefix.colored-nicknames"
@@ -34,7 +35,7 @@ object ConfigKeys {
         const val showStatusMessages = "$prefix.show-status-messages"
     }
 
-    object externalClient {
+    object ExternalClient {
         private const val prefix = "external-client"
         const val backgroundColor = "$prefix.background-color"
         const val coloredNicknames = "$prefix.colored-nicknames"
