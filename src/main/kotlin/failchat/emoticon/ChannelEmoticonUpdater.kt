@@ -46,17 +46,17 @@ class ChannelEmoticonUpdater(
         logger.info("FrankerFaceZ emoticons loaded for channel '{}'", channelName)
     }
 
-    suspend fun update7tvEmoticons(channelName: String) {
+    suspend fun update7tvEmoticons(channelId: Long) {
         val emoticons = try {
-            sevenTvApiClient.loadChannelEmoticons(channelName)
+            sevenTvApiClient.loadChannelEmoticons(channelId)
         } catch (e: SevenTvChannelNotFoundException) {
-            logger.info("7tv emoticons not found for channel '{}'", channelName)
+            logger.info("7tv emoticons not found for channel '{}'", channelId)
             return
         }
 
         val emoticonToId = emoticons.map { EmoticonAndId(it, it.code) }
         emoticonStorage.putMapping(Origin.SEVEN_TV_CHANNEL, emoticonToId)
-        logger.info("7tv emoticons loaded for channel '{}'", channelName)
+        logger.info("7tv emoticons loaded for channel '{}'", channelId)
     }
 
 }

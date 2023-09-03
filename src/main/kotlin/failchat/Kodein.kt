@@ -464,7 +464,6 @@ val kodein = DI.direct {
     bind<SevenTvApiClient>() with singleton {
         SevenTvApiClient(
                 httpClient = instance<OkHttpClient>(),
-                apiUrl = instance<Configuration>().getString(ConfigKeys.sevenTvApiUrl),
                 objectMapper = instance<ObjectMapper>()
         )
     }

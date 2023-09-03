@@ -122,9 +122,15 @@ class AppStateManager(private val kodein: DirectDI) {
             initializedChatClients.put(TWITCH, chatClient)
             viewersCountLoaders.add(kodein.factory<String, TwitchViewersCountLoader>().invoke(channelName))
 
+            val channelId = try {
+                runBlocking { twitchApiClient.getUserId(channelName) }
+            } catch (e: Exception) {
+                logger.warn("Failed to get twitch channel info. channel name: {}", channelName, e)
+                return@let
+            }
+
             // load channel badges in background
             CoroutineScope(backgroundExecutorDispatcher + CoroutineName("TwitchBadgeLoader") + CoroutineExceptionLogger).launch {
-                val channelId = twitchApiClient.getUserId(channelName)
                 badgeManager.loadTwitchChannelBadges(channelId)
             }
 
@@ -147,7 +153,7 @@ class AppStateManager(private val kodein: DirectDI) {
 
             channelEmoticonsJobs += CoroutineScope(backgroundExecutorDispatcher).launch {
                 try {
-                    channelEmoticonUpdater.update7tvEmoticons(channelName)
+                    channelEmoticonUpdater.update7tvEmoticons(channelId)
                 } catch (t: Throwable) {
                     logger.error("Failed to load 7tv emoticons for channel '{}'", channelName, t)
                 }
