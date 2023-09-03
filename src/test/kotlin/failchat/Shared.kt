@@ -1,7 +1,6 @@
 package failchat
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import failchat.twitch.TwitchEmoticonUrlFactory
 import failchat.util.objectMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -22,8 +21,3 @@ val ktorClient = HttpClient(OkHttp) {
 val userHomeConfig: Configuration by lazy { ConfigLoader(getFailchatHomePath()).load() }
 val defaultConfig: Configuration by lazy { loadDefaultConfig() }
 val testObjectMapper: ObjectMapper = objectMapper()
-
-val twitchEmoticonUrlFactory = TwitchEmoticonUrlFactory(
-        defaultConfig.getString("twitch.emoticon-url-prefix"),
-        defaultConfig.getString("twitch.emoticon-url-suffix")
-)

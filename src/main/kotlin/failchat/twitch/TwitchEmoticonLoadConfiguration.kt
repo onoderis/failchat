@@ -6,7 +6,7 @@ import failchat.emoticon.EmoticonLoadConfiguration.LoadType
 import failchat.emoticon.EmoticonStreamLoader
 
 class TwitchEmoticonLoadConfiguration(
-        twitchLoader: TwitchEmoticonLoader
+        twitchLoader: TwitchGlobalEmoticonLoader
 ) : EmoticonLoadConfiguration<TwitchEmoticon> {
     override val streamLoaders = emptyList<EmoticonStreamLoader<TwitchEmoticon>>()
     override val origin = Origin.TWITCH

@@ -5,11 +5,8 @@ import failchat.exception.ChannelOfflineException
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.okHttpClient
 import failchat.testObjectMapper
-import failchat.twitchEmoticonUrlFactory
 import failchat.userHomeConfig
-import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -31,7 +28,6 @@ class TwitchApiClientTest {
             testObjectMapper,
             userHomeConfig.getString("twitch.client-id"),
             userHomeConfig.getString("twitch.client-secret"),
-            twitchEmoticonUrlFactory,
             ConfigurationTokenContainer(userHomeConfig)
     )
 
@@ -68,10 +64,9 @@ class TwitchApiClientTest {
     }
 
     @Test
-    @Ignore
-    fun getCommonEmoticonsTest() {
-        val emoticons = apiClient.getCommonEmoticons().join()
-        emoticons shouldNotBe 0
+    fun getGlobalEmoticonsTest() = runBlocking {
+        val emoticons = apiClient.getGlobalEmoticons()
+        assert(emoticons.isNotEmpty())
     }
 
     @Test

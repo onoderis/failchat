@@ -1,8 +1,6 @@
 package failchat.twitch
 
-class TwitchEmotesTagParser(
-        private val twitchEmoticonUrlFactory: TwitchEmoticonUrlFactory
-) {
+class TwitchEmotesTagParser {
 
     fun parse(emotesTag: String, messageText: String): List<RangedEmoticon> {
         /*
@@ -15,8 +13,7 @@ class TwitchEmotesTagParser(
         return emotesTag
                 .split("/")
                 .flatMap { emoteWithPositions ->
-                    val (emoticonIdString, positionsString) = emoteWithPositions.split(":", limit = 2)
-                    val emoticonId = emoticonIdString.toLong()
+                    val (emoticonId, positionsString) = emoteWithPositions.split(":", limit = 2)
 
                     val positions = positionsString
                             .split(",")
@@ -28,8 +25,7 @@ class TwitchEmotesTagParser(
                     positions.map {
                         val emoticon = TwitchEmoticon(
                                 twitchId = emoticonId,
-                                code = messageText.substring(it),
-                                urlFactory = twitchEmoticonUrlFactory
+                                code = messageText.substring(it)
                         )
 
                         RangedEmoticon(emoticon, it)
@@ -38,7 +34,5 @@ class TwitchEmotesTagParser(
                 }
                 .sortedBy { it.position.start }
     }
-
-
 }
 
