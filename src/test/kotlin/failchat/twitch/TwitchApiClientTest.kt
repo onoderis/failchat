@@ -1,5 +1,6 @@
 package failchat.twitch
 
+import failchat.assertRequestToUrlReturns200
 import failchat.exception.ChannelNotFoundException
 import failchat.exception.ChannelOfflineException
 import failchat.exception.UnexpectedResponseCodeException
@@ -7,17 +8,15 @@ import failchat.okHttpClient
 import failchat.testObjectMapper
 import failchat.userHomeConfig
 import kotlinx.coroutines.runBlocking
+import mu.KLogging
 import org.junit.Test
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertIs
 
 class TwitchApiClientTest {
 
-    private companion object {
-        val log: Logger = LoggerFactory.getLogger(TwitchApiClientTest::class.java)
+    private companion object : KLogging() {
         const val userName = "fail_chatbot"
         const val userId = 90826142L
         const val nonExistingUserName = "fail_chatbot2"
@@ -67,13 +66,17 @@ class TwitchApiClientTest {
     fun getGlobalEmoticonsTest() = runBlocking {
         val emoticons = apiClient.getGlobalEmoticons()
         assert(emoticons.isNotEmpty())
+
+        assertRequestToUrlReturns200(emoticons.first().url)
     }
 
     @Test
     fun globalBadgesTest() = runBlocking {
         val badges = apiClient.getGlobalBadges()
         assert(badges.isNotEmpty())
-        log.debug("{} global badges was loaded", badges.size)
+        logger.debug("{} global badges was loaded", badges.size)
+
+        assertRequestToUrlReturns200(badges.values.first().url)
     }
 
     @Test
@@ -81,6 +84,8 @@ class TwitchApiClientTest {
         val channelId = 23161357L // lirik
         val badges = apiClient.getChannelBadges(channelId)
         assert(badges.isNotEmpty())
-        log.debug("{} channel badges was loaded for channel '{}'", badges.size, channelId)
+        logger.debug("{} channel badges was loaded for channel '{}'", badges.size, channelId)
+
+        assertRequestToUrlReturns200(badges.values.first().url)
     }
 }

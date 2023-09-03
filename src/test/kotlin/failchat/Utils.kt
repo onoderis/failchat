@@ -1,32 +1,19 @@
 package failchat
 
-import failchat.util.sleep
-import java.time.Duration
-
-fun <T> doAwhile(tries: Int, retryDelay: Duration, operation: () -> T): T {
-    lateinit var lastException: Throwable
-
-    repeat(tries) {
-        try {
-            return operation.invoke()
-        } catch (t: Throwable) {
-            lastException = t
-            sleep(retryDelay)
-        }
-    }
-
-    throw lastException
-}
-
-fun Long.s(): Duration = Duration.ofSeconds(this)
-fun Int.s(): Duration = Duration.ofSeconds(this.toLong())
-
-fun Long.ms(): Duration = Duration.ofMillis(this)
-fun Int.ms(): Duration = Duration.ofMillis(this.toLong())
+import failchat.util.await
+import okhttp3.Request
+import kotlin.test.assertEquals
 
 object Utils
 
 fun readResourceAsString(resource: String): String {
     val bytes = Utils::class.java.getResourceAsStream(resource)?.readBytes() ?: error("No resource $resource")
     return String(bytes)
+}
+
+suspend fun assertRequestToUrlReturns200(url: String) {
+    val request = Request.Builder().url(url).get().build()
+    okHttpClient.newCall(request).await().use {
+        assertEquals(200, it.code)
+    }
 }

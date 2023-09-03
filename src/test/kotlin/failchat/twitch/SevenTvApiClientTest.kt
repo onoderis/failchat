@@ -1,13 +1,11 @@
 package failchat.twitch
 
+import failchat.assertRequestToUrlReturns200
 import failchat.okHttpClient
 import failchat.testObjectMapper
-import failchat.util.await
 import kotlinx.coroutines.runBlocking
 import mu.KLogging
-import okhttp3.Request
 import org.junit.Test
-import kotlin.test.assertEquals
 
 class SevenTvApiClientTest {
 
@@ -23,7 +21,7 @@ class SevenTvApiClientTest {
         val emoticons = apiClient.loadGlobalEmoticons()
         logger.info("7tv global emoticons count: {}", emoticons.size)
 
-        assertEmoteIsRetrievable(emoticons.first())
+        assertRequestToUrlReturns200(emoticons.first().url)
     }
 
     @Test
@@ -31,13 +29,6 @@ class SevenTvApiClientTest {
         val emoticons = apiClient.loadChannelEmoticons(23161357L) // lirik
         logger.info("7tv channel emoticons count: {}", emoticons.size)
 
-        assertEmoteIsRetrievable(emoticons.first())
-    }
-
-    private suspend fun assertEmoteIsRetrievable(emote: SevenTvEmoticon) {
-        val request = Request.Builder().url(emote.url).get().build()
-        okHttpClient.newCall(request).await().use {
-            assertEquals(200, it.code)
-        }
+        assertRequestToUrlReturns200(emoticons.first().url)
     }
 }
