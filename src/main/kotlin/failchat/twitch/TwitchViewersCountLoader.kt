@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture
 
 class TwitchViewersCountLoader(
         private val userName: String,
-        private val twitchClient: TwitchApiClient
+        private val twitchClient: TokenAwareTwitchApiClient
 ) : ViewersCountLoader {
 
     override val origin = Origin.TWITCH

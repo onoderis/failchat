@@ -4,7 +4,7 @@ import failchat.chat.badge.BadgeOrigin.PEKA2TV
 import failchat.chat.badge.BadgeOrigin.TWITCH_CHANNEL
 import failchat.chat.badge.BadgeOrigin.TWITCH_GLOBAL
 import failchat.peka2tv.Peka2tvApiClient
-import failchat.twitch.TwitchApiClient
+import failchat.twitch.TokenAwareTwitchApiClient
 import failchat.util.CoroutineExceptionLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -15,7 +15,7 @@ import mu.KLogging
 
 class BadgeManager(
         private val badgeStorage: BadgeStorage,
-        private val twitchApiClient: TwitchApiClient,
+        private val twitchApiClient: TokenAwareTwitchApiClient,
         private val peka2tvApiClient: Peka2tvApiClient
 ) {
 

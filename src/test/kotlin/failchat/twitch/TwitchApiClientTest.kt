@@ -1,5 +1,6 @@
 package failchat.twitch
 
+import failchat.ConfigKeys
 import failchat.assertRequestToUrlReturns200
 import failchat.exception.ChannelNotFoundException
 import failchat.exception.ChannelOfflineException
@@ -22,11 +23,13 @@ class TwitchApiClientTest {
         const val nonExistingUserName = "fail_chatbot2"
     }
 
-    private val apiClient = TwitchApiClient(
-            okHttpClient,
-            testObjectMapper,
-            userHomeConfig.getString("twitch.client-id"),
-            userHomeConfig.getString("twitch.client-secret"),
+    private val apiClient: TokenAwareTwitchApiClient = TokenAwareTwitchApiClient(
+            TwitchApiClient(
+                    okHttpClient,
+                    testObjectMapper,
+                    userHomeConfig.getString(ConfigKeys.Twitch.clientId),
+            ),
+            userHomeConfig.getString(ConfigKeys.Twitch.clientSecret),
             ConfigurationTokenContainer(userHomeConfig)
     )
 

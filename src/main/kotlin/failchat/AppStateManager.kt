@@ -27,7 +27,7 @@ import failchat.goodgame.GgChatClient
 import failchat.goodgame.GgViewersCountLoader
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvChatClient
-import failchat.twitch.TwitchApiClient
+import failchat.twitch.TokenAwareTwitchApiClient
 import failchat.twitch.TwitchChatClient
 import failchat.twitch.TwitchViewersCountLoader
 import failchat.util.CoroutineExceptionLogger
@@ -62,7 +62,7 @@ class AppStateManager(private val kodein: DirectDI) {
 
     private val messageIdGenerator: MessageIdGenerator = kodein.instance()
     private val peka2tvApiClient: Peka2tvApiClient = kodein.instance()
-    private val twitchApiClient: TwitchApiClient = kodein.instance()
+    private val twitchApiClient: TokenAwareTwitchApiClient = kodein.instance()
     private val goodgameApiClient: GgApiClient = kodein.instance()
     private val configLoader: ConfigLoader = kodein.instance()
     private val ignoreFilter: IgnoreFilter = kodein.instance()

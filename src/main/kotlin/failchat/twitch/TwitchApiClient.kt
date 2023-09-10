@@ -23,9 +23,7 @@ import kotlin.reflect.KClass
 class TwitchApiClient(
         private val httpClient: OkHttpClient,
         private val objectMapper: ObjectMapper,
-        private val clientId: String,
-        private val clientSecret: String,
-        private val tokenContainer: HelixTokenContainer
+        private val clientId: String
 ) {
 
     private companion object : KLogging() {
@@ -39,9 +37,9 @@ class TwitchApiClient(
     }
 
     // https://dev.twitch.tv/docs/api/reference/#get-users
-    suspend fun getUserId(userName: String): Long {
+    suspend fun getUserId(userName: String, token: String): Long {
         val url = usersUrl.newBuilder().addQueryParameter("login", userName).build()
-        val response = doRequest(url, UsersResponse::class)
+        val response = doRequest(url, token, UsersResponse::class)
 
         if (response.data.isEmpty()) {
             throw ChannelNotFoundException("Twitch user $userName not found")
@@ -51,9 +49,9 @@ class TwitchApiClient(
     }
 
     // https://dev.twitch.tv/docs/api/reference/#get-streams
-    suspend fun getViewersCount(userName: String): Int {
+    suspend fun getViewersCount(userName: String, token: String): Int {
         val url = streamsUrl.newBuilder().addQueryParameter("user_login", userName).build()
-        val response = doRequest(url, StreamsResponse::class)
+        val response = doRequest(url, token, StreamsResponse::class)
 
         if (response.data.isEmpty()) {
             throw ChannelOfflineException(Origin.TWITCH, userName)
@@ -63,8 +61,8 @@ class TwitchApiClient(
     }
 
     // https://dev.twitch.tv/docs/api/reference/#get-global-emotes
-    suspend fun getGlobalEmoticons(): List<TwitchEmoticon> {
-        val response = doRequest(globalEmotesUrl, EmotesResponse::class)
+    suspend fun getGlobalEmoticons(token: String): List<TwitchEmoticon> {
+        val response = doRequest(globalEmotesUrl, token, EmotesResponse::class)
         return response.data.map {
             TwitchEmoticon(
                     twitchId = it.id,
@@ -74,28 +72,28 @@ class TwitchApiClient(
     }
 
     // https://dev.twitch.tv/docs/api/reference/#get-streams
-    suspend fun getFirstLiveChannelName(): String {
+    suspend fun getFirstLiveChannelName(token: String): String {
         val url = streamsUrl.newBuilder()
                 .addQueryParameter("type", "live")
                 .addQueryParameter("first", "1")
                 .build()
-        val response = doRequest(url, StreamsResponse::class)
+        val response = doRequest(url, token, StreamsResponse::class)
         return response.data.first().userLogin
     }
 
-    suspend fun getGlobalBadges(): Map<TwitchBadgeId, ImageBadge> {
+    suspend fun getGlobalBadges(token: String): Map<TwitchBadgeId, ImageBadge> {
         // https://dev.twitch.tv/docs/api/reference/#get-global-chat-badges
-        return getBadges(globalBadgesUrl)
+        return getBadges(globalBadgesUrl, token)
     }
 
-    suspend fun getChannelBadges(channelId: Long): Map<TwitchBadgeId, ImageBadge> {
+    suspend fun getChannelBadges(channelId: Long, token: String): Map<TwitchBadgeId, ImageBadge> {
         // https://dev.twitch.tv/docs/api/reference/#get-channel-chat-badges
         val url = channelBadgesUrl.newBuilder().addQueryParameter("broadcaster_id", channelId.toString()).build()
-        return getBadges(url)
+        return getBadges(url, token)
     }
 
-    private suspend fun getBadges(url: HttpUrl): Map<TwitchBadgeId, ImageBadge> {
-        val badgesResponse = doRequest(url, BadgesResponse::class)
+    private suspend fun getBadges(url: HttpUrl, token: String): Map<TwitchBadgeId, ImageBadge> {
+        val badgesResponse = doRequest(url, token, BadgesResponse::class)
 
         return badgesResponse.data
                 .flatMap { data ->
@@ -108,9 +106,7 @@ class TwitchApiClient(
                 }
     }
 
-    private suspend fun <T : Any> doRequest(url: HttpUrl, responseType: KClass<T>): T {
-        val token = getOrGenerateToken()
-
+    private suspend fun <T : Any> doRequest(url: HttpUrl, token: String, responseType: KClass<T>): T {
         val request = Request.Builder()
                 .get()
                 .url(url)
@@ -119,6 +115,9 @@ class TwitchApiClient(
                 .build()
 
         return httpClient.newCall(request).await().use { response ->
+            if (response.code == 401) {
+                throw InvalidTokenException()
+            }
             if (!response.isSuccessful) {
                 throw UnexpectedResponseCodeException(response.code, url.toString())
             }
@@ -126,20 +125,7 @@ class TwitchApiClient(
         }
     }
 
-    private suspend fun getOrGenerateToken(): String {
-        val token = tokenContainer.getToken()
-
-        if (token == null) {
-            val newToken = generateToken()
-            tokenContainer.setToken(newToken)
-            return newToken.value
-        }
-
-        logger.info("Helix token was retrieved from configuration")
-        return token.value
-    }
-
-    private suspend fun generateToken(): HelixApiToken {
+    suspend fun generateToken(clientSecret: String): HelixApiToken {
         val request = Request.Builder()
                 .url(oauthUrl)
                 .post(FormBody.Builder()
@@ -153,7 +139,7 @@ class TwitchApiClient(
 
         val response = httpClient.newCall(request).await()
         if (!response.isSuccessful) {
-            throw UnexpectedResponseCodeException(200, oauthUrl)
+            throw UnexpectedResponseCodeException(response.code, oauthUrl)
         }
 
         val body = response.nonNullBody.string()
@@ -161,7 +147,7 @@ class TwitchApiClient(
 
         val token = HelixApiToken(
                 value = authResponse.accessToken,
-                ttl = Instant.now() + Duration.ofSeconds(authResponse.expiresIn) - Duration.ofSeconds(60)
+                expiresAt = Instant.now() + Duration.ofSeconds(authResponse.expiresIn) - Duration.ofSeconds(60)
         )
         logger.info("New helix token was generated")
         return token

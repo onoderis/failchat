@@ -74,6 +74,7 @@ import failchat.twitch.FfzEmoticonHandler
 import failchat.twitch.SevenTvApiClient
 import failchat.twitch.SevenTvGlobalEmoticonLoadConfiguration
 import failchat.twitch.SevenTvGlobalEmoticonLoader
+import failchat.twitch.TokenAwareTwitchApiClient
 import failchat.twitch.TwitchApiClient
 import failchat.twitch.TwitchBadgeHandler
 import failchat.twitch.TwitchChatClient
@@ -250,7 +251,7 @@ val kodein = DI.direct {
     bind<BadgeManager>() with singleton {
         BadgeManager(
                 instance<BadgeStorage>(),
-                instance<TwitchApiClient>(),
+                instance<TokenAwareTwitchApiClient>(),
                 instance<Peka2tvApiClient>()
         )
     }
@@ -388,12 +389,18 @@ val kodein = DI.direct {
         TwitchApiClient(
                 httpClient = instance<OkHttpClient>(),
                 objectMapper = instance<ObjectMapper>(),
-                clientId = config.getString("twitch.client-id"),
-                clientSecret = config.getString("twitch.client-secret"),
+                clientId = config.getString(ConfigKeys.Twitch.clientId)
+        )
+    }
+    bind<TokenAwareTwitchApiClient>() with singleton {
+        val config = instance<Configuration>()
+        TokenAwareTwitchApiClient(
+                twitchApiClient = instance(),
+                clientSecret = config.getString(ConfigKeys.Twitch.clientSecret),
                 tokenContainer = ConfigurationTokenContainer(instance<Configuration>())
         )
     }
-    bind<TwitchGlobalEmoticonLoader>() with singleton { TwitchGlobalEmoticonLoader(instance<TwitchApiClient>()) }
+    bind<TwitchGlobalEmoticonLoader>() with singleton { TwitchGlobalEmoticonLoader(instance<TokenAwareTwitchApiClient>()) }
     bind<TwitchEmoticonLoadConfiguration>() with singleton {
         TwitchEmoticonLoadConfiguration(
                 instance<TwitchGlobalEmoticonLoader>()
@@ -419,7 +426,7 @@ val kodein = DI.direct {
         )
     }
     bind<TwitchViewersCountLoader>() with factory { channelName: String ->
-        TwitchViewersCountLoader(channelName, instance<TwitchApiClient>())
+        TwitchViewersCountLoader(channelName, instance<TokenAwareTwitchApiClient>())
     }
     bind<TwitchBadgeHandler>() with singleton {
         TwitchBadgeHandler(instance<BadgeFinder>())

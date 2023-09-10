@@ -17,6 +17,8 @@ object ConfigKeys {
     object Twitch {
         const val enabled = "twitch.enabled"
         const val channel = "twitch.channel"
+        const val clientId = "twitch.client-id"
+        const val clientSecret = "twitch.client-secret"
         const val expiresAt = "twitch.bearer-token-expires-at"
         const val token = "twitch.bearer-token"
     }
