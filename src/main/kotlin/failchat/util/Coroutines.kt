@@ -13,7 +13,7 @@ object CoroutineExceptionLogger : CoroutineExceptionHandler {
     override val key = CoroutineExceptionHandler.Key
 
     override fun handleException(context: CoroutineContext, exception: Throwable) {
-        logger.warn("Uncaught exception in coroutine '{}'", context[CoroutineName.Key]?.name, exception)
+        logger.error(exception) { "Uncaught exception in coroutine '${context[CoroutineName.Key]?.name}'" }
     }
 }
 

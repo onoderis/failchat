@@ -23,7 +23,7 @@ class ConfigurationTokenContainer(
 
     override fun setToken(token: HelixApiToken) {
         config.setProperty(ConfigKeys.Twitch.token, token.value)
-        config.setProperty(ConfigKeys.Twitch.expiresAt, token.ttl.toEpochMilli())
+        config.setProperty(ConfigKeys.Twitch.expiresAt, token.expiresAt.toEpochMilli())
         logger.info("Helix token was saved to configuration")
     }
 }

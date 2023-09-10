@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture
 
 /** Uses official twitch API. */
 class TwitchGlobalEmoticonLoader(
-        private val twitchClient: TwitchApiClient
+        private val twitchClient: TokenAwareTwitchApiClient
 ) : EmoticonBulkLoader<TwitchEmoticon> {
 
     override val origin = Origin.TWITCH
