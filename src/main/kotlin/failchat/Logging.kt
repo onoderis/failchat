@@ -71,9 +71,7 @@ fun configureLogging(cmd: CommandLine) {
 private fun configureConsoleAppender(logbackContext: LoggerContext): ConsoleAppender<ILoggingEvent> {
     val consoleEncoder = PatternLayoutEncoder().apply {
         context = logbackContext
-//        pattern = """%date %level [%thread] %logger \(%file:%line\) %msg%n"""
-//        pattern = """%date{HH:mm:ss.SSS} %level %msg%n"""
-        pattern = """%date{HH:mm:ss.SSS} %.-1level \(%file:%line\) %msg%n"""
+        pattern = """%date{HH:mm:ss.SSSXXX} %.-1level \(%file:%line\) %msg%n"""
         start()
     }
     return ConsoleAppender<ILoggingEvent>().apply {
@@ -88,7 +86,7 @@ private fun configureConsoleAppender(logbackContext: LoggerContext): ConsoleAppe
 private fun configureFileAppender(logbackContext: LoggerContext): FileAppender<ILoggingEvent> {
     val fileEncoder = PatternLayoutEncoder().apply {
         context = logbackContext
-        pattern = """%date %level [%thread] %logger \(%file:%line\) %msg%n""" //todo time zone
+        pattern = """%date{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %level [%thread] %logger \(%file:%line\) %msg%n"""
     }
 
     val fileAppender = RollingFileAppender<ILoggingEvent>().apply {
