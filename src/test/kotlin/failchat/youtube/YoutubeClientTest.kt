@@ -6,6 +6,7 @@ import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
 import org.junit.Test
+import kotlin.test.assertTrue
 
 @Ignore
 class YoutubeClientTest {
@@ -15,10 +16,10 @@ class YoutubeClientTest {
             objectMapper = testObjectMapper,
             youtubeHtmlParser = YoutubeHtmlParser(objectMapper = testObjectMapper)
     )
+    private val videoId = "jfKfPfyJRdk"
 
     @Test
     fun getViewersCountTest() = runBlocking<Unit> {
-        val videoId = "5qap5aO4i9A"
         val innertubeApiKey = client.getNewLiveChatSessionData(videoId).innertubeApiKey
 
         val count = client.getViewersCount(videoId, innertubeApiKey)
@@ -27,4 +28,11 @@ class YoutubeClientTest {
         println(count)
     }
 
+    @Test
+    fun getMessagesTest() = runBlocking<Unit> {
+        val params = client.getNewLiveChatSessionData(videoId)
+        val response = client.getLiveChatResponse(params)
+
+        assertTrue(response.continuationContents.liveChatContinuation.actions.isNotEmpty())
+    }
 }

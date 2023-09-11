@@ -1,11 +1,11 @@
 package failchat.youtube
 
 import failchat.chat.MessageHandler
-import failchat.util.LateinitVal
+import java.util.concurrent.atomic.AtomicReference
 
 class YoutubeHighlightHandler : MessageHandler<YoutubeMessage> {
 
-    private val appealedChannelTitle = LateinitVal<String>()
+    private val appealedChannelTitle = AtomicReference<String?>()
 
     override fun handleMessage(message: YoutubeMessage) {
         appealedChannelTitle.get()?.let {
@@ -18,5 +18,4 @@ class YoutubeHighlightHandler : MessageHandler<YoutubeMessage> {
     fun setChannelTitle(channelTitle: String) {
         appealedChannelTitle.set("@$channelTitle")
     }
-
 }
