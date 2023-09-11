@@ -6,7 +6,7 @@ import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.thenUse
 import failchat.util.toFuture
-import mu.KLogging
+import mu.KotlinLogging
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.CompletableFuture
@@ -17,7 +17,9 @@ class GithubClient(
         private val objectMapper: ObjectMapper
 ) {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     fun requestLatestRelease(userName: String, repository: String): CompletableFuture<Release> {
         val request = Request.Builder()

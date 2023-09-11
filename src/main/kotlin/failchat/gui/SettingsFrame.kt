@@ -25,7 +25,7 @@ import javafx.scene.control.TextField
 import javafx.scene.paint.Color
 import javafx.scene.text.Text
 import javafx.stage.Stage
-import mu.KLogging
+import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
 import java.nio.file.Path
 
@@ -40,7 +40,9 @@ class SettingsFrame(
         private val emoticonUpdater: Lazy<GlobalEmoticonUpdater>
 ) {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     private val loader = FXMLLoader(javaClass.getResource("/fx/settings.fxml"))
     private val scene = Scene(loader.load())

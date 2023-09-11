@@ -1,6 +1,6 @@
 package failchat
 
-import mu.KLogging
+import mu.KotlinLogging
 import org.apache.commons.configuration2.CompositeConfiguration
 import org.apache.commons.configuration2.Configuration
 import org.apache.commons.configuration2.PropertiesConfiguration
@@ -16,7 +16,9 @@ import java.nio.file.Path
  * */
 class ConfigLoader(private val configDirectory: Path) {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     private val userConfigPath = configDirectory.resolve("user.properties")
     private val defaultConfig = createMandatoryConfig("/config/default.properties")

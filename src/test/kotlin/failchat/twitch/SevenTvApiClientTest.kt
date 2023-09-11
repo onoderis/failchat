@@ -4,12 +4,14 @@ import failchat.assertRequestToUrlReturns200
 import failchat.okHttpClient
 import failchat.testObjectMapper
 import kotlinx.coroutines.runBlocking
-import mu.KLogging
+import mu.KotlinLogging
 import org.junit.Test
 
 class SevenTvApiClientTest {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     private val apiClient = SevenTvApiClient(
             okHttpClient,

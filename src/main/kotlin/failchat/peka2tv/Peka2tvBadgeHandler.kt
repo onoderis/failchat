@@ -4,11 +4,13 @@ import failchat.chat.MessageHandler
 import failchat.chat.badge.Badge
 import failchat.chat.badge.BadgeFinder
 import failchat.chat.badge.BadgeOrigin.PEKA2TV
-import mu.KLogging
+import mu.KotlinLogging
 
 class Peka2tvBadgeHandler(private val badgeFinder: BadgeFinder) : MessageHandler<Peka2tvMessage> {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     override fun handleMessage(message: Peka2tvMessage) {
         if (message.badgeId == 0L) return

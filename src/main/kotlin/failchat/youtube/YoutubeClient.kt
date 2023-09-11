@@ -17,7 +17,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import mu.KLogging
 
 class YoutubeClient(
         private val httpClient: HttpClient,
@@ -25,7 +24,7 @@ class YoutubeClient(
         private val youtubeHtmlParser: YoutubeHtmlParser
 ) {
 
-    private companion object : KLogging() {
+    private companion object {
         const val liveChatUrl = "https://www.youtube.com/youtubei/v1/live_chat/get_live_chat"
         const val chatPageUrl = "https://www.youtube.com/live_chat?is_popout=1&v="
         const val metadataUrl = "https://www.youtube.com/youtubei/v1/updated_metadata?key="

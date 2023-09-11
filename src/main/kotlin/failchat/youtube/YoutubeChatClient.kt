@@ -15,12 +15,14 @@ import failchat.chat.StatusUpdate
 import failchat.chat.badge.ImageBadge
 import failchat.chat.findTyped
 import failchat.chat.handlers.BraceEscaper
+import failchat.util.CoroutineExceptionLogger
 import failchat.util.value
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import mu.KLogging
+import mu.KotlinLogging
 import java.util.concurrent.atomic.AtomicReference
 
 class YoutubeChatClient(
@@ -31,7 +33,8 @@ class YoutubeChatClient(
         private val videoId: String
 ) : ChatClient, CoroutineScope by CoroutineScope(Dispatchers.Default) {
 
-    private companion object : KLogging() {
+    private companion object {
+        val logger = KotlinLogging.logger {}
         val roleToBadgeMap = mapOf(
                 RoleBadges.verified.description to RoleBadges.verified,
                 "Owner" to RoleBadges.streamer,

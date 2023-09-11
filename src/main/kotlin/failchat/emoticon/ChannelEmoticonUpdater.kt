@@ -9,7 +9,7 @@ import failchat.twitch.FfzChannelNotFoundException
 import failchat.twitch.SevenTvApiClient
 import failchat.twitch.SevenTvChannelNotFoundException
 import kotlinx.coroutines.future.await
-import mu.KLogging
+import mu.KotlinLogging
 
 class ChannelEmoticonUpdater(
         private val emoticonStorage: EmoticonStorage,
@@ -18,7 +18,9 @@ class ChannelEmoticonUpdater(
         private val sevenTvApiClient: SevenTvApiClient
 ) {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     suspend fun updateBttvEmoticons(channelName: String) {
         val emoticons = try {

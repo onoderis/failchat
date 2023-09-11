@@ -2,10 +2,13 @@ package failchat.emoticon
 
 import failchat.Origin
 import kotlinx.coroutines.flow.Flow
-import mu.KLogging
+import mu.KotlinLogging
 
 class EmptyEmoticonStorage(override val origin: Origin) : OriginEmoticonStorage {
-    private companion object : KLogging()
+
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     override fun findByCode(code: String): Emoticon? = null
     override fun findById(id: String): Emoticon? = null

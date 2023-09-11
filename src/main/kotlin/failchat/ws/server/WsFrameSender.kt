@@ -10,11 +10,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.launch
-import mu.KLogging
+import mu.KotlinLogging
 
 class WsFrameSender {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     private val job = Job()
     private val channel: Channel<ChannelMessage> = Channel(Channel.UNLIMITED)

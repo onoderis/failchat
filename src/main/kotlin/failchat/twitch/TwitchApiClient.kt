@@ -10,7 +10,7 @@ import failchat.exception.ChannelOfflineException
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.util.await
 import failchat.util.nonNullBody
-import mu.KLogging
+import mu.KotlinLogging
 import okhttp3.FormBody
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -26,7 +26,8 @@ class TwitchApiClient(
         private val clientId: String
 ) {
 
-    private companion object : KLogging() {
+    private companion object {
+        val logger = KotlinLogging.logger {}
         const val oauthUrl = "https://id.twitch.tv/oauth2/token"
         const val helixApiUrl = "https://api.twitch.tv/helix"
         val usersUrl = "$helixApiUrl/users".toHttpUrl()

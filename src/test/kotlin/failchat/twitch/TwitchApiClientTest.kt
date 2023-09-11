@@ -9,7 +9,7 @@ import failchat.okHttpClient
 import failchat.testObjectMapper
 import failchat.userHomeConfig
 import kotlinx.coroutines.runBlocking
-import mu.KLogging
+import mu.KotlinLogging
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -17,7 +17,8 @@ import kotlin.test.assertIs
 
 class TwitchApiClientTest {
 
-    private companion object : KLogging() {
+    private companion object {
+        val logger = KotlinLogging.logger {}
         const val userName = "fail_chatbot"
         const val userId = 90826142L
         const val nonExistingUserName = "fail_chatbot2"

@@ -6,7 +6,7 @@ import failchat.chat.badge.Badge
 import failchat.chat.badge.CharacterBadge
 import failchat.chat.badge.ImageBadge
 import javafx.scene.paint.Color
-import mu.KLogging
+import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
 
 class GgBadgeHandler(
@@ -14,7 +14,9 @@ class GgBadgeHandler(
         config: Configuration
 ) : MessageHandler<GgMessage> {
 
-    private companion object : KLogging() {
+    private companion object {
+        val logger = KotlinLogging.logger {}
+
         /* Following html entities should be displayed in icomoon font. */
         const val starBadge = "&#59730;"
         val badgeNameToCharEntity: Map<String, String> = mapOf(

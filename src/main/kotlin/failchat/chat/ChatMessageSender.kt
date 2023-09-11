@@ -14,7 +14,7 @@ import failchat.util.Do
 import failchat.util.toHexFormat
 import failchat.viewers.COUNTABLE_ORIGINS
 import failchat.ws.server.WsFrameSender
-import mu.KLogging
+import mu.KotlinLogging
 
 //todo use dto
 class ChatMessageSender(
@@ -23,7 +23,9 @@ class ChatMessageSender(
         private val objectMapper: ObjectMapper
 ) {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     private val config = appConfiguration.config
 

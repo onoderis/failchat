@@ -44,7 +44,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import mu.KLogging
+import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
 import org.kodein.di.DirectDI
 import org.kodein.di.factory
@@ -58,7 +58,9 @@ import kotlin.concurrent.withLock
 
 class AppStateManager(private val kodein: DirectDI) {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     private val messageIdGenerator: MessageIdGenerator = kodein.instance()
     private val peka2tvApiClient: Peka2tvApiClient = kodein.instance()

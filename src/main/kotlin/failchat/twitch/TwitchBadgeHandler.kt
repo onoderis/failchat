@@ -6,13 +6,15 @@ import failchat.chat.badge.BadgeFinder
 import failchat.chat.badge.BadgeOrigin.TWITCH_CHANNEL
 import failchat.chat.badge.BadgeOrigin.TWITCH_GLOBAL
 import failchat.util.notEmptyOrNull
-import mu.KLogging
+import mu.KotlinLogging
 
 class TwitchBadgeHandler(
         private val badgeFinder: BadgeFinder
 ) : MessageHandler<TwitchMessage> {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     override fun handleMessage(message: TwitchMessage) {
         val badgesTag = message.tags.get(TwitchIrcTags.badges).notEmptyOrNull() ?: return

@@ -1,7 +1,7 @@
 package failchat.twitch
 
 import failchat.ConfigKeys
-import mu.KLogging
+import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
 import java.time.Instant
 
@@ -9,7 +9,9 @@ class ConfigurationTokenContainer(
         private val config: Configuration
 ) : HelixTokenContainer {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     override fun getToken(): HelixApiToken? {
         val expiresAt = Instant.ofEpochMilli(config.getLong(ConfigKeys.Twitch.expiresAt, 0))

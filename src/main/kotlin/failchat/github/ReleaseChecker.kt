@@ -1,6 +1,6 @@
 package failchat.github
 
-import mu.KLogging
+import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
 
 class ReleaseChecker(
@@ -8,7 +8,8 @@ class ReleaseChecker(
         private val config: Configuration
 ) {
 
-    private companion object : KLogging() {
+    private companion object {
+        val logger = KotlinLogging.logger {}
         const val lastNotifiedKey = "release-checker.latest-notified-version"
     }
 
