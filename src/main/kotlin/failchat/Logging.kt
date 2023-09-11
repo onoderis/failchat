@@ -77,7 +77,7 @@ private fun configureConsoleAppender(logbackContext: LoggerContext): ConsoleAppe
     return ConsoleAppender<ILoggingEvent>().apply {
         context = logbackContext
         encoder = consoleEncoder
-        target = "System.err"
+        target = "System.out"
         isWithJansi = true
         start()
     }
