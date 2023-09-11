@@ -16,7 +16,7 @@ import failchat.chat.findTyped
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
 import kotlinx.coroutines.runBlocking
-import mu.KLogging
+import mu.KotlinLogging
 import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
 import org.pircbotx.hooks.ListenerAdapter
@@ -49,7 +49,8 @@ class TwitchChatClient(
         override val callbacks: ChatClientCallbacks
 ) : ChatClient {
 
-    private companion object : KLogging() {
+    private companion object {
+        val logger = KotlinLogging.logger {}
         val reconnectTimeout: Duration = Duration.ofSeconds(10)
         val banMessagePattern: Pattern = Pattern.compile("""^:tmi\.twitch\.tv CLEARCHAT #.+ :(.+)""")
     }

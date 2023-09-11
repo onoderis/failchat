@@ -6,7 +6,7 @@ import failchat.chat.Image
 import failchat.chat.Link
 import failchat.chat.MessageHandler
 import failchat.emoticon.Emoticon
-import mu.KLogging
+import mu.KotlinLogging
 import java.io.BufferedWriter
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -14,7 +14,8 @@ import java.time.temporal.ChronoUnit
 
 class ChatHistoryLogger(private val chatHistoryWriter: BufferedWriter) : MessageHandler<ChatMessage> {
 
-    private companion object : KLogging() {
+    private companion object {
+        val logger = KotlinLogging.logger {}
         val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
         val zone: ZoneId = ZoneId.systemDefault()
     }

@@ -1,6 +1,6 @@
 package failchat.reporter
 
-import mu.KLogging
+import mu.KotlinLogging
 import org.apache.commons.codec.binary.Hex
 import java.nio.file.Files
 import java.nio.file.Path
@@ -9,7 +9,9 @@ import java.util.UUID
 
 class UserIdManager(private val homeDirectory: Path) {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     private val userIdHomeFile: Path = homeDirectory.resolve("user-id")
 

@@ -2,13 +2,15 @@ package failchat.twitch
 
 import failchat.chat.MessageHandler
 import failchat.util.notEmptyOrNull
-import mu.KLogging
+import mu.KotlinLogging
 
 class TwitchEmoticonHandler(
         private val twitchEmotesTagParser: TwitchEmotesTagParser
 ) : MessageHandler<TwitchMessage> {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     override fun handleMessage(message: TwitchMessage) {
         val emotesTag = message.tags.get(TwitchIrcTags.emotes).notEmptyOrNull() ?: return

@@ -7,7 +7,7 @@ import failchat.chat.ChatMessage
 import failchat.chat.MessageFilter
 import failchat.chatOrigins
 import failchat.util.value
-import mu.KLogging
+import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
 import java.util.concurrent.atomic.AtomicReference
 import java.util.regex.Pattern
@@ -18,7 +18,9 @@ import java.util.regex.Pattern
  */
 class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessage> {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     private val ignoreStringPattern: Pattern = compilePattern()
 

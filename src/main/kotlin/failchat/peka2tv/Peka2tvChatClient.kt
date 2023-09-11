@@ -23,7 +23,7 @@ import failchat.viewers.ViewersCountLoader
 import io.socket.client.IO
 import io.socket.client.Socket
 import kotlinx.coroutines.runBlocking
-import mu.KLogging
+import mu.KotlinLogging
 import okhttp3.OkHttpClient
 import org.json.JSONObject
 import java.util.concurrent.CompletableFuture
@@ -41,7 +41,9 @@ class Peka2tvChatClient(
         override val callbacks: ChatClientCallbacks
 ) : ChatClient, ViewersCountLoader {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     override val status: ChatClientStatus
         get() = atomicStatus.get()

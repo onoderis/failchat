@@ -19,7 +19,7 @@ import failchat.chat.handlers.CommaHighlightHandler
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.ws.client.WsClient
 import kotlinx.coroutines.runBlocking
-import mu.KLogging
+import mu.KotlinLogging
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
 import java.util.concurrent.atomic.AtomicReference
@@ -35,7 +35,9 @@ class GgChatClient(
         private val objectMapper: ObjectMapper
 ) : ChatClient {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     override val origin = Origin.GOODGAME
     override val status: ChatClientStatus get() = atomicStatus.get()

@@ -4,7 +4,7 @@ import failchat.emoticon.EmoticonLoadConfiguration.LoadType.BULK
 import failchat.emoticon.EmoticonLoadConfiguration.LoadType.STREAM
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.map
-import mu.KLogging
+import mu.KotlinLogging
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -14,7 +14,9 @@ class EmoticonManager(
         private val scheduledExecutorService: ScheduledExecutorService
 ) {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     /**
      * Load emoticons by the specified configurations and put them into the storage. Blocking call
@@ -65,7 +67,7 @@ class EmoticonManager(
                 loadedSuccessfully = true
                 break
             } catch (e: Exception) {
-                logger.warn("Failed to load emoticon list for {} via bulk loader {}", origin, e, bulkLoader)
+                logger.warn(e) { "Failed to load emoticon list for $origin via bulk loader $bulkLoader" }
             }
         }
 

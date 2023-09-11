@@ -7,7 +7,7 @@ import failchat.ws.client.WsClient.Status.ERROR
 import failchat.ws.client.WsClient.Status.READY
 import failchat.ws.client.WsClient.Status.SHUTDOWN
 import failchat.ws.client.WsClient.Status.WORKING
-import mu.KLogging
+import mu.KotlinLogging
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.drafts.Draft_6455
 import org.java_websocket.handshake.ServerHandshake
@@ -25,7 +25,8 @@ import kotlin.concurrent.withLock
  * */
 open class WsClient(private val serverUri: URI) {
 
-    private companion object : KLogging() {
+    private companion object {
+        val logger = KotlinLogging.logger {}
         val requestHeaders = mapOf("Connection" to "Upgrade")
     }
 

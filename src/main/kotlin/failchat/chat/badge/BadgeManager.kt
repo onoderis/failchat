@@ -11,7 +11,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.future.await
-import mu.KLogging
+import mu.KotlinLogging
 
 class BadgeManager(
         private val badgeStorage: BadgeStorage,
@@ -19,7 +19,9 @@ class BadgeManager(
         private val peka2tvApiClient: Peka2tvApiClient
 ) {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     suspend fun loadGlobalBadges() {
         val jobsList: MutableList<Deferred<Unit>> = ArrayList()

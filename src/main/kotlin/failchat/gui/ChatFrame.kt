@@ -28,7 +28,7 @@ import javafx.scene.web.WebEngine
 import javafx.scene.web.WebView
 import javafx.stage.Stage
 import javafx.stage.StageStyle
-import mu.KLogging
+import mu.KotlinLogging
 import netscape.javascript.JSObject
 import org.apache.commons.configuration2.Configuration
 import java.net.MalformedURLException
@@ -41,7 +41,9 @@ class ChatFrame(
         private val ctConfigurator: ClickTransparencyConfigurator?
 ) {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     private val decoratedStage: Stage = buildChatStage(StageStyle.DECORATED)
     private val transparentStage: Stage = buildChatStage(StageStyle.TRANSPARENT)

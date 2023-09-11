@@ -5,12 +5,14 @@ import failchat.defaultConfig
 import failchat.okHttpClient
 import failchat.testObjectMapper
 import kotlinx.coroutines.runBlocking
-import mu.KLogging
+import mu.KotlinLogging
 import org.junit.Test
 
 class FfzApiClientTest {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     private val apiClient = FfzApiClient(
             okHttpClient,

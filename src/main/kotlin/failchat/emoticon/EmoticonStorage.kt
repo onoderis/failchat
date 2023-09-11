@@ -3,11 +3,13 @@ package failchat.emoticon
 import failchat.Origin
 import failchat.util.enumMap
 import kotlinx.coroutines.flow.Flow
-import mu.KLogging
+import mu.KotlinLogging
 
 class EmoticonStorage : EmoticonFinder {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     private var originStorages: Map<Origin, OriginEmoticonStorage> = Origin.values
             .map { it to EmptyEmoticonStorage(it) }

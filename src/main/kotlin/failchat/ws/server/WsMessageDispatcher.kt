@@ -6,14 +6,16 @@ import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.readText
 import io.ktor.websocket.DefaultWebSocketServerSession
 import kotlinx.coroutines.channels.consumeEach
-import mu.KLogging
+import mu.KotlinLogging
 
 class WsMessageDispatcher(
         private val objectMapper: ObjectMapper,
         handlers: List<WsMessageHandler>
 ) {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     private val handlers: Map<InboundWsMessage.Type, WsMessageHandler> = handlers
             .map { it.expectedType to it }

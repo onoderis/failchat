@@ -3,7 +3,7 @@ package failchat.reporter
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.util.await
 import failchat.util.sp
-import mu.KLogging
+import mu.KotlinLogging
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -16,7 +16,9 @@ class GAEventReporter(
         private val trackingId: String
 ) : EventReporter {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     private val languageTag = Locale.getDefault().toLanguageTag()
 

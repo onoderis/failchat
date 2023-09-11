@@ -12,7 +12,7 @@ import failchat.util.value
 import failchat.viewers.ViewersCounter.State.READY
 import failchat.viewers.ViewersCounter.State.SHUTDOWN
 import failchat.viewers.ViewersCounter.State.WORKING
-import mu.KLogging
+import mu.KotlinLogging
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
@@ -29,7 +29,8 @@ class ViewersCounter(
         private val viewersCountLoaders: List<ViewersCountLoader>,
         private val chatMessageSender: ChatMessageSender
 ) {
-    private companion object : KLogging() {
+    private companion object {
+        val logger = KotlinLogging.logger {}
         val updateInterval: Duration = Duration.ofSeconds(15)
         val countAwaitDuration: Duration = Duration.ofSeconds(3)
     }

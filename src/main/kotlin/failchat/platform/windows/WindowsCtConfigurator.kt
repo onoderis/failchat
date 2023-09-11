@@ -6,12 +6,14 @@ import failchat.gui.ClickTransparencyConfigurator
 import javafx.stage.Stage
 import javafx.stage.StageStyle.DECORATED
 import javafx.stage.StageStyle.TRANSPARENT
-import mu.KLogging
+import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
 
 class WindowsCtConfigurator(private val config: Configuration) : ClickTransparencyConfigurator {
 
-    private companion object : KLogging()
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
     override fun configureClickTransparency(stage: Stage) {
         if (!config.getBoolean(ConfigKeys.clickTransparency)) return

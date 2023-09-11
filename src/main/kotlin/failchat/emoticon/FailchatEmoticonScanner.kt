@@ -4,7 +4,7 @@ import failchat.chat.ImageFormat.RASTER
 import failchat.chat.ImageFormat.VECTOR
 import failchat.util.filterNotNull
 import failchat.util.withSuffix
-import mu.KLogging
+import mu.KotlinLogging
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
@@ -19,7 +19,8 @@ class FailchatEmoticonScanner(
 
     private val locationUrlPrefix = locationUrlPrefix.withSuffix("/")
 
-    private companion object : KLogging() {
+    private companion object {
+        val logger = KotlinLogging.logger {}
         val fileNamePattern: Pattern = Pattern.compile("""(?<code>.+)\.(?<format>jpe?g|png|gif|svg)$""", Pattern.CASE_INSENSITIVE)
     }
 
