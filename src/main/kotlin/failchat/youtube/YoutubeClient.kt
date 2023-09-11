@@ -12,11 +12,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.isSuccess
 import io.ktor.http.takeFrom
 import io.ktor.util.toByteArray
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class YoutubeClient(
         private val httpClient: HttpClient,
@@ -132,28 +127,4 @@ class YoutubeClient(
             throw YoutubeClientException(cause = e)
         }
     }
-
-    fun CoroutineScope.pollLiveChatActions(initialParameters: LiveChatRequestParameters): ReceiveChannel<LiveChatResponse.Action> {
-        val channel = Channel<LiveChatResponse.Action>(50)
-
-        launch {
-            var parameters = initialParameters
-
-            while (true) {
-                val response = getLiveChatResponse(parameters)
-
-                response.continuationContents.liveChatContinuation.actions.forEach { action ->
-                    channel.send(action)
-                }
-
-                val continuationDto = response.continuationContents.liveChatContinuation.continuations.first().anyContinuation()
-                parameters = parameters.copy(nextContinuation = continuationDto.continuation)
-
-                delay(continuationDto.timeoutMs.toLong())
-            }
-        }
-
-        return channel
-    }
-
 }
