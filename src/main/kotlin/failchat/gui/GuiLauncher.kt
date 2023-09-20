@@ -1,10 +1,9 @@
 package failchat.gui
 
-import failchat.emoticon.GlobalEmoticonUpdater
-import failchat.github.ReleaseChecker
-import failchat.kodein
+import failchat.Dependencies
+import failchat.failchatEmoticonsDirectory
 import failchat.platform.windows.WindowsCtConfigurator
-import failchat.skin.Skin
+import failchat.util.LateinitVal
 import failchat.util.executeWithCatch
 import javafx.application.Application
 import javafx.application.Platform
@@ -15,34 +14,31 @@ import javafx.scene.control.ButtonBar.ButtonData.OK_DONE
 import javafx.scene.control.ButtonType
 import javafx.stage.Stage
 import mu.KotlinLogging
-import org.apache.commons.configuration2.Configuration
-import org.kodein.di.instance
-import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
-import java.util.concurrent.ScheduledExecutorService
 
 class GuiLauncher : Application() {
 
     companion object {
+        val deps = LateinitVal<Dependencies>()
         private val logger = KotlinLogging.logger {}
     }
 
     override fun start(primaryStage: Stage) {
         val startTime = Instant.now()
 
-        val config = kodein.instance<Configuration>()
+        val config = deps.get()!!.configuration
         val isWindows = com.sun.jna.Platform.isWindows()
 
         val settings = SettingsFrame(
                 this,
                 primaryStage,
                 config,
-                kodein.instance<List<Skin>>(),
-                kodein.instance<Path>("failchatEmoticonsDirectory"),
+                deps.get()!!.skinList,
+                failchatEmoticonsDirectory,
                 isWindows,
-                lazy { kodein.instance<GuiEventHandler>() },
-                lazy { kodein.instance<GlobalEmoticonUpdater>() }
+                lazy { deps.get()!!.guiEventHandler },
+                lazy { deps.get()!!.globalEmoticonUpdater }
         )
 
         settings.show()
@@ -60,15 +56,15 @@ class GuiLauncher : Application() {
         Platform.runLater {
             val chat = ChatFrame(
                     this,
-                    kodein.instance<Configuration>(),
-                    kodein.instance<List<Skin>>(),
-                    lazy { kodein.instance<GuiEventHandler>() },
+                    config,
+                    deps.get()!!.skinList,
+                    lazy { deps.get()!!.guiEventHandler },
                     ctConfigurator
             )
 
-            val backgroundExecutor = kodein.instance<ScheduledExecutorService>("background")
+            val backgroundExecutor = deps.get()!!.backgroundExecutorService
             backgroundExecutor.executeWithCatch {
-                val eventHandler = kodein.instance<GuiEventHandler>()
+                val eventHandler = deps.get()!!.guiEventHandler
                 if (eventHandler is FullGuiEventHandler) {
                     eventHandler.guiFrames.set(GuiFrames(settings, chat))
                 }
@@ -85,7 +81,7 @@ class GuiLauncher : Application() {
     }
 
     private fun showUpdateNotificationOnNewRelease() {
-        kodein.instance<ReleaseChecker>().checkNewRelease { release ->
+        deps.get()!!.releaseChecker.checkNewRelease { release ->
             Platform.runLater {
                 val notification = Alert(AlertType.CONFIRMATION).apply {
                     title = "Update notification"

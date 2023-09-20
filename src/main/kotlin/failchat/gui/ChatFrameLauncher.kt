@@ -1,18 +1,20 @@
 package failchat.gui
 
-import failchat.kodein
+import failchat.Dependencies
 import failchat.platform.windows.WindowsCtConfigurator
-import failchat.skin.Skin
+import failchat.util.LateinitVal
 import javafx.application.Application
 import javafx.stage.Stage
-import org.apache.commons.configuration2.Configuration
-import org.kodein.di.instance
 
 class ChatFrameLauncher : Application() {
 
+    companion object {
+        val deps = LateinitVal<Dependencies>()
+    }
+
     override fun start(primaryStage: Stage) {
         //todo remove copypaste
-        val config = kodein.instance<Configuration>()
+        val config = deps.get()!!.configuration
 
         val isWindows = com.sun.jna.Platform.isWindows()
         val ctConfigurator: ClickTransparencyConfigurator? = if (isWindows) {
@@ -23,9 +25,9 @@ class ChatFrameLauncher : Application() {
 
         val chat = ChatFrame(
                 this,
-                kodein.instance<Configuration>(),
-                kodein.instance<List<Skin>>(),
-                lazy { kodein.instance<GuiEventHandler>() },
+                config,
+                deps.get()!!.skinList,
+                lazy { deps.get()!!.guiEventHandler },
                 ctConfigurator
         )
 

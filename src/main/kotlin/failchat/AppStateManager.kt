@@ -10,32 +10,11 @@ import failchat.Origin.TWITCH
 import failchat.Origin.YOUTUBE
 import failchat.chat.AppConfiguration
 import failchat.chat.ChatClient
-import failchat.chat.ChatMessageSender
-import failchat.chat.MessageIdGenerator
-import failchat.chat.OriginStatusManager
-import failchat.chat.badge.BadgeManager
-import failchat.chat.handlers.IgnoreFilter
-import failchat.chat.handlers.ImageLinkHandler
-import failchat.emoticon.ChannelEmoticonUpdater
-import failchat.emoticon.DeletedMessagePlaceholderFactory
-import failchat.emoticon.EmoticonStorage
-import failchat.emoticon.FailchatEmoticonUpdater
 import failchat.exception.InvalidConfigurationException
-import failchat.goodgame.GgApiClient
-import failchat.goodgame.GgChannel
-import failchat.goodgame.GgChatClient
-import failchat.goodgame.GgViewersCountLoader
-import failchat.peka2tv.Peka2tvApiClient
-import failchat.peka2tv.Peka2tvChatClient
-import failchat.twitch.TokenAwareTwitchApiClient
-import failchat.twitch.TwitchChatClient
-import failchat.twitch.TwitchViewersCountLoader
 import failchat.util.CoroutineExceptionLogger
 import failchat.util.enumMap
 import failchat.viewers.ViewersCountLoader
-import failchat.viewers.ViewersCountWsHandler
 import failchat.viewers.ViewersCounter
-import failchat.youtube.YoutubeChatClient
 import failchat.youtube.YoutubeViewersCountLoader
 import javafx.application.Platform
 import kotlinx.coroutines.CoroutineName
@@ -46,43 +25,37 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
-import org.kodein.di.DirectDI
-import org.kodein.di.factory
-import org.kodein.di.instance
-import org.mapdb.DB
-import java.io.BufferedWriter
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-class AppStateManager(private val kodein: DirectDI) {
+class AppStateManager(private val deps: Dependencies) {
 
     private companion object {
         val logger = KotlinLogging.logger {}
     }
 
-    private val messageIdGenerator: MessageIdGenerator = kodein.instance()
-    private val peka2tvApiClient: Peka2tvApiClient = kodein.instance()
-    private val twitchApiClient: TokenAwareTwitchApiClient = kodein.instance()
-    private val goodgameApiClient: GgApiClient = kodein.instance()
-    private val configLoader: ConfigLoader = kodein.instance()
-    private val ignoreFilter: IgnoreFilter = kodein.instance()
-    private val imageLinkHandler: ImageLinkHandler = kodein.instance()
-    private val viewersCountWsHandler: ViewersCountWsHandler = kodein.instance()
-    private val emoticonStorage: EmoticonStorage = kodein.instance()
-    private val channelEmoticonUpdater: ChannelEmoticonUpdater = kodein.instance()
-    private val failchatEmoticonUpdater: FailchatEmoticonUpdater = kodein.instance()
-    private val emoticonsDb: DB = kodein.instance("emoticons")
-    private val badgeManager: BadgeManager = kodein.instance()
-    private val backgroundExecutorDispatcher = kodein.instance<ScheduledExecutorService>("background").asCoroutineDispatcher()
-    private val originStatusManager: OriginStatusManager = kodein.instance()
-    private val deletedMessagePlaceholderFactory: DeletedMessagePlaceholderFactory = kodein.instance()
-    private val messageSender: ChatMessageSender = kodein.instance()
+    private val messageIdGenerator = deps.messageIdGenerator
+    private val peka2tvApiClient = deps.peka2tvApiClient
+    private val twitchApiClient = deps.tokenAwareTwitchApiClient
+    private val goodgameApiClient = deps.ggApiClient
+    private val configLoader = deps.configLoader
+    private val ignoreFilter = deps.ignoreFilter
+    private val imageLinkHandler = deps.imageLinkHandler
+    private val viewersCountWsHandler = deps.viewersCountWsHandler
+    private val emoticonStorage = deps.emoticonStorage
+    private val channelEmoticonUpdater = deps.channelEmoticonUpdater
+    private val failchatEmoticonUpdater = deps.failchatEmoticonUpdater
+    private val emoticonsDb = deps.emoticonsDb
+    private val badgeManager = deps.badgeManager
+    private val backgroundExecutorDispatcher = deps.backgroundExecutorService.asCoroutineDispatcher()
+    private val originStatusManager = deps.originStatusManager
+    private val deletedMessagePlaceholderFactory = deps.deletedMessagePlaceholderFactory
+    private val messageSender = deps.chatMessageSender
 
     private val lock: Lock = ReentrantLock()
-    private val appConfig: AppConfiguration = kodein.instance()
-    private val config: Configuration = kodein.instance()
+    private val appConfig: AppConfiguration = deps.appConfiguration
+    private val config: Configuration = deps.configuration
 
     private var chatClients: Map<Origin, ChatClient> = emptyMap()
     private var viewersCounter: ViewersCounter? = null
@@ -109,8 +82,7 @@ class AppStateManager(private val kodein: DirectDI) {
                 return@let
             }
 
-            val chatClient = kodein.factory<Pair<String, Long>, Peka2tvChatClient>()
-                    .invoke(channelName to channelId)
+            val chatClient = deps.peka2tvChatClient.invoke(channelName to channelId)
 
             initializedChatClients.put(PEKA2TV, chatClient)
             viewersCountLoaders.add(chatClient)
@@ -119,10 +91,9 @@ class AppStateManager(private val kodein: DirectDI) {
 
         // Twitch
         checkEnabled(TWITCH)?.let { channelName ->
-            val chatClient = kodein.factory<String, TwitchChatClient>()
-                    .invoke(channelName)
+            val chatClient = deps.twitchChatClient.invoke(channelName)
             initializedChatClients.put(TWITCH, chatClient)
-            viewersCountLoaders.add(kodein.factory<String, TwitchViewersCountLoader>().invoke(channelName))
+            viewersCountLoaders.add(deps.twitchViewersCountLoader.invoke(channelName))
 
             val channelId = try {
                 runBlocking { twitchApiClient.getUserId(channelName) }
@@ -173,22 +144,20 @@ class AppStateManager(private val kodein: DirectDI) {
                 return@let
             }
 
-            val chatClient = kodein.factory<GgChannel, GgChatClient>()
-                    .invoke(channel)
+            val chatClient = deps.ggChatClient.invoke(channel)
 
             initializedChatClients.put(GOODGAME, chatClient)
 
-            val counter = kodein.factory<String, GgViewersCountLoader>()
-                    .invoke(channelName)
+            val counter = deps.ggViewersCountLoader.invoke(channelName)
             viewersCountLoaders.add(counter)
         }
 
 
         // Youtube
         checkEnabled(YOUTUBE)?.let { videoId ->
-            val chatClient = kodein.factory<String, YoutubeChatClient>().invoke(videoId)
+            val chatClient = deps.youtubeChatClient.invoke(videoId)
             initializedChatClients.put(YOUTUBE, chatClient)
-            viewersCountLoaders.add(YoutubeViewersCountLoader(videoId, kodein.instance()))
+            viewersCountLoaders.add(YoutubeViewersCountLoader(videoId, deps.youtubeClient))
         }
 
 
@@ -207,8 +176,7 @@ class AppStateManager(private val kodein: DirectDI) {
 
         // Start viewers counter
         viewersCounter = try {
-            kodein
-                    .factory<List<ViewersCountLoader>, ViewersCounter>()
+            deps.viewersCounter
                     .invoke(viewersCountLoaders)
                     .also { it.start() }
         } catch (t: Throwable) {
@@ -254,7 +222,7 @@ class AppStateManager(private val kodein: DirectDI) {
         }
 
         try {
-            kodein.instance<BufferedWriter>(tag = "chatHistoryWriter").close()
+            deps.chatHistoryWriter.close()
         } catch (t: Throwable) {
             logger.error("Failed to close chat history writer", t)
         }

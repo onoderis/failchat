@@ -11,4 +11,10 @@ fun Configuration.resetEmoticonsUpdatedTime() {
     }
 }
 
+val workingDirectory: Path = Paths.get("")
 val failchatHomePath: Path = Paths.get(System.getProperty("user.home")).resolve(".failchat")
+val failchatEmoticonsDirectory: Path = failchatHomePath.resolve("failchat-emoticons")
+val emoticonCacheDirectory: Path = workingDirectory.resolve("emoticons")
+val emoticonDbFile: Path = emoticonCacheDirectory.resolve("emoticons.db")
+
+val failchatEmoticonsUrl = "http://${FailchatServerInfo.host.hostAddress}:${FailchatServerInfo.port}/emoticons/"
