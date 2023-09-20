@@ -1,11 +1,7 @@
 package failchat
 
-import failchat.chat.ChatMessageHistory
 import failchat.chat.badge.BadgeManager
-import failchat.emoticon.EmoticonStorage
-import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.emoticon.OriginEmoticonStorageFactory
-import failchat.emoticon.TwitchEmoticonFactory
 import failchat.gui.ChatFrameLauncher
 import failchat.gui.GuiLauncher
 import failchat.gui.GuiMode
@@ -42,11 +38,8 @@ import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
 import org.apache.commons.configuration2.Configuration
-import org.kodein.di.instance
-import org.mapdb.DB
 import java.net.ServerSocket
 import java.nio.file.Files
-import java.nio.file.Path
 import java.time.Instant
 import java.time.ZoneOffset
 import java.util.concurrent.ScheduledExecutorService
@@ -71,7 +64,6 @@ fun main(args: Array<String>) {
 }
 
 fun main0(args: Array<String>) {
-
     val cmd = parseArguments(args)
 
     handlePortArgument(cmd)
@@ -82,66 +74,67 @@ fun main0(args: Array<String>) {
 
     handleResetConfigurationOption()
 
-    val config: Configuration = kodein.instance()
+    val deps = Dependencies()
+
+    val config: Configuration = deps.configuration
     handleProgramArguments(cmd, config)
 
     val guiMode = GuiMode.valueOf(config.getString("gui-mode"))
-    runGui(guiMode)
+    runGui(guiMode, deps)
 
-    logSystemInfo()
+    logSystemInfo(config)
 
 
     // Http/websocket server
-    val wsFrameSender: WsFrameSender = kodein.instance()
+    val wsFrameSender: WsFrameSender = deps.wsFrameSender
     wsFrameSender.start()
 
-    val httpServer: ApplicationEngine = kodein.instance()
+    val httpServer: ApplicationEngine = deps.applicationEngine
     httpServer.start()
     logger.info("Http/websocket server started at {}:{}", FailchatServerInfo.host.hostAddress, FailchatServerInfo.port)
 
 
     // Reporter
-    val backgroundExecutor = kodein.instance<ScheduledExecutorService>("background")
-    runReporterIfEnabled(backgroundExecutor, config)
+    val backgroundExecutor = deps.backgroundExecutorService
+    runReporterIfEnabled(backgroundExecutor, config, deps.eventReporter)
 
     // If emoticon db file not exists, reset 'last-updated' config values
-    val dbPath = kodein.instance<Path>("emoticonDbFile")
-    val dbFileExists = Files.exists(dbPath)
+    val dbFileExists = Files.exists(emoticonDbFile)
     if (!dbFileExists) {
-        logger.info("DB file '{}' not exists, resetting 'emoticons.last-updated' config parameters to 0", dbPath)
+        logger.info("DB file '{}' not exists, resetting 'emoticons.last-updated' config parameters to 0", emoticonDbFile)
         config.resetEmoticonsUpdatedTime()
     }
 
     // Initialize emoticon storages
-    val emoticonStorage = kodein.instance<EmoticonStorage>()
+    val emoticonStorage = deps.emoticonStorage
     val originEmoticonStorages = OriginEmoticonStorageFactory.create(
-            kodein.instance<DB>("emoticons"),
-            kodein.instance<TwitchEmoticonFactory>()
+            deps.emoticonsDb,
+            deps.twitchEmoticonFactory
     )
     emoticonStorage.setStorages(originEmoticonStorages)
     logger.info("Emoticon storages initialized")
 
 
     // Actualize emoticons
-    val emoticonUpdater = kodein.instance<GlobalEmoticonUpdater>()
+    val emoticonUpdater = deps.globalEmoticonUpdater
     emoticonUpdater.actualizeEmoticonsAsync()
 
     // Load global badges in background thread
-    val badgeManager: BadgeManager = kodein.instance()
+    val badgeManager: BadgeManager = deps.badgeManager
     val badgeLoaderCtx = backgroundExecutor.asCoroutineDispatcher() + CoroutineName("GlobalBadgeLoader") + CoroutineExceptionLogger
     CoroutineScope(badgeLoaderCtx).launch {
         badgeManager.loadGlobalBadges()
     }
 
-    kodein.instance<ChatMessageHistory>().start()
+    deps.chatMessageHistory.start()
 
 
     // Create directory for failchat emoticons if required
-    Files.createDirectories(kodein.instance<Path>("failchatEmoticonsDirectory"))
+    Files.createDirectories(failchatEmoticonsDirectory)
 
     if (guiMode == GuiMode.CHAT_ONLY || guiMode == GuiMode.NO_GUI) {
         // start app with current configuration
-        val appStateManager = kodein.instance<AppStateManager>()
+        val appStateManager = deps.appStateManager
         appStateManager.startChat()
 
         if (guiMode == GuiMode.NO_GUI) {
@@ -172,7 +165,7 @@ private fun checkForAnotherInstance() {
 /** Delete user config file and emoticons db file if user configuration was reset during a previous launch. */
 private fun handleResetConfigurationOption() {
     // don't initialize Configuration in kodein module for the case when configuration reset needed
-    val configLoader = kodein.instance<ConfigLoader>()
+    val configLoader = ConfigLoader(failchatHomePath)
     val config = configLoader.load()
 
     if (config.getBoolean(ConfigKeys.resetConfiguration)) {
@@ -180,22 +173,27 @@ private fun handleResetConfigurationOption() {
         configLoader.deleteUserConfigFile()
         configLoader.dropLoadedConfig()
 
-        val emoticonsDbFile: Path = kodein.instance("emoticonDbFile")
-        Files.deleteIfExists(emoticonsDbFile)
-        logger.info("Emoticons db file was deleted: {}", emoticonsDbFile)
+        Files.deleteIfExists(emoticonDbFile)
+        logger.info("Emoticons db file was deleted: {}", emoticonDbFile)
     } else {
         logger.debug("Configuration reset isn't needed")
     }
 }
 
-private fun runGui(guiMode: GuiMode) {
+private fun runGui(guiMode: GuiMode, deps: Dependencies) {
     if (guiMode == GuiMode.NO_GUI) {
         return
     }
 
     val guiClass: KClass<out JfxApplication> = when (guiMode) {
-        GuiMode.FULL_GUI -> GuiLauncher::class
-        GuiMode.CHAT_ONLY -> ChatFrameLauncher::class
+        GuiMode.FULL_GUI -> {
+            GuiLauncher.deps.set(deps)
+            GuiLauncher::class
+        }
+        GuiMode.CHAT_ONLY -> {
+            ChatFrameLauncher.deps.set(deps)
+            ChatFrameLauncher::class
+        }
         else -> error("Unexpected gui mode: $guiMode")
     }
     // Javafx starts earlier for responsiveness. Thread will be blocked
@@ -219,10 +217,10 @@ private fun parseArguments(args: Array<String>): CommandLine {
     return DefaultParser().parse(options, args)
 }
 
-private fun logSystemInfo() {
+private fun logSystemInfo(config: Configuration) {
     logger.info {
-        val failchatVersion = kodein.instance<Configuration>().getString("version")
-        val workingDirectory = kodein.instance<Path>("workingDirectory").toAbsolutePath()
+        val failchatVersion = config.getString("version")
+        val workingDirectory = workingDirectory.toAbsolutePath()
         val rt = Runtime.getRuntime()
         "Failchat started. Version: $failchatVersion." +
                 "OS: ${sp("os.name")} (${sp("os.version")}). " +
@@ -254,20 +252,16 @@ private fun handleProgramArguments(cmd: CommandLine, config: Configuration) {
     }
 }
 
-fun createHttpServer(): ApplicationEngine {
+fun createHttpServer(wsMessageDispatcher: WsMessageDispatcher, wsFrameSender: WsFrameSender): ApplicationEngine {
     return embeddedServer(
             Netty,
             host = FailchatServerInfo.host.hostAddress,
             port = FailchatServerInfo.port,
-            module = KtorApplication::failchat
+            module = { failchat(wsMessageDispatcher, wsFrameSender) }
     )
 }
 
-fun KtorApplication.failchat() {
-    val wsMessageDispatcher: WsMessageDispatcher = kodein.instance()
-    val wsFrameSender: WsFrameSender = kodein.instance()
-    val failchatEmoticonsPath: Path = kodein.instance("failchatEmoticonsDirectory")
-
+fun KtorApplication.failchat(wsMessageDispatcher: WsMessageDispatcher, wsFrameSender: WsFrameSender) {
     install(WebSockets)
 
     routing {
@@ -275,7 +269,7 @@ fun KtorApplication.failchat() {
             files("skins")
         }
         static("emoticons") {
-            files(failchatEmoticonsPath.toFile())
+            files(failchatEmoticonsDirectory.toFile())
         }
 
         webSocket("/ws") {
@@ -294,18 +288,21 @@ fun KtorApplication.failchat() {
 /**
  * Send General.AppLaunch event and schedule General.Heartbeat events.
  * */
-private fun runReporterIfEnabled(executor: ScheduledExecutorService, config: Configuration) {
+private fun runReporterIfEnabled(
+        executor: ScheduledExecutorService,
+        config: Configuration,
+        eventReporter: EventReporter
+) {
     if (!config.getBoolean("reporter.enabled")) {
         logger.info("Event reporter is disabled and won't be running")
         return
     }
 
-    val reporter = kodein.instance<EventReporter>()
     val dispatcher = executor.asCoroutineDispatcher()
 
     CoroutineScope(dispatcher).launch {
         try {
-            reporter.report(EventCategory.GENERAL, EventAction.APP_LAUNCH)
+            eventReporter.report(EventCategory.GENERAL, EventAction.APP_LAUNCH)
         } catch (t: Throwable) {
             logger.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.APP_LAUNCH, t)
         }
@@ -314,7 +311,7 @@ private fun runReporterIfEnabled(executor: ScheduledExecutorService, config: Con
     executor.scheduleAtFixedRate({
         CoroutineScope(Dispatchers.Default).launch {
             try {
-                reporter.report(EventCategory.GENERAL, EventAction.HEARTBEAT)
+                eventReporter.report(EventCategory.GENERAL, EventAction.HEARTBEAT)
             } catch (t: Throwable) {
                 logger.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.HEARTBEAT, t)
             }

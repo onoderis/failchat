@@ -17,7 +17,6 @@
         <kotlin.version>1.5.21</kotlin.version>
         <kotlinx-coroutines.version>1.5.1</kotlinx-coroutines.version>
 
-        <kodein.version>7.7.0</kodein.version>
         <jackson.version>2.12.7</jackson.version>
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
@@ -72,11 +71,6 @@
             <version>${kotlinx-coroutines.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.kodein.di</groupId>
-            <artifactId>kodein-di-jvm</artifactId>
-            <version>${kodein.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.github.adelnizamutdinov</groupId>
             <artifactId>kotlin-either</artifactId>
