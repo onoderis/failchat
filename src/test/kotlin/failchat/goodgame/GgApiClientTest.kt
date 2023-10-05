@@ -1,7 +1,6 @@
 package failchat.goodgame
 
 import failchat.defaultConfig
-import failchat.exception.ChannelOfflineException
 import failchat.okHttpClient
 import failchat.testObjectMapper
 import kotlinx.coroutines.runBlocking
@@ -10,10 +9,10 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.system.measureTimeMillis
 
-class GgApiTest {
+class GgApiClientTest {
 
     private companion object {
-        val log: Logger = LoggerFactory.getLogger(GgApiTest::class.java)
+        val log: Logger = LoggerFactory.getLogger(GgApiClientTest::class.java)
     }
 
     private val apiClient = GgApiClient(
@@ -35,16 +34,6 @@ class GgApiTest {
             log.debug("gg emoticons size: {}", emoticons.size)
         }
         log.debug("gg emoticons load time: {} ms", t)
-    }
-
-    @Test
-    fun viewersCountTest() = runBlocking<Unit> {
-        try {
-            val count = apiClient.requestViewersCount("Miker")
-            log.debug("gg viewers count: {}", count)
-        } catch (ignored: ChannelOfflineException) {
-            log.debug("gg channel is offline")
-        }
     }
 
     @Test
