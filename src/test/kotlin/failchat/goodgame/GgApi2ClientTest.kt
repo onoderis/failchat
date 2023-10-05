@@ -1,19 +1,28 @@
 package failchat.goodgame
 
-import failchat.defaultConfig
+import failchat.exception.ChannelOfflineException
 import failchat.okHttpClient
 import failchat.testObjectMapper
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
+import kotlin.test.Test
 
 class GgApi2ClientTest {
 
-    private val client = GgApi2Client(okHttpClient, testObjectMapper, defaultConfig.getString("goodgame.api2-url"))
+    private companion object {
+        val logger = KotlinLogging.logger {}
+    }
 
-//    todo
-//    @Test
+    private val client = GgApi2Client(okHttpClient, testObjectMapper)
+
+    @Test
     fun requestViewersCountTest() = runBlocking<Unit> {
-        val count = client.requestViewersCount("Miker")
-        println(count)
+        try {
+            val count = client.requestViewersCount("Fotos")
+            logger.debug("gg viewers count: {}", count)
+        } catch (ignored: ChannelOfflineException) {
+            logger.debug("gg channel is offline")
+        }
     }
 
 }

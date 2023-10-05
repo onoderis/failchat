@@ -354,8 +354,7 @@ class Dependencies {
     // Goodgame
     val ggApi2Client = GgApi2Client(
             httpClient = okHttpClient,
-            objectMapper = objectMapper,
-            apiUrl = configuration.getString("goodgame.api2-url")
+            objectMapper = objectMapper
     )
     val ggBadgeHandler = { channel: GgChannel ->
         GgBadgeHandler(channel, configuration)
