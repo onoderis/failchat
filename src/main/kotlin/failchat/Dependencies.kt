@@ -55,8 +55,6 @@ import failchat.peka2tv.Peka2tvChatClient
 import failchat.peka2tv.Peka2tvEmoticonBulkLoader
 import failchat.peka2tv.Peka2tvEmoticonHandler
 import failchat.peka2tv.Peka2tvEmoticonLoadConfiguration
-import failchat.reporter.GAEventReporter
-import failchat.reporter.UserIdManager
 import failchat.skin.SkinScanner
 import failchat.twitch.BttvApiClient
 import failchat.twitch.BttvEmoticonHandler
@@ -131,20 +129,9 @@ class Dependencies {
     val appConfiguration = AppConfiguration(configuration)
 
 
-    // User id
-    val userIdManager = UserIdManager(failchatHomePath)
-    val userId = userIdManager.getUserId()
-
-
     // Core dependencies
     val messageIdGenerator = MessageIdGenerator(configuration.getLong("lastMessageId"))
     val skinList = SkinScanner(workingDirectory).scan()
-    val eventReporter = GAEventReporter(
-            okHttpClient,
-            userId,
-            configuration.getString("version"),
-            configuration.getString("reporter.tracking-id")
-    )
 
     val wsFrameSender = WsFrameSender()
     val chatMessageSender = ChatMessageSender(

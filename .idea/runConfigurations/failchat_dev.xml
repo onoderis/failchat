@@ -2,7 +2,7 @@
   <configuration default="false" name="failchat dev" type="JetRunConfigurationType" singleton="true">
     <option name="MAIN_CLASS_NAME" value="failchat.FailchatMainKt" />
     <module name="failchat" />
-    <option name="PROGRAM_PARAMETERS" value="--disable-reporter --skip-release-check --enable-console-logging --logger-failchat-level DEBUG --port 10881" />
+    <option name="PROGRAM_PARAMETERS" value="--skip-release-check --enable-console-logging --logger-failchat-level DEBUG --port 10881" />
     <shortenClasspath name="NONE" />
     <option name="VM_PARAMETERS" value="-Xmx200m -Xms100m -XX:+UseG1GC -javaagent:java-agents/transparent-webview-patch.jar" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/target/classes" />

@@ -6,9 +6,6 @@ import failchat.gui.ChatFrameLauncher
 import failchat.gui.GuiLauncher
 import failchat.gui.GuiMode
 import failchat.gui.PortBindAlert
-import failchat.reporter.EventAction
-import failchat.reporter.EventCategory
-import failchat.reporter.EventReporter
 import failchat.skin.Skins
 import failchat.util.CoroutineExceptionLogger
 import failchat.util.bytesToMegabytes
@@ -29,7 +26,6 @@ import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
@@ -42,8 +38,6 @@ import java.net.ServerSocket
 import java.nio.file.Files
 import java.time.Instant
 import java.time.ZoneOffset
-import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 import io.ktor.application.Application as KtorApplication
@@ -93,11 +87,6 @@ fun main0(args: Array<String>) {
     httpServer.start()
     logger.info("Http/websocket server started at {}:{}", FailchatServerInfo.host.hostAddress, FailchatServerInfo.port)
 
-
-    // Reporter
-    val backgroundExecutor = deps.backgroundExecutorService
-    runReporterIfEnabled(backgroundExecutor, config, deps.eventReporter)
-
     // If emoticon db file not exists, reset 'last-updated' config values
     val dbFileExists = Files.exists(emoticonDbFile)
     if (!dbFileExists) {
@@ -121,8 +110,11 @@ fun main0(args: Array<String>) {
 
     // Load global badges in background thread
     val badgeManager: BadgeManager = deps.badgeManager
-    val badgeLoaderCtx = backgroundExecutor.asCoroutineDispatcher() + CoroutineName("GlobalBadgeLoader") + CoroutineExceptionLogger
-    CoroutineScope(badgeLoaderCtx).launch {
+    CoroutineScope(
+            deps.backgroundExecutorService.asCoroutineDispatcher() +
+                    CoroutineName("GlobalBadgeLoader") +
+                    CoroutineExceptionLogger
+    ).launch {
         badgeManager.loadGlobalBadges()
     }
 
@@ -206,7 +198,6 @@ private fun runGui(guiMode: GuiMode, deps: Dependencies) {
 private fun parseArguments(args: Array<String>): CommandLine {
     val options = Options().apply {
         addOption(Option("c", "skip-release-check",     false, "Skip the check for a new release"))
-        addOption(Option("r", "disable-reporter",       false, "Disable reporter"))
         addOption(Option("l", "logger-root-level",      true,  "Logging level for root logger"))
         addOption(Option("f", "logger-failchat-level",  true,  "Logging level for failchat package"))
         addOption(Option("o", "enable-console-logging", false, "Enable logging into the console"))
@@ -241,9 +232,6 @@ private fun handlePortArgument(cmd: CommandLine) {
 private fun handleProgramArguments(cmd: CommandLine, config: Configuration) {
     if (cmd.hasOption("skip-release-check")) {
         config.setProperty("release-checker.enabled", false)
-    }
-    if (cmd.hasOption("disable-reporter")) {
-        config.setProperty("reporter.enabled", false)
     }
     if (cmd.hasOption("gui-mode")) {
         config.setProperty("gui-mode", cmd.getOptionValue("gui-mode"))
@@ -283,38 +271,4 @@ fun KtorApplication.failchat(wsMessageDispatcher: WsMessageDispatcher, wsFrameSe
             call.respondRedirect("/resources/$skin/$skin.html$params", permanent = true)
         }
     }
-}
-
-/**
- * Send General.AppLaunch event and schedule General.Heartbeat events.
- * */
-private fun runReporterIfEnabled(
-        executor: ScheduledExecutorService,
-        config: Configuration,
-        eventReporter: EventReporter
-) {
-    if (!config.getBoolean("reporter.enabled")) {
-        logger.info("Event reporter is disabled and won't be running")
-        return
-    }
-
-    val dispatcher = executor.asCoroutineDispatcher()
-
-    CoroutineScope(dispatcher).launch {
-        try {
-            eventReporter.report(EventCategory.GENERAL, EventAction.APP_LAUNCH)
-        } catch (t: Throwable) {
-            logger.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.APP_LAUNCH, t)
-        }
-    }
-
-    executor.scheduleAtFixedRate({
-        CoroutineScope(Dispatchers.Default).launch {
-            try {
-                eventReporter.report(EventCategory.GENERAL, EventAction.HEARTBEAT)
-            } catch (t: Throwable) {
-                logger.warn("Failed to report event {}.{}", EventCategory.GENERAL, EventAction.HEARTBEAT, t)
-            }
-        }
-    }, 2, 2, TimeUnit.MINUTES)
 }
