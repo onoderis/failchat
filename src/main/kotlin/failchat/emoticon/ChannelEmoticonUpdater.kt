@@ -45,7 +45,7 @@ class ChannelEmoticonUpdater(
 
         val emoticonToId = emoticons.map { EmoticonAndId(it, it.code) }
         emoticonStorage.putMapping(Origin.FRANKERFASEZ, emoticonToId)
-        logger.info("FrankerFaceZ emoticons loaded for channel '{}'", channelName)
+        logger.info("FrankerFaceZ emoticons loaded for channel '{}', count: {}", channelName, emoticons.size)
     }
 
     suspend fun update7tvEmoticons(channelId: Long) {
@@ -58,7 +58,7 @@ class ChannelEmoticonUpdater(
 
         val emoticonToId = emoticons.map { EmoticonAndId(it, it.code) }
         emoticonStorage.putMapping(Origin.SEVEN_TV_CHANNEL, emoticonToId)
-        logger.info("7tv emoticons loaded for channel '{}'", channelId)
+        logger.info { "7tv emoticons loaded for channel '${channelId}', count: ${emoticons.size}" }
     }
 
 }

@@ -1,7 +1,7 @@
 package failchat.twitch
 
 data class SevenTvEmoteSetResponse(
-        val emotes: List<Emote>
+        val emotes: List<Emote> = listOf()
 ) {
 
     data class Emote(
