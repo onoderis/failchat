@@ -1,12 +1,12 @@
 package failchat.peka2tv
 
 import failchat.Origin.PEKA2TV
-import failchat.emoticon.EmoticonBulkLoader
+import failchat.emoticon.EmoticonLoader
 import java.util.concurrent.CompletableFuture
 
-class Peka2tvEmoticonBulkLoader(
+class Peka2TvEmoticonLoader(
         private val apiClient: Peka2tvApiClient
-) : EmoticonBulkLoader<Peka2tvEmoticon> {
+) : EmoticonLoader<Peka2tvEmoticon> {
 
     override val origin = PEKA2TV
 

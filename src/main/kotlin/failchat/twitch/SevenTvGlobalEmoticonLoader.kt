@@ -1,13 +1,13 @@
 package failchat.twitch
 
 import failchat.Origin
-import failchat.emoticon.EmoticonBulkLoader
+import failchat.emoticon.EmoticonLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
 import java.util.concurrent.CompletableFuture
 
-class SevenTvGlobalEmoticonLoader(private val sevenTvApiClient: SevenTvApiClient) : EmoticonBulkLoader<SevenTvEmoticon> {
+class SevenTvGlobalEmoticonLoader(private val sevenTvApiClient: SevenTvApiClient) : EmoticonLoader<SevenTvEmoticon> {
 
     override val origin = Origin.SEVEN_TV_GLOBAL
 

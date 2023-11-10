@@ -1,7 +1,7 @@
 package failchat.twitch
 
 import failchat.Origin
-import failchat.emoticon.EmoticonBulkLoader
+import failchat.emoticon.EmoticonLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture
 /** Uses official twitch API. */
 class TwitchGlobalEmoticonLoader(
         private val twitchClient: TokenAwareTwitchApiClient
-) : EmoticonBulkLoader<TwitchEmoticon> {
+) : EmoticonLoader<TwitchEmoticon> {
 
     override val origin = Origin.TWITCH
 

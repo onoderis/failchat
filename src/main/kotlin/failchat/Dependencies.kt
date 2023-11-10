@@ -42,24 +42,24 @@ import failchat.goodgame.GgApiClient
 import failchat.goodgame.GgBadgeHandler
 import failchat.goodgame.GgChannel
 import failchat.goodgame.GgChatClient
-import failchat.goodgame.GgEmoticonBulkLoader
 import failchat.goodgame.GgEmoticonHandler
 import failchat.goodgame.GgEmoticonLoadConfiguration
+import failchat.goodgame.GgEmoticonLoader
 import failchat.goodgame.GgViewersCountLoader
 import failchat.gui.ChatGuiEventHandler
 import failchat.gui.FullGuiEventHandler
 import failchat.gui.GuiMode
+import failchat.peka2tv.Peka2TvEmoticonLoader
 import failchat.peka2tv.Peka2tvApiClient
 import failchat.peka2tv.Peka2tvBadgeHandler
 import failchat.peka2tv.Peka2tvChatClient
-import failchat.peka2tv.Peka2tvEmoticonBulkLoader
 import failchat.peka2tv.Peka2tvEmoticonHandler
 import failchat.peka2tv.Peka2tvEmoticonLoadConfiguration
 import failchat.skin.SkinScanner
 import failchat.twitch.BttvApiClient
 import failchat.twitch.BttvEmoticonHandler
-import failchat.twitch.BttvGlobalEmoticonBulkLoader
 import failchat.twitch.BttvGlobalEmoticonLoadConfiguration
+import failchat.twitch.BttvGlobalEmoticonLoader
 import failchat.twitch.ConfigurationTokenContainer
 import failchat.twitch.FfzApiClient
 import failchat.twitch.FfzEmoticonHandler
@@ -176,10 +176,7 @@ class Dependencies {
     val emoticonStorage = EmoticonStorage()
     val emoticonFinder: EmoticonFinder = emoticonStorage
     val failchatEmoticonHandler = FailchatEmoticonHandler(emoticonFinder)
-    val emoticonManager = EmoticonManager(
-            emoticonStorage,
-            backgroundExecutorService
-    )
+    val emoticonManager = EmoticonManager(emoticonStorage)
     val deletedMessagePlaceholderFactory = DeletedMessagePlaceholderFactory(
             emoticonFinder,
             configuration
@@ -249,7 +246,7 @@ class Dependencies {
             objectMapper,
             configuration.getString("peka2tv.api-url")
     )
-    val peka2tvEmoticonBulkLoader = Peka2tvEmoticonBulkLoader(peka2tvApiClient)
+    val peka2tvEmoticonBulkLoader = Peka2TvEmoticonLoader(peka2tvApiClient)
     val peka2tvEmoticonLoadConfiguration = Peka2tvEmoticonLoadConfiguration(peka2tvEmoticonBulkLoader)
     val peka2tvBadgeHandler = Peka2tvBadgeHandler(badgeFinder)
     val peka2tvEmoticonHandler = Peka2tvEmoticonHandler(emoticonFinder)
@@ -274,7 +271,7 @@ class Dependencies {
             objectMapper = objectMapper
     )
     val bttvEmoticonHandler = BttvEmoticonHandler(emoticonFinder)
-    val bttvGlobalEmoticonBulkLoader = BttvGlobalEmoticonBulkLoader(bttvApiClient)
+    val bttvGlobalEmoticonBulkLoader = BttvGlobalEmoticonLoader(bttvApiClient)
     val bttvGlobalEmoticonLoadConfiguration = BttvGlobalEmoticonLoadConfiguration(bttvGlobalEmoticonBulkLoader)
 
     // FFZ
@@ -370,7 +367,7 @@ class Dependencies {
             emoticonsJsUrl = configuration.getString("goodgame.emoticon-js-url"),
             objectMapper = objectMapper
     )
-    val ggEmoticonBulkLoader = GgEmoticonBulkLoader(ggApiClient)
+    val ggEmoticonBulkLoader = GgEmoticonLoader(ggApiClient)
     val ggEmoticonLoadConfiguration = GgEmoticonLoadConfiguration(ggEmoticonBulkLoader)
     val ggEmoticonHandler = GgEmoticonHandler(emoticonFinder)
 

@@ -1,10 +1,10 @@
 package failchat.twitch
 
 import failchat.Origin
-import failchat.emoticon.EmoticonBulkLoader
+import failchat.emoticon.EmoticonLoader
 import java.util.concurrent.CompletableFuture
 
-class BttvGlobalEmoticonBulkLoader(private val bttvApiClient: BttvApiClient) : EmoticonBulkLoader<BttvEmoticon> {
+class BttvGlobalEmoticonLoader(private val bttvApiClient: BttvApiClient) : EmoticonLoader<BttvEmoticon> {
 
     override val origin = Origin.BTTV_GLOBAL
 
