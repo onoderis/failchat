@@ -1,6 +1,7 @@
 package failchat.twitch
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import failchat.Origin
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
@@ -14,13 +15,13 @@ class SevenTvApiClient(
 ) {
 
     private companion object {
-        const val apiUrl = "https://api.7tv.app/v2"
-        const val globalEmotesUrl = "$apiUrl/emotes/global"
+        const val apiUrl = "https://7tv.io/v3"
+        const val globalEmoteSetId = "62cdd34e72a832540de95857"
     }
 
     suspend fun loadGlobalEmoticons(): List<SevenTvEmoticon> {
         val request = Request.Builder()
-                .url(globalEmotesUrl)
+                .url("$apiUrl/emote-sets/$globalEmoteSetId")
                 .get()
                 .build()
 
@@ -29,18 +30,18 @@ class SevenTvApiClient(
                 .use {
                     if (it.code != 200) throw UnexpectedResponseCodeException(it.code)
                     val responseBody = it.body ?: throw UnexpectedResponseException("null body")
-                    val bodyString = responseBody.string()
-                    parseEmoticons(bodyString, Origin.SEVEN_TV_GLOBAL)
+                    val emoteSet = objectMapper.readValue<SevenTvEmoteSetResponse>(responseBody.byteStream())
+                    parseEmoteSet(emoteSet, Origin.SEVEN_TV_GLOBAL)
                 }
     }
 
     /**
      * Load channel emoticons.
-     * @param channelId case-incentive channel name.
+     * @param channelId twitch channel id.
      * */
     suspend fun loadChannelEmoticons(channelId: Long): List<SevenTvEmoticon> {
         val request = Request.Builder()
-                .url("$apiUrl/users/$channelId/emotes")
+                .url("$apiUrl/users/twitch/$channelId")
                 .get()
                 .build()
 
@@ -50,23 +51,29 @@ class SevenTvApiClient(
                     if (it.code == 404) throw SevenTvChannelNotFoundException(channelId)
                     if (it.code != 200) throw UnexpectedResponseCodeException(it.code)
                     val responseBody = it.body ?: throw UnexpectedResponseException("null body")
-                    val bodyString = responseBody.string()
-                    parseEmoticons(bodyString, Origin.SEVEN_TV_CHANNEL)
+                    val channelResponse = objectMapper.readValue<SevenTvChannelResponse>(responseBody.byteStream())
+                    parseEmoteSet(channelResponse.emoteSet, Origin.SEVEN_TV_CHANNEL)
                 }
     }
 
-    private fun parseEmoticons(responseBody: String, origin: Origin): List<SevenTvEmoticon> {
-        val channelEmoticonsNode = objectMapper.readTree(responseBody)
-        return channelEmoticonsNode.map {
-            val id = it.get("id").asText()
-            val url1x = it.get("urls").first().get(1).asText()
-            val url2x = it.get("urls").get(1)?.get(1)?.asText()
-            SevenTvEmoticon(
-                    origin,
-                    it.get("name").asText(),
-                    id,
-                    url2x ?: url1x
-            )
-        }
+    private fun parseEmoteSet(emoteSet: SevenTvEmoteSetResponse, origin: Origin): List<SevenTvEmoticon> {
+        return emoteSet.emotes
+                .mapNotNull { emote ->
+                    val sortedWebpEmotes = emote.data.host.files
+                            .filter { it.format == "WEBP" }
+                            .sortedBy { it.width }
+                    val emoteFile = sortedWebpEmotes.getOrNull(1) ?: sortedWebpEmotes.getOrNull(0)
+                    if (emoteFile == null) {
+                        logger.warn { "No suitable 7tv image found for emote ${emote.name}" }
+                        return@mapNotNull null
+                    }
+
+                    SevenTvEmoticon(
+                            origin = origin,
+                            code = emote.name,
+                            id = emote.id,
+                            url = "https:${emote.data.host.url}/${emoteFile.name}"
+                    )
+                }
     }
 }
