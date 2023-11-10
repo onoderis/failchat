@@ -3,6 +3,7 @@ package failchat.twitch
 import failchat.assertRequestToUrlReturns200
 import failchat.okHttpClient
 import failchat.testObjectMapper
+import io.kotest.assertions.throwables.shouldThrow
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.junit.Test
@@ -32,5 +33,12 @@ class SevenTvApiClientTest {
         logger.info("7tv channel emoticons count: {}", emoticons.size)
 
         assertRequestToUrlReturns200(emoticons.first().url)
+    }
+
+    @Test
+    fun channelNotFoundTest() = runBlocking<Unit> {
+        shouldThrow<SevenTvChannelNotFoundException> {
+            apiClient.loadChannelEmoticons(123L)
+        }
     }
 }
