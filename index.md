@@ -14,11 +14,11 @@ title: failchat - мультичат для стримеров
 - Чат работает в режиме только чтения и не позволяет отправлять сообщения
 
 # Скриншоты
-[![Окно настроек](https://i.imgur.com/YeFyy8zm.png)](https://i.imgur.com/YeFyy8z.png)
+![main-menu](main-menu.png)
 
-[![Скин old_sc2tv](https://i.imgur.com/ByJ29Tsm.png)](https://i.imgur.com/ByJ29Ts.png)
-[![Скин funstream](https://i.imgur.com/5Xh1CPkm.png)](https://i.imgur.com/5Xh1CPk.png)
-[![Скин glass](https://i.imgur.com/edXv0oNm.png)](https://i.imgur.com/edXv0oN.png)
+![skin1](skin1.png)
+![skin2](skin2.png)
+![skin3](skin3.png)
 
 
 # Возможности чата
