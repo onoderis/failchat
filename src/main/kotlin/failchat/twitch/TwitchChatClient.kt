@@ -19,6 +19,7 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.pircbotx.Configuration
 import org.pircbotx.PircBotX
+import org.pircbotx.UtilSSLSocketFactory
 import org.pircbotx.hooks.ListenerAdapter
 import org.pircbotx.hooks.events.ActionEvent
 import org.pircbotx.hooks.events.ConnectEvent
@@ -86,6 +87,7 @@ class TwitchChatClient(
                 .addAutoJoinChannel("#" + userName.toLowerCase())
                 .addListener(TwitchIrcListener())
 //                .addCapHandler() //todo try out
+                .setSocketFactory(UtilSSLSocketFactory.getDefault())
                 .setAutoReconnect(false)
                 .setAutoReconnectDelay(reconnectTimeout.toMillis().toInt())
                 .setAutoReconnectAttempts(Int.MAX_VALUE) // bugged, 5 attempts todo retest
