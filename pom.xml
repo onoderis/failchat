@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.onoderis</groupId>
@@ -10,7 +11,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <failchat.distribution.directory>${project.build.directory}/failchat-v${project.version}</failchat.distribution.directory>
+        <failchat.distribution.directory>${project.build.directory}/failchat-v${project.version}
+        </failchat.distribution.directory>
 
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -417,7 +419,8 @@
                         </goals>
                         <configuration>
                             <url>https://static.goodgame.ru/css/fonts/icomoon/fonts/icomoon.woff?ver=352</url>
-                            <outputDirectory>${basedir}/src/main/external-resources/skins/_shared/font/</outputDirectory>
+                            <outputDirectory>${basedir}/src/main/external-resources/skins/_shared/font/
+                            </outputDirectory>
                             <outputFileName>icomoon.woff</outputFileName>
                         </configuration>
                     </execution>
@@ -458,14 +461,18 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer" />
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer"/>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Main-Class>failchat.FailchatMainKt</Main-Class>
                                     </manifestEntries>
                                 </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.properties.PropertiesTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.properties.PropertiesTransformer">
                                     <resource>META-INF/io.netty.versions.properties</resource>
                                     <ordinalKey>ordinal</ordinalKey>
                                 </transformer>
@@ -524,25 +531,43 @@
                         <goals>
                             <goal>exec</goal>
                         </goals>
+                        <configuration>
+                            <executable>jlink</executable>
+                            <arguments>
+                                <argument>--no-header-files</argument>
+                                <argument>--no-man-pages</argument>
+                                <argument>--compress=2</argument>
+                                <argument>--strip-debug</argument>
+                                <argument>--add-modules</argument>
+                                <!-- TODO dynamically generate the required list of modules -->
+                                <!-- for now to get the module list you should run: -->
+                                <!-- jdeps - -list-deps target/failchat-v2.6.4-SNAPSHOT/failchat-2.6.4-SNAPSHOT.jar -->
+                                <!-- (remove space between '-', thanks to xml) -->
+                                <argument>
+                                    java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.naming,java.sql,java.xml,javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.web,jdk.attach,jdk.jdi,jdk.jsobject,jdk.unsupported,jdk.crypto.ec
+                                </argument>
+                                <argument>--output</argument>
+                                <argument>${failchat.distribution.directory}/runtime</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>run-app</id>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath />
+                                <argument>failchat.FailchatMainKt</argument>
+                            </arguments>
+                            <workingDirectory>${project.build.outputDirectory}</workingDirectory>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <executable>jlink</executable>
-                    <arguments>
-                        <argument>--no-header-files</argument>
-                        <argument>--no-man-pages</argument>
-                        <argument>--compress=2</argument>
-                        <argument>--strip-debug</argument>
-                        <argument>--add-modules</argument>
-                        <!-- TODO dynamically generate the required list of modules -->
-                        <!-- for now to get the module list you should run: -->
-                        <!-- jdeps - -list-deps target/failchat-v2.6.4-SNAPSHOT/failchat-2.6.4-SNAPSHOT.jar -->
-                        <!-- (remove space between '-', thanks to xml) -->
-                        <argument>java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.naming,java.sql,java.xml,javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.web,jdk.attach,jdk.jdi,jdk.jsobject,jdk.unsupported,jdk.crypto.ec</argument>
-                        <argument>--output</argument>
-                        <argument>${failchat.distribution.directory}/runtime</argument>
-                    </arguments>
-                </configuration>
             </plugin>
 
             <plugin>
