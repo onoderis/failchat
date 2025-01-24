@@ -532,13 +532,13 @@
                                 <argument>--compress=2</argument>
                                 <argument>--strip-debug</argument>
                                 <argument>--add-modules</argument>
-                                <!-- TODO dynamically generate the required list of modules -->
-                                <!-- for now to get the module list you should run: -->
-                                <!-- jdeps - -list-deps target/failchat-v2.6.4-SNAPSHOT/failchat-2.6.4-SNAPSHOT.jar -->
-                                <!-- (remove space between '-', thanks to xml) -->
+                                <!-- TODO dynamically generate the list of modules -->
                                 <argument>
                                     java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.naming,java.sql,java.xml,javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.web,jdk.attach,jdk.jdi,jdk.jsobject,jdk.unsupported,jdk.crypto.ec
                                 </argument>
+                                <argument>--module-path</argument>
+                                <!-- uncomment to build with a specific jdk -->
+                                <!--                                <argument>jdk/bellsoft-jdk11.0.22+12-windows-amd64-full/jmods</argument>-->
                                 <argument>--output</argument>
                                 <argument>${failchat.distribution.directory}/runtime</argument>
                             </arguments>
