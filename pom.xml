@@ -25,7 +25,6 @@
         <commons-configuration.version>2.1.1</commons-configuration.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <java-websocket.version>1.5.1</java-websocket.version>
-        <socket.io-client.version>1.0.0</socket.io-client.version>
         <okhttp.version>4.6.0</okhttp.version> <!-- version is aligned to ktor-client -->
         <pircbotx.version>2.1</pircbotx.version>
         <kotlin-either.version>2.0.1</kotlin-either.version>
@@ -127,12 +126,6 @@
                     <artifactId>logback-classic</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>io.socket</groupId>
-            <artifactId>socket.io-client</artifactId>
-            <version>${socket.io-client.version}</version>
         </dependency>
 
         <dependency>
