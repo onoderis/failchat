@@ -400,27 +400,6 @@
             </plugin>
 
             <plugin>
-                <groupId>com.googlecode.maven-download-plugin</groupId>
-                <artifactId>download-maven-plugin</artifactId>
-                <version>1.3.0</version>
-                <executions>
-                    <execution>
-                        <id>goodgame-badge-font</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>wget</goal>
-                        </goals>
-                        <configuration>
-                            <url>https://static.goodgame.ru/css/fonts/icomoon/fonts/icomoon.woff?ver=352</url>
-                            <outputDirectory>${basedir}/src/main/external-resources/skins/_shared/font/
-                            </outputDirectory>
-                            <outputFileName>icomoon.woff</outputFileName>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.0.2</version>
@@ -536,9 +515,10 @@
                                 <argument>
                                     java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.naming,java.sql,java.xml,javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.web,jdk.attach,jdk.jdi,jdk.jsobject,jdk.unsupported,jdk.crypto.ec
                                 </argument>
+                                <!-- use specific jdk to build an app runtime. this is required to compile across different OS -->
+                                <!-- comment the next 2 lines to build with a jdk in PATH-->
                                 <argument>--module-path</argument>
-                                <!-- uncomment to build with a specific jdk -->
-                                <!--                                <argument>jdk/bellsoft-jdk11.0.22+12-windows-amd64-full/jmods</argument>-->
+                                <argument>jdk/bellsoft-jdk11.0.22+12-windows-amd64-full/jmods</argument>
                                 <argument>--output</argument>
                                 <argument>${failchat.distribution.directory}/runtime</argument>
                             </arguments>

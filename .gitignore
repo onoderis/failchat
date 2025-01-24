@@ -1,9 +1,6 @@
 target
 src/main/resources/config/private.properties
 
-#font is downloaded on generate-resources phase
-src/main/external-resources/skins/_shared/font/*
-
 #idea
 .idea/*
 !.idea/runConfigurations/
