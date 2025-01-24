@@ -561,8 +561,14 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>failchat.FailchatMainKt</argument>
+                                <argument>--skip-release-check</argument>
+                                <argument>--enable-console-logging</argument>
+                                <argument>--logger-failchat-level</argument>
+                                <argument>DEBUG</argument>
+                                <argument>--port</argument>
+                                <argument>10881</argument>
                             </arguments>
                             <workingDirectory>${project.build.outputDirectory}</workingDirectory>
                         </configuration>
