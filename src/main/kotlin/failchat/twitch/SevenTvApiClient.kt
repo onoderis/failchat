@@ -59,9 +59,17 @@ class SevenTvApiClient(
     private fun parseEmoteSet(emoteSet: SevenTvEmoteSetResponse, origin: Origin): List<SevenTvEmoticon> {
         return emoteSet.emotes
             .mapNotNull { emote ->
-                val sortedWebpEmotes = emote.data.host.files
-                    .filter { it.format == "WEBP" }
+                // 7tv provides emotes in webp format, but JavaFX WebView doesn't support it
+                val gifEmotes = emote.data.host.files
+                    .filter { it.format == "GIF" }
                     .sortedBy { it.width }
+                val pngEmotes = emote.data.host.files
+                    .filter { it.format == "PNG" }
+                    .sortedBy { it.width }
+                // gif is preferable over png
+                val sortedWebpEmotes = gifEmotes + pngEmotes
+
+                // get the second-biggest image
                 val emoteFile = sortedWebpEmotes.getOrNull(1) ?: sortedWebpEmotes.getOrNull(0)
                 if (emoteFile == null) {
                     logger.warn { "No suitable 7tv image found for emote ${emote.name}" }

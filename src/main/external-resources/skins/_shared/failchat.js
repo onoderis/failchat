@@ -191,12 +191,6 @@ function initializeFailchat() {
             let elementHtml;
             switch(element.type) {
                 case "emoticon":
-                    if (failchat.nativeClient && element.origin.startsWith("7tv")) {
-                        // ignore 7tv emoticons on native client, webp image format is currently unsupported by WebView
-                        elementHtml = element.code;
-                        break;
-                    }
-
                     if (element.format === "vector") {
                         elementHtml = templates.vectorEmoticon.render(element);
                     } else {
