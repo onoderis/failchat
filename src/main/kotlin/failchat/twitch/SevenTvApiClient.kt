@@ -10,29 +10,29 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 class SevenTvApiClient(
-        private val httpClient: OkHttpClient,
-        private val objectMapper: ObjectMapper
+    private val httpClient: OkHttpClient,
+    private val objectMapper: ObjectMapper
 ) {
 
     private companion object {
         const val apiUrl = "https://7tv.io/v3"
-        const val globalEmoteSetId = "62cdd34e72a832540de95857"
+        const val globalEmoteSetId = "global"
     }
 
     suspend fun loadGlobalEmoticons(): List<SevenTvEmoticon> {
         val request = Request.Builder()
-                .url("$apiUrl/emote-sets/$globalEmoteSetId")
-                .get()
-                .build()
+            .url("$apiUrl/emote-sets/$globalEmoteSetId")
+            .get()
+            .build()
 
         return httpClient.newCall(request)
-                .await()
-                .use {
-                    if (it.code != 200) throw UnexpectedResponseCodeException(it.code)
-                    val responseBody = it.body ?: throw UnexpectedResponseException("null body")
-                    val emoteSet = objectMapper.readValue<SevenTvEmoteSetResponse>(responseBody.byteStream())
-                    parseEmoteSet(emoteSet, Origin.SEVEN_TV_GLOBAL)
-                }
+            .await()
+            .use {
+                if (it.code != 200) throw UnexpectedResponseCodeException(it.code)
+                val responseBody = it.body ?: throw UnexpectedResponseException("null body")
+                val emoteSet = objectMapper.readValue<SevenTvEmoteSetResponse>(responseBody.byteStream())
+                parseEmoteSet(emoteSet, Origin.SEVEN_TV_GLOBAL)
+            }
     }
 
     /**
@@ -41,39 +41,39 @@ class SevenTvApiClient(
      * */
     suspend fun loadChannelEmoticons(channelId: Long): List<SevenTvEmoticon> {
         val request = Request.Builder()
-                .url("$apiUrl/users/twitch/$channelId")
-                .get()
-                .build()
+            .url("$apiUrl/users/twitch/$channelId")
+            .get()
+            .build()
 
         return httpClient.newCall(request)
-                .await()
-                .use {
-                    if (it.code == 404) throw SevenTvChannelNotFoundException(channelId)
-                    if (it.code != 200) throw UnexpectedResponseCodeException(it.code)
-                    val responseBody = it.body ?: throw UnexpectedResponseException("null body")
-                    val channelResponse = objectMapper.readValue<SevenTvChannelResponse>(responseBody.byteStream())
-                    parseEmoteSet(channelResponse.emoteSet, Origin.SEVEN_TV_CHANNEL)
-                }
+            .await()
+            .use {
+                if (it.code == 404) throw SevenTvChannelNotFoundException(channelId)
+                if (it.code != 200) throw UnexpectedResponseCodeException(it.code)
+                val responseBody = it.body ?: throw UnexpectedResponseException("null body")
+                val channelResponse = objectMapper.readValue<SevenTvChannelResponse>(responseBody.byteStream())
+                parseEmoteSet(channelResponse.emoteSet, Origin.SEVEN_TV_CHANNEL)
+            }
     }
 
     private fun parseEmoteSet(emoteSet: SevenTvEmoteSetResponse, origin: Origin): List<SevenTvEmoticon> {
         return emoteSet.emotes
-                .mapNotNull { emote ->
-                    val sortedWebpEmotes = emote.data.host.files
-                            .filter { it.format == "WEBP" }
-                            .sortedBy { it.width }
-                    val emoteFile = sortedWebpEmotes.getOrNull(1) ?: sortedWebpEmotes.getOrNull(0)
-                    if (emoteFile == null) {
-                        logger.warn { "No suitable 7tv image found for emote ${emote.name}" }
-                        return@mapNotNull null
-                    }
-
-                    SevenTvEmoticon(
-                            origin = origin,
-                            code = emote.name,
-                            id = emote.id,
-                            url = "https:${emote.data.host.url}/${emoteFile.name}"
-                    )
+            .mapNotNull { emote ->
+                val sortedWebpEmotes = emote.data.host.files
+                    .filter { it.format == "WEBP" }
+                    .sortedBy { it.width }
+                val emoteFile = sortedWebpEmotes.getOrNull(1) ?: sortedWebpEmotes.getOrNull(0)
+                if (emoteFile == null) {
+                    logger.warn { "No suitable 7tv image found for emote ${emote.name}" }
+                    return@mapNotNull null
                 }
+
+                SevenTvEmoticon(
+                    origin = origin,
+                    code = emote.name,
+                    id = emote.id,
+                    url = "https:${emote.data.host.url}/${emoteFile.name}"
+                )
+            }
     }
 }
