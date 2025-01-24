@@ -30,14 +30,14 @@ import org.apache.commons.configuration2.Configuration
 import java.nio.file.Path
 
 class SettingsFrame(
-        private val app: Application, //todo replace with LinkOpener
-        private val stage: Stage,
-        private val config: Configuration,
-        private val skinList: List<Skin>,
-        private val failchatEmoticonsDirectory: Path,
-        private val clickTransparencyEnabled: Boolean,
-        private val guiEventHandler: Lazy<GuiEventHandler>,
-        private val emoticonUpdater: Lazy<GlobalEmoticonUpdater>
+    private val app: Application, //todo replace with LinkOpener
+    private val stage: Stage,
+    private val config: Configuration,
+    private val skinList: List<Skin>,
+    private val failchatEmoticonsDirectory: Path,
+    private val clickTransparencyEnabled: Boolean,
+    private val guiEventHandler: Lazy<GuiEventHandler>,
+    private val emoticonUpdater: Lazy<GlobalEmoticonUpdater>
 ) {
 
     private companion object {
@@ -49,13 +49,11 @@ class SettingsFrame(
     private val namespace = loader.namespace
 
     //channels
-    private val peka2tvChannel = namespace["peka2tv_channel"] as TextField
     private val goodgameChannel = namespace["goodgame_channel"] as TextField
     private val twitchChannel = namespace["twitch_channel"] as TextField
     private val youtubeChannel = namespace["youtube_channel"] as TextField
 
     //channels checkboxes
-    private val peka2tvEnabled = namespace["peka2tv_enabled"] as CheckBox
     private val goodgameEnabled = namespace["goodgame_enabled"] as CheckBox
     private val twitchEnabled = namespace["twitch_enabled"] as CheckBox
     private val youtubeEnabled = namespace["youtube_enabled"] as CheckBox
@@ -94,7 +92,6 @@ class SettingsFrame(
     private val showStatusMessagesExternal = namespace["show_status_messages_external"] as CheckBox
 
 
-
     // Actions tab
     private val failchatEmoticonsButton = namespace["failchat_emoticons"] as Button
     private val reloadEmoticonsButton = namespace["reload_emoticons_button"] as Button
@@ -113,9 +110,6 @@ class SettingsFrame(
         stage.title = "failchat v" + config.getString("version")
         stage.icons.setAll(Images.appIcon)
 
-        peka2tvEnabled.selectedProperty().addListener { _, _, newValue ->
-            peka2tvChannel.configureChannelField(newValue)
-        }
         goodgameEnabled.selectedProperty().addListener { _, _, newValue ->
             goodgameChannel.configureChannelField(newValue)
         }
@@ -219,15 +213,10 @@ class SettingsFrame(
     }
 
     fun updateSettingsValues() {
-        peka2tvChannel.text = config.getString(ConfigKeys.Peka2tv.channel)
         goodgameChannel.text = config.getString(ConfigKeys.Goodgame.channel)
         twitchChannel.text = config.getString(ConfigKeys.Twitch.channel)
         youtubeChannel.text = config.getString(ConfigKeys.Youtube.channel)
 
-        config.getBoolean(ConfigKeys.Peka2tv.enabled).let {
-            peka2tvEnabled.isSelected = it
-            peka2tvChannel.configureChannelField(it)
-        }
         config.getBoolean(ConfigKeys.Goodgame.enabled).let {
             goodgameEnabled.isSelected = it
             goodgameChannel.configureChannelField(it)
@@ -282,12 +271,10 @@ class SettingsFrame(
 
     private fun saveSettingsValues() {
         //todo use loop for origins
-        config.setProperty(ConfigKeys.Peka2tv.channel, peka2tvChannel.text)
         config.setProperty(ConfigKeys.Goodgame.channel, goodgameChannel.text)
         config.setProperty(ConfigKeys.Twitch.channel, twitchChannel.text)
         config.setProperty(ConfigKeys.Youtube.channel, youtubeChannel.text)
 
-        config.setProperty(ConfigKeys.Peka2tv.enabled, peka2tvEnabled.isSelected)
         config.setProperty(ConfigKeys.Goodgame.enabled, goodgameEnabled.isSelected)
         config.setProperty(ConfigKeys.Twitch.enabled, twitchEnabled.isSelected)
         config.setProperty(ConfigKeys.Youtube.enabled, youtubeEnabled.isSelected)
@@ -314,13 +301,19 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.NativeClient.backgroundColor, nativeBgColorPicker.value.toHexFormat())
         config.setProperty(ConfigKeys.NativeClient.coloredNicknames, coloredNicknamesNative.isSelected)
         config.setProperty(ConfigKeys.NativeClient.hideMessages, hideMessagesNative.isSelected)
-        config.setProperty(ConfigKeys.NativeClient.hideMessagesAfter, parseHideMessagesAfter(hideMessagesNativeAfter.text))
+        config.setProperty(
+            ConfigKeys.NativeClient.hideMessagesAfter,
+            parseHideMessagesAfter(hideMessagesNativeAfter.text)
+        )
         config.setProperty(ConfigKeys.NativeClient.showStatusMessages, showStatusMessagesNative.isSelected)
 
         config.setProperty(ConfigKeys.ExternalClient.backgroundColor, externalBgColorPicker.value.toHexFormat())
         config.setProperty(ConfigKeys.ExternalClient.coloredNicknames, coloredNicknamesExternal.isSelected)
         config.setProperty(ConfigKeys.ExternalClient.hideMessages, hideMessagesExternal.isSelected)
-        config.setProperty(ConfigKeys.ExternalClient.hideMessagesAfter, parseHideMessagesAfter(hideMessagesExternalAfter.text))
+        config.setProperty(
+            ConfigKeys.ExternalClient.hideMessagesAfter,
+            parseHideMessagesAfter(hideMessagesExternalAfter.text)
+        )
         config.setProperty(ConfigKeys.ExternalClient.showStatusMessages, showStatusMessagesExternal.isSelected)
 
         config.setProperty(ConfigKeys.ignore, ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
@@ -341,7 +334,7 @@ class SettingsFrame(
 
         return percent
     }
-    
+
     private fun parseHideMessagesAfter(hideMessagesAfter: String): Int {
         val intValue = try {
             hideMessagesAfter.toInt()

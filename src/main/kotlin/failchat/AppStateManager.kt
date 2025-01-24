@@ -5,7 +5,6 @@ import failchat.AppState.SETTINGS
 import failchat.Origin.BTTV_CHANNEL
 import failchat.Origin.FRANKERFASEZ
 import failchat.Origin.GOODGAME
-import failchat.Origin.PEKA2TV
 import failchat.Origin.TWITCH
 import failchat.Origin.YOUTUBE
 import failchat.chat.AppConfiguration
@@ -36,7 +35,6 @@ class AppStateManager(private val deps: Dependencies) {
     }
 
     private val messageIdGenerator = deps.messageIdGenerator
-    private val peka2tvApiClient = deps.peka2tvApiClient
     private val twitchApiClient = deps.tokenAwareTwitchApiClient
     private val goodgameApiClient = deps.ggApiClient
     private val configLoader = deps.configLoader
@@ -59,7 +57,7 @@ class AppStateManager(private val deps: Dependencies) {
 
     private var chatClients: Map<Origin, ChatClient> = emptyMap()
     private var viewersCounter: ViewersCounter? = null
-    
+
     private var state: AppState = SETTINGS
 
     fun startChat(): Unit = lock.withLock {
@@ -71,23 +69,6 @@ class AppStateManager(private val deps: Dependencies) {
         val viewersCountLoaders: MutableList<ViewersCountLoader> = ArrayList()
         val initializedChatClients: MutableMap<Origin, ChatClient> = enumMap()
         val channelEmoticonsJobs: MutableList<Job> = ArrayList()
-
-        // Peka2tv chat client initialization
-        checkEnabled(PEKA2TV)?.let { channelName ->
-            // get channel id by channel name
-            val channelId = try {
-                peka2tvApiClient.findUser(channelName).join().id
-            } catch (e: Exception) {
-                logger.warn("Failed to get peka2tv channel id. channel name: {}", channelName, e)
-                return@let
-            }
-
-            val chatClient = deps.peka2tvChatClient.invoke(channelName to channelId)
-
-            initializedChatClients.put(PEKA2TV, chatClient)
-            viewersCountLoaders.add(chatClient)
-        }
-
 
         // Twitch
         checkEnabled(TWITCH)?.let { channelName ->
@@ -177,8 +158,8 @@ class AppStateManager(private val deps: Dependencies) {
         // Start viewers counter
         viewersCounter = try {
             deps.viewersCounter
-                    .invoke(viewersCountLoaders)
-                    .also { it.start() }
+                .invoke(viewersCountLoaders)
+                .also { it.start() }
         } catch (t: Throwable) {
             logger.error("Failed to start viewers counter", t)
             null
@@ -265,7 +246,7 @@ class AppStateManager(private val deps: Dependencies) {
         if (!config.getBoolean("${origin.commonName}.enabled")) return null
 
         val channel = config.getString("${origin.commonName}.channel")
-                ?: throw InvalidConfigurationException("Channel is null. Origin: $origin")
+            ?: throw InvalidConfigurationException("Channel is null. Origin: $origin")
         if (channel.isEmpty()) return null
 
         return channel

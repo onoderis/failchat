@@ -49,12 +49,6 @@ import failchat.goodgame.GgViewersCountLoader
 import failchat.gui.ChatGuiEventHandler
 import failchat.gui.FullGuiEventHandler
 import failchat.gui.GuiMode
-import failchat.peka2tv.Peka2TvEmoticonLoader
-import failchat.peka2tv.Peka2tvApiClient
-import failchat.peka2tv.Peka2tvBadgeHandler
-import failchat.peka2tv.Peka2tvChatClient
-import failchat.peka2tv.Peka2tvEmoticonHandler
-import failchat.peka2tv.Peka2tvEmoticonLoadConfiguration
 import failchat.skin.SkinScanner
 import failchat.twitch.BttvApiClient
 import failchat.twitch.BttvEmoticonHandler
@@ -105,7 +99,7 @@ class Dependencies {
     val okHttpClient = OkHttpClient.Builder()
 //            .addInterceptor(okhttp3.logging.HttpLoggingInterceptor(failchat.util.OkHttpLogger)
 //            .also { it.level = okhttp3.logging.HttpLoggingInterceptor.Level.BODY })
-            .build()
+        .build()
     val httpClient = HttpClient(OkHttp) {
         engine {
             preconfigured = okHttpClient
@@ -135,9 +129,9 @@ class Dependencies {
 
     val wsFrameSender = WsFrameSender()
     val chatMessageSender = ChatMessageSender(
-            wsFrameSender,
-            appConfiguration,
-            objectMapper
+        wsFrameSender,
+        appConfiguration,
+        objectMapper
     )
     val viewersCountWsHandler = ViewersCountWsHandler(configuration)
     val originStatusManager = OriginStatusManager(chatMessageSender)
@@ -148,22 +142,22 @@ class Dependencies {
     val chatMessageHistory = ChatMessageHistory(50)
     val ignoreFilter = IgnoreFilter(configuration)
     val originsStatusHandler = OriginsStatusHandler(
-            originStatusManager,
-            chatMessageSender
+        originStatusManager,
+        chatMessageSender
     )
     val imageLinkHandler = ImageLinkHandler()
     val badgeStorage = BadgeStorage()
     val badgeFinder: BadgeFinder = badgeStorage
 
     val wsMessageDispatcher = WsMessageDispatcher(
-            objectMapper,
-            listOf(
-                    ClientConfigurationWsHandler(chatMessageSender),
-                    viewersCountWsHandler,
-                    DeleteWsMessageHandler(chatMessageRemover),
-                    IgnoreWsMessageHandler(ignoreFilter, configuration),
-                    originsStatusHandler
-            )
+        objectMapper,
+        listOf(
+            ClientConfigurationWsHandler(chatMessageSender),
+            viewersCountWsHandler,
+            DeleteWsMessageHandler(chatMessageRemover),
+            IgnoreWsMessageHandler(ignoreFilter, configuration),
+            originsStatusHandler
+        )
     )
 
 
@@ -178,16 +172,16 @@ class Dependencies {
     val failchatEmoticonHandler = FailchatEmoticonHandler(emoticonFinder)
     val emoticonManager = EmoticonManager(emoticonStorage)
     val deletedMessagePlaceholderFactory = DeletedMessagePlaceholderFactory(
-            emoticonFinder,
-            configuration
+        emoticonFinder,
+        configuration
     )
     val failchatEmoticonScanner = FailchatEmoticonScanner(
-            failchatEmoticonsDirectory,
-            failchatEmoticonsUrl
+        failchatEmoticonsDirectory,
+        failchatEmoticonsUrl
     )
     val failchatEmoticonUpdater = FailchatEmoticonUpdater(
-            emoticonStorage,
-            failchatEmoticonScanner
+        emoticonStorage,
+        failchatEmoticonScanner
     )
 
 
@@ -204,71 +198,47 @@ class Dependencies {
     val onChatMessageCallback = {
         //todo build handler pipeline for each start
         val handlers = mutableListOf(
-                LinkHandler(),
-                imageLinkHandler,
-                EmojiHandler(),
-                failchatEmoticonHandler
+            LinkHandler(),
+            imageLinkHandler,
+            EmojiHandler(),
+            failchatEmoticonHandler
         )
         if (configuration.getBoolean(ConfigKeys.saveMessageHistory)) {
             handlers += chatHistoryLogger
         }
         OnChatMessageCallback(
-                listOf<MessageFilter<ChatMessage>>(ignoreFilter),
-                handlers,
-                chatMessageHistory,
-                chatMessageSender
+            listOf<MessageFilter<ChatMessage>>(ignoreFilter),
+            handlers,
+            chatMessageHistory,
+            chatMessageSender
         )
     }
     val onStatusUpdateCallback = OnStatusUpdateCallback(originStatusManager)
     val onChatMessageDeletedCallback = OnChatMessageDeletedCallback(chatMessageRemover)
     val chatClientCallbacks = {
         ChatClientCallbacks(
-                onChatMessageCallback.invoke(),
-                onStatusUpdateCallback,
-                onChatMessageDeletedCallback
+            onChatMessageCallback.invoke(),
+            onStatusUpdateCallback,
+            onChatMessageDeletedCallback
         )
     }
 
     // Release checker
     val githubClient = GithubClient(
-            configuration.getString("github.api-url"),
-            okHttpClient,
-            objectMapper
+        configuration.getString("github.api-url"),
+        okHttpClient,
+        objectMapper
     )
     val releaseChecker = ReleaseChecker(githubClient, configuration)
 
 
     // Origin specific dependencies
 
-    // Peka2tv
-    val peka2tvApiClient = Peka2tvApiClient(
-            okHttpClient,
-            objectMapper,
-            configuration.getString("peka2tv.api-url")
-    )
-    val peka2tvEmoticonBulkLoader = Peka2TvEmoticonLoader(peka2tvApiClient)
-    val peka2tvEmoticonLoadConfiguration = Peka2tvEmoticonLoadConfiguration(peka2tvEmoticonBulkLoader)
-    val peka2tvBadgeHandler = Peka2tvBadgeHandler(badgeFinder)
-    val peka2tvEmoticonHandler = Peka2tvEmoticonHandler(emoticonFinder)
-    val peka2tvChatClient = { channelNameAndId: Pair<String, Long> ->
-        Peka2tvChatClient(
-                channelName = channelNameAndId.first,
-                channelId = channelNameAndId.second,
-                socketIoUrl = configuration.getString("peka2tv.socketio-url"),
-                okHttpClient = okHttpClient,
-                messageIdGenerator = messageIdGenerator,
-                emoticonHandler = peka2tvEmoticonHandler,
-                badgeHandler = peka2tvBadgeHandler,
-                history = chatMessageHistory,
-                callbacks = chatClientCallbacks.invoke()
-        )
-    }
-
     // BTTV
     val bttvApiClient = BttvApiClient(
-            httpClient = okHttpClient,
-            apiUrl = configuration.getString("bttv.api-url"),
-            objectMapper = objectMapper
+        httpClient = okHttpClient,
+        apiUrl = configuration.getString("bttv.api-url"),
+        objectMapper = objectMapper
     )
     val bttvEmoticonHandler = BttvEmoticonHandler(emoticonFinder)
     val bttvGlobalEmoticonBulkLoader = BttvGlobalEmoticonLoader(bttvApiClient)
@@ -276,18 +246,18 @@ class Dependencies {
 
     // FFZ
     val ffzApiClient = FfzApiClient(
-            httpClient = okHttpClient,
-            apiUrl = configuration.getString(ConfigKeys.frankerfacezApiUrl),
-            objectMapper = objectMapper
+        httpClient = okHttpClient,
+        apiUrl = configuration.getString(ConfigKeys.frankerfacezApiUrl),
+        objectMapper = objectMapper
     )
     val ffzEmoticonHandler = FfzEmoticonHandler(emoticonFinder)
 
     // 7tv
     val sevenTvApiClient =
-            SevenTvApiClient(
-                    httpClient = okHttpClient,
-                    objectMapper = objectMapper
-            )
+        SevenTvApiClient(
+            httpClient = okHttpClient,
+            objectMapper = objectMapper
+        )
     val sevenTvGlobalMessageHandler = SpaceSeparatedEmoticonHandler(Origin.SEVEN_TV_GLOBAL, emoticonFinder)
     val sevenTvChannelMessageHandler = SpaceSeparatedEmoticonHandler(Origin.SEVEN_TV_CHANNEL, emoticonFinder)
     val sevenTvGlobalEmoticonLoader = SevenTvGlobalEmoticonLoader(sevenTvApiClient)
@@ -299,35 +269,35 @@ class Dependencies {
     val twitchBadgeHandler = TwitchBadgeHandler(badgeFinder)
     val twitchEmoticonHandler = TwitchEmoticonHandler(twitchEmotesTagParser)
     val twitchApiClient = TwitchApiClient(
-            httpClient = okHttpClient,
-            objectMapper = objectMapper,
-            clientId = configuration.getString(ConfigKeys.Twitch.clientId)
+        httpClient = okHttpClient,
+        objectMapper = objectMapper,
+        clientId = configuration.getString(ConfigKeys.Twitch.clientId)
     )
     val tokenAwareTwitchApiClient = TokenAwareTwitchApiClient(
-            twitchApiClient = twitchApiClient,
-            clientSecret = configuration.getString(ConfigKeys.Twitch.clientSecret),
-            tokenContainer = ConfigurationTokenContainer(configuration)
+        twitchApiClient = twitchApiClient,
+        clientSecret = configuration.getString(ConfigKeys.Twitch.clientSecret),
+        tokenContainer = ConfigurationTokenContainer(configuration)
     )
     val twitchGlobalEmoticonLoader = TwitchGlobalEmoticonLoader(tokenAwareTwitchApiClient)
     val twitchEmoticonLoadConfiguration = TwitchEmoticonLoadConfiguration(
-            twitchGlobalEmoticonLoader
+        twitchGlobalEmoticonLoader
     )
     val twitchChatClient = { channelName: String ->
         TwitchChatClient(
-                userName = channelName,
-                ircAddress = configuration.getString("twitch.irc-address"),
-                ircPort = configuration.getInt("twitch.irc-port"),
-                botName = configuration.getString("twitch.bot-name"),
-                botPassword = configuration.getString("twitch.bot-password"),
-                twitchEmoticonHandler = twitchEmoticonHandler,
-                messageIdGenerator = messageIdGenerator,
-                bttvEmoticonHandler = bttvEmoticonHandler,
-                ffzEmoticonHandler = ffzEmoticonHandler,
-                sevenTvGlobalEmoticonHandler = sevenTvGlobalMessageHandler,
-                sevenTvChannelEmoticonHandler = sevenTvChannelMessageHandler,
-                twitchBadgeHandler = twitchBadgeHandler,
-                history = chatMessageHistory,
-                callbacks = chatClientCallbacks.invoke()
+            userName = channelName,
+            ircAddress = configuration.getString("twitch.irc-address"),
+            ircPort = configuration.getInt("twitch.irc-port"),
+            botName = configuration.getString("twitch.bot-name"),
+            botPassword = configuration.getString("twitch.bot-password"),
+            twitchEmoticonHandler = twitchEmoticonHandler,
+            messageIdGenerator = messageIdGenerator,
+            bttvEmoticonHandler = bttvEmoticonHandler,
+            ffzEmoticonHandler = ffzEmoticonHandler,
+            sevenTvGlobalEmoticonHandler = sevenTvGlobalMessageHandler,
+            sevenTvChannelEmoticonHandler = sevenTvChannelMessageHandler,
+            twitchBadgeHandler = twitchBadgeHandler,
+            history = chatMessageHistory,
+            callbacks = chatClientCallbacks.invoke()
         )
     }
     val twitchViewersCountLoader = { channelName: String ->
@@ -337,35 +307,35 @@ class Dependencies {
 
     // Goodgame
     val ggApi2Client = GgApi2Client(
-            httpClient = okHttpClient,
-            objectMapper = objectMapper
+        httpClient = okHttpClient,
+        objectMapper = objectMapper
     )
     val ggBadgeHandler = { channel: GgChannel ->
         GgBadgeHandler(channel, configuration)
     }
     val ggChatClient = { channel: GgChannel ->
         GgChatClient(
-                channel = channel,
-                webSocketUri = configuration.getString("goodgame.ws-url"),
-                messageIdGenerator = messageIdGenerator,
-                emoticonHandler = ggEmoticonHandler,
-                badgeHandler = ggBadgeHandler.invoke(channel),
-                history = chatMessageHistory,
-                callbacks = chatClientCallbacks.invoke(),
-                objectMapper = objectMapper
+            channel = channel,
+            webSocketUri = configuration.getString("goodgame.ws-url"),
+            messageIdGenerator = messageIdGenerator,
+            emoticonHandler = ggEmoticonHandler,
+            badgeHandler = ggBadgeHandler.invoke(channel),
+            history = chatMessageHistory,
+            callbacks = chatClientCallbacks.invoke(),
+            objectMapper = objectMapper
         )
     }
     val ggViewersCountLoader = { channelName: String ->
         GgViewersCountLoader(
-                ggApi2Client,
-                channelName
+            ggApi2Client,
+            channelName
         )
     }
     val ggApiClient = GgApiClient(
-            httpClient = okHttpClient,
-            apiUrl = configuration.getString("goodgame.api-url"),
-            emoticonsJsUrl = configuration.getString("goodgame.emoticon-js-url"),
-            objectMapper = objectMapper
+        httpClient = okHttpClient,
+        apiUrl = configuration.getString("goodgame.api-url"),
+        emoticonsJsUrl = configuration.getString("goodgame.emoticon-js-url"),
+        objectMapper = objectMapper
     )
     val ggEmoticonBulkLoader = GgEmoticonLoader(ggApiClient)
     val ggEmoticonLoadConfiguration = GgEmoticonLoadConfiguration(ggEmoticonBulkLoader)
@@ -375,39 +345,37 @@ class Dependencies {
     // Youtube
     val youtubeHtmlParser = YoutubeHtmlParser(objectMapper)
     val youtubeClient = YoutubeClient(
-            httpClient,
-            objectMapper,
-            youtubeHtmlParser
+        httpClient,
+        objectMapper,
+        youtubeHtmlParser
     )
     val youtubeChatClient = { videoId: String ->
         YoutubeChatClient(
-                chatClientCallbacks.invoke(),
-                youtubeClient,
-                messageIdGenerator,
-                chatMessageHistory,
-                videoId
+            chatClientCallbacks.invoke(),
+            youtubeClient,
+            messageIdGenerator,
+            chatMessageHistory,
+            videoId
         )
     }
 
 
     // Etc
     val emoticonLoadConfigurations: List<EmoticonLoadConfiguration<out Emoticon>> = listOf(
-            peka2tvEmoticonLoadConfiguration,
-            ggEmoticonLoadConfiguration,
-            twitchEmoticonLoadConfiguration,
-            bttvGlobalEmoticonLoadConfiguration,
-            sevenTvGlobalEmoticonLoadConfiguration
+        ggEmoticonLoadConfiguration,
+        twitchEmoticonLoadConfiguration,
+        bttvGlobalEmoticonLoadConfiguration,
+        sevenTvGlobalEmoticonLoadConfiguration
     )
     val channelEmoticonUpdater = ChannelEmoticonUpdater(
-            emoticonStorage,
-            bttvApiClient,
-            ffzApiClient,
-            sevenTvApiClient
+        emoticonStorage,
+        bttvApiClient,
+        ffzApiClient,
+        sevenTvApiClient
     )
     val badgeManager = BadgeManager(
-            badgeStorage,
-            tokenAwareTwitchApiClient,
-            peka2tvApiClient
+        badgeStorage,
+        tokenAwareTwitchApiClient
     )
 
     val appStateManager = AppStateManager(this)
@@ -416,22 +384,24 @@ class Dependencies {
         val guiMode = GuiMode.valueOf(configuration.getString("gui-mode"))
         when (guiMode) {
             GuiMode.CHAT_ONLY -> ChatGuiEventHandler(
-                    appStateManager,
-                    chatMessageSender
+                appStateManager,
+                chatMessageSender
             )
+
             GuiMode.FULL_GUI -> FullGuiEventHandler(
-                    appStateManager,
-                    chatMessageSender,
-                    configuration
+                appStateManager,
+                chatMessageSender,
+                configuration
             )
+
             else -> error("Unexpected gui mode: $guiMode")
         }
     }
     val globalEmoticonUpdater = GlobalEmoticonUpdater(
-            emoticonManager,
-            emoticonLoadConfigurations,
-            backgroundExecutorService,
-            guiEventHandler,
-            configuration
+        emoticonManager,
+        emoticonLoadConfigurations,
+        backgroundExecutorService,
+        guiEventHandler,
+        configuration
     )
 }

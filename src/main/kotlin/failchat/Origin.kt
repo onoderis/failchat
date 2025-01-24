@@ -4,7 +4,6 @@ package failchat
  * Первоисточник сообщений / emoticon'ов.
  */
 enum class Origin(val commonName: String) { //todo rename to MessageOrigin, remove BTTV
-    PEKA2TV("peka2tv"),
     GOODGAME("goodgame"),
     TWITCH("twitch"),
     BTTV_GLOBAL("bttvGlobal"), //todo refactor?
@@ -28,8 +27,7 @@ enum class Origin(val commonName: String) { //todo rename to MessageOrigin, remo
 }
 
 val chatOrigins = listOf(
-        Origin.PEKA2TV,
-        Origin.GOODGAME,
-        Origin.TWITCH,
-        Origin.YOUTUBE
+    Origin.GOODGAME,
+    Origin.TWITCH,
+    Origin.YOUTUBE
 )

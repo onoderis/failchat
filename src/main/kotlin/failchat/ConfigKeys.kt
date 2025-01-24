@@ -4,11 +4,6 @@ object ConfigKeys {
 
     //todo use properties from here
 
-    object Peka2tv {
-        const val enabled = "peka2tv.enabled"
-        const val channel = "peka2tv.channel"
-    }
-
     object Goodgame {
         const val enabled = "goodgame.enabled"
         const val channel = "goodgame.channel"

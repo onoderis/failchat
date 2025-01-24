@@ -1,22 +1,18 @@
 package failchat.chat.badge
 
-import failchat.chat.badge.BadgeOrigin.PEKA2TV
 import failchat.chat.badge.BadgeOrigin.TWITCH_CHANNEL
 import failchat.chat.badge.BadgeOrigin.TWITCH_GLOBAL
-import failchat.peka2tv.Peka2tvApiClient
 import failchat.twitch.TokenAwareTwitchApiClient
 import failchat.util.CoroutineExceptionLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.future.await
 import mu.KotlinLogging
 
 class BadgeManager(
-        private val badgeStorage: BadgeStorage,
-        private val twitchApiClient: TokenAwareTwitchApiClient,
-        private val peka2tvApiClient: Peka2tvApiClient
+    private val badgeStorage: BadgeStorage,
+    private val twitchApiClient: TokenAwareTwitchApiClient
 ) {
 
     private companion object {
@@ -30,12 +26,6 @@ class BadgeManager(
             val twitchBadges = twitchApiClient.getGlobalBadges()
             logger.info("Global twitch badges was loaded. Count: {}", twitchBadges.size)
             badgeStorage.putBadges(TWITCH_GLOBAL, twitchBadges)
-        }
-
-        jobsList += CoroutineScope(Dispatchers.Default + CoroutineExceptionLogger).async {
-            val peka2tvBadges = peka2tvApiClient.requestBadges().await()
-            logger.info("Peka2tv badges was loaded. Count: {}", peka2tvBadges.size)
-            badgeStorage.putBadges(PEKA2TV, peka2tvBadges)
         }
 
         jobsList.forEach { it.join() }
