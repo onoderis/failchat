@@ -24,12 +24,12 @@ twitch.client-secret=CLIENT_SECRET
 
 ### How to run
 
-```shell
-./run.sh
+```
+mvn compile org.codehaus.mojo:exec-maven-plugin:exec@run-app
 ```
 
 ### How to build a distributable archive
 
-```shell
+```
 mvn package
 ```
