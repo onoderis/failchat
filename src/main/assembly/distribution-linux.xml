@@ -1,0 +1,21 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 https://maven.apache.org/xsd/assembly-2.2.0.xsd">
+    <id>distribution-linux</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <baseDirectory>${failchat.artifactName}</baseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>${project.build.directory}/${failchat.artifactName}</directory>
+            <includes>
+                <include>java-agents/**</include>
+                <include>runtime-linux/**</include>
+                <include>skins/**</include>
+                <include>*.jar</include>
+                <include>*.sh</include>
+            </includes>
+            <outputDirectory>./</outputDirectory>
+        </fileSet>
+    </fileSets>
+</assembly>

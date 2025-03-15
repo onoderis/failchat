@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.onoderis</groupId>
@@ -10,8 +11,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <failchat.distribution.directory>${project.build.directory}/failchat-v${project.version}
-        </failchat.distribution.directory>
+
+        <failchat.artifactName>${project.artifactId}-${project.version}</failchat.artifactName>
 
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -40,6 +41,8 @@
         <wiremock.version>2.27.2</wiremock.version>
         <kotest.version>4.3.2</kotest.version>
         <mockk.version>1.10.5</mockk.version>
+
+        <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
     </properties>
 
 
@@ -320,7 +323,7 @@
 
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>${maven-resources-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>default-resources</id>
@@ -336,7 +339,6 @@
                             <resources>
                                 <resource>
                                     <directory>${basedir}/src/main/resources</directory>
-                                    <filtering>true</filtering>
                                 </resource>
                                 <resource>
                                     <directory>${basedir}/src/main/external-resources</directory>
@@ -344,37 +346,6 @@
                                         <exclude>failchat.bat</exclude>
                                         <exclude>failchat.sh</exclude>
                                     </excludes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>copy-resources-on-package</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${failchat.distribution.directory}</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/src/main/external-resources</directory>
-                                    <excludes>
-                                        <exclude>failchat.bat</exclude>
-                                        <exclude>failchat.sh</exclude>
-                                        <exclude>skins/_shared/example-messages.js</exclude>
-                                        <exclude>skins/_shared/demo-messages.js</exclude>
-                                    </excludes>
-                                </resource>
-                                <resource>
-                                    <!-- .bat/.sh files with filtering -->
-                                    <directory>${basedir}/src/main/external-resources</directory>
-                                    <filtering>true</filtering>
-                                    <includes>
-                                        <include>failchat.bat</include>
-                                        <include>failchat.sh</include>
-                                    </includes>
                                 </resource>
                             </resources>
                         </configuration>
@@ -395,16 +366,48 @@
                             </resources>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>copy-resources-on-package</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/${failchat.artifactName}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/external-resources</directory>
+                                    <excludes>
+                                        <exclude>failchat.bat</exclude>
+                                        <exclude>failchat.sh</exclude>
+                                        <exclude>skins/_shared/example-messages.js</exclude>
+                                        <exclude>skins/_shared/demo-messages.js</exclude>
+                                    </excludes>
+                                </resource>
+                                <resource>
+                                    <!-- copy .bat/.sh and replace version placeholder -->
+                                    <directory>${basedir}/src/main/external-resources</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>failchat.bat</include>
+                                        <include>failchat.sh</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
+            <!-- maven-shade-plugin requires base artifact to generate uber jar-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.4.2</version>
                 <configuration>
-                    <finalName>failchat-${project.version}</finalName>
-                    <outputDirectory>${failchat.distribution.directory}</outputDirectory>
+                    <finalName>${failchat.artifactName}</finalName>
+                    <outputDirectory>${project.build.directory}/${failchat.artifactName}</outputDirectory>
                     <archive>
                         <manifest>
                             <mainClass>failchat.FailchatMainKt</mainClass>
@@ -423,23 +426,29 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
+                        <id>uber-jar</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer" />
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer"/>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Main-Class>failchat.FailchatMainKt</Main-Class>
                                     </manifestEntries>
                                 </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.properties.PropertiesTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.properties.PropertiesTransformer">
                                     <resource>META-INF/io.netty.versions.properties</resource>
                                     <ordinalKey>ordinal</ordinalKey>
                                 </transformer>
@@ -459,7 +468,6 @@
                                     </excludes>
                                 </filter>
                             </filters>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
                         </configuration>
                     </execution>
                 </executions>
@@ -479,7 +487,8 @@
                             <excludeDefaultDirectories>true</excludeDefaultDirectories>
                             <filesets>
                                 <fileset>
-                                    <directory>${failchat.distribution.directory}/runtime</directory>
+                                    <directory>${project.build.directory}/runtime-windows</directory>
+                                    <directory>${project.build.directory}/runtime-linux</directory>
                                 </fileset>
                             </filesets>
                         </configuration>
@@ -490,10 +499,10 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.5.0</version>
                 <executions>
                     <execution>
-                        <id>build-app-runtime</id>
+                        <id>build-windows-runtime</id>
                         <phase>package</phase>
                         <goals>
                             <goal>exec</goal>
@@ -511,11 +520,36 @@
                                     java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.naming,java.sql,java.xml,javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.web,jdk.attach,jdk.jdi,jdk.jsobject,jdk.unsupported,jdk.crypto.ec
                                 </argument>
                                 <!-- use specific jdk to build an app runtime. this is required to compile across different OS -->
-                                <!-- comment the next 2 lines to build with a jdk in PATH-->
                                 <argument>--module-path</argument>
                                 <argument>jdk/bellsoft-jdk11.0.22+12-windows-amd64-full/jmods</argument>
                                 <argument>--output</argument>
-                                <argument>${failchat.distribution.directory}/runtime</argument>
+                                <argument>${project.build.directory}/${failchat.artifactName}/runtime-windows</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>build-linux-runtime</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jlink</executable>
+                            <arguments>
+                                <argument>--no-header-files</argument>
+                                <argument>--no-man-pages</argument>
+                                <argument>--compress=2</argument>
+                                <argument>--strip-debug</argument>
+                                <argument>--add-modules</argument>
+                                <!-- TODO dynamically generate the list of modules -->
+                                <argument>
+                                    java.compiler,java.datatransfer,java.desktop,java.instrument,java.logging,java.management,java.naming,java.sql,java.xml,javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.web,jdk.attach,jdk.jdi,jdk.jsobject,jdk.unsupported,jdk.crypto.ec
+                                </argument>
+                                <!-- use specific jdk to build an app runtime. this is required to compile across different OS -->
+                                <argument>--module-path</argument>
+                                <argument>jdk/bellsoft-jdk11.0.22+12-linux-amd64-full/jmods</argument>
+                                <argument>--output</argument>
+                                <argument>${project.build.directory}/${failchat.artifactName}/runtime-linux</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -529,7 +563,7 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-classpath</argument>
-                                <classpath />
+                                <classpath/>
                                 <argument>failchat.FailchatMainKt</argument>
                                 <argument>--skip-release-check</argument>
                                 <argument>--enable-console-logging</argument>
@@ -546,22 +580,36 @@
 
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.7.1</version>
                 <executions>
                     <execution>
-                        <id>zip</id>
+                        <id>distribution-windows</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>failchat-v${project.version}</finalName>
+                            <finalName>${failchat.artifactName}-windows</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <archiverConfig>
                                 <compress>true</compress>
                             </archiverConfig>
                             <descriptors>
-                                <descriptor>src/main/assembly/zip.xml</descriptor>
+                                <descriptor>src/main/assembly/distribution-windows.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>distribution-linux</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${failchat.artifactName}-linux</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/main/assembly/distribution-linux.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
