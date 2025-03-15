@@ -25,14 +25,14 @@ import java.net.URI
 import java.util.concurrent.atomic.AtomicReference
 
 class GgChatClient(
-        private val channel: GgChannel,
-        private val webSocketUri: String,
-        private val messageIdGenerator: MessageIdGenerator,
-        emoticonHandler: MessageHandler<GgMessage>,
-        badgeHandler: GgBadgeHandler,
-        private val history: ChatMessageHistory,
-        override val callbacks: ChatClientCallbacks,
-        private val objectMapper: ObjectMapper
+    private val channel: GgChannel,
+    private val webSocketUri: String,
+    private val messageIdGenerator: MessageIdGenerator,
+    emoticonHandler: MessageHandler<GgMessage>,
+    badgeHandler: GgBadgeHandler,
+    private val history: ChatMessageHistory,
+    override val callbacks: ChatClientCallbacks,
+    private val objectMapper: ObjectMapper
 ) : ChatClient {
 
     private companion object {
@@ -47,12 +47,12 @@ class GgChatClient(
     private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.READY)
 
     private val messageHandlers: List<MessageHandler<GgMessage>> = listOf(
-            ElementLabelEscaper(),
-            HtmlUrlCleaner(),
-            emoticonHandler,
-            CommaHighlightHandler(channel.name),
-            badgeHandler,
-            GgAuthorColorHandler()
+        ElementLabelEscaper(),
+        HtmlUrlCleaner(),
+        emoticonHandler,
+        CommaHighlightHandler(channel.name),
+        badgeHandler,
+        GgAuthorColorHandler()
     )
 
 
@@ -113,19 +113,18 @@ class GgChatClient(
 
         private fun handleUserMessage(dataNode: JsonNode) {
             val subscriptionDuration = dataNode.get("resubs").fields().asSequence()
-                    .map { (channelId, duration) -> channelId.toLong() to duration.intValue() }
-                    .toMap(HashMap())
+                .map { (channelId, duration) -> channelId.toLong() to duration.intValue() }
+                .toMap(HashMap())
             val ggMessage = GgMessage(
-                    id = messageIdGenerator.generate(),
-                    ggId = dataNode.get("message_id").asText().toLong(),
-                    author = dataNode.get("user_name").asText(),
-                    text = dataNode.get("text").asText(),
-                    authorHasPremium = dataNode.get("premium").asBoolean(),
-                    subscriptionDuration = subscriptionDuration,
-                    badgeName = dataNode.get("icon").textValue(),
-                    authorColorName = dataNode.get("color").textValue(),
-                    sponsorLevel = dataNode.get("payments").intValue(),
-                    authorRights = dataNode.get("user_rights").intValue()
+                id = messageIdGenerator.generate(),
+                ggId = dataNode.get("message_id").asText().toLong(),
+                author = dataNode.get("user_name").asText(),
+                text = dataNode.get("text").asText(),
+                subscriptionDuration = subscriptionDuration,
+                badgeName = dataNode.get("icon").textValue(),
+                authorColorName = dataNode.get("color").textValue(),
+                sponsorLevel = dataNode.get("payments").intValue(),
+                authorRights = dataNode.get("user_rights").intValue()
             )
 
             messageHandlers.forEach { it.handleMessage(ggMessage) }

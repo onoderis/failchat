@@ -11,13 +11,10 @@ class GgEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHan
     override fun handleMessage(message: GgMessage) {
         message.text = SemicolonCodeProcessor.process(message.text) { code ->
             val emoticon = emoticonFinder.findByCode(GOODGAME, code) as? GgEmoticon
-                    ?: return@process ReplaceDecision.Skip
+                ?: return@process ReplaceDecision.Skip
 
-            val emoticonToAdd = if (message.authorHasPremium && emoticon.animatedInstance != null) {
-                emoticon.animatedInstance!!
-            } else {
-                emoticon
-            }
+            // prefer animated emoticons even for non-premium users
+            val emoticonToAdd = emoticon.animatedInstance ?: emoticon
 
             val label = message.addElement(emoticonToAdd)
             return@process ReplaceDecision.Replace(label)
