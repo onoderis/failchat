@@ -3,18 +3,17 @@ package failchat.emoticon
 import failchat.gui.GuiEventHandler
 import failchat.resetEmoticonsUpdatedTime
 import failchat.util.executeWithCatch
+import java.util.concurrent.ExecutorService
 import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
-import java.util.concurrent.ExecutorService
 
 class GlobalEmoticonUpdater(
-        private val emoticonManager: EmoticonManager,
-        private val emoticonLoadConfigurations: List<EmoticonLoadConfiguration<out Emoticon>>,
-        private val backgroundExecutor: ExecutorService,
-        private val guiEventHandler: GuiEventHandler,
-        private val config: Configuration
+    private val emoticonManager: EmoticonManager,
+    private val emoticonLoadConfigurations: List<EmoticonLoadConfiguration<out Emoticon>>,
+    private val backgroundExecutor: ExecutorService,
+    private val guiEventHandler: GuiEventHandler,
+    private val config: Configuration,
 ) {
-
     private companion object {
         val logger = KotlinLogging.logger {}
     }
@@ -33,5 +32,4 @@ class GlobalEmoticonUpdater(
             guiEventHandler.notifyEmoticonsLoaded()
         }
     }
-
 }

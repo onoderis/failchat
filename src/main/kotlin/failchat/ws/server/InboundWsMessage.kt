@@ -4,11 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.websocket.DefaultWebSocketServerSession
 
 class InboundWsMessage(
-        val type: Type,
-        val content: JsonNode,
-        val session: DefaultWebSocketServerSession
+    val type: Type,
+    val content: JsonNode,
+    val session: DefaultWebSocketServerSession,
 ) {
-
     enum class Type(val jsonRepresentation: String) {
         CLIENT_CONFIGURATION("client-configuration"),
         DELETE_MESSAGE("delete-message"),
@@ -17,9 +16,7 @@ class InboundWsMessage(
         ORIGINS_STATUS("origins-status");
 
         companion object {
-            private val map = values()
-                    .map { it.jsonRepresentation to it }
-                    .toMap()
+            private val map = values().map { it.jsonRepresentation to it }.toMap()
 
             fun from(string: String): Type? = map[string]
         }

@@ -10,7 +10,6 @@ import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
 
 class WindowsCtConfigurator(private val config: Configuration) : ClickTransparencyConfigurator {
-
     private companion object {
         val logger = KotlinLogging.logger {}
     }
@@ -31,11 +30,12 @@ class WindowsCtConfigurator(private val config: Configuration) : ClickTransparen
         val handle = getWindowHandle(stage) ?: return
 
         try {
-            val removeLayeredStyle = when (stage.style) {
-                DECORATED -> true
-                TRANSPARENT -> false
-                else -> throw IllegalArgumentException("StageStyle: ${stage.style}")
-            }
+            val removeLayeredStyle =
+                when (stage.style) {
+                    DECORATED -> true
+                    TRANSPARENT -> false
+                    else -> throw IllegalArgumentException("StageStyle: ${stage.style}")
+                }
 
             Windows.makeWindowClickOpaque(handle, removeLayeredStyle)
         } catch (t: Throwable) {
@@ -43,12 +43,11 @@ class WindowsCtConfigurator(private val config: Configuration) : ClickTransparen
         }
     }
 
-    private fun getWindowHandle(stage: Stage): HWND? {
-        return try {
+    private fun getWindowHandle(stage: Stage): HWND? =
+        try {
             Windows.getWindowHandle(stage)
         } catch (t: Throwable) {
             logger.error("Failed to get handle for {} window", stage.style, t)
             null
         }
-    }
 }

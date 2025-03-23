@@ -4,7 +4,6 @@ import io.kotest.matchers.shouldBe
 import org.junit.Test
 
 class YoutubeViewCountParserTest {
-
     private val youtubeViewCountParser = YoutubeViewCountParser()
 
     @Test
@@ -29,5 +28,4 @@ class YoutubeViewCountParserTest {
         // Then
         actual shouldBe 609
     }
-
 }

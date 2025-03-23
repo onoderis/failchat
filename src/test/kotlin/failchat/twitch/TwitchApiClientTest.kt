@@ -8,15 +8,14 @@ import failchat.exception.UnexpectedResponseCodeException
 import failchat.okHttpClient
 import failchat.testObjectMapper
 import failchat.userHomeConfig
-import kotlinx.coroutines.runBlocking
-import mu.KotlinLogging
-import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertIs
+import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
+import org.junit.Test
 
 class TwitchApiClientTest {
-
     private companion object {
         val logger = KotlinLogging.logger {}
         const val userName = "fail_chatbot"
@@ -24,15 +23,16 @@ class TwitchApiClientTest {
         const val nonExistingUserName = "fail_chatbot2"
     }
 
-    private val apiClient: TokenAwareTwitchApiClient = TokenAwareTwitchApiClient(
+    private val apiClient: TokenAwareTwitchApiClient =
+        TokenAwareTwitchApiClient(
             TwitchApiClient(
-                    okHttpClient,
-                    testObjectMapper,
-                    userHomeConfig.getString(ConfigKeys.Twitch.clientId),
+                okHttpClient,
+                testObjectMapper,
+                userHomeConfig.getString(ConfigKeys.Twitch.clientId),
             ),
             userHomeConfig.getString(ConfigKeys.Twitch.clientSecret),
-            ConfigurationTokenContainer(userHomeConfig)
-    )
+            ConfigurationTokenContainer(userHomeConfig),
+        )
 
     @Test
     fun getUserIdTest() = runBlocking {
@@ -41,10 +41,11 @@ class TwitchApiClientTest {
     }
 
     @Test
-    fun getUserIdNotFoundTest() = runBlocking<Unit> {
-        val e = assertFails { apiClient.getUserId(nonExistingUserName) }
-        assertIs<ChannelNotFoundException>(e)
-    }
+    fun getUserIdNotFoundTest() =
+        runBlocking<Unit> {
+            val e = assertFails { apiClient.getUserId(nonExistingUserName) }
+            assertIs<ChannelNotFoundException>(e)
+        }
 
     @Test
     fun getFirstLiveChannelName() = runBlocking {
@@ -54,17 +55,19 @@ class TwitchApiClientTest {
     }
 
     @Test
-    fun getViewersCountOfflineTest() = runBlocking<Unit> {
-        val e = assertFails { apiClient.getViewersCount(userName) }
-        assertIs<ChannelOfflineException>(e)
-    }
+    fun getViewersCountOfflineTest() =
+        runBlocking<Unit> {
+            val e = assertFails { apiClient.getViewersCount(userName) }
+            assertIs<ChannelOfflineException>(e)
+        }
 
     @Test
-    fun getViewersCountChannelNotFoundTest() = runBlocking<Unit> {
-        // if channel is not found the api returns 400 Bad request
-        val e = assertFails { apiClient.getViewersCount(nonExistingUserName) }
-        assertIs<UnexpectedResponseCodeException>(e)
-    }
+    fun getViewersCountChannelNotFoundTest() =
+        runBlocking<Unit> {
+            // if channel is not found the api returns 400 Bad request
+            val e = assertFails { apiClient.getViewersCount(nonExistingUserName) }
+            assertIs<UnexpectedResponseCodeException>(e)
+        }
 
     @Test
     fun getGlobalEmoticonsTest() = runBlocking {

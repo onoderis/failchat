@@ -4,6 +4,7 @@ import failchat.ConfigKeys
 import failchat.emoticon.GlobalEmoticonUpdater
 import failchat.skin.Skin
 import failchat.util.toHexFormat
+import java.nio.file.Path
 import javafx.application.Application
 import javafx.collections.FXCollections
 import javafx.fxml.FXMLLoader
@@ -27,19 +28,17 @@ import javafx.scene.text.Text
 import javafx.stage.Stage
 import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
-import java.nio.file.Path
 
 class SettingsFrame(
-    private val app: Application, //todo replace with LinkOpener
+    private val app: Application, // todo replace with LinkOpener
     private val stage: Stage,
     private val config: Configuration,
     private val skinList: List<Skin>,
     private val failchatEmoticonsDirectory: Path,
     private val clickTransparencyEnabled: Boolean,
     private val guiEventHandler: Lazy<GuiEventHandler>,
-    private val emoticonUpdater: Lazy<GlobalEmoticonUpdater>
+    private val emoticonUpdater: Lazy<GlobalEmoticonUpdater>,
 ) {
-
     private companion object {
         val logger = KotlinLogging.logger {}
     }
@@ -48,18 +47,17 @@ class SettingsFrame(
     private val scene = Scene(loader.load())
     private val namespace = loader.namespace
 
-    //channels
+    // channels
     private val goodgameChannel = namespace["goodgame_channel"] as TextField
     private val twitchChannel = namespace["twitch_channel"] as TextField
     private val youtubeChannel = namespace["youtube_channel"] as TextField
 
-    //channels checkboxes
+    // channels checkboxes
     private val goodgameEnabled = namespace["goodgame_enabled"] as CheckBox
     private val twitchEnabled = namespace["twitch_enabled"] as CheckBox
     private val youtubeEnabled = namespace["youtube_enabled"] as CheckBox
 
-    @Suppress("UNCHECKED_CAST")
-    private val skin = namespace["skin"] as ChoiceBox<Skin>
+    @Suppress("UNCHECKED_CAST") private val skin = namespace["skin"] as ChoiceBox<Skin>
     private val frame = namespace["frame"] as CheckBox
     private val onTop = namespace["top"] as CheckBox
     private val clickTransparency = namespace["click_transparency"] as CheckBox
@@ -91,19 +89,17 @@ class SettingsFrame(
     private val hideMessagesExternalAfter = namespace["hide_messages_external_after"] as TextField
     private val showStatusMessagesExternal = namespace["show_status_messages_external"] as CheckBox
 
-
     // Actions tab
     private val failchatEmoticonsButton = namespace["failchat_emoticons"] as Button
     private val reloadEmoticonsButton = namespace["reload_emoticons_button"] as Button
-    private val reloadEmoticonsIndicator = namespace["reload_emoticons_indicator"] as ProgressIndicator
+    private val reloadEmoticonsIndicator =
+        namespace["reload_emoticons_indicator"] as ProgressIndicator
     private val resetConfigurationButton = namespace["reset_configuration"] as Button
 
     // Ignore list tab
     private val ignoreList = namespace["ignore_list"] as TextArea
 
-
     private val startButton = namespace["start_button"] as Button
-
 
     init {
         stage.scene = scene
@@ -131,7 +127,6 @@ class SettingsFrame(
             guiEventHandler.value.handleShutDown()
         }
 
-
         val opacityText = namespace["opacity_text"] as Text
         opacitySlider.valueProperty().addListener { _, _, newValue ->
             opacityText.text = Integer.toString(newValue.toInt())
@@ -142,9 +137,7 @@ class SettingsFrame(
         }
 
         disableRefreshEmoticonsButton()
-        reloadEmoticonsButton.setOnAction {
-            emoticonUpdater.value.reloadEmoticonsAsync()
-        }
+        reloadEmoticonsButton.setOnAction { emoticonUpdater.value.reloadEmoticonsAsync() }
 
         resetConfigurationButton.setOnAction {
             guiEventHandler.value.handleResetUserConfiguration()
@@ -159,7 +152,6 @@ class SettingsFrame(
         discordLink.setOnAction {
             app.hostServices.showDocument(config.getString("about.discord-server"))
         }
-
 
         startButton.setOnAction { guiEventHandler.value.handleStartChat() }
     }
@@ -188,10 +180,11 @@ class SettingsFrame(
 
     /** @return true if user confirmed the reset. */
     fun confirmConfigReset(): Boolean {
-        val notification = Alert(WARNING).apply {
-            title = "Reset confirmation"
-            headerText = "Are you sure you want to reset the configuration?"
-        }
+        val notification =
+            Alert(WARNING).apply {
+                title = "Reset confirmation"
+                headerText = "Are you sure you want to reset the configuration?"
+            }
         val stage = notification.dialogPane.scene.window as Stage
         stage.icons.setAll(Images.appIcon)
 
@@ -235,7 +228,8 @@ class SettingsFrame(
         onTop.isSelected = config.getBoolean(ConfigKeys.onTop)
         if (clickTransparencyEnabled) {
             clickTransparency.isSelected = config.getBoolean(ConfigKeys.clickTransparency)
-            showClickTransparencyIcon.isSelected = config.getBoolean(ConfigKeys.showClickTransparencyIcon)
+            showClickTransparencyIcon.isSelected =
+                config.getBoolean(ConfigKeys.showClickTransparencyIcon)
         }
         showViewers.isSelected = config.getBoolean(ConfigKeys.showViewers)
         showImages.isSelected = config.getBoolean(ConfigKeys.showImages)
@@ -247,30 +241,39 @@ class SettingsFrame(
         zoomPercent.text = config.getInt(ConfigKeys.zoomPercent).toString()
         deletedMessagePlaceholder.text = config.getString(ConfigKeys.deletedMessagePlaceholder)
 
-        nativeBgColorPicker.value = Color.web(config.getString(ConfigKeys.NativeClient.backgroundColor))
-        coloredNicknamesNative.isSelected = config.getBoolean(ConfigKeys.NativeClient.coloredNicknames)
+        nativeBgColorPicker.value =
+            Color.web(config.getString(ConfigKeys.NativeClient.backgroundColor))
+        coloredNicknamesNative.isSelected =
+            config.getBoolean(ConfigKeys.NativeClient.coloredNicknames)
         hideMessagesNative.isSelected = config.getBoolean(ConfigKeys.NativeClient.hideMessages)
-        hideMessagesNativeAfter.text = config.getInt(ConfigKeys.NativeClient.hideMessagesAfter).toString()
-        showStatusMessagesNative.isSelected = config.getBoolean(ConfigKeys.NativeClient.showStatusMessages)
+        hideMessagesNativeAfter.text =
+            config.getInt(ConfigKeys.NativeClient.hideMessagesAfter).toString()
+        showStatusMessagesNative.isSelected =
+            config.getBoolean(ConfigKeys.NativeClient.showStatusMessages)
 
-        externalBgColorPicker.value = Color.web(config.getString(ConfigKeys.ExternalClient.backgroundColor))
-        coloredNicknamesExternal.isSelected = config.getBoolean(ConfigKeys.ExternalClient.coloredNicknames)
+        externalBgColorPicker.value =
+            Color.web(config.getString(ConfigKeys.ExternalClient.backgroundColor))
+        coloredNicknamesExternal.isSelected =
+            config.getBoolean(ConfigKeys.ExternalClient.coloredNicknames)
         hideMessagesExternal.isSelected = config.getBoolean(ConfigKeys.ExternalClient.hideMessages)
-        hideMessagesExternalAfter.text = config.getInt(ConfigKeys.ExternalClient.hideMessagesAfter).toString()
-        showStatusMessagesExternal.isSelected = config.getBoolean(ConfigKeys.ExternalClient.showStatusMessages)
+        hideMessagesExternalAfter.text =
+            config.getInt(ConfigKeys.ExternalClient.hideMessagesAfter).toString()
+        showStatusMessagesExternal.isSelected =
+            config.getBoolean(ConfigKeys.ExternalClient.showStatusMessages)
 
         opacitySlider.value = config.getDouble(ConfigKeys.opacity)
 
         val userIds = config.getStringArray(ConfigKeys.ignore)
-        ignoreList.text = if (userIds.isEmpty()) {
-            ""
-        } else {
-            userIds.joinToString(separator = "\n", postfix = "\n")
-        }
+        ignoreList.text =
+            if (userIds.isEmpty()) {
+                ""
+            } else {
+                userIds.joinToString(separator = "\n", postfix = "\n")
+            }
     }
 
     private fun saveSettingsValues() {
-        //todo use loop for origins
+        // todo use loop for origins
         config.setProperty(ConfigKeys.Goodgame.channel, goodgameChannel.text)
         config.setProperty(ConfigKeys.Twitch.channel, twitchChannel.text)
         config.setProperty(ConfigKeys.Youtube.channel, youtubeChannel.text)
@@ -284,8 +287,10 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.onTop, onTop.isSelected)
         if (clickTransparencyEnabled) {
             config.setProperty(ConfigKeys.clickTransparency, clickTransparency.isSelected)
-            config.setProperty(ConfigKeys.showClickTransparencyIcon, showClickTransparencyIcon.isSelected)
-
+            config.setProperty(
+                ConfigKeys.showClickTransparencyIcon,
+                showClickTransparencyIcon.isSelected,
+            )
         }
         config.setProperty(ConfigKeys.showViewers, showViewers.isSelected)
         config.setProperty(ConfigKeys.showImages, showImages.isSelected)
@@ -298,34 +303,56 @@ class SettingsFrame(
         config.setProperty(ConfigKeys.zoomPercent, parseZoomPercent(zoomPercent.text))
         config.setProperty(ConfigKeys.deletedMessagePlaceholder, deletedMessagePlaceholder.text)
 
-        config.setProperty(ConfigKeys.NativeClient.backgroundColor, nativeBgColorPicker.value.toHexFormat())
-        config.setProperty(ConfigKeys.NativeClient.coloredNicknames, coloredNicknamesNative.isSelected)
+        config.setProperty(
+            ConfigKeys.NativeClient.backgroundColor,
+            nativeBgColorPicker.value.toHexFormat(),
+        )
+        config.setProperty(
+            ConfigKeys.NativeClient.coloredNicknames,
+            coloredNicknamesNative.isSelected,
+        )
         config.setProperty(ConfigKeys.NativeClient.hideMessages, hideMessagesNative.isSelected)
         config.setProperty(
             ConfigKeys.NativeClient.hideMessagesAfter,
-            parseHideMessagesAfter(hideMessagesNativeAfter.text)
+            parseHideMessagesAfter(hideMessagesNativeAfter.text),
         )
-        config.setProperty(ConfigKeys.NativeClient.showStatusMessages, showStatusMessagesNative.isSelected)
+        config.setProperty(
+            ConfigKeys.NativeClient.showStatusMessages,
+            showStatusMessagesNative.isSelected,
+        )
 
-        config.setProperty(ConfigKeys.ExternalClient.backgroundColor, externalBgColorPicker.value.toHexFormat())
-        config.setProperty(ConfigKeys.ExternalClient.coloredNicknames, coloredNicknamesExternal.isSelected)
+        config.setProperty(
+            ConfigKeys.ExternalClient.backgroundColor,
+            externalBgColorPicker.value.toHexFormat(),
+        )
+        config.setProperty(
+            ConfigKeys.ExternalClient.coloredNicknames,
+            coloredNicknamesExternal.isSelected,
+        )
         config.setProperty(ConfigKeys.ExternalClient.hideMessages, hideMessagesExternal.isSelected)
         config.setProperty(
             ConfigKeys.ExternalClient.hideMessagesAfter,
-            parseHideMessagesAfter(hideMessagesExternalAfter.text)
+            parseHideMessagesAfter(hideMessagesExternalAfter.text),
         )
-        config.setProperty(ConfigKeys.ExternalClient.showStatusMessages, showStatusMessagesExternal.isSelected)
+        config.setProperty(
+            ConfigKeys.ExternalClient.showStatusMessages,
+            showStatusMessagesExternal.isSelected,
+        )
 
-        config.setProperty(ConfigKeys.ignore, ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray())
+        config.setProperty(
+            ConfigKeys.ignore,
+            ignoreList.text.split("\n").dropLastWhile { it.isEmpty() }.toTypedArray(),
+        )
     }
 
     private fun parseZoomPercent(zoomPercent: String): Int {
-        val percent = try {
-            zoomPercent.toInt()
-        } catch (e: Exception) {
-            logger.warn("Failed to parse zoom percent as Int", e)
-            return 100
-        }
+        val percent =
+            try {
+                zoomPercent.toInt()
+            } catch (e: Exception) {
+                logger.warn("Failed to parse zoom percent as Int", e)
+                return 100
+            }
 
         if (percent !in 25..500) {
             logger.warn("Zoom percent '{}' not in range [25..500]", percent)
@@ -336,12 +363,13 @@ class SettingsFrame(
     }
 
     private fun parseHideMessagesAfter(hideMessagesAfter: String): Int {
-        val intValue = try {
-            hideMessagesAfter.toInt()
-        } catch (e: Exception) {
-            logger.warn("Failed to parse 'hide messages after' as Int", e)
-            return 60
-        }
+        val intValue =
+            try {
+                hideMessagesAfter.toInt()
+            } catch (e: Exception) {
+                logger.warn("Failed to parse 'hide messages after' as Int", e)
+                return 60
+            }
 
         if (intValue < 0) {
             logger.warn("'hide messages after' value  {} < 0", intValue)
@@ -350,5 +378,4 @@ class SettingsFrame(
 
         return intValue
     }
-
 }

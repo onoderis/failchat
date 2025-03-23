@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory
 
 @Ignore
 class StackTraceFormatTest {
-
     private companion object {
         val log: Logger = LoggerFactory.getLogger(StackTraceFormatTest::class.java)
     }
@@ -16,5 +15,4 @@ class StackTraceFormatTest {
     fun manualTest() {
         log.info(formatStackTraces(Thread.getAllStackTraces()))
     }
-
 }

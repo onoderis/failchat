@@ -1,16 +1,15 @@
 package failchat.emoticon
 
 import failchat.Origin
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
-import java.util.concurrent.ConcurrentHashMap
 
 class EmoticonCodeMemoryStorage(
-        override val origin: Origin,
-        private val caseSensitiveCode: Boolean
+    override val origin: Origin,
+    private val caseSensitiveCode: Boolean,
 ) : OriginEmoticonStorage {
-
     private val codeMap: MutableMap<String, Emoticon> = ConcurrentHashMap()
 
     override fun findByCode(code: String): Emoticon? {
@@ -23,32 +22,21 @@ class EmoticonCodeMemoryStorage(
         return codeMap.get(cId)
     }
 
-    override fun getAll(): Collection<Emoticon> {
-        return codeMap.values
-    }
+    override fun getAll(): Collection<Emoticon> = codeMap.values
 
-    override fun count(): Int {
-        return codeMap.size
-    }
+    override fun count(): Int = codeMap.size
 
     override fun putAll(emoticons: Collection<EmoticonAndId>) {
-        emoticons.forEach {
-            putEmoticon(it)
-        }
+        emoticons.forEach { putEmoticon(it) }
     }
 
     override fun putAll(emoticons: Flow<EmoticonAndId>) {
-        runBlocking {
-            emoticons.collect {
-                putEmoticon(it)
-            }
-        }
+        runBlocking { emoticons.collect { putEmoticon(it) } }
     }
 
     private fun putEmoticon(emoticonAndId: EmoticonAndId) {
-        val code = emoticonAndId.emoticon.code.let {
-            if (caseSensitiveCode) it else it.toLowerCase()
-        }
+        val code =
+            emoticonAndId.emoticon.code.let { if (caseSensitiveCode) it else it.toLowerCase() }
 
         codeMap.put(code, emoticonAndId.emoticon)
     }

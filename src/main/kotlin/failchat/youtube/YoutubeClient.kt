@@ -14,39 +14,49 @@ import io.ktor.http.takeFrom
 import io.ktor.util.toByteArray
 
 class YoutubeClient(
-        private val httpClient: HttpClient,
-        private val objectMapper: ObjectMapper,
-        private val youtubeHtmlParser: YoutubeHtmlParser
+    private val httpClient: HttpClient,
+    private val objectMapper: ObjectMapper,
+    private val youtubeHtmlParser: YoutubeHtmlParser,
 ) {
-
     private companion object {
         const val liveChatUrl = "https://www.youtube.com/youtubei/v1/live_chat/get_live_chat"
         const val chatPageUrl = "https://www.youtube.com/live_chat?is_popout=1&v="
         const val metadataUrl = "https://www.youtube.com/youtubei/v1/updated_metadata?key="
-        val metadataRequestContext = UpdatedMetadataRequest.Context(UpdatedMetadataRequest.Client(
-                clientName = "WEB",
-                clientVersion = "2.20210120.08.00"
-        ))
+        val metadataRequestContext =
+            UpdatedMetadataRequest.Context(
+                UpdatedMetadataRequest.Client(
+                    clientName = "WEB",
+                    clientVersion = "2.20210120.08.00",
+                )
+            )
     }
 
     private val viewCountParser = YoutubeViewCountParser()
 
-
     suspend fun getNewLiveChatSessionData(videoId: String): LiveChatRequestParameters {
-        val response = httpClient.request<HttpResponse> {
-            method = HttpMethod.Get
-            url(chatPageUrl + videoId)
-            header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:79.0) Gecko/20100101 Firefox/79.0")
-            header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-            header("Accept-Language", "en-GB,en;q=0.5")
-            header("DNT", "1")
-            header("Connection", "keep-alive")
-            header("Upgrade-Insecure-Requests", "1")
-            header("TE", "Trailers")
-        }
+        val response =
+            httpClient.request<HttpResponse> {
+                method = HttpMethod.Get
+                url(chatPageUrl + videoId)
+                header(
+                    "User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:79.0) Gecko/20100101 Firefox/79.0",
+                )
+                header(
+                    "Accept",
+                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                )
+                header("Accept-Language", "en-GB,en;q=0.5")
+                header("DNT", "1")
+                header("Connection", "keep-alive")
+                header("Upgrade-Insecure-Requests", "1")
+                header("TE", "Trailers")
+            }
 
         if (!response.status.isSuccess()) {
-            throw YoutubeClientException("Failed to get live chat page. Video id: '$videoId', status: ${response.status}")
+            throw YoutubeClientException(
+                "Failed to get live chat page. Video id: '$videoId', status: ${response.status}"
+            )
         }
 
         val pageHtml = response.content.toByteArray().toString(Charsets.UTF_8)
@@ -59,10 +69,10 @@ class YoutubeClient(
         val channelName = youtubeHtmlParser.extractChannelName(ytInitialData)
 
         return LiveChatRequestParameters(
-                videoId = videoId,
-                channelName = channelName,
-                innertubeApiKey = innertubeApiKey,
-                nextContinuation = initialContinuation
+            videoId = videoId,
+            channelName = channelName,
+            innertubeApiKey = innertubeApiKey,
+            nextContinuation = initialContinuation,
         )
     }
 
@@ -70,27 +80,33 @@ class YoutubeClient(
         val requestBodyDto = LiveChatRequest(continuation = parameters.nextContinuation)
         val requestBody = objectMapper.writeValueAsString(requestBodyDto)
 
-        val response = httpClient.request<HttpResponse> {
-            method = HttpMethod.Post
-            url {
-                takeFrom(liveChatUrl).parameters.apply {
-                    append("key", parameters.innertubeApiKey)
+        val response =
+            httpClient.request<HttpResponse> {
+                method = HttpMethod.Post
+                url {
+                    takeFrom(liveChatUrl).parameters.apply {
+                        append("key", parameters.innertubeApiKey)
+                    }
                 }
+                headers {
+                    append(
+                        "User-Agent",
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:79.0) Gecko/20100101 Firefox/79.0",
+                    )
+                    append("Accept", "*/*")
+                    append("Accept-Language", "en-GB,en;q=0.5")
+                    append("Origin", "https://www.youtube.com")
+                    append("DNT", "1")
+                    append("Connection", "keep-alive")
+                    append("TE", "Trailers")
+                }
+                body = requestBody
             }
-            headers {
-                append("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:79.0) Gecko/20100101 Firefox/79.0")
-                append("Accept", "*/*")
-                append("Accept-Language", "en-GB,en;q=0.5")
-                append("Origin", "https://www.youtube.com")
-                append("DNT", "1")
-                append("Connection", "keep-alive")
-                append("TE", "Trailers")
-            }
-            body = requestBody
-        }
 
         if (!response.status.isSuccess()) {
-            throw YoutubeClientException("Failed to get live chat api response. Video id: '${parameters.videoId}', status: ${response.status}")
+            throw YoutubeClientException(
+                "Failed to get live chat api response. Video id: '${parameters.videoId}', status: ${response.status}"
+            )
         }
 
         return objectMapper.readValue<LiveChatResponse>(response.content.toByteArray())
@@ -99,27 +115,36 @@ class YoutubeClient(
     suspend fun getViewersCount(videoId: String, innertubeApiKey: String): Int {
         val requestBody = UpdatedMetadataRequest(metadataRequestContext, videoId)
 
-        val response = httpClient.request<HttpResponse> {
-            method = HttpMethod.Post
-            url(metadataUrl + innertubeApiKey)
-            header("Accept", "application/json")
-            header("Accept", "Language: en-GB,en;q=0.5")
-            header("DNT", "1")
-            header("Connection", "keep-alive")
-            header("Content", "Type: application/json")
-            body = objectMapper.writeValueAsString(requestBody)
-        }
+        val response =
+            httpClient.request<HttpResponse> {
+                method = HttpMethod.Post
+                url(metadataUrl + innertubeApiKey)
+                header("Accept", "application/json")
+                header("Accept", "Language: en-GB,en;q=0.5")
+                header("DNT", "1")
+                header("Connection", "keep-alive")
+                header("Content", "Type: application/json")
+                body = objectMapper.writeValueAsString(requestBody)
+            }
 
         if (!response.status.isSuccess()) {
-            throw YoutubeClientException("Failed to get metadata. Video id: '$videoId', status: ${response.status}")
+            throw YoutubeClientException(
+                "Failed to get metadata. Video id: '$videoId', status: ${response.status}"
+            )
         }
 
-        val metadataResponse = objectMapper.readValue<MetadataResponse>(response.content.toByteArray())
-        val updateViewershipAction = metadataResponse.actions.firstOrNull { it.updateViewershipAction != null }
+        val metadataResponse =
+            objectMapper.readValue<MetadataResponse>(response.content.toByteArray())
+        val updateViewershipAction =
+            metadataResponse.actions.firstOrNull { it.updateViewershipAction != null }
                 ?: throw YoutubeClientException("updateViewershipAction was not found in actions")
 
-        val viewCountText = updateViewershipAction.updateViewershipAction!!.viewCount.videoViewCountRenderer.viewCount?.simpleText
-                ?: return 0
+        val viewCountText =
+            updateViewershipAction.updateViewershipAction!!
+                .viewCount
+                .videoViewCountRenderer
+                .viewCount
+                ?.simpleText ?: return 0
 
         try {
             return viewCountParser.parse(viewCountText)

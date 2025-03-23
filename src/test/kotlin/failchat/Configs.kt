@@ -9,13 +9,12 @@ object Configs
 
 fun loadDefaultConfig() = loadConfig("/config/default.properties")
 
-private fun loadConfig(resource: String): Configuration {
-    return FileBasedConfigurationBuilder(PropertiesConfiguration::class.java)
-            .configure(
-                    Parameters()
-                            .properties()
-                            .setURL(Configs.javaClass.getResource(resource))
-                            .setThrowExceptionOnMissing(true)
-            )
-            .configuration
-}
+private fun loadConfig(resource: String): Configuration =
+    FileBasedConfigurationBuilder(PropertiesConfiguration::class.java)
+        .configure(
+            Parameters()
+                .properties()
+                .setURL(Configs.javaClass.getResource(resource))
+                .setThrowExceptionOnMissing(true)
+        )
+        .configuration

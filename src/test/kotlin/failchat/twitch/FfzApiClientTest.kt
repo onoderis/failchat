@@ -9,16 +9,16 @@ import mu.KotlinLogging
 import org.junit.Test
 
 class FfzApiClientTest {
-
     private companion object {
         val logger = KotlinLogging.logger {}
     }
 
-    private val apiClient = FfzApiClient(
+    private val apiClient =
+        FfzApiClient(
             okHttpClient,
             testObjectMapper,
-            defaultConfig.getString(ConfigKeys.frankerfacezApiUrl)
-    )
+            defaultConfig.getString(ConfigKeys.frankerfacezApiUrl),
+        )
     private val roomName = "forsen"
 
     @Test
@@ -26,5 +26,4 @@ class FfzApiClientTest {
         val emoticons = apiClient.requestEmoticons(roomName)
         logger.info("ffz emoticons for room {} - {}", roomName, emoticons.size)
     }
-
 }

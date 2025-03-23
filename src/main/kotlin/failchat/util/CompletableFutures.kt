@@ -1,39 +1,42 @@
 package failchat.util
 
-import mu.KotlinLogging
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
+import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
 fun Collection<CompletableFuture<*>>.compose(): CompletableFuture<Void?> {
-    return CompletableFuture.allOf(*this.toTypedArray()) // excessive array copying here because of spread operator
+    return CompletableFuture.allOf(
+        *this.toTypedArray()
+    ) // excessive array copying here because of spread operator
 }
 
-fun <T> CompletableFuture<T>.get(timeout: Duration): T = this.get(timeout.toMillis(), TimeUnit.MILLISECONDS)
+fun <T> CompletableFuture<T>.get(timeout: Duration): T =
+    this.get(timeout.toMillis(), TimeUnit.MILLISECONDS)
 
 fun <T> completedFuture(value: T): CompletableFuture<T> = CompletableFuture.completedFuture(value)
+
 fun completedFuture(): CompletableFuture<Unit> = CompletableFuture.completedFuture(Unit)
 
-fun <T> exceptionalFuture(exception: Throwable): CompletableFuture<T> {
-    return CompletableFuture<T>().apply { completeExceptionally(exception) }
-}
+fun <T> exceptionalFuture(exception: Throwable): CompletableFuture<T> =
+    CompletableFuture<T>().apply { completeExceptionally(exception) }
 
 /**
  * Unwrap [CompletionException] and return it's cause.
+ *
  * @throws NullCompletionCauseException if cause of [CompletionException] is null.
- * */
-fun Throwable.completionCause(): Throwable {
-    return if (this is CompletionException) {
+ */
+fun Throwable.completionCause(): Throwable =
+    if (this is CompletionException) {
         this.cause ?: throw NullCompletionCauseException(this)
     } else {
         this
     }
-}
 
 private class NullCompletionCauseException(e: CompletionException) : Exception(e)
 
@@ -43,18 +46,12 @@ fun <T> CompletionStage<T>.logException() {
     }
 }
 
-/**
- * Execute operation and close the [T].
- * */
-inline fun <T : AutoCloseable, R> CompletableFuture<T>.thenUse(crossinline operation: (T) -> R): CompletableFuture<R> {
-    return this.thenApply { response ->
-        response.use(operation)
-    }
-}
+/** Execute operation and close the [T]. */
+inline fun <T : AutoCloseable, R> CompletableFuture<T>.thenUse(
+    crossinline operation: (T) -> R
+): CompletableFuture<R> = this.thenApply { response -> response.use(operation) }
 
-/**
- * Perform [action], if it throws [ExecutionException] cause will be thrown instead.
- * */
+/** Perform [action], if it throws [ExecutionException] cause will be thrown instead. */
 inline fun <T> doUnwrappingExecutionException(action: () -> T): T {
     try {
         return action.invoke()

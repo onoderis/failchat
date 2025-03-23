@@ -12,6 +12,7 @@ import failchat.util.bytesToMegabytes
 import failchat.util.sp
 import failchat.ws.server.WsFrameSender
 import failchat.ws.server.WsMessageDispatcher
+import io.ktor.application.Application as KtorApplication
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.http.content.files
@@ -24,6 +25,13 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
+import java.net.ServerSocket
+import java.nio.file.Files
+import java.time.Instant
+import java.time.ZoneOffset
+import javafx.application.Application as JfxApplication
+import kotlin.concurrent.thread
+import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -34,14 +42,6 @@ import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
 import org.apache.commons.configuration2.Configuration
-import java.net.ServerSocket
-import java.nio.file.Files
-import java.time.Instant
-import java.time.ZoneOffset
-import kotlin.concurrent.thread
-import kotlin.reflect.KClass
-import io.ktor.application.Application as KtorApplication
-import javafx.application.Application as JfxApplication
 
 private val logger = KotlinLogging.logger {}
 
@@ -78,31 +78,34 @@ fun main0(args: Array<String>) {
 
     logSystemInfo(config)
 
-
     // Http/websocket server
     val wsFrameSender: WsFrameSender = deps.wsFrameSender
     wsFrameSender.start()
 
     val httpServer: ApplicationEngine = deps.applicationEngine
     httpServer.start()
-    logger.info("Http/websocket server started at {}:{}", FailchatServerInfo.host.hostAddress, FailchatServerInfo.port)
+    logger.info(
+        "Http/websocket server started at {}:{}",
+        FailchatServerInfo.host.hostAddress,
+        FailchatServerInfo.port,
+    )
 
     // If emoticon db file not exists, reset 'last-updated' config values
     val dbFileExists = Files.exists(emoticonDbFile)
     if (!dbFileExists) {
-        logger.info("DB file '{}' not exists, resetting 'emoticons.last-updated' config parameters to 0", emoticonDbFile)
+        logger.info(
+            "DB file '{}' not exists, resetting 'emoticons.last-updated' config parameters to 0",
+            emoticonDbFile,
+        )
         config.resetEmoticonsUpdatedTime()
     }
 
     // Initialize emoticon storages
     val emoticonStorage = deps.emoticonStorage
-    val originEmoticonStorages = OriginEmoticonStorageFactory.create(
-            deps.emoticonsDb,
-            deps.twitchEmoticonFactory
-    )
+    val originEmoticonStorages =
+        OriginEmoticonStorageFactory.create(deps.emoticonsDb, deps.twitchEmoticonFactory)
     emoticonStorage.setStorages(originEmoticonStorages)
     logger.info("Emoticon storages initialized")
-
 
     // Actualize emoticons
     val emoticonUpdater = deps.globalEmoticonUpdater
@@ -112,14 +115,12 @@ fun main0(args: Array<String>) {
     val badgeManager: BadgeManager = deps.badgeManager
     CoroutineScope(
             deps.backgroundExecutorService.asCoroutineDispatcher() +
-                    CoroutineName("GlobalBadgeLoader") +
-                    CoroutineExceptionLogger
-    ).launch {
-        badgeManager.loadGlobalBadges()
-    }
+                CoroutineName("GlobalBadgeLoader") +
+                CoroutineExceptionLogger
+        )
+        .launch { badgeManager.loadGlobalBadges() }
 
     deps.chatMessageHistory.start()
-
 
     // Create directory for failchat emoticons if required
     Files.createDirectories(failchatEmoticonsDirectory)
@@ -131,9 +132,7 @@ fun main0(args: Array<String>) {
 
         if (guiMode == GuiMode.NO_GUI) {
             // add shutdown hook
-            val hookThread = Thread({
-                appStateManager.shutDown(false)
-            }, "ShutdownHookThread")
+            val hookThread = Thread({ appStateManager.shutDown(false) }, "ShutdownHookThread")
             Runtime.getRuntime().addShutdownHook(hookThread)
         }
     }
@@ -147,14 +146,19 @@ private fun checkForAnotherInstance() {
         serverSocket.close()
         return
     } catch (e: Exception) {
-        System.err.println("Another instance is running at ${FailchatServerInfo.host}:${FailchatServerInfo.port}. Exception: $e")
+        System.err.println(
+            "Another instance is running at ${FailchatServerInfo.host}:${FailchatServerInfo.port}. Exception: $e"
+        )
     }
 
     JfxApplication.launch(PortBindAlert::class.java)
     System.exit(0)
 }
 
-/** Delete user config file and emoticons db file if user configuration was reset during a previous launch. */
+/**
+ * Delete user config file and emoticons db file if user configuration was reset during a previous
+ * launch.
+ */
 private fun handleResetConfigurationOption() {
     // don't initialize Configuration in kodein module for the case when configuration reset needed
     val configLoader = ConfigLoader(failchatHomePath)
@@ -177,17 +181,22 @@ private fun runGui(guiMode: GuiMode, deps: Dependencies) {
         return
     }
 
-    val guiClass: KClass<out JfxApplication> = when (guiMode) {
-        GuiMode.FULL_GUI -> {
-            GuiLauncher.deps.set(deps)
-            GuiLauncher::class
+    val guiClass: KClass<out JfxApplication> =
+        when (guiMode) {
+            GuiMode.FULL_GUI -> {
+                GuiLauncher.deps.set(deps)
+                GuiLauncher::class
+            }
+
+            GuiMode.CHAT_ONLY -> {
+                ChatFrameLauncher.deps.set(deps)
+                ChatFrameLauncher::class
+            }
+
+            else -> {
+                error("Unexpected gui mode: $guiMode")
+            }
         }
-        GuiMode.CHAT_ONLY -> {
-            ChatFrameLauncher.deps.set(deps)
-            ChatFrameLauncher::class
-        }
-        else -> error("Unexpected gui mode: $guiMode")
-    }
     // Javafx starts earlier for responsiveness. Thread will be blocked
     thread(name = "GuiLauncher", priority = Thread.MAX_PRIORITY) {
         logger.info("Launching javafx application")
@@ -196,14 +205,19 @@ private fun runGui(guiMode: GuiMode, deps: Dependencies) {
 }
 
 private fun parseArguments(args: Array<String>): CommandLine {
-    val options = Options().apply {
-        addOption(Option("c", "skip-release-check",     false, "Skip the check for a new release"))
-        addOption(Option("l", "logger-root-level",      true,  "Logging level for root logger"))
-        addOption(Option("f", "logger-failchat-level",  true,  "Logging level for failchat package"))
-        addOption(Option("o", "enable-console-logging", false, "Enable logging into the console"))
-        addOption(Option("p", "port",                   true,  "Server port"))
-        addOption(Option("g", "gui-mode",               true, "Possible modes: NO_GUI, ONLY_CHAT, FULL_GUI"))
-    }
+    val options =
+        Options().apply {
+            addOption(Option("c", "skip-release-check", false, "Skip the check for a new release"))
+            addOption(Option("l", "logger-root-level", true, "Logging level for root logger"))
+            addOption(
+                Option("f", "logger-failchat-level", true, "Logging level for failchat package")
+            )
+            addOption(
+                Option("o", "enable-console-logging", false, "Enable logging into the console")
+            )
+            addOption(Option("p", "port", true, "Server port"))
+            addOption(Option("g", "gui-mode", true, "Possible modes: NO_GUI, ONLY_CHAT, FULL_GUI"))
+        }
 
     return DefaultParser().parse(options, args)
 }
@@ -214,12 +228,12 @@ private fun logSystemInfo(config: Configuration) {
         val workingDirectory = workingDirectory.toAbsolutePath()
         val rt = Runtime.getRuntime()
         "Failchat started. Version: $failchatVersion." +
-                "OS: ${sp("os.name")} (${sp("os.version")}). " +
-                "Processors: ${rt.availableProcessors()}. " +
-                "Memory: max ${rt.maxMemory().bytesToMegabytes()}mb; total ${rt.totalMemory().bytesToMegabytes()}mb, " +
-                "free ${rt.freeMemory().bytesToMegabytes()}mb. " +
-                "Working directory: '$workingDirectory'. " +
-                "Time zone: ${ZoneOffset.systemDefault().rules.getOffset(Instant.now())}"
+            "OS: ${sp("os.name")} (${sp("os.version")}). " +
+            "Processors: ${rt.availableProcessors()}. " +
+            "Memory: max ${rt.maxMemory().bytesToMegabytes()}mb; total ${rt.totalMemory().bytesToMegabytes()}mb, " +
+            "free ${rt.freeMemory().bytesToMegabytes()}mb. " +
+            "Working directory: '$workingDirectory'. " +
+            "Time zone: ${ZoneOffset.systemDefault().rules.getOffset(Instant.now())}"
     }
 }
 
@@ -240,25 +254,26 @@ private fun handleProgramArguments(cmd: CommandLine, config: Configuration) {
     }
 }
 
-fun createHttpServer(wsMessageDispatcher: WsMessageDispatcher, wsFrameSender: WsFrameSender): ApplicationEngine {
-    return embeddedServer(
-            Netty,
-            host = FailchatServerInfo.host.hostAddress,
-            port = FailchatServerInfo.port,
-            module = { failchat(wsMessageDispatcher, wsFrameSender) }
+fun createHttpServer(
+    wsMessageDispatcher: WsMessageDispatcher,
+    wsFrameSender: WsFrameSender,
+): ApplicationEngine =
+    embeddedServer(
+        Netty,
+        host = FailchatServerInfo.host.hostAddress,
+        port = FailchatServerInfo.port,
+        module = { failchat(wsMessageDispatcher, wsFrameSender) },
     )
-}
 
-fun KtorApplication.failchat(wsMessageDispatcher: WsMessageDispatcher, wsFrameSender: WsFrameSender) {
+fun KtorApplication.failchat(
+    wsMessageDispatcher: WsMessageDispatcher,
+    wsFrameSender: WsFrameSender,
+) {
     install(WebSockets)
 
     routing {
-        static("resources") {
-            files("skins")
-        }
-        static("emoticons") {
-            files(failchatEmoticonsDirectory.toFile())
-        }
+        static("resources") { files("skins") }
+        static("emoticons") { files(failchatEmoticonsDirectory.toFile()) }
 
         webSocket("/ws") {
             wsFrameSender.notifyNewSession(this)

@@ -9,11 +9,7 @@ class App : Application() {
         val loadingPopup = Popup()
         loadingPopup.scene
 
-
-
         loadingPopup.show(primaryStage)
         primaryStage.show()
-
     }
-
 }

@@ -4,7 +4,6 @@ import failchat.chat.MessageHandler
 import java.util.concurrent.atomic.AtomicReference
 
 class YoutubeHighlightHandler : MessageHandler<YoutubeMessage> {
-
     private val appealedChannelTitle = AtomicReference<String?>()
 
     override fun handleMessage(message: YoutubeMessage) {

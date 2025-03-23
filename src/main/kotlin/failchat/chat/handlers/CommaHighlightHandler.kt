@@ -3,9 +3,7 @@ package failchat.chat.handlers
 import failchat.chat.ChatMessage
 import failchat.chat.MessageHandler
 
-class CommaHighlightHandler<in T>(username: String) : MessageHandler<T>
-        where T : ChatMessage {
-
+class CommaHighlightHandler<in T>(username: String) : MessageHandler<T> where T : ChatMessage {
     private val appeal: String = username + ','
 
     override fun handleMessage(message: T) {
@@ -13,5 +11,4 @@ class CommaHighlightHandler<in T>(username: String) : MessageHandler<T>
             message.highlighted = true
         }
     }
-
 }

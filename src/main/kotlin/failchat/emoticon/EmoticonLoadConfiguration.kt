@@ -2,8 +2,7 @@ package failchat.emoticon
 
 import failchat.Origin
 
-interface EmoticonLoadConfiguration<T: Emoticon> {
-
+interface EmoticonLoadConfiguration<T : Emoticon> {
     val origin: Origin
 
     val loader: EmoticonLoader<T>

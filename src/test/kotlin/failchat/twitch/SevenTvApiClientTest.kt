@@ -9,15 +9,11 @@ import mu.KotlinLogging
 import org.junit.Test
 
 class SevenTvApiClientTest {
-
     private companion object {
         val logger = KotlinLogging.logger {}
     }
 
-    private val apiClient = SevenTvApiClient(
-            okHttpClient,
-            testObjectMapper
-    )
+    private val apiClient = SevenTvApiClient(okHttpClient, testObjectMapper)
 
     @Test
     fun loadGlobalEmoticons() = runBlocking {
@@ -36,9 +32,8 @@ class SevenTvApiClientTest {
     }
 
     @Test
-    fun channelNotFoundTest() = runBlocking<Unit> {
-        shouldThrow<SevenTvChannelNotFoundException> {
-            apiClient.loadChannelEmoticons(123L)
+    fun channelNotFoundTest() =
+        runBlocking<Unit> {
+            shouldThrow<SevenTvChannelNotFoundException> { apiClient.loadChannelEmoticons(123L) }
         }
-    }
 }

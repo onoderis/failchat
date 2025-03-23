@@ -7,36 +7,38 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class FailchatEmoticonScannerTest {
-
     private companion object {
-        val testDirPath: Path = Paths.get(FailchatEmoticonScannerTest::class.java.getResource("/failchat-emoticons").toURI())
+        val testDirPath: Path =
+            Paths.get(
+                FailchatEmoticonScannerTest::class.java.getResource("/failchat-emoticons").toURI()
+            )
         val failchatEmoticonScanner = FailchatEmoticonScanner(testDirPath, "/")
     }
 
     private val scanResult = failchatEmoticonScanner.scan()
 
     @Test
-    fun scanJpg(){
+    fun scanJpg() {
         assertNotNull(scanResult.find { it.code == "1" })
     }
 
     @Test
-    fun scanJpeg(){
+    fun scanJpeg() {
         assertNotNull(scanResult.find { it.code == "2" })
     }
 
     @Test
-    fun scanPng(){
+    fun scanPng() {
         assertNotNull(scanResult.find { it.code == "3" })
     }
 
     @Test
-    fun scanSvg(){
+    fun scanSvg() {
         assertNotNull(scanResult.find { it.code == "4" })
     }
 
     @Test
-    fun scanGif(){
+    fun scanGif() {
         assertNotNull(scanResult.find { it.code == "5" })
     }
 
@@ -69,5 +71,4 @@ class FailchatEmoticonScannerTest {
     fun upperCase() {
         assertNotNull(scanResult.find { it.code == "UPPERCASE" })
     }
-
 }

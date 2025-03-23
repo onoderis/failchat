@@ -1,14 +1,11 @@
 package failchat.twitch
 
 import failchat.ConfigKeys
+import java.time.Instant
 import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
-import java.time.Instant
 
-class ConfigurationTokenContainer(
-        private val config: Configuration
-) : HelixTokenContainer {
-
+class ConfigurationTokenContainer(private val config: Configuration) : HelixTokenContainer {
     private companion object {
         val logger = KotlinLogging.logger {}
     }

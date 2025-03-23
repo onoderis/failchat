@@ -4,5 +4,5 @@ enum class StreamStatus {
     NOT_STARTED,
     ONLINE,
     ENDED,
-    NOT_FOUND
+    NOT_FOUND,
 }

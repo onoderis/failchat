@@ -5,16 +5,15 @@ import failchat.chat.ChatMessageHistory.Operation.Add
 import failchat.chat.ChatMessageHistory.Operation.Clear
 import failchat.chat.ChatMessageHistory.Operation.FindAll
 import failchat.chat.ChatMessageHistory.Operation.FindFirst
+import java.util.Queue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
-import java.util.Queue
 
 class ChatMessageHistory(capacity: Int) {
-
     private val history: Queue<ChatMessage> = EvictingQueue.create(capacity)
     private val opChannel: Channel<Operation> = Channel(Channel.UNLIMITED)
 
@@ -27,16 +26,23 @@ class ChatMessageHistory(capacity: Int) {
     private suspend fun handleOperations() {
         for (op in opChannel) {
             when (op) {
-                is Add -> history.add(op.message)
+                is Add -> {
+                    history.add(op.message)
+                }
+
                 is FindFirst -> {
                     val message = history.find(op.predicate)
                     op.result.complete(message)
                 }
+
                 is FindAll -> {
                     val messages = history.filter(op.predicate)
                     op.result.complete(messages)
                 }
-                is Clear -> history.clear()
+
+                is Clear -> {
+                    history.clear()
+                }
             }
         }
     }
@@ -67,17 +73,25 @@ class ChatMessageHistory(capacity: Int) {
 
     private sealed class Operation {
         class Add(val message: ChatMessage) : Operation()
-        class FindFirst(val predicate: (ChatMessage) -> Boolean, val result: CompletableDeferred<ChatMessage?>) : Operation()
-        class FindAll(val predicate: (ChatMessage) -> Boolean, val result: CompletableDeferred<List<ChatMessage>>) : Operation()
+
+        class FindFirst(
+            val predicate: (ChatMessage) -> Boolean,
+            val result: CompletableDeferred<ChatMessage?>,
+        ) : Operation()
+
+        class FindAll(
+            val predicate: (ChatMessage) -> Boolean,
+            val result: CompletableDeferred<List<ChatMessage>>,
+        ) : Operation()
+
         object Clear : Operation()
     }
-
 }
 
-suspend inline fun <reified T : ChatMessage> ChatMessageHistory.findFirstTyped(crossinline predicate: (T) -> Boolean): T? {
-    return findFirst { it is T && predicate(it) } as T?
-}
+suspend inline fun <reified T : ChatMessage> ChatMessageHistory.findFirstTyped(
+    crossinline predicate: (T) -> Boolean
+): T? = findFirst { it is T && predicate(it) } as T?
 
-suspend inline fun <reified T : ChatMessage> ChatMessageHistory.findTyped(crossinline predicate: (T) -> Boolean): List<T> {
-    return find { it is T && predicate(it) } as List<T>
-}
+suspend inline fun <reified T : ChatMessage> ChatMessageHistory.findTyped(
+    crossinline predicate: (T) -> Boolean
+): List<T> = find { it is T && predicate(it) } as List<T>

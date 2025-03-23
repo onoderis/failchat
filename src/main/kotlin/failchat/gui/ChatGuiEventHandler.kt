@@ -6,46 +6,32 @@ import failchat.util.executeWithCatch
 import java.util.concurrent.Executors
 
 class ChatGuiEventHandler(
-        private val appStateManager: AppStateManager,
-        private val messageSender: ChatMessageSender
+    private val appStateManager: AppStateManager,
+    private val messageSender: ChatMessageSender,
 ) : GuiEventHandler {
-
     private val executor = Executors.newSingleThreadExecutor()
 
-    override fun handleStartChat() {
-    }
+    override fun handleStartChat() {}
 
     override fun handleStopChat() {
-        executor.executeWithCatch {
-            appStateManager.shutDown(true)
-        }
+        executor.executeWithCatch { appStateManager.shutDown(true) }
     }
 
     override fun handleShutDown() {
-        executor.executeWithCatch {
-            appStateManager.shutDown(true)
-        }
+        executor.executeWithCatch { appStateManager.shutDown(true) }
     }
 
-    override fun handleResetUserConfiguration() {
-    }
+    override fun handleResetUserConfiguration() {}
 
     override fun handleConfigurationChange() {
-        executor.executeWithCatch {
-            messageSender.sendClientConfiguration()
-        }
+        executor.executeWithCatch { messageSender.sendClientConfiguration() }
     }
 
     override fun handleClearChat() {
-        executor.executeWithCatch {
-            messageSender.sendClearChat()
-        }
+        executor.executeWithCatch { messageSender.sendClearChat() }
     }
 
-    override fun notifyEmoticonsAreLoading() {
-    }
+    override fun notifyEmoticonsAreLoading() {}
 
-    override fun notifyEmoticonsLoaded() {
-    }
-
+    override fun notifyEmoticonsLoaded() {}
 }

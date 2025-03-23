@@ -6,7 +6,6 @@ import io.kotest.matchers.shouldBe
 import org.junit.Test
 
 class YoutubeHtmlParserTest {
-
     private val youtubeHtmlParser = YoutubeHtmlParser(testObjectMapper)
 
     @Test
@@ -32,7 +31,8 @@ class YoutubeHtmlParserTest {
         val actual = youtubeHtmlParser.extractInitialContinuation(initialData)
 
         // Then
-        actual shouldBe "0ofMyAOqARpeQ2lrcUp3b1lWVU5UU2pSbmExWkROazV5ZGtsSk9IVnRlblJtTUU5M0VnczFjV0Z3TldGUE5HazVRUm9UNnFqZHVRRU5DZ3MxY1dGd05XRlBOR2s1UVNBQ0tBRSUzRCivjJ_s9ebuAjAAOABAAUoVCAEQABgAIABQx6K47fXm7gJYA3gAULXAwuz15u4CWLTkrPfk4u4CggECCASIAQCgAd7Uue315u4C"
+        actual shouldBe
+            "0ofMyAOqARpeQ2lrcUp3b1lWVU5UU2pSbmExWkROazV5ZGtsSk9IVnRlblJtTUU5M0VnczFjV0Z3TldGUE5HazVRUm9UNnFqZHVRRU5DZ3MxY1dGd05XRlBOR2s1UVNBQ0tBRSUzRCivjJ_s9ebuAjAAOABAAUoVCAEQABgAIABQx6K47fXm7gJYA3gAULXAwuz15u4CWLTkrPfk4u4CggECCASIAQCgAd7Uue315u4C"
     }
 
     @Test
@@ -47,5 +47,4 @@ class YoutubeHtmlParserTest {
         // Then
         actual shouldBe "ChilledCow"
     }
-
 }

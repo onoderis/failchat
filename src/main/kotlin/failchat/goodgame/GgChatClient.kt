@@ -18,11 +18,11 @@ import failchat.chat.findFirstTyped
 import failchat.chat.handlers.CommaHighlightHandler
 import failchat.chat.handlers.ElementLabelEscaper
 import failchat.ws.client.WsClient
+import java.net.URI
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.java_websocket.handshake.ServerHandshake
-import java.net.URI
-import java.util.concurrent.atomic.AtomicReference
 
 class GgChatClient(
     private val channel: GgChannel,
@@ -32,32 +32,32 @@ class GgChatClient(
     badgeHandler: GgBadgeHandler,
     private val history: ChatMessageHistory,
     override val callbacks: ChatClientCallbacks,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) : ChatClient {
-
     private companion object {
         val logger = KotlinLogging.logger {}
     }
 
     override val origin = Origin.GOODGAME
-    override val status: ChatClientStatus get() = atomicStatus.get()
-
+    override val status: ChatClientStatus
+        get() = atomicStatus.get()
 
     private var wsClient: WsClient = GgWsClient(URI.create(webSocketUri))
-    private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.READY)
+    private val atomicStatus: AtomicReference<ChatClientStatus> =
+        AtomicReference(ChatClientStatus.READY)
 
-    private val messageHandlers: List<MessageHandler<GgMessage>> = listOf(
-        ElementLabelEscaper(),
-        HtmlUrlCleaner(),
-        emoticonHandler,
-        CommaHighlightHandler(channel.name),
-        badgeHandler,
-        GgAuthorColorHandler()
-    )
-
+    private val messageHandlers: List<MessageHandler<GgMessage>> =
+        listOf(
+            ElementLabelEscaper(),
+            HtmlUrlCleaner(),
+            emoticonHandler,
+            CommaHighlightHandler(channel.name),
+            badgeHandler,
+            GgAuthorColorHandler(),
+        )
 
     override fun start() {
-        //todo change to connecting
+        // todo change to connecting
         if (atomicStatus.get() != ChatClientStatus.READY) {
             return
         }
@@ -70,15 +70,15 @@ class GgChatClient(
     }
 
     private inner class GgWsClient(uri: URI) : WsClient(uri) {
-
         override fun onOpen(serverHandshake: ServerHandshake) {
-            val joinMessage = objectMapper.createObjectNode().apply {
-                put("type", "join")
-                putObject("data").apply {
-                    put("channel_id", channel.id.toString())
-                    put("isHidden", false)
+            val joinMessage =
+                objectMapper.createObjectNode().apply {
+                    put("type", "join")
+                    putObject("data").apply {
+                        put("channel_id", channel.id.toString())
+                        put("isHidden", false)
+                    }
                 }
-            }
             atomicStatus.set(ChatClientStatus.CONNECTED)
             logger.info("Goodgame chat client connected to channel {}", channel.id)
 
@@ -95,7 +95,7 @@ class GgChatClient(
             val type = messageNode.get("type").asText()
             val data = messageNode.get("data")
 
-            //todo log on unknown type
+            // todo log on unknown type
             when (type) {
                 "message" -> handleUserMessage(data)
                 "remove_message" -> handleModMessage(data)
@@ -112,20 +112,25 @@ class GgChatClient(
         }
 
         private fun handleUserMessage(dataNode: JsonNode) {
-            val subscriptionDuration = dataNode.get("resubs").fields().asSequence()
-                .map { (channelId, duration) -> channelId.toLong() to duration.intValue() }
-                .toMap(HashMap())
-            val ggMessage = GgMessage(
-                id = messageIdGenerator.generate(),
-                ggId = dataNode.get("message_id").asText().toLong(),
-                author = dataNode.get("user_name").asText(),
-                text = dataNode.get("text").asText(),
-                subscriptionDuration = subscriptionDuration,
-                badgeName = dataNode.get("icon").textValue(),
-                authorColorName = dataNode.get("color").textValue(),
-                sponsorLevel = dataNode.get("payments").intValue(),
-                authorRights = dataNode.get("user_rights").intValue()
-            )
+            val subscriptionDuration =
+                dataNode
+                    .get("resubs")
+                    .fields()
+                    .asSequence()
+                    .map { (channelId, duration) -> channelId.toLong() to duration.intValue() }
+                    .toMap(HashMap())
+            val ggMessage =
+                GgMessage(
+                    id = messageIdGenerator.generate(),
+                    ggId = dataNode.get("message_id").asText().toLong(),
+                    author = dataNode.get("user_name").asText(),
+                    text = dataNode.get("text").asText(),
+                    subscriptionDuration = subscriptionDuration,
+                    badgeName = dataNode.get("icon").textValue(),
+                    authorColorName = dataNode.get("color").textValue(),
+                    sponsorLevel = dataNode.get("payments").intValue(),
+                    authorRights = dataNode.get("user_rights").intValue(),
+                )
 
             messageHandlers.forEach { it.handleMessage(ggMessage) }
 
@@ -141,5 +146,4 @@ class GgChatClient(
             foundMessage?.let { callbacks.onChatMessageDeleted(it) }
         }
     }
-
 }

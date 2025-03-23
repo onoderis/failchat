@@ -15,11 +15,8 @@ fun String?.notEmptyOrNull(): String? {
     return this
 }
 
-fun String.endsWithAny(suffixes: Iterable<String>): Boolean {
-    return suffixes.any { suffix ->
-        this.endsWith(suffix)
-    }
-}
+fun String.endsWithAny(suffixes: Iterable<String>): Boolean =
+    suffixes.any { suffix -> this.endsWith(suffix) }
 
 fun Int.toHexString(): String = java.lang.Integer.toHexString(this)
 

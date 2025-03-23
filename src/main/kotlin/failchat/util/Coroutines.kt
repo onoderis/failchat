@@ -1,19 +1,20 @@
 package failchat.util
 
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.channels.SendChannel
 import mu.KotlinLogging
-import kotlin.coroutines.CoroutineContext
 
 object CoroutineExceptionLogger : CoroutineExceptionHandler {
-
     private val logger = KotlinLogging.logger {}
 
     override val key = CoroutineExceptionHandler.Key
 
     override fun handleException(context: CoroutineContext, exception: Throwable) {
-        logger.error(exception) { "Uncaught exception in coroutine '${context[CoroutineName.Key]?.name}'" }
+        logger.error(exception) {
+            "Uncaught exception in coroutine '${context[CoroutineName.Key]?.name}'"
+        }
     }
 }
 

@@ -10,7 +10,6 @@ import javafx.stage.Stage
 import mu.KotlinLogging
 
 object Windows {
-
     private val logger = KotlinLogging.logger {}
 
     /** @throws [NativeCallException] */
@@ -34,18 +33,24 @@ object Windows {
 
     /** @throws [NativeCallException] */
     private fun changeWindowStyle(windowHandle: HWND, changeOperation: (Int) -> Int) {
-        val currentStyle = User32.INSTANCE.GetWindowLong(windowHandle, User32.GWL_EXSTYLE)
-                .ifError { errorCode ->
-                    throw NativeCallException("Failed to get window style, error code: $errorCode, handle: $windowHandle")
-                }
+        val currentStyle =
+            User32.INSTANCE.GetWindowLong(windowHandle, User32.GWL_EXSTYLE).ifError { errorCode ->
+                throw NativeCallException(
+                    "Failed to get window style, error code: $errorCode, handle: $windowHandle"
+                )
+            }
 
         val newStyle = changeOperation.invoke(currentStyle)
-        logger.debug { "Changing window style, current: ${currentStyle.binary()}, new: ${newStyle.binary()}; window: $windowHandle" }
+        logger.debug {
+            "Changing window style, current: ${currentStyle.binary()}, new: ${newStyle.binary()}; window: $windowHandle"
+        }
 
-        User32.INSTANCE.SetWindowLong(windowHandle, User32.GWL_EXSTYLE, newStyle)
-                .ifError { errorCode ->
-                    throw NativeCallException("Failed to set window style, error code: $errorCode, handle: $windowHandle")
-                }
+        User32.INSTANCE.SetWindowLong(windowHandle, User32.GWL_EXSTYLE, newStyle).ifError {
+            errorCode ->
+            throw NativeCallException(
+                "Failed to set window style, error code: $errorCode, handle: $windowHandle"
+            )
+        }
     }
 
     private inline fun Int.ifError(operation: (errorCode: Int) -> Nothing): Int {
@@ -54,7 +59,6 @@ object Windows {
         val errorCode = Native.getLastError()
         operation(errorCode)
     }
-
 
     fun getWindowHandle(stage: Stage): HWND {
         val peerField = stage.javaClass.superclass.getDeclaredField("peer")
@@ -65,7 +69,8 @@ object Windows {
         platformWindowField.isAccessible = true
         val platformWindow = platformWindowField.get(windowStage)
 
-        val getNativeHandleMethod = platformWindow.javaClass.superclass.getDeclaredMethod("getNativeHandle")
+        val getNativeHandleMethod =
+            platformWindow.javaClass.superclass.getDeclaredMethod("getNativeHandle")
         getNativeHandleMethod.isAccessible = true
         val handle = getNativeHandleMethod.invoke(platformWindow) as Long
 

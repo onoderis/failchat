@@ -11,4 +11,5 @@ import java.util.regex.Pattern
  * 3. short url
  * 4. domain
  */
-val urlPattern: Pattern = Pattern.compile("""\b(https?|ftps?)://(w{3}\.)?(([-\w\d+&@#%?=~_|!:,.;]+)[/\S]*)""")
+val urlPattern: Pattern =
+    Pattern.compile("""\b(https?|ftps?)://(w{3}\.)?(([-\w\d+&@#%?=~_|!:,.;]+)[/\S]*)""")

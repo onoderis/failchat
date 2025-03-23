@@ -6,14 +6,14 @@ import failchat.chat.Image
 import failchat.chat.Link
 import failchat.chat.MessageHandler
 import failchat.emoticon.Emoticon
-import mu.KotlinLogging
 import java.io.BufferedWriter
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import mu.KotlinLogging
 
-class ChatHistoryLogger(private val chatHistoryWriter: BufferedWriter) : MessageHandler<ChatMessage> {
-
+class ChatHistoryLogger(private val chatHistoryWriter: BufferedWriter) :
+    MessageHandler<ChatMessage> {
     private companion object {
         val logger = KotlinLogging.logger {}
         val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
@@ -21,24 +21,36 @@ class ChatHistoryLogger(private val chatHistoryWriter: BufferedWriter) : Message
     }
 
     override fun handleMessage(message: ChatMessage) {
-        val textualMessage = message.elements.foldIndexed(message.text) { index, text, element ->
-            val replacement: String = when (element) {
-                is Emoticon -> element.code
-                is Link -> element.fullUrl
-                is Image -> element.link.fullUrl
-                else -> {
-                    logger.error("Unknown element type: {}", element.javaClass.name)
-                    ""
-                }
+        val textualMessage =
+            message.elements.foldIndexed(message.text) { index, text, element ->
+                val replacement: String =
+                    when (element) {
+                        is Emoticon -> {
+                            element.code
+                        }
+
+                        is Link -> {
+                            element.fullUrl
+                        }
+
+                        is Image -> {
+                            element.link.fullUrl
+                        }
+
+                        else -> {
+                            logger.error("Unknown element type: {}", element.javaClass.name)
+                            ""
+                        }
+                    }
+
+                text.replace(Elements.label(index), replacement)
             }
 
-            text.replace(Elements.label(index), replacement)
-        }
-
         val time = message.timestamp.truncatedTo(ChronoUnit.SECONDS).atZone(zone)
-        chatHistoryWriter.appendLine("${dateTimeFormatter.format(time)} [${message.origin.commonName}] " +
-                "${message.author.name}: $textualMessage")
+        chatHistoryWriter.appendLine(
+            "${dateTimeFormatter.format(time)} [${message.origin.commonName}] " +
+                "${message.author.name}: $textualMessage"
+        )
         chatHistoryWriter.flush()
     }
-
 }

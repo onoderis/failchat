@@ -8,10 +8,7 @@ import failchat.chat.badge.BadgeOrigin.TWITCH_GLOBAL
 import failchat.util.notEmptyOrNull
 import mu.KotlinLogging
 
-class TwitchBadgeHandler(
-        private val badgeFinder: BadgeFinder
-) : MessageHandler<TwitchMessage> {
-
+class TwitchBadgeHandler(private val badgeFinder: BadgeFinder) : MessageHandler<TwitchMessage> {
     private companion object {
         val logger = KotlinLogging.logger {}
     }
@@ -22,11 +19,17 @@ class TwitchBadgeHandler(
         val messageBadgeIds = parseBadgesTag(badgesTag)
 
         messageBadgeIds.forEach { messageBadgeId ->
-            val badge: Badge? = badgeFinder.findBadge(TWITCH_CHANNEL, messageBadgeId)
+            val badge: Badge? =
+                badgeFinder.findBadge(TWITCH_CHANNEL, messageBadgeId)
                     ?: badgeFinder.findBadge(TWITCH_GLOBAL, messageBadgeId)
 
             if (badge == null) {
-                logger.debug("Badge not found. Origin: {}, {}; badge id: {}", TWITCH_CHANNEL, TWITCH_GLOBAL, messageBadgeId)
+                logger.debug(
+                    "Badge not found. Origin: {}, {}; badge id: {}",
+                    TWITCH_CHANNEL,
+                    TWITCH_GLOBAL,
+                    messageBadgeId,
+                )
                 return@forEach
             }
 
@@ -34,16 +37,14 @@ class TwitchBadgeHandler(
         }
     }
 
-    private fun parseBadgesTag(badgesTag: String): List<TwitchBadgeId> {
-        return badgesTag
-                .split(',')
-                .asSequence()
-                .map { it.split('/', limit = 2) }
-                .map {
-                    val version = if (it.size < 2) "" else it[1]
-                    TwitchBadgeId(it[0], version)
-                }
-                .toList()
-    }
-
+    private fun parseBadgesTag(badgesTag: String): List<TwitchBadgeId> =
+        badgesTag
+            .split(',')
+            .asSequence()
+            .map { it.split('/', limit = 2) }
+            .map {
+                val version = if (it.size < 2) "" else it[1]
+                TwitchBadgeId(it[0], version)
+            }
+            .toList()
 }

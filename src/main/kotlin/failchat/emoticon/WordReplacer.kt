@@ -3,11 +3,14 @@ package failchat.emoticon
 import java.util.regex.Pattern
 
 object WordReplacer {
-
     val wordPattern: Pattern = Pattern.compile("""(?<=\s|^)(.+?)(?=\s|$)""")
 
-    inline fun replace(initialString: String, decisionMaker: (word: String) -> ReplaceDecision): String {
-        // Can't use Matcher.appendReplacement() because it resets position when Matcher.find(start) invoked
+    inline fun replace(
+        initialString: String,
+        decisionMaker: (word: String) -> ReplaceDecision,
+    ): String {
+        // Can't use Matcher.appendReplacement() because it resets position when Matcher.find(start)
+        // invoked
         val matcher = wordPattern.matcher(initialString)
         val sb = lazy(LazyThreadSafetyMode.NONE) { StringBuilder() }
         var cursor = 0
@@ -23,6 +26,7 @@ object WordReplacer {
                     sb.value.append(initialString, appendFrom, matcher.start())
                     sb.value.append(decision.replacement)
                 }
+
                 is ReplaceDecision.Skip -> {
                     if (sb.isInitialized()) {
                         sb.value.append(initialString, cursor, end)
@@ -37,5 +41,4 @@ object WordReplacer {
         sb.value.append(initialString, cursor, initialString.length)
         return sb.toString()
     }
-
 }

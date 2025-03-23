@@ -7,19 +7,18 @@ import failchat.util.LateinitVal
 import failchat.util.completedFuture
 import failchat.util.executeWithCatch
 import failchat.util.logException
-import javafx.application.Platform
-import org.apache.commons.configuration2.Configuration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.Executors
 import java.util.function.BiConsumer
+import javafx.application.Platform
+import org.apache.commons.configuration2.Configuration
 
 class FullGuiEventHandler(
-        private val appStateManager: AppStateManager,
-        private val messageSender: ChatMessageSender,
-        private val config: Configuration
+    private val appStateManager: AppStateManager,
+    private val messageSender: ChatMessageSender,
+    private val config: Configuration,
 ) : GuiEventHandler {
-
     private val executor = Executors.newSingleThreadExecutor()
 
     val guiFrames = LateinitVal<GuiFrames>()
@@ -31,10 +30,8 @@ class FullGuiEventHandler(
         }
 
         guiTransitionFuture
-                .whenCompleteAsync(BiConsumer { _, _ ->
-                    appStateManager.startChat()
-                }, executor)
-                .logException()
+            .whenCompleteAsync(BiConsumer { _, _ -> appStateManager.startChat() }, executor)
+            .logException()
     }
 
     override fun handleStopChat() {
@@ -44,16 +41,12 @@ class FullGuiEventHandler(
         }
 
         guiTransitionFuture
-                .whenCompleteAsync(BiConsumer { _, _ ->
-                    appStateManager.stopChat()
-                }, executor)
-                .logException()
+            .whenCompleteAsync(BiConsumer { _, _ -> appStateManager.stopChat() }, executor)
+            .logException()
     }
 
     override fun handleShutDown() {
-        executor.executeWithCatch {
-            appStateManager.shutDown(true)
-        }
+        executor.executeWithCatch { appStateManager.shutDown(true) }
         executor.shutdown()
     }
 
@@ -70,31 +63,23 @@ class FullGuiEventHandler(
     }
 
     override fun handleConfigurationChange() {
-        executor.executeWithCatch {
-            messageSender.sendClientConfiguration()
-        }
+        executor.executeWithCatch { messageSender.sendClientConfiguration() }
     }
 
     override fun handleClearChat() {
-        executor.executeWithCatch {
-            messageSender.sendClearChat()
-        }
+        executor.executeWithCatch { messageSender.sendClearChat() }
     }
 
     override fun notifyEmoticonsAreLoading() {
         val settingsFrame = guiFrames.get()?.settingsFrame ?: return
 
-        Platform.runLater {
-            settingsFrame.disableRefreshEmoticonsButton()
-        }
+        Platform.runLater { settingsFrame.disableRefreshEmoticonsButton() }
     }
 
     override fun notifyEmoticonsLoaded() {
         val settingsFrame = guiFrames.get()?.settingsFrame ?: return
 
-        Platform.runLater {
-            settingsFrame.enableRefreshEmoticonsButton()
-        }
+        Platform.runLater { settingsFrame.enableRefreshEmoticonsButton() }
     }
 
     private fun makeGuiTransition(framesOperation: (GuiFrames) -> Unit): CompletionStage<Unit> {
@@ -114,5 +99,4 @@ class FullGuiEventHandler(
             completedFuture()
         }
     }
-
 }

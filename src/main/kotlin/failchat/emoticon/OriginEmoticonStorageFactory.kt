@@ -12,28 +12,28 @@ import failchat.Origin.TWITCH
 import org.mapdb.DB
 
 object OriginEmoticonStorageFactory {
+    // todo code db origin storage, BTTV_GLOBAL
 
-    //todo code db origin storage, BTTV_GLOBAL
-
-    private val caseSensitiveOptions = mapOf(
-        TWITCH to false,
-        GOODGAME to false,
-        FAILCHAT to false,
-        BTTV_GLOBAL to true,
-        BTTV_CHANNEL to true,
-        FRANKERFASEZ to true,
-        SEVEN_TV_GLOBAL to true,
-        SEVEN_TV_CHANNEL to true
-    )
+    private val caseSensitiveOptions =
+        mapOf(
+            TWITCH to false,
+            GOODGAME to false,
+            FAILCHAT to false,
+            BTTV_GLOBAL to true,
+            BTTV_CHANNEL to true,
+            FRANKERFASEZ to true,
+            SEVEN_TV_GLOBAL to true,
+            SEVEN_TV_CHANNEL to true,
+        )
 
     private val idCodeDbOrigins: List<Origin> = listOf(BTTV_GLOBAL, SEVEN_TV_GLOBAL, GOODGAME)
-    private val codeMemoryOrigins: List<Origin> = listOf(BTTV_CHANNEL, SEVEN_TV_CHANNEL, FRANKERFASEZ, FAILCHAT)
+    private val codeMemoryOrigins: List<Origin> =
+        listOf(BTTV_CHANNEL, SEVEN_TV_CHANNEL, FRANKERFASEZ, FAILCHAT)
 
     val dbOrigins: List<Origin> = idCodeDbOrigins + TWITCH
 
-    fun create(db: DB, twitchEmoticonFactory: TwitchEmoticonFactory): List<OriginEmoticonStorage> {
-        return idCodeDbOrigins.map { EmoticonCodeIdDbStorage(db, it, caseSensitiveOptions[it]!!) } +
-                codeMemoryOrigins.map { EmoticonCodeMemoryStorage(it, caseSensitiveOptions[it]!!) } +
-                EmoticonCodeIdDbCompactStorage(db, TWITCH, twitchEmoticonFactory)
-    }
+    fun create(db: DB, twitchEmoticonFactory: TwitchEmoticonFactory): List<OriginEmoticonStorage> =
+        idCodeDbOrigins.map { EmoticonCodeIdDbStorage(db, it, caseSensitiveOptions[it]!!) } +
+            codeMemoryOrigins.map { EmoticonCodeMemoryStorage(it, caseSensitiveOptions[it]!!) } +
+            EmoticonCodeIdDbCompactStorage(db, TWITCH, twitchEmoticonFactory)
 }

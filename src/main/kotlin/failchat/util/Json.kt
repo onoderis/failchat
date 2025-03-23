@@ -6,17 +6,19 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 
-fun objectMapper(): ObjectMapper = ObjectMapper()
+fun objectMapper(): ObjectMapper =
+    ObjectMapper()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .registerModule(KotlinModule())
 
 /**
  * Read the next token and assert that it is not null.
+ *
  * @throws [UnexpectedJsonFormatException] if next token is null.
- * */
-fun JsonParser.nextNonNullToken(): JsonToken {
-    return nextToken() ?: throw UnexpectedJsonFormatException("Failed to get next token, end of data stream")
-}
+ */
+fun JsonParser.nextNonNullToken(): JsonToken =
+    nextToken()
+        ?: throw UnexpectedJsonFormatException("Failed to get next token, end of data stream")
 
 fun JsonToken.validate(expected: JsonToken): JsonToken {
     if (this != expected) {
@@ -26,17 +28,20 @@ fun JsonToken.validate(expected: JsonToken): JsonToken {
 }
 
 /**
- * Read next non-null token and assert that it's value is equal to [expected] token. Blocking operation.
- * @throws [UnexpectedJsonFormatException] if next token is null or doesn't equal to [expected] token.
- * */
-fun JsonParser.expect(expected: JsonToken): JsonToken {
-    return nextNonNullToken().validate(expected)
-}
+ * Read next non-null token and assert that it's value is equal to [expected] token. Blocking
+ * operation.
+ *
+ * @throws [UnexpectedJsonFormatException] if next token is null or doesn't equal to [expected]
+ *   token.
+ */
+fun JsonParser.expect(expected: JsonToken): JsonToken = nextNonNullToken().validate(expected)
 
 class UnexpectedJsonFormatException : Exception {
     constructor() : super()
+
     constructor(message: String?) : super(message)
+
     constructor(message: String?, cause: Throwable?) : super(message, cause)
+
     constructor(cause: Throwable?) : super(cause)
 }
-

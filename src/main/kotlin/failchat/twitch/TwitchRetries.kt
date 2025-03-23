@@ -5,10 +5,10 @@ import mu.KotlinLogging
 val logger = KotlinLogging.logger {}
 
 suspend fun <T> doWithRetryOnAuthError(
-        twitchApiClient: TwitchApiClient,
-        clientSecret: String,
-        tokenContainer: HelixTokenContainer,
-        operation: suspend (String) -> T
+    twitchApiClient: TwitchApiClient,
+    clientSecret: String,
+    tokenContainer: HelixTokenContainer,
+    operation: suspend (String) -> T,
 ): T {
     val existingToken = tokenContainer.getToken()
 

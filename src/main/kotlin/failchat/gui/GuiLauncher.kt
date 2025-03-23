@@ -5,6 +5,8 @@ import failchat.failchatEmoticonsDirectory
 import failchat.platform.windows.WindowsCtConfigurator
 import failchat.util.LateinitVal
 import failchat.util.executeWithCatch
+import java.time.Duration
+import java.time.Instant
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.control.Alert
@@ -14,11 +16,8 @@ import javafx.scene.control.ButtonBar.ButtonData.OK_DONE
 import javafx.scene.control.ButtonType
 import javafx.stage.Stage
 import mu.KotlinLogging
-import java.time.Duration
-import java.time.Instant
 
 class GuiLauncher : Application() {
-
     companion object {
         val deps = LateinitVal<Dependencies>()
         private val logger = KotlinLogging.logger {}
@@ -30,7 +29,8 @@ class GuiLauncher : Application() {
         val config = deps.get()!!.configuration
         val isWindows = com.sun.jna.Platform.isWindows()
 
-        val settings = SettingsFrame(
+        val settings =
+            SettingsFrame(
                 this,
                 primaryStage,
                 config,
@@ -38,29 +38,32 @@ class GuiLauncher : Application() {
                 failchatEmoticonsDirectory,
                 isWindows,
                 lazy { deps.get()!!.guiEventHandler },
-                lazy { deps.get()!!.globalEmoticonUpdater }
-        )
+                lazy { deps.get()!!.globalEmoticonUpdater },
+            )
 
         settings.show()
 
         val showTime = Instant.now()
-        logger.debug { "Settings frame showed in ${Duration.between(startTime, showTime).toMillis()} ms" }
-
-
-        val ctConfigurator: ClickTransparencyConfigurator? = if (isWindows) {
-            WindowsCtConfigurator(config)
-        } else {
-            null
+        logger.debug {
+            "Settings frame showed in ${Duration.between(startTime, showTime).toMillis()} ms"
         }
 
+        val ctConfigurator: ClickTransparencyConfigurator? =
+            if (isWindows) {
+                WindowsCtConfigurator(config)
+            } else {
+                null
+            }
+
         Platform.runLater {
-            val chat = ChatFrame(
+            val chat =
+                ChatFrame(
                     this,
                     config,
                     deps.get()!!.skinList,
                     lazy { deps.get()!!.guiEventHandler },
-                    ctConfigurator
-            )
+                    ctConfigurator,
+                )
 
             val backgroundExecutor = deps.get()!!.backgroundExecutorService
             backgroundExecutor.executeWithCatch {
@@ -77,18 +80,18 @@ class GuiLauncher : Application() {
         }
 
         logger.info("GUI loaded")
-
     }
 
     private fun showUpdateNotificationOnNewRelease() {
         deps.get()!!.releaseChecker.checkNewRelease { release ->
             Platform.runLater {
-                val notification = Alert(AlertType.CONFIRMATION).apply {
-                    title = "Update notification"
-                    headerText = null
-                    graphic = null
-                    contentText = "New release available: ${release.version}"
-                }
+                val notification =
+                    Alert(AlertType.CONFIRMATION).apply {
+                        title = "Update notification"
+                        headerText = null
+                        graphic = null
+                        contentText = "New release available: ${release.version}"
+                    }
                 val stage = notification.dialogPane.scene.window as Stage
                 stage.icons.setAll(Images.appIcon)
 
@@ -104,5 +107,4 @@ class GuiLauncher : Application() {
             }
         }
     }
-
 }

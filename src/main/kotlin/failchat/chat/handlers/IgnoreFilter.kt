@@ -7,17 +7,16 @@ import failchat.chat.ChatMessage
 import failchat.chat.MessageFilter
 import failchat.chatOrigins
 import failchat.util.value
-import mu.KotlinLogging
-import org.apache.commons.configuration2.Configuration
 import java.util.concurrent.atomic.AtomicReference
 import java.util.regex.Pattern
+import mu.KotlinLogging
+import org.apache.commons.configuration2.Configuration
 
 /**
- * Фильтрует сообщения от пользователей в игнор-листе.
- * Баны хранятся в формате 'authorId#origin (optionalAuthorName)'.
+ * Фильтрует сообщения от пользователей в игнор-листе. Баны хранятся в формате 'authorId#origin
+ * (optionalAuthorName)'.
  */
 class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessage> {
-
     private companion object {
         val logger = KotlinLogging.logger {}
     }
@@ -31,7 +30,9 @@ class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessag
     }
 
     override fun filterMessage(message: ChatMessage): Boolean {
-        val ignoreMessage = ignoreSet.value.asSequence()
+        val ignoreMessage =
+            ignoreSet.value
+                .asSequence()
                 .filter { it.id == message.author.id && it.origin == message.author.origin }
                 .any()
 
@@ -40,7 +41,10 @@ class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessag
     }
 
     fun reloadConfig() {
-        ignoreSet.value = config.getStringArray(ConfigKeys.ignore).asSequence()
+        ignoreSet.value =
+            config
+                .getStringArray(ConfigKeys.ignore)
+                .asSequence()
                 .map { it to ignoreStringPattern.matcher(it) }
                 .filter { (ignoreEntry, matcher) ->
                     matcher.find().also { found ->
@@ -57,11 +61,11 @@ class IgnoreFilter(private val config: Configuration) : MessageFilter<ChatMessag
     }
 
     private fun compilePattern(): Pattern {
-        val originsPattern = chatOrigins
+        val originsPattern =
+            chatOrigins
                 .map { it.commonName }
                 .joinToString(separator = "|", prefix = "(", postfix = ")")
 
         return Pattern.compile("""(?<id>.+)#(?<origin>$originsPattern)( \\((?<name>.*)\\))?""")
     }
-
 }

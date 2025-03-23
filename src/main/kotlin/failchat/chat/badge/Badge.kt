@@ -8,15 +8,15 @@ sealed class Badge {
 }
 
 data class ImageBadge(
-        val url: String,
-        val format: ImageFormat,
-        override val description: String? = null
+    val url: String,
+    val format: ImageFormat,
+    override val description: String? = null,
 ) : Badge()
 
 data class CharacterBadge(
-        /** Html character entity. */
-        val characterEntity: String,
-        /** Color in hexadecimal format. */
-        val color: Color,
-        override val description: String? = null
+    /** Html character entity. */
+    val characterEntity: String,
+    /** Color in hexadecimal format. */
+    val color: Color,
+    override val description: String? = null,
 ) : Badge()

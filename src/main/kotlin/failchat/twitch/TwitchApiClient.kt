@@ -10,22 +10,21 @@ import failchat.exception.ChannelOfflineException
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.util.await
 import failchat.util.nonNullBody
+import java.time.Duration
+import java.time.Instant
+import kotlin.reflect.KClass
 import mu.KotlinLogging
 import okhttp3.FormBody
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.time.Duration
-import java.time.Instant
-import kotlin.reflect.KClass
 
 class TwitchApiClient(
-        private val httpClient: OkHttpClient,
-        private val objectMapper: ObjectMapper,
-        private val clientId: String
+    private val httpClient: OkHttpClient,
+    private val objectMapper: ObjectMapper,
+    private val clientId: String,
 ) {
-
     private companion object {
         val logger = KotlinLogging.logger {}
         const val oauthUrl = "https://id.twitch.tv/oauth2/token"
@@ -64,17 +63,14 @@ class TwitchApiClient(
     // https://dev.twitch.tv/docs/api/reference/#get-global-emotes
     suspend fun getGlobalEmoticons(token: String): List<TwitchEmoticon> {
         val response = doRequest(globalEmotesUrl, token, EmotesResponse::class)
-        return response.data.map {
-            TwitchEmoticon(
-                    twitchId = it.id,
-                    code = it.name
-            )
-        }
+        return response.data.map { TwitchEmoticon(twitchId = it.id, code = it.name) }
     }
 
     // https://dev.twitch.tv/docs/api/reference/#get-streams
     suspend fun getFirstLiveChannelName(token: String): String {
-        val url = streamsUrl.newBuilder()
+        val url =
+            streamsUrl
+                .newBuilder()
                 .addQueryParameter("type", "live")
                 .addQueryParameter("first", "1")
                 .build()
@@ -89,7 +85,11 @@ class TwitchApiClient(
 
     suspend fun getChannelBadges(channelId: Long, token: String): Map<TwitchBadgeId, ImageBadge> {
         // https://dev.twitch.tv/docs/api/reference/#get-channel-chat-badges
-        val url = channelBadgesUrl.newBuilder().addQueryParameter("broadcaster_id", channelId.toString()).build()
+        val url =
+            channelBadgesUrl
+                .newBuilder()
+                .addQueryParameter("broadcaster_id", channelId.toString())
+                .build()
         return getBadges(url, token)
     }
 
@@ -97,18 +97,21 @@ class TwitchApiClient(
         val badgesResponse = doRequest(url, token, BadgesResponse::class)
 
         return badgesResponse.data
-                .flatMap { data ->
-                    data.versions.map { data.setId to it }
-                }
-                .associate { (setId, version) ->
-                    val tbi = TwitchBadgeId(setId, version.id)
-                    val ib = ImageBadge(version.imageUrl1x, ImageFormat.RASTER, version.description)
-                    tbi to ib
-                }
+            .flatMap { data -> data.versions.map { data.setId to it } }
+            .associate { (setId, version) ->
+                val tbi = TwitchBadgeId(setId, version.id)
+                val ib = ImageBadge(version.imageUrl1x, ImageFormat.RASTER, version.description)
+                tbi to ib
+            }
     }
 
-    private suspend fun <T : Any> doRequest(url: HttpUrl, token: String, responseType: KClass<T>): T {
-        val request = Request.Builder()
+    private suspend fun <T : Any> doRequest(
+        url: HttpUrl,
+        token: String,
+        responseType: KClass<T>,
+    ): T {
+        val request =
+            Request.Builder()
                 .get()
                 .url(url)
                 .header("Authorization", "Bearer $token")
@@ -127,9 +130,11 @@ class TwitchApiClient(
     }
 
     suspend fun generateToken(clientSecret: String): HelixApiToken {
-        val request = Request.Builder()
+        val request =
+            Request.Builder()
                 .url(oauthUrl)
-                .post(FormBody.Builder()
+                .post(
+                    FormBody.Builder()
                         .add("client_id", clientId)
                         .add("client_secret", clientSecret)
                         .add("grant_type", "client_credentials")
@@ -146,10 +151,13 @@ class TwitchApiClient(
         val body = response.nonNullBody.string()
         val authResponse = objectMapper.readValue<AuthResponse>(body)
 
-        val token = HelixApiToken(
+        val token =
+            HelixApiToken(
                 value = authResponse.accessToken,
-                expiresAt = Instant.now() + Duration.ofSeconds(authResponse.expiresIn) - Duration.ofSeconds(60)
-        )
+                expiresAt =
+                    Instant.now() + Duration.ofSeconds(authResponse.expiresIn) -
+                        Duration.ofSeconds(60),
+            )
         logger.info("New helix token was generated")
         return token
     }

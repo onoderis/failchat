@@ -12,7 +12,6 @@ import failchat.util.value
 import failchat.viewers.ViewersCounter.State.READY
 import failchat.viewers.ViewersCounter.State.SHUTDOWN
 import failchat.viewers.ViewersCounter.State.WORKING
-import mu.KotlinLogging
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
@@ -21,13 +20,12 @@ import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
+import mu.KotlinLogging
 
-/**
- * Class instance is not reusable.
- * */
+/** Class instance is not reusable. */
 class ViewersCounter(
-        private val viewersCountLoaders: List<ViewersCountLoader>,
-        private val chatMessageSender: ChatMessageSender
+    private val viewersCountLoaders: List<ViewersCountLoader>,
+    private val chatMessageSender: ChatMessageSender,
 ) {
     private companion object {
         val logger = KotlinLogging.logger {}
@@ -43,18 +41,19 @@ class ViewersCounter(
 
     private val state: AtomicReference<State> = AtomicReference(State.READY)
 
-
     fun start() {
         val changed = state.compareAndSet(READY, WORKING)
-        if (!changed) throw IllegalStateException("Expected state: $READY, actual: ${state.get()}." +
-                "(Actual state could change after unsuccessful CAS operation)")
-
-        thread(name = "ViewersCounterThread") {
-            updateAndSendLoop()
+        if (!changed) {
+            throw IllegalStateException(
+                "Expected state: $READY, actual: ${state.get()}." +
+                    "(Actual state could change after unsuccessful CAS operation)"
+            )
         }
+
+        thread(name = "ViewersCounterThread") { updateAndSendLoop() }
         logger.info {
             "ViewersCounter started. Enabled origins: " +
-                    viewersCountLoaders.map { it.origin }.joinToString(separator = ", ")
+                viewersCountLoaders.map { it.origin }.joinToString(separator = ", ")
         }
     }
 
@@ -85,36 +84,39 @@ class ViewersCounter(
 
     private fun updateViewersCount() {
         viewersCountLoaders
-                .map { it.origin to it.loadViewersCount() }
-                .map { (origin, countFuture) ->
-                    try {
-                        doUnwrappingExecutionException {
-                            origin to countFuture.get(countAwaitDuration)
-                        }
-                    } catch (e: ChannelOfflineException) {
-                        logger.info("Couldn't update viewers count, channel {}#{} is offline", e.channel, e.origin)
-                        origin to null
-                    } catch (e: Exception) {
-                        logger.warn("Failed to get viewers count for origin {}", origin, e)
-                        origin to null
-                    }
+            .map { it.origin to it.loadViewersCount() }
+            .map { (origin, countFuture) ->
+                try {
+                    doUnwrappingExecutionException { origin to countFuture.get(countAwaitDuration) }
+                } catch (e: ChannelOfflineException) {
+                    logger.info(
+                        "Couldn't update viewers count, channel {}#{} is offline",
+                        e.channel,
+                        e.origin,
+                    )
+                    origin to null
+                } catch (e: Exception) {
+                    logger.warn("Failed to get viewers count for origin {}", origin, e)
+                    origin to null
                 }
-                .forEach { (origin, count) ->
-                    if (count != null) viewersCount.put(origin, count)
-                    else viewersCount.remove(origin)
+            }
+            .forEach { (origin, count) ->
+                if (count != null) {
+                    viewersCount.put(origin, count)
+                } else {
+                    viewersCount.remove(origin)
                 }
+            }
     }
 
     private fun formViewersWsMessage(originsToInclude: List<Origin>): JsonNode {
-        val messageNode = nodeFactory.objectNode()
-                .put("type", "viewers-count")
+        val messageNode = nodeFactory.objectNode().put("type", "viewers-count")
 
         val contentNode = messageNode.putObject("content")
 
         originsToInclude.forEach { origin ->
-            viewersCount.get(origin)
-                    ?.let { contentNode.put(origin.commonName, it) }
-                    ?: contentNode.putNull(origin.commonName)
+            viewersCount.get(origin)?.let { contentNode.put(origin.commonName, it) }
+                ?: contentNode.putNull(origin.commonName)
         }
 
         return messageNode
@@ -123,7 +125,6 @@ class ViewersCounter(
     private enum class State {
         READY,
         WORKING,
-        SHUTDOWN
+        SHUTDOWN,
     }
-
 }

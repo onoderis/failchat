@@ -5,6 +5,7 @@ import failchat.FailchatServerInfo
 import failchat.skin.Skin
 import failchat.util.invertBoolean
 import failchat.util.urlPattern
+import java.net.MalformedURLException
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.concurrent.Worker
@@ -31,16 +32,14 @@ import javafx.stage.StageStyle
 import mu.KotlinLogging
 import netscape.javascript.JSObject
 import org.apache.commons.configuration2.Configuration
-import java.net.MalformedURLException
 
 class ChatFrame(
-        private val app: Application,
-        private val config: Configuration,
-        private val skins: List<Skin>,
-        private val guiEventHandler: Lazy<GuiEventHandler>,
-        private val ctConfigurator: ClickTransparencyConfigurator?
+    private val app: Application,
+    private val config: Configuration,
+    private val skins: List<Skin>,
+    private val guiEventHandler: Lazy<GuiEventHandler>,
+    private val ctConfigurator: ClickTransparencyConfigurator?,
 ) {
-
     private companion object {
         val logger = KotlinLogging.logger {}
     }
@@ -57,7 +56,26 @@ class ChatFrame(
     private val clickTransparencyItem: CheckMenuItem = CheckMenuItem("Click through the window")
     private val viewersItem: CheckMenuItem = CheckMenuItem("Show viewers")
     private val zoomValueText = Text("???")
-    private val zoomValues = listOf(25, 33, 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500) //chrome-alike
+    private val zoomValues =
+        listOf(
+            25,
+            33,
+            50,
+            67,
+            75,
+            80,
+            90,
+            100,
+            110,
+            125,
+            150,
+            175,
+            200,
+            250,
+            300,
+            400,
+            500,
+        ) // chrome-alike
     private val showHiddenMessages: CheckMenuItem = CheckMenuItem("Show hidden messages")
 
     // hot keys
@@ -98,12 +116,14 @@ class ChatFrame(
         val skinName = config.getString(ConfigKeys.skin)
         try {
             val skin = skins.find { it.name == skinName } ?: skins.first()
-            val optionalPortParam = if (FailchatServerInfo.port != FailchatServerInfo.defaultPort) {
-                "?port=${FailchatServerInfo.port}"
-            } else {
-                ""
-            }
-            val url = "http://${FailchatServerInfo.host.hostAddress}:${FailchatServerInfo.port}/chat/${skin.name}" +
+            val optionalPortParam =
+                if (FailchatServerInfo.port != FailchatServerInfo.defaultPort) {
+                    "?port=${FailchatServerInfo.port}"
+                } else {
+                    ""
+                }
+            val url =
+                "http://${FailchatServerInfo.host.hostAddress}:${FailchatServerInfo.port}/chat/${skin.name}" +
                     optionalPortParam
 
             lastOpenedSkinUrl = url
@@ -143,25 +163,26 @@ class ChatFrame(
         }
 
         // Build items
-        fun Button.configureZoomButton(): Button = this.apply {
-            minHeight = 20.0
-            maxHeight = 20.0
-            minWidth = 20.0
-            maxWidth = 20.0
-            padding = Insets.EMPTY
-        }
+        fun Button.configureZoomButton(): Button =
+            this.apply {
+                minHeight = 20.0
+                maxHeight = 20.0
+                minWidth = 20.0
+                maxWidth = 20.0
+                padding = Insets.EMPTY
+            }
 
         val minusButton = Button("-").configureZoomButton()
         val plusButton = Button("+").configureZoomButton()
-        val zoomBox = HBox(Text("Zoom"), minusButton, zoomValueText, Text("%"), plusButton).apply {
-            alignment = Pos.CENTER_LEFT
-            padding = Insets(0.0, 0.0, 0.0, 15.0)
-        }
+        val zoomBox =
+            HBox(Text("Zoom"), minusButton, zoomValueText, Text("%"), plusButton).apply {
+                alignment = Pos.CENTER_LEFT
+                padding = Insets(0.0, 0.0, 0.0, 15.0)
+            }
         val zoomItem = CustomMenuItem(zoomBox, false)
 
         val clearChatItem = MenuItem("Clear chat")
         val closeChatItem = MenuItem("Close chat")
-
 
         // Shortcuts
         switchDecorationsItem.accelerator = KeyCombination.valueOf(switchDecorationsKey.name)
@@ -173,11 +194,19 @@ class ChatFrame(
         closeChatItem.accelerator = KeyCombination.valueOf(closeChatKey.name)
 
         // Build context menu
-        val contextMenu = ContextMenu(
-                switchDecorationsItem, onTopItem, clickTransparencyItem, viewersItem, zoomItem, SeparatorMenuItem(),
-                clearChatItem, showHiddenMessages, SeparatorMenuItem(),
-                closeChatItem
-        )
+        val contextMenu =
+            ContextMenu(
+                switchDecorationsItem,
+                onTopItem,
+                clickTransparencyItem,
+                viewersItem,
+                zoomItem,
+                SeparatorMenuItem(),
+                clearChatItem,
+                showHiddenMessages,
+                SeparatorMenuItem(),
+                closeChatItem,
+            )
 
         // Show/hide context menu
         chatScene.setOnMouseClicked { mouseEvent ->
@@ -192,9 +221,7 @@ class ChatFrame(
         switchDecorationsItem.setOnAction { switchDecorations() }
         onTopItem.setOnAction { toggleOnTop() }
         clickTransparencyItem.setOnAction {
-            ctConfigurator?.let { ctf ->
-                toggleClickTransparency(ctf)
-            }
+            ctConfigurator?.let { ctf -> toggleClickTransparency(ctf) }
         }
         viewersItem.setOnAction { toggleShowViewersBar() }
         clearChatItem.setOnAction { guiEventHandler.value.handleClearChat() }
@@ -202,19 +229,29 @@ class ChatFrame(
         closeChatItem.setOnAction { guiEventHandler.value.handleStopChat() }
 
         // Zoom item callbacks
-        fun Button.configureZoomButtonCallback(elementNumberToGet: Int, filter: (Int, List<Int>) -> Boolean) = this.setOnAction {
-            val oldValue = config.getInt(ConfigKeys.zoomPercent)
-            val newValue = zoomValues.asSequence().windowed(2, 1)
-                    .find { filter.invoke(oldValue, it) }
-                    ?.get(elementNumberToGet)
-                    ?: kotlin.run {
-                        if (oldValue <= zoomValues.first()) zoomValues.first()
-                        else zoomValues.last()
-                    }
-            config.setProperty(ConfigKeys.zoomPercent, newValue)
-            guiEventHandler.value.handleConfigurationChange()
-            zoomValueText.text = newValue.toString()
-        }
+        fun Button.configureZoomButtonCallback(
+            elementNumberToGet: Int,
+            filter: (Int, List<Int>) -> Boolean,
+        ) =
+            this.setOnAction {
+                val oldValue = config.getInt(ConfigKeys.zoomPercent)
+                val newValue =
+                    zoomValues
+                        .asSequence()
+                        .windowed(2, 1)
+                        .find { filter.invoke(oldValue, it) }
+                        ?.get(elementNumberToGet)
+                        ?: kotlin.run {
+                            if (oldValue <= zoomValues.first()) {
+                                zoomValues.first()
+                            } else {
+                                zoomValues.last()
+                            }
+                        }
+                config.setProperty(ConfigKeys.zoomPercent, newValue)
+                guiEventHandler.value.handleConfigurationChange()
+                zoomValueText.text = newValue.toString()
+            }
 
         minusButton.configureZoomButtonCallback(0) { oldValue, range ->
             oldValue in (range[0] + 1)..range[1]
@@ -234,14 +271,17 @@ class ChatFrame(
         webEngine.loadWorker.stateProperty().addListener { _, _, _ ->
             val window = webEngine.executeScript("window") as JSObject
             window.setMember("javaLogger", WebViewLogger)
-            webEngine.executeScript("""
+            webEngine.executeScript(
+                """
                 console.log = function (message) {
                     javaLogger.log(message.toString())
                 };
                 console.error = function (message) {
                     javaLogger.error(message.toString())
                 };
-            """.trimIndent())
+                """
+                    .trimIndent()
+            )
         }
 
         // hot keys
@@ -251,17 +291,36 @@ class ChatFrame(
             }
 
             when (key.code) {
-                switchDecorationsKey -> switchDecorations()
-                onTopKey -> onTopItem.isSelected = toggleOnTop()
+                switchDecorationsKey -> {
+                    switchDecorations()
+                }
+
+                onTopKey -> {
+                    onTopItem.isSelected = toggleOnTop()
+                }
+
                 clickTransparencyKey -> {
                     ctConfigurator?.let {
                         clickTransparencyItem.isSelected = toggleClickTransparency(it)
                     }
                 }
-                viewersKey -> viewersItem.isSelected = toggleShowViewersBar()
-                clearChatKey -> guiEventHandler.value.handleClearChat()
-                showHiddenMessagesKey -> showHiddenMessages.isSelected = toggleShowHiddenMessages()
-                closeChatKey -> guiEventHandler.value.handleStopChat()
+
+                viewersKey -> {
+                    viewersItem.isSelected = toggleShowViewersBar()
+                }
+
+                clearChatKey -> {
+                    guiEventHandler.value.handleClearChat()
+                }
+
+                showHiddenMessagesKey -> {
+                    showHiddenMessages.isSelected = toggleShowHiddenMessages()
+                }
+
+                closeChatKey -> {
+                    guiEventHandler.value.handleStopChat()
+                }
+
                 else -> {}
             }
         }
@@ -287,17 +346,18 @@ class ChatFrame(
 
     private fun switchDecorations() {
         val fromStage = currentStage
-        val toStage = if (fromStage === decoratedStage) {
-            config.setProperty(ConfigKeys.frame, false)
-            switchDecorationsItem.isSelected = false
-            chatScene.fill = Color.TRANSPARENT
-            transparentStage
-        } else {
-            config.setProperty(ConfigKeys.frame, true)
-            switchDecorationsItem.isSelected = true
-            chatScene.fill = Color.BLACK
-            decoratedStage
-        }
+        val toStage =
+            if (fromStage === decoratedStage) {
+                config.setProperty(ConfigKeys.frame, false)
+                switchDecorationsItem.isSelected = false
+                chatScene.fill = Color.TRANSPARENT
+                transparentStage
+            } else {
+                config.setProperty(ConfigKeys.frame, true)
+                switchDecorationsItem.isSelected = true
+                chatScene.fill = Color.BLACK
+                decoratedStage
+            }
 
         saveChatPosition(fromStage)
         hideChatStage(fromStage)
@@ -388,7 +448,6 @@ class ChatFrame(
         val newValue = config.invertBoolean(ConfigKeys.showViewers)
         guiEventHandler.value.handleConfigurationChange()
         return newValue
-
     }
 
     private fun toggleShowHiddenMessages(): Boolean {
@@ -396,5 +455,4 @@ class ChatFrame(
         guiEventHandler.value.handleConfigurationChange()
         return newValue
     }
-
 }

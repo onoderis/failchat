@@ -1,18 +1,15 @@
 package failchat.gui
 
 import failchat.skin.Skin
-import org.junit.Test
 import java.nio.file.Paths
 import kotlin.test.assertEquals
+import org.junit.Test
 
 class SkinConverterTest {
-
     private val skinOne = Skin("one", Paths.get("/skins/one.html"))
 
-    private val skinConverter = SkinConverter(listOf(
-            skinOne,
-            Skin("two", Paths.get("/skins/two.html"))
-    ))
+    private val skinConverter =
+        SkinConverter(listOf(skinOne, Skin("two", Paths.get("/skins/two.html"))))
 
     @Test
     fun defaultSkinTest() {
@@ -20,5 +17,4 @@ class SkinConverterTest {
 
         assertEquals(skinOne, s)
     }
-
 }

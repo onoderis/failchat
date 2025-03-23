@@ -4,10 +4,8 @@ import failchat.chat.MessageHandler
 import failchat.util.notEmptyOrNull
 import mu.KotlinLogging
 
-class TwitchEmoticonHandler(
-        private val twitchEmotesTagParser: TwitchEmotesTagParser
-) : MessageHandler<TwitchMessage> {
-
+class TwitchEmoticonHandler(private val twitchEmotesTagParser: TwitchEmotesTagParser) :
+    MessageHandler<TwitchMessage> {
     private companion object {
         val logger = KotlinLogging.logger {}
     }
@@ -18,8 +16,10 @@ class TwitchEmoticonHandler(
         try {
             replaceEmoteCodes(emotesTag, message)
         } catch (e: Exception) {
-            logger.warn(e) { "Failed to replace emoticon codes with element labels. emotes tag: '$emotesTag', " +
-                    "message text: '${message.text}'" }
+            logger.warn(e) {
+                "Failed to replace emoticon codes with element labels. emotes tag: '$emotesTag', " +
+                    "message text: '${message.text}'"
+            }
         }
     }
 
@@ -39,7 +39,5 @@ class TwitchEmoticonHandler(
         }
 
         message.text = sb.toString()
-
     }
-
 }

@@ -15,6 +15,11 @@ import failchat.chat.StatusUpdate
 import failchat.chat.findTyped
 import failchat.chat.handlers.BraceEscaper
 import failchat.chat.handlers.ElementLabelEscaper
+import java.nio.charset.Charset
+import java.time.Duration
+import java.util.concurrent.atomic.AtomicReference
+import java.util.regex.Pattern
+import kotlin.concurrent.thread
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.pircbotx.Configuration
@@ -27,43 +32,40 @@ import org.pircbotx.hooks.events.DisconnectEvent
 import org.pircbotx.hooks.events.ListenerExceptionEvent
 import org.pircbotx.hooks.events.MessageEvent
 import org.pircbotx.hooks.events.UnknownEvent
-import java.nio.charset.Charset
-import java.time.Duration
-import java.util.concurrent.atomic.AtomicReference
-import java.util.regex.Pattern
-import kotlin.concurrent.thread
 
 class TwitchChatClient(
-        private val userName: String,
-        ircAddress: String,
-        ircPort: Int,
-        botName: String,
-        botPassword: String,
-        twitchEmoticonHandler: TwitchEmoticonHandler,
-        private val messageIdGenerator: MessageIdGenerator,
-        bttvEmoticonHandler: BttvEmoticonHandler,
-        ffzEmoticonHandler: FfzEmoticonHandler,
-        sevenTvGlobalEmoticonHandler: MessageHandler<ChatMessage>,
-        sevenTvChannelEmoticonHandler: MessageHandler<ChatMessage>,
-        twitchBadgeHandler: TwitchBadgeHandler,
-        private val history: ChatMessageHistory,
-        override val callbacks: ChatClientCallbacks
+    private val userName: String,
+    ircAddress: String,
+    ircPort: Int,
+    botName: String,
+    botPassword: String,
+    twitchEmoticonHandler: TwitchEmoticonHandler,
+    private val messageIdGenerator: MessageIdGenerator,
+    bttvEmoticonHandler: BttvEmoticonHandler,
+    ffzEmoticonHandler: FfzEmoticonHandler,
+    sevenTvGlobalEmoticonHandler: MessageHandler<ChatMessage>,
+    sevenTvChannelEmoticonHandler: MessageHandler<ChatMessage>,
+    twitchBadgeHandler: TwitchBadgeHandler,
+    private val history: ChatMessageHistory,
+    override val callbacks: ChatClientCallbacks,
 ) : ChatClient {
-
     private companion object {
         val logger = KotlinLogging.logger {}
         val reconnectTimeout: Duration = Duration.ofSeconds(10)
-        val banMessagePattern: Pattern = Pattern.compile("""^:tmi\.twitch\.tv CLEARCHAT #.+ :(.+)""")
+        val banMessagePattern: Pattern =
+            Pattern.compile("""^:tmi\.twitch\.tv CLEARCHAT #.+ :(.+)""")
     }
 
     override val origin = Origin.TWITCH
-    override val status: ChatClientStatus get() = atomicStatus.get()
-
+    override val status: ChatClientStatus
+        get() = atomicStatus.get()
 
     private val twitchIrcClient: PircBotX
     private val serverEntries = listOf(Configuration.ServerEntry(ircAddress, ircPort))
-    private val atomicStatus: AtomicReference<ChatClientStatus> = AtomicReference(ChatClientStatus.READY)
-    private val messageHandlers: List<MessageHandler<TwitchMessage>> = listOf(
+    private val atomicStatus: AtomicReference<ChatClientStatus> =
+        AtomicReference(ChatClientStatus.READY)
+    private val messageHandlers: List<MessageHandler<TwitchMessage>> =
+        listOf(
             ElementLabelEscaper(),
             twitchEmoticonHandler,
             bttvEmoticonHandler,
@@ -75,18 +77,18 @@ class TwitchChatClient(
             TwitchRewardHandler(),
             TwitchHighlightByPointsHandler(),
             twitchBadgeHandler,
-            TwitchAuthorColorHandler()
-    )
-
+            TwitchAuthorColorHandler(),
+        )
 
     init {
-        val configuration = Configuration.Builder()
+        val configuration =
+            Configuration.Builder()
                 .setName(botName)
                 .setServerPassword(botPassword)
                 .setServers(serverEntries)
                 .addAutoJoinChannel("#" + userName.toLowerCase())
                 .addListener(TwitchIrcListener())
-//                .addCapHandler() //todo try out
+                //                .addCapHandler() //todo try out
                 .setSocketFactory(UtilSSLSocketFactory.getDefault())
                 .setAutoReconnect(false)
                 .setAutoReconnectDelay(reconnectTimeout.toMillis().toInt())
@@ -99,8 +101,10 @@ class TwitchChatClient(
     }
 
     override fun start() {
-        val statusChanged = atomicStatus.compareAndSet(ChatClientStatus.READY, ChatClientStatus.CONNECTED)
-        if (!statusChanged) throw IllegalStateException("Expected status: ${ChatClientStatus.READY}")
+        val statusChanged =
+            atomicStatus.compareAndSet(ChatClientStatus.READY, ChatClientStatus.CONNECTED)
+        if (!statusChanged)
+            throw IllegalStateException("Expected status: ${ChatClientStatus.READY}")
 
         thread(start = true, name = "TwitchIrcClientThread") {
             try {
@@ -117,7 +121,6 @@ class TwitchChatClient(
     }
 
     private inner class TwitchIrcListener : ListenerAdapter() {
-
         override fun onConnect(event: ConnectEvent) {
             logger.info("Connected to irc channel: {}", userName)
             atomicStatus.set(ChatClientStatus.CONNECTED)
@@ -129,7 +132,10 @@ class TwitchChatClient(
         override fun onDisconnect(event: DisconnectEvent) {
             when (atomicStatus.get()) {
                 ChatClientStatus.OFFLINE,
-                ChatClientStatus.ERROR -> return
+                ChatClientStatus.ERROR -> {
+                    return
+                }
+
                 else -> {
                     atomicStatus.set(ChatClientStatus.CONNECTING)
                     logger.info("Twitch irc client disconnected")
@@ -152,9 +158,7 @@ class TwitchChatClient(
             logger.warn("Listener exception", event.exception)
         }
 
-        /**
-         * Handle "/me" messages.
-         * */
+        /** Handle "/me" messages. */
         override fun onAction(event: ActionEvent) {
             val message = parseMeMessage(event)
             messageHandlers.forEach { it.handleMessage(message) }
@@ -171,37 +175,38 @@ class TwitchChatClient(
                 history.findTyped<TwitchMessage> { it.author.id.equals(author, ignoreCase = true) }
             }
 
-            messagesToDelete.forEach {
-                callbacks.onChatMessageDeleted(it)
-            }
+            messagesToDelete.forEach { callbacks.onChatMessageDeleted(it) }
         }
     }
 
     private fun parseOrdinaryMessage(event: MessageEvent): TwitchMessage {
-        val displayedName = event.v3Tags.get(TwitchIrcTags.displayName) //could return null (e.g. from twitchnotify)
+        val displayedName =
+            event.v3Tags.get(
+                TwitchIrcTags.displayName
+            ) // could return null (e.g. from twitchnotify)
         // Если пользователь не менял ник, то в v3tags пусто, ник capitalized
-        val author: String = if (displayedName.isNullOrEmpty()) {
-            event.userHostmask.nick.capitalize()
-        } else {
-            displayedName
-        }
+        val author: String =
+            if (displayedName.isNullOrEmpty()) {
+                event.userHostmask.nick.capitalize()
+            } else {
+                displayedName
+            }
 
         return TwitchMessage(
-                id = messageIdGenerator.generate(),
-                author = author,
-                text = event.message,
-                tags = event.v3Tags
+            id = messageIdGenerator.generate(),
+            author = author,
+            text = event.message,
+            tags = event.v3Tags,
         )
     }
 
     private fun parseMeMessage(event: ActionEvent): TwitchMessage {
         // todo emoticons, color
         return TwitchMessage(
-                id = messageIdGenerator.generate(),
-                author = event.userHostmask.nick,
-                text = event.message,
-                tags = mapOf()
+            id = messageIdGenerator.generate(),
+            author = event.userHostmask.nick,
+            text = event.message,
+            tags = mapOf(),
         )
     }
-
 }

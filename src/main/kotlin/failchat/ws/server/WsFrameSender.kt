@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 import mu.KotlinLogging
 
 class WsFrameSender {
-
     private companion object {
         val logger = KotlinLogging.logger {}
     }
@@ -32,10 +31,15 @@ class WsFrameSender {
                         watchForSessionToClose(session)
                     }
 
-                    is SessionClosed -> activeSessions.remove(message.session)
+                    is SessionClosed -> {
+                        activeSessions.remove(message.session)
+                    }
 
                     is Broadcast -> {
-                        logger.debug("Sending message to all websocket clients: {}", message.payload)
+                        logger.debug(
+                            "Sending message to all websocket clients: {}",
+                            message.payload,
+                        )
                         activeSessions.forEach { session ->
                             try {
                                 session.send(Frame.Text(message.payload))
@@ -73,8 +77,9 @@ class WsFrameSender {
 
     private sealed class ChannelMessage {
         class Broadcast(val payload: String) : ChannelMessage()
+
         class SessionOpened(val session: DefaultWebSocketServerSession) : ChannelMessage()
+
         class SessionClosed(val session: DefaultWebSocketServerSession) : ChannelMessage()
     }
-
 }

@@ -15,7 +15,10 @@ import failchat.util.enumMap
 import failchat.viewers.ViewersCountLoader
 import failchat.viewers.ViewersCounter
 import failchat.youtube.YoutubeViewersCountLoader
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
 import javafx.application.Platform
+import kotlin.concurrent.withLock
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -24,12 +27,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.apache.commons.configuration2.Configuration
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 class AppStateManager(private val deps: Dependencies) {
-
     private companion object {
         val logger = KotlinLogging.logger {}
     }
@@ -46,7 +45,8 @@ class AppStateManager(private val deps: Dependencies) {
     private val failchatEmoticonUpdater = deps.failchatEmoticonUpdater
     private val emoticonsDb = deps.emoticonsDb
     private val badgeManager = deps.badgeManager
-    private val backgroundExecutorDispatcher = deps.backgroundExecutorService.asCoroutineDispatcher()
+    private val backgroundExecutorDispatcher =
+        deps.backgroundExecutorService.asCoroutineDispatcher()
     private val originStatusManager = deps.originStatusManager
     private val deletedMessagePlaceholderFactory = deps.deletedMessagePlaceholderFactory
     private val messageSender = deps.chatMessageSender
@@ -60,160 +60,187 @@ class AppStateManager(private val deps: Dependencies) {
 
     private var state: AppState = SETTINGS
 
-    fun startChat(): Unit = lock.withLock {
-        if (state != SETTINGS) {
-            throw IllegalStateException("Expected: $SETTINGS, actual: $state")
-        }
-        state = CHAT
+    fun startChat(): Unit =
+        lock.withLock {
+            if (state != SETTINGS) {
+                throw IllegalStateException("Expected: $SETTINGS, actual: $state")
+            }
+            state = CHAT
 
-        val viewersCountLoaders: MutableList<ViewersCountLoader> = ArrayList()
-        val initializedChatClients: MutableMap<Origin, ChatClient> = enumMap()
-        val channelEmoticonsJobs: MutableList<Job> = ArrayList()
+            val viewersCountLoaders: MutableList<ViewersCountLoader> = ArrayList()
+            val initializedChatClients: MutableMap<Origin, ChatClient> = enumMap()
+            val channelEmoticonsJobs: MutableList<Job> = ArrayList()
 
-        // Twitch
-        checkEnabled(TWITCH)?.let { channelName ->
-            val chatClient = deps.twitchChatClient.invoke(channelName)
-            initializedChatClients.put(TWITCH, chatClient)
-            viewersCountLoaders.add(deps.twitchViewersCountLoader.invoke(channelName))
+            // Twitch
+            checkEnabled(TWITCH)?.let { channelName ->
+                val chatClient = deps.twitchChatClient.invoke(channelName)
+                initializedChatClients.put(TWITCH, chatClient)
+                viewersCountLoaders.add(deps.twitchViewersCountLoader.invoke(channelName))
 
-            val channelId = try {
-                runBlocking { twitchApiClient.getUserId(channelName) }
-            } catch (e: Exception) {
-                logger.warn("Failed to get twitch channel info. channel name: {}", channelName, e)
-                return@let
+                val channelId =
+                    try {
+                        runBlocking { twitchApiClient.getUserId(channelName) }
+                    } catch (e: Exception) {
+                        logger.warn(
+                            "Failed to get twitch channel info. channel name: {}",
+                            channelName,
+                            e,
+                        )
+                        return@let
+                    }
+
+                // load channel badges in background
+                CoroutineScope(
+                        backgroundExecutorDispatcher +
+                            CoroutineName("TwitchBadgeLoader") +
+                            CoroutineExceptionLogger
+                    )
+                    .launch { badgeManager.loadTwitchChannelBadges(channelId) }
+
+                // load BTTV/FFZ/7tv channel emoticons in background
+                channelEmoticonsJobs +=
+                    CoroutineScope(backgroundExecutorDispatcher).launch {
+                        try {
+                            channelEmoticonUpdater.updateBttvEmoticons(channelName)
+                        } catch (t: Throwable) {
+                            logger.error(
+                                "Failed to load BTTV emoticons for channel '{}'",
+                                channelName,
+                                t,
+                            )
+                        }
+                    }
+
+                channelEmoticonsJobs +=
+                    CoroutineScope(backgroundExecutorDispatcher).launch {
+                        try {
+                            channelEmoticonUpdater.updateFfzEmoticons(channelName)
+                        } catch (t: Throwable) {
+                            logger.error(
+                                "Failed to load FrankerFaceZ emoticons for channel '{}'",
+                                channelName,
+                                t,
+                            )
+                        }
+                    }
+
+                channelEmoticonsJobs +=
+                    CoroutineScope(backgroundExecutorDispatcher).launch {
+                        try {
+                            channelEmoticonUpdater.update7tvEmoticons(channelId)
+                        } catch (t: Throwable) {
+                            logger.error(
+                                "Failed to load 7tv emoticons for channel '{}'",
+                                channelName,
+                                t,
+                            )
+                        }
+                    }
             }
 
-            // load channel badges in background
-            CoroutineScope(backgroundExecutorDispatcher + CoroutineName("TwitchBadgeLoader") + CoroutineExceptionLogger).launch {
-                badgeManager.loadTwitchChannelBadges(channelId)
+            // Goodgame
+            checkEnabled(GOODGAME)?.let { channelName ->
+                // get channel id by channel name
+                val channel =
+                    try {
+                        runBlocking { goodgameApiClient.requestChannelInfo(channelName) }
+                    } catch (e: Exception) {
+                        logger.warn(
+                            "Failed to get goodgame channel info. channel name: {}",
+                            channelName,
+                            e,
+                        )
+                        return@let
+                    }
+
+                val chatClient = deps.ggChatClient.invoke(channel)
+
+                initializedChatClients.put(GOODGAME, chatClient)
+
+                val counter = deps.ggViewersCountLoader.invoke(channelName)
+                viewersCountLoaders.add(counter)
             }
 
-            // load BTTV/FFZ/7tv channel emoticons in background
-            channelEmoticonsJobs += CoroutineScope(backgroundExecutorDispatcher).launch {
+            // Youtube
+            checkEnabled(YOUTUBE)?.let { videoId ->
+                val chatClient = deps.youtubeChatClient.invoke(videoId)
+                initializedChatClients.put(YOUTUBE, chatClient)
+                viewersCountLoaders.add(YoutubeViewersCountLoader(videoId, deps.youtubeClient))
+            }
+
+            ignoreFilter.reloadConfig()
+            imageLinkHandler.replaceImageLinks = config.getBoolean(ConfigKeys.showImages)
+
+            // Start chat clients
+            chatClients = initializedChatClients
+            chatClients.values.forEach {
                 try {
-                    channelEmoticonUpdater.updateBttvEmoticons(channelName)
+                    it.start()
                 } catch (t: Throwable) {
-                    logger.error("Failed to load BTTV emoticons for channel '{}'", channelName, t)
+                    logger.error("Failed to start ${it.origin} chat client", t)
                 }
             }
 
-            channelEmoticonsJobs += CoroutineScope(backgroundExecutorDispatcher).launch {
+            // Start viewers counter
+            viewersCounter =
                 try {
-                    channelEmoticonUpdater.updateFfzEmoticons(channelName)
+                    deps.viewersCounter.invoke(viewersCountLoaders).also { it.start() }
                 } catch (t: Throwable) {
-                    logger.error("Failed to load FrankerFaceZ emoticons for channel '{}'", channelName, t)
+                    logger.error("Failed to start viewers counter", t)
+                    null
                 }
-            }
 
-            channelEmoticonsJobs += CoroutineScope(backgroundExecutorDispatcher).launch {
-                try {
-                    channelEmoticonUpdater.update7tvEmoticons(channelId)
-                } catch (t: Throwable) {
-                    logger.error("Failed to load 7tv emoticons for channel '{}'", channelName, t)
-                }
-            }
-        }
+            viewersCountWsHandler.viewersCounter = viewersCounter
 
-
-        // Goodgame
-        checkEnabled(GOODGAME)?.let { channelName ->
-            // get channel id by channel name
-            val channel = try {
-                runBlocking { goodgameApiClient.requestChannelInfo(channelName) }
-            } catch (e: Exception) {
-                logger.warn("Failed to get goodgame channel info. channel name: {}", channelName, e)
-                return@let
-            }
-
-            val chatClient = deps.ggChatClient.invoke(channel)
-
-            initializedChatClients.put(GOODGAME, chatClient)
-
-            val counter = deps.ggViewersCountLoader.invoke(channelName)
-            viewersCountLoaders.add(counter)
-        }
-
-
-        // Youtube
-        checkEnabled(YOUTUBE)?.let { videoId ->
-            val chatClient = deps.youtubeChatClient.invoke(videoId)
-            initializedChatClients.put(YOUTUBE, chatClient)
-            viewersCountLoaders.add(YoutubeViewersCountLoader(videoId, deps.youtubeClient))
-        }
-
-
-        ignoreFilter.reloadConfig()
-        imageLinkHandler.replaceImageLinks = config.getBoolean(ConfigKeys.showImages)
-
-        // Start chat clients
-        chatClients = initializedChatClients
-        chatClients.values.forEach {
-            try {
-                it.start()
-            } catch (t: Throwable) {
-                logger.error("Failed to start ${it.origin} chat client", t)
-            }
-        }
-
-        // Start viewers counter
-        viewersCounter = try {
-            deps.viewersCounter
-                .invoke(viewersCountLoaders)
-                .also { it.start() }
-        } catch (t: Throwable) {
-            logger.error("Failed to start viewers counter", t)
-            null
-        }
-
-        viewersCountWsHandler.viewersCounter = viewersCounter
-
-        // Save config
-        configLoader.save()
-
-        updateDeletedMessagePlaceholder(channelEmoticonsJobs)
-    }
-
-    fun stopChat(): Unit = lock.withLock {
-        if (state != CHAT) {
-            throw IllegalStateException("Expected: $CHAT, actual: $state")
-        }
-        state = SETTINGS
-
-        reset()
-
-        // Save config
-        configLoader.save()
-    }
-
-    fun shutDown(guiEnabled: Boolean): Unit = lock.withLock {
-        logger.info("Shutting down")
-
-        try {
-            emoticonsDb.close()
-            logger.info("Emoticons db was closed")
-        } catch (t: Throwable) {
-            logger.error("Failed to close emoticons db during a shutdown", t)
-        }
-
-        try {
-            config.setProperty("lastMessageId", messageIdGenerator.lastId)
+            // Save config
             configLoader.save()
-        } catch (t: Throwable) {
-            logger.error("Failed to save config during a shutdown", t)
+
+            updateDeletedMessagePlaceholder(channelEmoticonsJobs)
         }
 
-        try {
-            deps.chatHistoryWriter.close()
-        } catch (t: Throwable) {
-            logger.error("Failed to close chat history writer", t)
+    fun stopChat(): Unit =
+        lock.withLock {
+            if (state != CHAT) {
+                throw IllegalStateException("Expected: $CHAT, actual: $state")
+            }
+            state = SETTINGS
+
+            reset()
+
+            // Save config
+            configLoader.save()
         }
 
-        // prevent shutdown hook from locking on System.exit()
-        if (guiEnabled) {
-            Platform.exit()
-            System.exit(0)
+    fun shutDown(guiEnabled: Boolean): Unit =
+        lock.withLock {
+            logger.info("Shutting down")
+
+            try {
+                emoticonsDb.close()
+                logger.info("Emoticons db was closed")
+            } catch (t: Throwable) {
+                logger.error("Failed to close emoticons db during a shutdown", t)
+            }
+
+            try {
+                config.setProperty("lastMessageId", messageIdGenerator.lastId)
+                configLoader.save()
+            } catch (t: Throwable) {
+                logger.error("Failed to save config during a shutdown", t)
+            }
+
+            try {
+                deps.chatHistoryWriter.close()
+            } catch (t: Throwable) {
+                logger.error("Failed to close chat history writer", t)
+            }
+
+            // prevent shutdown hook from locking on System.exit()
+            if (guiEnabled) {
+                Platform.exit()
+                System.exit(0)
+            }
         }
-    }
 
     private fun reset() {
         viewersCountWsHandler.viewersCounter = null
@@ -234,19 +261,20 @@ class AppStateManager(private val deps: Dependencies) {
             }
         }
 
-        // Значение может быть null если вызваны handleShutDown() и handleStopChat() последовательно, в любой последовательности,
+        // Значение может быть null если вызваны handleShutDown() и handleStopChat()
+        // последовательно, в
+        // любой последовательности,
         // либо если приложение было закрыто без запуска чата.
         viewersCounter?.stop()
     }
 
-    /**
-     * @return channel name if chat client should be started, null otherwise.
-     * */
+    /** @return channel name if chat client should be started, null otherwise. */
     private fun checkEnabled(origin: Origin): String? {
         if (!config.getBoolean("${origin.commonName}.enabled")) return null
 
-        val channel = config.getString("${origin.commonName}.channel")
-            ?: throw InvalidConfigurationException("Channel is null. Origin: $origin")
+        val channel =
+            config.getString("${origin.commonName}.channel")
+                ?: throw InvalidConfigurationException("Channel is null. Origin: $origin")
         if (channel.isEmpty()) return null
 
         return channel
@@ -265,5 +293,4 @@ class AppStateManager(private val deps: Dependencies) {
             messageSender.sendClientConfiguration()
         }
     }
-
 }

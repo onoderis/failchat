@@ -4,7 +4,6 @@ import failchat.Origin
 import kotlinx.coroutines.flow.Flow
 
 interface OriginEmoticonStorage {
-
     val origin: Origin
 
     fun findByCode(code: String): Emoticon?
@@ -22,5 +21,3 @@ interface OriginEmoticonStorage {
 
     fun clear()
 }
-
-

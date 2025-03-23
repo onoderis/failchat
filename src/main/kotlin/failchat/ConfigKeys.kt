@@ -1,8 +1,7 @@
 package failchat
 
 object ConfigKeys {
-
-    //todo use properties from here
+    // todo use properties from here
 
     object Goodgame {
         const val enabled = "goodgame.enabled"
@@ -64,5 +63,4 @@ object ConfigKeys {
     const val frankerfacezApiUrl = "frankerfacez.api-url"
 
     fun lastUpdatedEmoticons(origin: Origin): String = "${origin.commonName}.emoticons.last-updated"
-
 }

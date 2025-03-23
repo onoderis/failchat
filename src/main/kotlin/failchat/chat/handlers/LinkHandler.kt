@@ -6,7 +6,6 @@ import failchat.chat.MessageHandler
 import failchat.util.urlPattern
 
 class LinkHandler : MessageHandler<ChatMessage> {
-
     override fun handleMessage(message: ChatMessage) {
         val matcher = urlPattern.matcher(message.text)
         while (matcher.find()) {
@@ -17,5 +16,4 @@ class LinkHandler : MessageHandler<ChatMessage> {
             matcher.reset(message.text)
         }
     }
-
 }

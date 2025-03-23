@@ -10,20 +10,23 @@ import org.mapdb.Serializer
 import org.mapdb.serializer.GroupSerializer
 
 class EmoticonCodeIdDbStorage(
-        db: DB,
-        override val origin: Origin,
-        private val caseSensitiveCode: Boolean
+    db: DB,
+    override val origin: Origin,
+    private val caseSensitiveCode: Boolean,
 ) : OriginEmoticonStorage {
-
     private val codeToId: HTreeMap<String, String>
     private val idToEmoticon: HTreeMap<String, Emoticon>
 
     init {
-        codeToId = db
-                .hashMap(origin.commonName + "-codeToId", Serializer.STRING, Serializer.STRING)
+        codeToId =
+            db.hashMap(origin.commonName + "-codeToId", Serializer.STRING, Serializer.STRING)
                 .createOrOpen()
-        idToEmoticon = db
-                .hashMap(origin.commonName + "-idToEmoticon", Serializer.STRING, Serializer.JAVA as GroupSerializer<Emoticon>)
+        idToEmoticon =
+            db.hashMap(
+                    origin.commonName + "-idToEmoticon",
+                    Serializer.STRING,
+                    Serializer.JAVA as GroupSerializer<Emoticon>,
+                )
                 .createOrOpen()
     }
 
@@ -33,36 +36,23 @@ class EmoticonCodeIdDbStorage(
         return idToEmoticon.get(id)
     }
 
-    override fun findById(id: String): Emoticon? {
-        return idToEmoticon.get(id)
-    }
+    override fun findById(id: String): Emoticon? = idToEmoticon.get(id)
 
-    override fun getAll(): Collection<Emoticon> {
-        return idToEmoticon.values.filterNotNull()
-    }
+    override fun getAll(): Collection<Emoticon> = idToEmoticon.values.filterNotNull()
 
-    override fun count(): Int {
-        return idToEmoticon.size
-    }
+    override fun count(): Int = idToEmoticon.size
 
     override fun putAll(emoticons: Collection<EmoticonAndId>) {
-        emoticons.forEach {
-            putEmoticon(it)
-        }
+        emoticons.forEach { putEmoticon(it) }
     }
 
     override fun putAll(emoticons: Flow<EmoticonAndId>) {
-        runBlocking {
-            emoticons.collect {
-                putEmoticon(it)
-            }
-        }
+        runBlocking { emoticons.collect { putEmoticon(it) } }
     }
 
     private fun putEmoticon(emoticonAndId: EmoticonAndId) {
-        val code = emoticonAndId.emoticon.code.let { c ->
-            if (caseSensitiveCode) c else c.toLowerCase()
-        }
+        val code =
+            emoticonAndId.emoticon.code.let { c -> if (caseSensitiveCode) c else c.toLowerCase() }
 
         idToEmoticon.put(emoticonAndId.id, emoticonAndId.emoticon)
         codeToId.put(code, emoticonAndId.id)

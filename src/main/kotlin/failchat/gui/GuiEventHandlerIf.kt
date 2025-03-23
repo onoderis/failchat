@@ -1,7 +1,6 @@
 package failchat.gui
 
 interface GuiEventHandler {
-
     fun handleStartChat()
 
     fun handleStopChat()
@@ -17,6 +16,4 @@ interface GuiEventHandler {
     fun notifyEmoticonsAreLoading()
 
     fun notifyEmoticonsLoaded()
-
 }
-

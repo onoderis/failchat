@@ -1,9 +1,9 @@
 package failchat
 
 import failchat.emoticon.OriginEmoticonStorageFactory
-import org.apache.commons.configuration2.Configuration
 import java.nio.file.Path
 import java.nio.file.Paths
+import org.apache.commons.configuration2.Configuration
 
 fun Configuration.resetEmoticonsUpdatedTime() {
     OriginEmoticonStorageFactory.dbOrigins.forEach {
@@ -17,4 +17,5 @@ val failchatEmoticonsDirectory: Path = failchatHomePath.resolve("failchat-emotic
 val emoticonCacheDirectory: Path = workingDirectory.resolve("emoticons")
 val emoticonDbFile: Path = emoticonCacheDirectory.resolve("emoticons.db")
 
-val failchatEmoticonsUrl = "http://${FailchatServerInfo.host.hostAddress}:${FailchatServerInfo.port}/emoticons/"
+val failchatEmoticonsUrl =
+    "http://${FailchatServerInfo.host.hostAddress}:${FailchatServerInfo.port}/emoticons/"

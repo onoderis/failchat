@@ -7,10 +7,6 @@ import failchat.ws.client.WsClient.Status.ERROR
 import failchat.ws.client.WsClient.Status.READY
 import failchat.ws.client.WsClient.Status.SHUTDOWN
 import failchat.ws.client.WsClient.Status.WORKING
-import mu.KotlinLogging
-import org.java_websocket.client.WebSocketClient
-import org.java_websocket.drafts.Draft_6455
-import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicReference
@@ -19,12 +15,13 @@ import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
+import mu.KotlinLogging
+import org.java_websocket.client.WebSocketClient
+import org.java_websocket.drafts.Draft_6455
+import org.java_websocket.handshake.ServerHandshake
 
-/**
- * Web socket client with auto-reconnect feature.
- * */
+/** Web socket client with auto-reconnect feature. */
 open class WsClient(private val serverUri: URI) {
-
     private companion object {
         val logger = KotlinLogging.logger {}
         val requestHeaders = mapOf("Connection" to "Upgrade")
@@ -38,9 +35,7 @@ open class WsClient(private val serverUri: URI) {
     private var wsClient: WebSocketClient = Wsc()
 
     fun start() {
-        thread(start = true, name = "WsClientReconnectThread") {
-            tryReconnectLoop()
-        }
+        thread(start = true, name = "WsClientReconnectThread") { tryReconnectLoop() }
 
         logger.info("WsClient started. uri: {}", serverUri)
     }
@@ -71,31 +66,27 @@ open class WsClient(private val serverUri: URI) {
         while (status.get() != SHUTDOWN && status.get() != ERROR) {
             val connected = wsClient.connectBlocking()
             if (!connected) {
-                logger.warn("Failed to reconnect to {}, next try in {} ms", serverUri, reconnectInterval.toMillis())
+                logger.warn(
+                    "Failed to reconnect to {}, next try in {} ms",
+                    serverUri,
+                    reconnectInterval.toMillis(),
+                )
                 sleep(reconnectInterval)
                 wsClient = Wsc()
                 continue
             }
 
-            //connected
+            // connected
             logger.info("Reconnected to {}", serverUri)
-            lock.withLock {
-                reconnectCondition.await()
-            }
+            lock.withLock { reconnectCondition.await() }
 
-            //prepare to reconnect
+            // prepare to reconnect
             wsClient = Wsc()
         }
     }
 
-
-    private inner class Wsc : WebSocketClient(
-            this@WsClient.serverUri,
-            Draft_6455(),
-            requestHeaders,
-            0
-    ) {
-
+    private inner class Wsc :
+        WebSocketClient(this@WsClient.serverUri, Draft_6455(), requestHeaders, 0) {
         private val status: AtomicReference<Status> = this@WsClient.status
 
         override fun onOpen(serverHandshake: ServerHandshake) {
@@ -110,12 +101,19 @@ open class WsClient(private val serverUri: URI) {
         }
 
         override fun onClose(code: Int, reason: String, remote: Boolean) {
-            logger.debug("Connection closed. uri: '{}', code: '{}', reason: '{}'", serverUri, code, reason)
+            logger.debug(
+                "Connection closed. uri: '{}', code: '{}', reason: '{}'",
+                serverUri,
+                code,
+                reason,
+            )
 
             when (status.value) {
                 CONNECTING,
                 SHUTDOWN,
-                ERROR -> return
+                ERROR -> {
+                    return
+                }
 
                 WORKING -> {
                     status.set(CONNECTING)
@@ -146,7 +144,6 @@ open class WsClient(private val serverUri: URI) {
         WORKING,
         CONNECTING,
         ERROR,
-        SHUTDOWN
+        SHUTDOWN,
     }
-
 }
