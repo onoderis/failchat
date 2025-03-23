@@ -1,5 +1,6 @@
 target
 src/main/resources/config/private.properties
+integration
 
 #idea
 .idea/*
