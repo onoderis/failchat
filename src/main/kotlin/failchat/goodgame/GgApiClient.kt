@@ -1,7 +1,9 @@
 package failchat.goodgame
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import failchat.exception.UnexpectedResponseCodeException
 import failchat.exception.UnexpectedResponseException
 import failchat.util.await
@@ -68,9 +70,9 @@ class GgApiClient(
         if (!matcher.find())
             throw UnexpectedResponseException("Couldn't find goodgame global emoticons array")
 
-        val emoticonsNode = objectMapper.readTree(matcher.group(1))
+        val emoticonDtos = objectMapper.readValue<List<EmoticonDto>>(matcher.group(1))
 
-        return emoticonsNode.map { parseEmoticonNode(it) }
+        return emoticonDtos.map { toGgEmoticon(it) }
     }
 
     private fun parseChannelEmoticons(content: String): List<GgEmoticon> {
@@ -78,22 +80,25 @@ class GgApiClient(
         if (!matcher.find())
             throw UnexpectedResponseException("Couldn't find goodgame channel emoticons array")
 
-        val channelEmoticonsNode = objectMapper.readTree(matcher.group(1))
+        val channelEmoticonsDtoMap =
+            objectMapper.readValue<Map<String, List<EmoticonDto>>>(matcher.group(1))
 
-        return channelEmoticonsNode.map { it }.flatMap { it }.map { parseEmoticonNode(it) }
+        return channelEmoticonsDtoMap.map { it.value }.flatten().map { toGgEmoticon(it) }
     }
 
-    private fun parseEmoticonNode(node: JsonNode): GgEmoticon {
-        val code = node.get("name").asText()
-        val id = node.get("id").asLong()
-
-        val emoticon = GgEmoticon(code = code, url = node.get("img_big").asText(), ggId = id)
-
-        if (node.get("animated").booleanValue()) {
-            emoticon.animatedInstance =
-                GgEmoticon(code = code, url = node.get("img_gif").asText(), ggId = id)
-        }
-
-        return emoticon
+    private fun toGgEmoticon(dto: EmoticonDto): GgEmoticon {
+        return GgEmoticon(
+            code = dto.name,
+            url = if (dto.animated) dto.imgGif else dto.imgBig,
+            ggId = dto.id,
+        )
     }
+
+    private data class EmoticonDto(
+        val id: Long,
+        val name: String,
+        val animated: Boolean,
+        @JsonProperty("img_big") val imgBig: String,
+        @JsonProperty("img_gif") val imgGif: String,
+    )
 }

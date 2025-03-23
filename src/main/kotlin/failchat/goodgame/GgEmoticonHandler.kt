@@ -14,10 +14,7 @@ class GgEmoticonHandler(private val emoticonFinder: EmoticonFinder) : MessageHan
                     emoticonFinder.findByCode(GOODGAME, code) as? GgEmoticon
                         ?: return@process ReplaceDecision.Skip
 
-                // prefer animated emoticons even for non-premium users
-                val emoticonToAdd = emoticon.animatedInstance ?: emoticon
-
-                val label = message.addElement(emoticonToAdd)
+                val label = message.addElement(emoticon)
                 return@process ReplaceDecision.Replace(label)
             }
     }
