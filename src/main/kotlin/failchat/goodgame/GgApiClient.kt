@@ -89,7 +89,7 @@ class GgApiClient(
     private fun toGgEmoticon(dto: EmoticonDto): GgEmoticon {
         return GgEmoticon(
             code = dto.name,
-            url = if (dto.animated) dto.imgGif else dto.imgBig,
+            url = if (dto.animated == "1") dto.imgGif else dto.imgBig,
             ggId = dto.id,
         )
     }
@@ -97,7 +97,7 @@ class GgApiClient(
     private data class EmoticonDto(
         val id: Long,
         val name: String,
-        val animated: Boolean,
+        val animated: String, // "1" for animated, "0" for static
         @JsonProperty("img_big") val imgBig: String,
         @JsonProperty("img_gif") val imgGif: String,
     )
