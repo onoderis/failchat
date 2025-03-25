@@ -41,8 +41,6 @@
         <wiremock.version>2.27.2</wiremock.version>
         <kotest.version>4.3.2</kotest.version>
         <mockk.version>1.10.5</mockk.version>
-
-        <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
     </properties>
 
 
@@ -322,8 +320,9 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven-resources-plugin.version}</version>
+                <version>3.0.2</version>
                 <executions>
                     <execution>
                         <id>default-resources</id>
@@ -400,6 +399,28 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>make-executable</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <chmod file="${project.build.directory}/${failchat.artifactName}/failchat.sh"
+                                       perm="755"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
             <!-- maven-shade-plugin requires base artifact to generate uber jar-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -474,6 +495,7 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
                 <executions>
@@ -579,6 +601,7 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.7.1</version>
                 <executions>
